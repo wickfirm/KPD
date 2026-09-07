@@ -38,6 +38,7 @@ See `.env.example`. Key vars:
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Bootstrap admin (used only when users table is empty) |
 | `SALESFORCE_*` | Salesforce dual-write credentials (client provides) |
 | `CRON_SECRET` | Shared secret for `/api/cron/rss-ingest` |
+| `R2_*` | Cloudflare R2 asset storage (bucket + API token + public base URL) |
 
 ## Deploy to Vercel
 
