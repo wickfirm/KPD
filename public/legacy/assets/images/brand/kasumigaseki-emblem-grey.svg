@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 1698.45 1857.93">
+  <!-- Generator: Adobe Illustrator 30.0.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 123)  -->
+  <defs>
+    <style>
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8 {
+        fill: none;
+      }
+
+      .st1 {
+        stroke-width: 92.31px;
+      }
+
+      .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8 {
+        stroke: #818184;
+        stroke-miterlimit: 10;
+      }
+
+      .st2 {
+        stroke-width: 62.77px;
+      }
+
+      .st3 {
+        stroke-width: 39.56px;
+      }
+
+      .st4 {
+        stroke-width: 36.38px;
+      }
+
+      .st5 {
+        stroke-width: 33.08px;
+      }
+
+      .st6 {
+        stroke-width: 27.2px;
+      }
+
+      .st7 {
+        stroke-width: 49.61px;
+      }
+
+      .st8 {
+        stroke-width: 25.11px;
+      }
+
+      .st9 {
+        clip-path: url(#clippath-1);
+      }
+
+      .st10 {
+        clip-path: url(#clippath);
+      }
+    </style>
+    <clipPath id="clippath">
+      <polygon class="st0" points="849.16 943.52 70.97 1359.58 70.97 499.14 849.16 54.75 1627.48 499.22 849.16 943.52"/>
+    </clipPath>
+    <clipPath id="clippath-1">
+      <polygon class="st0" points="849.16 1803.18 70.97 1358.79 70.97 499.14 849.16 914.41 1627.48 1358.88 849.16 1803.18"/>
+    </clipPath>
+  </defs>
+  <g class="st10">
+    <line class="st8" x1="849.16" y1="1799.85" x2="849.16" y2="44.58"/>
+    <line class="st8" x1="742.43" y1="1656.39" x2="742.43" y2="-59.97"/>
+    <line class="st6" x1="635.7" y1="1600.72" x2="635.7" y2="8.21"/>
+    <line class="st5" x1="528.97" y1="1545.04" x2="528.98" y2="65.11"/>
+    <line class="st5" x1="420.9" y1="1480.82" x2="420.9" y2="113.46"/>
+    <line class="st4" x1="314.97" y1="1605.33" x2="314.97" y2="45.62"/>
+    <line class="st7" x1="209.69" y1="1545.26" x2="209.7" y2="125.48"/>
+    <line class="st8" x1="955.82" y1="1656.39" x2="955.82" y2="-87.13"/>
+    <line class="st6" x1="1062.49" y1="1599.84" x2="1062.49" y2="-17.86"/>
+    <line class="st5" x1="1169.15" y1="1543.28" x2="1169.15" y2="39.94"/>
+    <line class="st4" x1="1275.81" y1="1486.73" x2="1275.81" y2="97.74"/>
+    <line class="st4" x1="1382.47" y1="1430.17" x2="1382.47" y2="141.13"/>
+    <line class="st3" x1="1489.14" y1="1373.62" x2="1489.13" y2="196.96"/>
+    <line class="st1" x1="1613.58" y1="1337.75" x2="1613.57" y2="459.3"/>
+    <line class="st7" x1="96.28" y1="1346.18" x2="96.28" y2="467.73"/>
+  </g>
+  <g class="st9">
+    <line class="st2" x1="849.16" y1="2603.78" x2="849.16" y2="848.51"/>
+    <line class="st2" x1="742.43" y1="2516.05" x2="742.43" y2="611.13"/>
+    <line class="st2" x1="635.7" y1="2454.26" x2="635.7" y2="686.81"/>
+    <line class="st2" x1="528.97" y1="2216.02" x2="528.98" y2="573.51"/>
+    <line class="st2" x1="422.25" y1="2067.27" x2="422.25" y2="549.7"/>
+    <line class="st2" x1="315.52" y1="1919.19" x2="315.52" y2="526.56"/>
+    <line class="st2" x1="208.79" y1="1757.48" x2="208.79" y2="489.8"/>
+    <line class="st2" x1="102.06" y1="1749.06" x2="102.06" y2="481.38"/>
+    <line class="st8" x1="958.36" y1="2263.1" x2="958.36" y2="788.87"/>
+    <line class="st6" x1="1064.52" y1="2215.28" x2="1064.52" y2="847.44"/>
+    <line class="st5" x1="1170.67" y1="2167.46" x2="1170.67" y2="896.31"/>
+    <line class="st4" x1="1276.83" y1="2119.64" x2="1276.83" y2="945.19"/>
+    <line class="st4" x1="1382.98" y1="2071.82" x2="1382.98" y2="981.87"/>
+    <line class="st3" x1="1489.14" y1="2024" x2="1489.14" y2="1029.08"/>
+    <line class="st1" x1="1613.58" y1="2200.05" x2="1613.57" y2="1321.6"/>
+  </g>
+</svg>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Seven X Seven Type A floor plan</title>
+  <desc id="desc">A clean architectural floor plan diagram for a two bedroom residence.</desc>
+  <rect width="1200" height="760" fill="#f7f7f7"/>
+  <g fill="none" stroke="#111" stroke-linecap="square" stroke-linejoin="miter">
+    <rect x="104" y="86" width="992" height="588" rx="18" stroke-width="10"/>
+    <path d="M104 414h274V86M378 414v260M378 414h268V86M646 414v260M646 414h450" stroke-width="8"/>
+    <path d="M104 252h274M646 252h224M870 86v328M870 252h226M792 414v260M104 548h274M646 548h446" stroke-width="5"/>
+    <path d="M378 414c0 64-44 104-98 104M646 414c0 68 46 108 102 108M870 252c-56 0-90-36-90-90" stroke-width="4"/>
+    <rect x="150" y="130" width="170" height="92" stroke-width="4"/>
+    <rect x="690" y="132" width="132" height="92" stroke-width="4"/>
+    <rect x="932" y="142" width="118" height="74" stroke-width="4"/>
+    <rect x="160" y="468" width="122" height="80" stroke-width="4"/>
+    <rect x="432" y="470" width="154" height="88" stroke-width="4"/>
+    <rect x="838" y="482" width="174" height="82" stroke-width="4"/>
+    <path d="M154 292h168M158 320h150M686 300h132M914 300h138M154 592h166M430 598h160M820 606h230" stroke-width="3" opacity=".55"/>
+  </g>
+  <g fill="#111" font-family="Arial, sans-serif" font-size="24" letter-spacing="3">
+    <text x="150" y="250">BEDROOM</text>
+    <text x="430" y="250">LIVING</text>
+    <text x="690" y="250">DINING</text>
+    <text x="916" y="250">SUITE</text>
+    <text x="154" y="590">BATH</text>
+    <text x="430" y="590">KITCHEN</text>
+    <text x="820" y="590">TERRACE</text>
+  </g>
+</svg>

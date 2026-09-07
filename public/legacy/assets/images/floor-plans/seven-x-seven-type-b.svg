@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Seven X Seven Type B floor plan</title>
+  <desc id="desc">A clean architectural floor plan diagram for a three bedroom corner residence.</desc>
+  <rect width="1200" height="760" fill="#f7f7f7"/>
+  <g fill="none" stroke="#111" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M112 112h760v118h214v420H112z" stroke-width="10"/>
+    <path d="M112 384h316V112M428 384v266M428 384h288V112M716 384v266M716 384h370M872 230v154" stroke-width="8"/>
+    <path d="M112 248h316M716 248h156M872 506h214M260 384v266M112 506h316M544 384v266" stroke-width="5"/>
+    <path d="M428 384c0 62-40 100-98 100M716 384c0 60 42 98 96 98M872 506c-52 0-86 34-86 82" stroke-width="4"/>
+    <rect x="158" y="152" width="188" height="72" stroke-width="4"/>
+    <rect x="482" y="152" width="168" height="74" stroke-width="4"/>
+    <rect x="920" y="276" width="120" height="86" stroke-width="4"/>
+    <rect x="154" y="440" width="82" height="122" stroke-width="4"/>
+    <rect x="300" y="452" width="76" height="116" stroke-width="4"/>
+    <rect x="600" y="460" width="76" height="120" stroke-width="4"/>
+    <rect x="834" y="548" width="156" height="64" stroke-width="4"/>
+    <path d="M154 284h210M478 286h186M910 406h132M154 608h236M590 616h116M826 632h204" stroke-width="3" opacity=".55"/>
+  </g>
+  <g fill="#111" font-family="Arial, sans-serif" font-size="24" letter-spacing="3">
+    <text x="156" y="282">PRIMARY</text>
+    <text x="478" y="282">LIVING</text>
+    <text x="910" y="404">BEDROOM</text>
+    <text x="154" y="606">BATH</text>
+    <text x="590" y="614">STORE</text>
+    <text x="826" y="630">BALCONY</text>
+  </g>
+</svg>

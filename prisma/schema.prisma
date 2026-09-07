@@ -1,0 +1,267 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// KPD Website & CMS Platform — Data Model
+// Scope ref: Service Agreement (ATC ↔ KPD), Clause 2 — Scope of Services
+//  - Ground-up custom CMS core (Users, signed-JWT sessions, audit fields)
+//  - Project module library (Full / Restricted profiles)
+//  - Salesforce dual-write integration (ContactSubmission → Salesforce Lead)
+//  - RSS moderation pipeline (RssItem: ingest → review → publish as Article)
+//  - Multi-language structure (English / Arabic / Japanese translations)
+// ─────────────────────────────────────────────────────────────────────────────
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Used by prisma db:push / migrate — must be the DIRECT (non-pooled)
+  // connection. On Supabase this is the "Session pooler"/direct string (port 5432).
+  directUrl = env("DIRECT_URL")
+}
+
+
+// ── CMS core ────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  EDITOR
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(EDITOR)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ── News & Blog (replaces assets/js/articles.js) ────────────────────────────
+
+enum ArticleKind {
+  NEWS
+  BLOG
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Article {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  kind            ArticleKind   @default(NEWS)
+  title           String
+  summary         String
+  body            Json // string[] of paragraphs
+  coverImage      String?
+  coverImageAlt   String?
+  status          ContentStatus @default(DRAFT)
+  publishedAt     DateTime?
+  sourceRssItemId String?       @unique
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  sourceRssItem RssItem? @relation(fields: [sourceRssItemId], references: [id])
+  translations  ArticleTranslation[]
+
+  @@index([kind, status, publishedAt])
+  @@map("articles")
+}
+
+/// Per-locale content. `locale`: "en" | "ar" | "ja".
+/// Arabic/Japanese content is supplied by the client (Clause 3).
+model ArticleTranslation {
+  id        String  @id @default(cuid())
+  articleId String
+  locale    String
+  title     String
+  summary   String
+  body      Json
+
+  article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@unique([articleId, locale])
+  @@map("article_translations")
+}
+
+// ── Developments / Project module library ───────────────────────────────────
+
+/// FULL       → public marketing profile of a development
+/// RESTRICTED → gated profile (e.g. investor / private-preview access)
+enum ProjectProfile {
+  FULL
+  RESTRICTED
+}
+
+model Project {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  name        String
+  tagline     String?
+  description String?
+  profile     ProjectProfile @default(FULL)
+  status      ContentStatus  @default(DRAFT)
+  heroImage   String?
+  location    String?
+  sortOrder   Int            @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  modules      ProjectModule[]
+  translations ProjectTranslation[]
+
+  @@map("projects")
+}
+
+/// Reusable content modules attached to a project (gallery, floor plans,
+/// specs, location, video, brochure…). Modules flagged RESTRICTED are only
+/// served through the gated profile.
+enum ModuleKind {
+  GALLERY
+  FLOOR_PLAN
+  SPECIFICATIONS
+  LOCATION
+  VIDEO
+  BROCHURE
+  CUSTOM
+}
+
+model ProjectModule {
+  id        String         @id @default(cuid())
+  projectId String
+  slug      String
+  title     String
+  kind      ModuleKind     @default(CUSTOM)
+  profile   ProjectProfile @default(FULL)
+  content   Json // { images?: string[], text?: string, items?: {label,value}[], url?: string }
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, slug])
+  @@index([projectId, profile, sortOrder])
+  @@map("project_modules")
+}
+
+model ProjectTranslation {
+  id          String
+  projectId   String
+  locale      String
+  name        String
+  tagline     String?
+  description String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, locale])
+  @@map("project_translations")
+}
+
+
+// ── RSS moderation pipeline (replaces client-side live-news.js) ─────────────
+// A scheduled job (Vercel Cron) ingests Google News / GDELT / RSS.app items
+// matching KPD keywords. Editors approve → item is converted into an Article.
+
+enum RssItemStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model RssItem {
+  id          String        @id @default(cuid())
+  source      String // "google-news" | "gdelt" | "rss-app"
+  title       String
+  url         String        @unique
+  snippet     String?
+  imageUrl    String?
+  publishedAt DateTime?
+  status      RssItemStatus @default(PENDING)
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  createdAt   DateTime      @default(now())
+
+  article Article?
+
+  @@index([status, publishedAt])
+  @@map("rss_items")
+}
+
+
+// ── Salesforce dual-write (contact / booking forms) ─────────────────────────
+// Every submission is stored locally first, then synced to Salesforce.
+// status: NEW → SYNCED (salesforceId set) | FAILED (retryable)
+
+enum SubmissionStatus {
+  NEW
+  SYNCED
+  FAILED
+}
+
+model ContactSubmission {
+  id           String           @id @default(cuid())
+  name         String
+  email        String
+  phone        String?
+  message      String
+  interest     String? // e.g. development or unit of interest
+  sourcePage   String? // page the form was submitted from
+  status       SubmissionStatus @default(NEW)
+  salesforceId String?
+  syncError    String?
+  syncedAt     DateTime?
+  createdAt    DateTime         @default(now())
+
+  @@index([status])
+  @@map("contact_submissions")
+}
+
+
+// ── CMS-editable pages (FAQ, Privacy, Terms, Investor Guide…) ───────────────
+
+model StaticPage {
+  id        String        @id @default(cuid())
+  slug      String        @unique
+  title     String
+  content   Json // ordered blocks: [{ type: "heading"|"paragraph"|"faq", ... }]
+  status    ContentStatus @default(DRAFT)
+  updatedAt DateTime      @updatedAt
+
+  translations PageTranslation[]
+
+  @@map("static_pages")
+}
+
+model PageTranslation {
+  id      String
+  pageId  String
+  locale  String
+  title   String
+  content Json
+
+  page StaticPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([pageId, locale])
+  @@map("page_translations")
+}
+
+// ── Global site settings (nav, footer, contact details, socials) ────────────
+
+model SiteSetting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">Seven X Seven Type C floor plan</title>
+  <desc id="desc">A clean architectural floor plan diagram for a large residence with terrace frontage.</desc>
+  <rect width="1200" height="760" fill="#f7f7f7"/>
+  <g fill="none" stroke="#111" stroke-linecap="square" stroke-linejoin="miter">
+    <path d="M92 92h1016v576H92z" stroke-width="10"/>
+    <path d="M92 426h314V92M406 426v242M406 426h304V92M710 426v242M710 426h398" stroke-width="8"/>
+    <path d="M92 250h314M710 250h398M258 426v242M558 426v242M880 426v242M880 92v334" stroke-width="5"/>
+    <path d="M406 426c0 62-42 104-100 104M710 426c0 64 42 104 104 104M880 250c-56 0-92-36-92-92" stroke-width="4"/>
+    <rect x="144" y="138" width="184" height="82" stroke-width="4"/>
+    <rect x="462" y="144" width="164" height="82" stroke-width="4"/>
+    <rect x="920" y="142" width="130" height="82" stroke-width="4"/>
+    <rect x="136" y="482" width="88" height="112" stroke-width="4"/>
+    <rect x="302" y="486" width="62" height="108" stroke-width="4"/>
+    <rect x="454" y="490" width="78" height="112" stroke-width="4"/>
+    <rect x="750" y="498" width="92" height="94" stroke-width="4"/>
+    <rect x="924" y="512" width="118" height="68" stroke-width="4"/>
+    <path d="M140 288h222M456 292h198M918 292h146M132 622h242M450 626h180M744 626h320" stroke-width="3" opacity=".55"/>
+  </g>
+  <g fill="#111" font-family="Arial, sans-serif" font-size="24" letter-spacing="3">
+    <text x="140" y="286">BEDROOM</text>
+    <text x="456" y="290">SALON</text>
+    <text x="918" y="290">SUITE</text>
+    <text x="132" y="620">SERVICE</text>
+    <text x="450" y="624">KITCHEN</text>
+    <text x="744" y="624">TERRACE</text>
+  </g>
+</svg>
