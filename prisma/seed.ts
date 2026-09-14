@@ -187,6 +187,7 @@ async function main() {
 
   console.log("Seeding CMS pages…");
   const pages = [
+    { slug: "about", title: "About" },
     { slug: "faq", title: "Frequently Asked Questions" },
     { slug: "privacy-policy", title: "Privacy Policy" },
     { slug: "terms", title: "Terms & Conditions" },
@@ -202,7 +203,9 @@ async function main() {
           {
             type: "paragraph",
             text:
-              p.slug === "faq"
+            p.slug === "about"
+              ? "Kasumigaseki Properties Development brings institutional discipline, long-term capital, and a decades-deep development track record into Dubai's property market."
+              : p.slug === "faq"
                 ? "Placeholder — FAQ copywriting to be produced during Phase 4 (content population)."
                 : "Placeholder — final text to be supplied by the client's legal counsel (Clause 3) and wired through the CMS (Clause 2).",
           },
