@@ -189,6 +189,7 @@ async function main() {
   const pages = [
     { slug: "about", title: "About" },
     { slug: "legacy", title: "Legacy" },
+    { slug: "invest-in-dubai", title: "Invest in Dubai" },
     { slug: "faq", title: "Frequently Asked Questions" },
     { slug: "privacy-policy", title: "Privacy Policy" },
     { slug: "terms", title: "Terms & Conditions" },
@@ -204,7 +205,9 @@ async function main() {
           {
             type: "paragraph",
             text:
-            p.slug === "legacy"
+            p.slug === "invest-in-dubai"
+              ? "A focused investment pathway for buyers seeking regulated ownership, composed residential assets, and advisory clarity across Dubai's next chapter."
+              : p.slug === "legacy"
               ? "From Tokyo to Dubai, the KPD platform is shaped by disciplined capital, measured execution, and development value built to hold over time."
               : p.slug === "about"
               ? "Kasumigaseki Properties Development brings institutional discipline, long-term capital, and a decades-deep development track record into Dubai's property market."
