@@ -1,0 +1,3 @@
+/* The supplied client stylesheet remains the visual source of truth during
+   migration. New routes consume it once through the shared public layout. */
+@import url("/legacy/assets/css/site.css");

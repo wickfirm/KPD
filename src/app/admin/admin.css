@@ -173,6 +173,8 @@ body {
   margin-bottom: 16px;
   font-size: 14px;
 }
+.cms-muted { color: #5b6675; margin: 6px 0 0; }
+.cms-form-heading { font-size: 16px; margin: 28px 0 14px; }
 .cms-login {
   min-height: 100vh;
   display: grid;

@@ -22,10 +22,10 @@ export default async function ProjectEditorPage({ params }: { params: Promise<{ 
     </div>
     <div className="cms-card"><ProjectForm defaults={project} /></div>
     <div className="cms-card"><h2>Sync original front-end structure</h2><p style={{ color: "#5b6675" }}>Load the delivered project page&apos;s section variants, images, map data, gallery, floor plans, and payment plan as editable modules. This refreshes matching imported modules; modules you add with different slugs are preserved.</p><form action={importLegacyProjectTemplate}><input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="slug" value={project.slug} /><button className="cms-btn cms-btn--ghost" type="submit">Sync original page content</button></form></div>
-    <div className="cms-actions" style={{ justifyContent: "space-between", marginTop: 32, marginBottom: 16 }}><h2 style={{ margin: 0 }}>Reusable page modules</h2><span style={{ color: "#5b6675", fontSize: 13 }}>Modules render in display-order sequence on the public template.</span></div>
+    <div className="cms-actions" style={{ justifyContent: "space-between", marginTop: 32, marginBottom: 16 }}><h2 style={{ margin: 0 }}>Template sections</h2><span style={{ color: "#5b6675", fontSize: 13 }}>These follow the delivered development-page structure and render in display order.</span></div>
     {project.modules.map((module) => <div className="cms-card" key={module.id}>
       <div className="cms-actions" style={{ justifyContent: "space-between" }}><strong>{module.sortOrder}. {module.title} <span className="cms-badge">{module.kind}</span></strong><form action={deleteProjectModule}><input type="hidden" name="id" value={module.id} /><input type="hidden" name="projectId" value={project.id} /><button className="cms-btn cms-btn--danger" type="submit">Delete</button></form></div>
-      <ModuleForm projectId={project.id} defaults={{ ...module, content: JSON.stringify(module.content, null, 2) }} />
+      <ModuleForm projectId={project.id} defaults={{ ...module, content: module.content as { text?: string; images?: string[]; items?: { label?: string; value?: string; image?: string; url?: string }[]; url?: string; mapUrl?: string; presentation?: string } }} />
     </div>)}
     <div className="cms-card"><h3>Add module</h3><ModuleForm projectId={project.id} /></div>
   </>;

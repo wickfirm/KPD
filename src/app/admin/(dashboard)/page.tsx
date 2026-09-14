@@ -4,9 +4,10 @@ import { db } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const [articles, projects, pendingRss, newSubmissions, failedSyncs] = await Promise.all([
+  const [articles, projects, pages, pendingRss, newSubmissions, failedSyncs] = await Promise.all([
     db.article.count(),
     db.project.count(),
+    db.staticPage.count(),
     db.rssItem.count({ where: { status: "PENDING" } }),
     db.contactSubmission.count({ where: { status: "NEW" } }),
     db.contactSubmission.count({ where: { status: "FAILED" } }),
@@ -15,6 +16,7 @@ export default async function DashboardPage() {
   const stats = [
     { label: "Articles (News & Blog)", value: articles },
     { label: "Developments", value: projects },
+    { label: "Editorial pages", value: pages },
     { label: "RSS items awaiting review", value: pendingRss },
     { label: "New form submissions", value: newSubmissions },
     { label: "Failed Salesforce syncs", value: failedSyncs },
@@ -40,6 +42,9 @@ export default async function DashboardPage() {
           </Link>
           <Link className="cms-btn cms-btn--ghost" href="/admin/rss">
             Review RSS queue ({pendingRss})
+          </Link>
+          <Link className="cms-btn cms-btn--ghost" href="/admin/pages">
+            Manage pages
           </Link>
           <Link className="cms-btn cms-btn--ghost" href="/legacy/index.html" target="_blank">
             View current site

@@ -11,6 +11,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/articles", label: "News & Blog" },
   { href: "/admin/projects", label: "Developments" },
+  { href: "/admin/pages", label: "Pages" },
   { href: "/admin/rss", label: "RSS Queue" },
   { href: "/admin/submissions", label: "Submissions" },
 ];

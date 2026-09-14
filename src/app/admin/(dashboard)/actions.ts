@@ -30,6 +30,7 @@ function parseBody(raw: string): string[] {
 export type ArticleFormState = { error?: string };
 export type ProjectFormState = { error?: string };
 export type ProjectModuleFormState = { error?: string };
+export type StaticPageFormState = { error?: string };
 
 export async function saveArticle(
   _prev: ArticleFormState,
@@ -152,18 +153,34 @@ function moduleKind(value: FormDataEntryValue | null) {
     : "CUSTOM";
 }
 
-function parseModuleContent(raw: string) {
-  try {
-    const content: unknown = JSON.parse(raw || "{}");
-    if (!content || Array.isArray(content) || typeof content !== "object") {
-      throw new Error("Module content must be a JSON object.");
-    }
-    return content;
-  } catch (err) {
-    throw new Error((err as Error).message === "Module content must be a JSON object."
-      ? "Module content must be a JSON object."
-      : "Module content must be valid JSON.");
-  }
+function nonEmptyLines(value: FormDataEntryValue | null) {
+  return String(value || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+}
+
+/// Converts editor-friendly rows into the stable JSON structure consumed by
+/// the public development renderer. Rows use: Label | Value | Image URL | Link.
+function moduleContentFromForm(formData: FormData, kind: ReturnType<typeof moduleKind>) {
+  const images = nonEmptyLines(formData.get("images"));
+  const items = nonEmptyLines(formData.get("items")).map((line) => {
+    const [label = "", value = "", image = "", url = ""] = line.split("|").map((part) => part.trim());
+    if (kind === "FLOOR_PLAN") return { label, image, url };
+    if (kind === "GALLERY") return { label };
+    return { label, value, ...(image ? { image } : {}), ...(url ? { url } : {}) };
+  }).filter((item) => Object.values(item).some(Boolean));
+
+  const text = String(formData.get("text") || "").trim();
+  const url = String(formData.get("url") || "").trim();
+  const mapUrl = String(formData.get("mapUrl") || "").trim();
+  const presentation = formData.get("presentation") === "calm" ? "calm" : undefined;
+
+  return {
+    ...(text ? { text } : {}),
+    ...(images.length ? { images } : {}),
+    ...(items.length ? { items } : {}),
+    ...(url ? { url } : {}),
+    ...(mapUrl ? { mapUrl } : {}),
+    ...(presentation ? { presentation } : {}),
+  };
 }
 
 /// Create or update a development shell; its reusable content is managed as modules.
@@ -218,17 +235,13 @@ export async function saveProjectModule(
   const slug = slugify(String(formData.get("slug") || "") || title);
   if (!projectId || !title || !slug) return { error: "Module title is required." };
 
-  let content: unknown;
-  try {
-    content = parseModuleContent(String(formData.get("content") || "{}"));
-  } catch (err) {
-    return { error: (err as Error).message };
-  }
+  const kind = moduleKind(formData.get("kind"));
+  const content = moduleContentFromForm(formData, kind);
 
   const data = {
     slug,
     title,
-    kind: moduleKind(formData.get("kind")),
+    kind,
     profile: projectProfile(formData.get("profile")),
     content: content as never,
     sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
@@ -256,6 +269,52 @@ export async function deleteProjectModule(formData: FormData) {
   const module = await db.projectModule.delete({ where: { id }, select: { project: { select: { slug: true } } } });
   revalidatePath(`/admin/projects/${projectId}`);
   revalidatePath(`/developments/${module.project.slug}`);
+}
+
+/// Save a conventional editorial page. Page templates render these named
+/// blocks; editors never need to hand-author the JSON representation.
+export async function saveStaticPage(
+  _prev: StaticPageFormState,
+  formData: FormData,
+): Promise<StaticPageFormState> {
+  await requireSession();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  const slug = slugify(String(formData.get("slug") || "") || title);
+  const status = projectStatus(formData.get("status"));
+  if (!title || !slug) return { error: "Page title is required." };
+
+  const heading = String(formData.get("heading") || "").trim();
+  const intro = String(formData.get("intro") || "").trim();
+  const image = String(formData.get("image") || "").trim();
+  const ctaLabel = String(formData.get("ctaLabel") || "").trim();
+  const ctaUrl = String(formData.get("ctaUrl") || "").trim();
+  const paragraphs = nonEmptyLines(formData.get("paragraphs"));
+  const content = [
+    ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
+    ...paragraphs.map((text) => ({ type: "paragraph", text })),
+  ];
+
+  try {
+    const page = id
+      ? await db.staticPage.update({ where: { id }, data: { slug, title, status, content } })
+      : await db.staticPage.create({ data: { slug, title, status, content } });
+    revalidatePath("/admin/pages");
+    revalidatePath(`/admin/pages/${page.id}`);
+    redirect(`/admin/pages/${page.id}`);
+  } catch (err) {
+    const msg = (err as Error).message;
+    return { error: msg.includes("Unique") ? "A page with this slug already exists." : "Unable to save this page." };
+  }
+}
+
+export async function deleteStaticPage(formData: FormData) {
+  await requireSession();
+  const id = String(formData.get("id") || "");
+  if (!id) return;
+  await db.staticPage.delete({ where: { id } });
+  revalidatePath("/admin/pages");
+  redirect("/admin/pages");
 }
 
 /// One-time bridge from the delivered static development pages into editable CMS modules.
