@@ -29,9 +29,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
 
-  const submission = await db.contactSubmission.create({
-    data: { name, email, phone, message, interest, sourcePage },
-  });
+  let submission;
+  try {
+    submission = await db.contactSubmission.create({
+      data: { name, email, phone, message, interest, sourcePage },
+    });
+  } catch (err) {
+    console.error("[api/contact] database error:", err);
+    return NextResponse.json(
+      { error: "We could not save your enquiry right now. Please try again shortly." },
+      { status: 503 },
+    );
+  }
 
   // Dual-write: mirror to Salesforce, recording the outcome.
   try {

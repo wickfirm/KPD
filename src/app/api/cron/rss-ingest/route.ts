@@ -6,7 +6,9 @@ import { ingestFeeds } from "@/lib/rss";
 export async function GET(req: NextRequest) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization");
-  if (secret && auth !== `Bearer ${secret}`) {
+  // Never leave an ingest endpoint open because an environment variable was
+  // omitted during deployment.
+  if (!secret || auth !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

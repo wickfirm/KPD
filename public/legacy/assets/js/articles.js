@@ -89,14 +89,36 @@
     return bucket[slug] || bucket[Object.keys(bucket)[0]];
   }
 
-  function initArticlePage() {
+  async function getCmsArticle(kind, slug) {
+    if (!slug) return null;
+    try {
+      const response = await fetch(`/api/articles?kind=${encodeURIComponent(kind.toUpperCase())}&limit=100`, { cache: "no-store" });
+      if (!response.ok) return null;
+      const data = await response.json();
+      const article = (data.articles || []).find((item) => item.slug === slug);
+      if (!article) return null;
+      return {
+        type: article.kind === "BLOG" ? "Blog" : "News",
+        date: article.publishedAt ? new Intl.DateTimeFormat(undefined, { month: "long", day: "numeric", year: "numeric" }).format(new Date(article.publishedAt)) : "KPD Update",
+        title: article.title,
+        summary: article.summary,
+        image: article.coverImage || "assets/images/library/bottom-up-view-of-modern-office-building-in-hong-k-2026-01-11-09-09-49-utc.jpg",
+        imageAlt: article.coverImageAlt || article.title,
+        body: Array.isArray(article.body) ? article.body : []
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async function initArticlePage() {
     const root = document.querySelector("[data-article-page]");
     if (!root) return;
 
     const kind = root.getAttribute("data-article-kind") || "news";
     const params = new URLSearchParams(window.location.search);
     const slug = params.get("article");
-    const article = getArticle(kind, slug);
+    const article = await getCmsArticle(kind, slug) || getArticle(kind, slug);
 
     document.title = `${article.title} | Kasumigaseki Properties Development`;
 

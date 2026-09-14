@@ -1574,6 +1574,70 @@
 
   initMotionEnhancements();
 
+  // ── Contact API bridge ──────────────────────────────────────────────────
+  // The legacy templates remain intact, but their mailto forms now submit to
+  // the local-first CRM endpoint. This delegated listener also covers forms
+  // created later by the booking and floor-plan modals.
+  function valueFrom(formData, names) {
+    for (const name of names) {
+      const value = formData.get(name);
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+    return "";
+  }
+
+  function formStatus(form, message, isError) {
+    let status = form.querySelector("[data-contact-api-status]");
+    if (!status) {
+      status = document.createElement("p");
+      status.setAttribute("data-contact-api-status", "");
+      status.setAttribute("role", "status");
+      form.appendChild(status);
+    }
+    status.textContent = message;
+    status.classList.toggle("form-error", Boolean(isError));
+  }
+
+  document.addEventListener("submit", async (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || !form.action.startsWith("mailto:")) return;
+
+    event.preventDefault();
+    const formData = new FormData(form);
+    const firstName = valueFrom(formData, ["First Name", "Name", "name"]);
+    const lastName = valueFrom(formData, ["Last Name"]);
+    const email = valueFrom(formData, ["Email", "email"]);
+    const phone = valueFrom(formData, ["Phone", "phone"]);
+    const interest = valueFrom(formData, ["Project of Interest", "Related Project", "Interest", "interest"]);
+    const message = valueFrom(formData, ["Sales Message", "Customer Message", "Partner Message", "Message", "message"])
+      || (form.id === "footer-email-form" ? "Newsletter signup." : "Website enquiry.");
+    const name = [firstName, lastName].filter(Boolean).join(" ") || "Website visitor";
+    const submit = form.querySelector("button[type='submit'], input[type='submit']");
+
+    if (!email) {
+      formStatus(form, "Please provide your email address.", true);
+      return;
+    }
+
+    if (submit) submit.disabled = true;
+    formStatus(form, "Sending your enquiry…", false);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, message, interest, sourcePage: window.location.pathname })
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
+      form.reset();
+      formStatus(form, "Thank you. Your enquiry has been received.", false);
+    } catch (error) {
+      formStatus(form, error instanceof Error ? error.message : "Unable to send your enquiry. Please try again.", true);
+    } finally {
+      if (submit) submit.disabled = false;
+    }
+  });
+
   if (goTop) {
     goTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
   }

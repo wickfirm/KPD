@@ -144,6 +144,22 @@
     }));
   }
 
+  async function loadCmsItems() {
+    const response = await fetchWithTimeout("/api/articles?limit=100", { cache: "no-store" }, 8000);
+    if (!response.ok) throw new Error(`CMS request failed: ${response.status}`);
+    const data = await response.json();
+    return (data.articles || []).map((article) => ({
+      title: article.title || "",
+      source: article.kind === "BLOG" ? "KPD Journal" : "KPD News",
+      snippet: article.summary || "",
+      link: `${article.kind === "BLOG" ? "blog-article" : "news-article"}.html?article=${encodeURIComponent(article.slug)}`,
+      pubDate: article.publishedAt || "",
+      timestamp: Date.parse(article.publishedAt || "") || 0,
+      keyword: "Kasumigaseki",
+      image: article.coverImage || ""
+    }));
+  }
+
   function cleanTitle(title, source) {
     let clean = String(title || "").replace(/\s+/g, " ").trim();
     if (source) {
@@ -533,10 +549,22 @@
 
   async function refresh(sectionList) {
     sectionList.forEach((section) => {
-      setStatus(section, "Loading live articles from the internet...");
+      setStatus(section, "Loading the latest KPD articles...");
     });
 
     let renderedFallback = false;
+
+    try {
+      const cmsItems = await loadCmsItems();
+      if (cmsItems.length) {
+        renderFeature(cmsItems);
+        sectionList.forEach((section) => renderSection(section, cmsItems));
+        return;
+      }
+    } catch (error) {
+      // The static cache below keeps the legacy site useful while the CMS is
+      // unavailable or before editors have approved the first article.
+    }
 
     try {
       const cachedItems = await loadCachedItems();
