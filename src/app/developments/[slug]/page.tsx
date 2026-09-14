@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
-type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string };
+type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; mapUrl?: string; presentation?: string };
 
 function content(value: unknown) {
   return (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as ModuleContent;
 }
 
-function ModuleBlock({ module, projectName }: { module: { title: string; kind: string; content: unknown }; projectName: string }) {
+function ModuleBlock({ module, projectName }: { module: { slug: string; title: string; kind: string; content: unknown }; projectName: string }) {
   const data = content(module.content);
   const images = data.images ?? [];
   const items = data.items ?? [];
@@ -24,14 +24,18 @@ function ModuleBlock({ module, projectName }: { module: { title: string; kind: s
     <div className="single-project-floor-grid">{items.map((item, index) => <article className="single-project-floor-card" key={`${item.label}-${index}`}>{item.image ? <img src={item.image} alt={`${projectName} ${item.label ?? "floor plan"}`} /> : null}<div><strong>{item.label ?? `Plan ${index + 1}`}</strong>{item.url ? <a href={item.url}>Download</a> : null}</div></article>)}</div>
   </section>;
 
-  if (module.kind === "SPECIFICATIONS" || module.kind === "LOCATION") return <section className="single-project-location kpd-section" aria-label={module.title}>
+  if (module.kind === "SPECIFICATIONS" || module.kind === "LOCATION") return <section className="section-villa23-travel-timeline single-project-location kpd-section" aria-label={module.title}>
     <div className="project-section-head"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}</div>
-    <div className="single-project-proximity-grid"><ul>{items.filter((_, index) => index % 2 === 0).map((item, index) => <li key={`${item.label}-${index}`}><span>{item.value}</span><strong>{item.label ?? item.text}</strong></li>)}</ul><ul>{items.filter((_, index) => index % 2 === 1).map((item, index) => <li key={`${item.label}-${index}`}><span>{item.value}</span><strong>{item.label ?? item.text}</strong></li>)}</ul></div>
+    <div className="single-project-proximity-grid"><ul>{items.filter((_, index) => index % 2 === 0).map((item, index) => <li key={`${item.label}-${index}`}><span>{item.value}</span><strong>{item.label ?? item.text}</strong></li>)}</ul><ul>{items.filter((_, index) => index % 2 === 1).map((item, index) => <li key={`${item.label}-${index}`}><span>{item.value}</span><strong>{item.label ?? item.text}</strong></li>)}</ul></div>{data.mapUrl ? <div className="villa23-travel-map-area"><iframe className="villa23-travel-map" title={`${projectName} location map`} loading="lazy" src={data.mapUrl} /></div> : null}
   </section>;
 
   if (module.kind === "VIDEO" || module.kind === "BROCHURE") return <section className="single-project-showcase pdf-section pdf-development-banner" aria-label={module.title}>
-    {images[0] ? <img src={images[0]} alt={`${projectName} — ${module.title}`} /> : null}<div className="pdf-development-content"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}{data.url ? <a className="pdf-development-button btn-pill text-white" href={data.url} target={module.kind === "VIDEO" ? "_blank" : undefined} rel={module.kind === "VIDEO" ? "noreferrer" : undefined}>{module.kind === "VIDEO" ? "Watch" : "Download"}</a> : null}</div>
+    <div className="pdf-development-slides">{images.map((image, index) => <div className={`pdf-development-slide${index === 0 ? " active" : ""}`} key={image}><img src={image} alt={`${projectName} — ${module.title}`} /></div>)}</div><div className="pdf-development-content"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}{data.url ? <a className="pdf-development-button btn-pill text-white" href={data.url} target={module.kind === "VIDEO" ? "_blank" : undefined} rel={module.kind === "VIDEO" ? "noreferrer" : undefined}>{module.kind === "VIDEO" ? "Watch" : "Download"}</a> : null}</div>
   </section>;
+
+  if (data.presentation === "calm") return <section className="single-project-calm kpd-section" aria-label={module.title}><div className="single-project-calm-grid"><div className="single-project-calm-copy"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}{data.url ? <Link className="btn-pill" href={data.url}>Brochure</Link> : null}</div>{images[0] ? <figure className="single-project-calm-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null}</div></section>;
+
+  if (module.slug === "payment-plan") return <section className="single-project-payment kpd-section" aria-label={module.title}><div className="single-project-section-head"><h2>{module.title}</h2>{data.text ? <div className="single-project-section-copy"><p>{data.text}</p></div> : null}</div><div className="single-project-payment-grid">{items.map((item, index) => <article key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></article>)}</div></section>;
 
   return <section className="single-project-meydan kpd-section" aria-label={module.title}><div className="single-project-meydan-grid"><div className="single-project-meydan-copy"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}<div className="single-project-meydan-stats">{items.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></div>)}</div>{data.url ? <a className="btn-pill" href={data.url}>Explore</a> : null}</div>{images[0] ? <figure className="single-project-meydan-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null}</div></section>;
 }
