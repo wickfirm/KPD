@@ -11,7 +11,16 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
 
   if (!email || !password) return { error: "Email and password are required." };
 
-  const user = await authenticate(email, password);
+  let user;
+  try {
+    user = await authenticate(email, password);
+  } catch (err) {
+    console.error("[admin/login] database error:", err);
+    return {
+      error:
+        "The CMS cannot reach its database right now. Please verify the Vercel database connection settings and try again.",
+    };
+  }
   if (!user) return { error: "Invalid credentials." };
 
   await setSessionCookie({
