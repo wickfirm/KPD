@@ -2,8 +2,39 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 
-type ModuleContent = { text?: string; images?: string[]; items?: { label?: string; value?: string; text?: string; image?: string; url?: string }[]; url?: string };
-function content(value: unknown) { return (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as ModuleContent; }
+type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
+type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string };
+
+function content(value: unknown) {
+  return (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as ModuleContent;
+}
+
+function ModuleBlock({ module, projectName }: { module: { title: string; kind: string; content: unknown }; projectName: string }) {
+  const data = content(module.content);
+  const images = data.images ?? [];
+  const items = data.items ?? [];
+
+  if (module.kind === "GALLERY") return <section className="single-project-amenities kpd-section" aria-label={module.title}>
+    <div className="single-project-section-head"><h2>{module.title}</h2>{data.text ? <div className="single-project-section-copy"><p>{data.text}</p></div> : null}</div>
+    <div className="pdf-vertical-gallery pdf-gallery-flex single-project-flex-gallery has-active" data-gallery-flex>{images.map((image, index) => <button className={`pdf-gallery-panel${index === 0 ? " is-active" : ""}`} type="button" data-gallery-panel key={image}><img src={image} alt={`${projectName} — ${module.title}`} /><span>{items[index]?.label ?? module.title}</span></button>)}</div>
+  </section>;
+
+  if (module.kind === "FLOOR_PLAN") return <section className="single-project-floor-plans kpd-section" aria-label={module.title}>
+    <div className="single-project-section-head"><h2>{module.title}</h2>{data.text ? <div className="single-project-section-copy"><p>{data.text}</p></div> : null}</div>
+    <div className="single-project-floor-grid">{items.map((item, index) => <article className="single-project-floor-card" key={`${item.label}-${index}`}>{item.image ? <img src={item.image} alt={`${projectName} ${item.label ?? "floor plan"}`} /> : null}<div><strong>{item.label ?? `Plan ${index + 1}`}</strong>{item.url ? <a href={item.url}>Download</a> : null}</div></article>)}</div>
+  </section>;
+
+  if (module.kind === "SPECIFICATIONS" || module.kind === "LOCATION") return <section className="single-project-location kpd-section" aria-label={module.title}>
+    <div className="project-section-head"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}</div>
+    <div className="single-project-proximity-grid"><ul>{items.filter((_, index) => index % 2 === 0).map((item, index) => <li key={`${item.label}-${index}`}><span>{item.value}</span><strong>{item.label ?? item.text}</strong></li>)}</ul><ul>{items.filter((_, index) => index % 2 === 1).map((item, index) => <li key={`${item.label}-${index}`}><span>{item.value}</span><strong>{item.label ?? item.text}</strong></li>)}</ul></div>
+  </section>;
+
+  if (module.kind === "VIDEO" || module.kind === "BROCHURE") return <section className="single-project-showcase pdf-section pdf-development-banner" aria-label={module.title}>
+    {images[0] ? <img src={images[0]} alt={`${projectName} — ${module.title}`} /> : null}<div className="pdf-development-content"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}{data.url ? <a className="pdf-development-button btn-pill text-white" href={data.url} target={module.kind === "VIDEO" ? "_blank" : undefined} rel={module.kind === "VIDEO" ? "noreferrer" : undefined}>{module.kind === "VIDEO" ? "Watch" : "Download"}</a> : null}</div>
+  </section>;
+
+  return <section className="single-project-meydan kpd-section" aria-label={module.title}><div className="single-project-meydan-grid"><div className="single-project-meydan-copy"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}<div className="single-project-meydan-stats">{items.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></div>)}</div>{data.url ? <a className="btn-pill" href={data.url}>Explore</a> : null}</div>{images[0] ? <figure className="single-project-meydan-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null}</div></section>;
+}
 
 export const dynamic = "force-dynamic";
 
@@ -12,17 +43,16 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   const project = await db.project.findFirst({ where: { slug, status: "PUBLISHED", profile: "FULL" }, include: { modules: { where: { profile: "FULL" }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] } } });
   if (!project) notFound();
 
-  return <main className="kpd-project-template">
-    <nav className="kpd-project-nav"><Link href="/legacy/index.html">KPD</Link><Link href="/legacy/index.html#development-cards">Developments</Link><Link href="/legacy/contact.html">Contact</Link></nav>
-    <header className="kpd-project-hero" style={project.heroImage ? { backgroundImage: `linear-gradient(90deg, rgba(10,15,20,.74), rgba(10,15,20,.15)), url(${project.heroImage})` } : undefined}>
-      <div><p>{project.location ?? "Kasumigaseki Properties Development"}</p><h1>{project.name}</h1>{project.tagline ? <h2>{project.tagline}</h2> : null}{project.description ? <p>{project.description}</p> : null}<Link href={`/legacy/contact.html?project=${encodeURIComponent(project.name)}`}>Arrange a private viewing</Link></div>
-    </header>
-    {project.modules.map((module) => { const data = content(module.content); return <section key={module.id} className={`kpd-project-module kpd-project-module--${module.kind.toLowerCase()}`}>
-      <h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}
-      {data.images?.length ? <div className="kpd-project-gallery">{data.images.map((image) => <img key={image} src={image} alt={`${project.name} — ${module.title}`} />)}</div> : null}
-      {data.items?.length ? <div className="kpd-project-items">{data.items.map((item, index) => <article key={`${item.label}-${index}`}>{item.image ? <img src={item.image} alt={item.label ?? module.title} /> : null}<strong>{item.label ?? item.text}</strong>{item.value ? <span>{item.value}</span> : null}{item.url ? <a href={item.url}>View details</a> : null}</article>)}</div> : null}
-      {data.url ? <p><a className="kpd-project-link" href={data.url} target={module.kind === "VIDEO" ? "_blank" : undefined} rel={module.kind === "VIDEO" ? "noreferrer" : undefined}>{module.kind === "BROCHURE" ? "Download brochure" : module.kind === "VIDEO" ? "Watch video" : "Open resource"}</a></p> : null}
-    </section>; })}
-    <section className="kpd-project-enquire"><h2>Interested in {project.name}?</h2><p>Floor plans, availability, and a private appointment are available on request.</p><Link href={`/legacy/contact.html?project=${encodeURIComponent(project.name)}`}>Register interest</Link></section>
-  </main>;
+  return <>
+    <link rel="stylesheet" href="/legacy/assets/css/site.css" />
+    <div className="home-development-page single-project-page">
+      <header className="site-header development-site-header is-past-hero"><div className="header-wrap"><Link href="/legacy/index.html" className="brand-link">KPD</Link><nav className="header-nav"><Link href="/legacy/index.html#development-cards">Developments</Link><Link href="/legacy/about-us.html">About</Link><Link href="/legacy/contact.html">Contact</Link></nav></div></header>
+      <main className="single-project-main" id="top">
+        <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>{project.heroImage ? <img src={project.heroImage} alt={`${project.name} exterior`} /> : null}<div className="page-hero-content"><h1>{project.name}</h1></div></section>
+        <section className="single-project-intro kpd-section" id="overview"><div className="single-project-intro-grid single-project-intro-grid--pdf"><figure className="single-project-sketch single-project-intro-media">{project.heroImage ? <img src={project.heroImage} alt={`${project.name} visual`} /> : null}</figure><div className="single-project-intro-copy"><h1>{project.tagline ?? project.name}</h1>{project.description ? <p>{project.description}</p> : null}<div className="single-project-actions"><a className="btn-pill" href="#modules">Explore</a><Link className="btn-pill" href={`/legacy/contact.html?project=${encodeURIComponent(project.name)}`}>Brochure</Link></div></div></div></section>
+        <div id="modules">{project.modules.map((module) => <ModuleBlock key={module.id} module={module} projectName={project.name} />)}</div>
+        <section className="projects-spec-contact single-project-enquire" aria-label={`Enquire about ${project.name}`}>{project.heroImage ? <img src={project.heroImage} alt="" /> : null}<div className="projects-spec-contact-copy"><span>Enquire</span><h2>Arrange a private<br />viewing.</h2><p>Floor plans, availability, and a project conversation are available by appointment.</p><div className="projects-spec-contact-actions"><Link href={`/legacy/contact.html?project=${encodeURIComponent(project.name)}`}>Register interest</Link></div></div></section>
+      </main>
+    </div>
+  </>;
 }
