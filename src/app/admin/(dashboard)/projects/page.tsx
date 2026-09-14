@@ -13,9 +13,7 @@ export default async function ProjectsPage() {
     <>
       <div className="cms-actions" style={{ justifyContent: "space-between", marginBottom: 20 }}>
         <h1 style={{ margin: 0 }}>Developments</h1>
-        <span style={{ fontSize: 13, color: "#5b6675" }}>
-          Project CRUD UI lands in Phase 2 (template build-out)
-        </span>
+        <Link className="cms-btn" href="/admin/projects/new">New development</Link>
       </div>
 
       <table className="cms-table">
@@ -26,6 +24,7 @@ export default async function ProjectsPage() {
             <th>Status</th>
             <th>Modules</th>
             <th>Location</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -40,13 +39,16 @@ export default async function ProjectsPage() {
               </td>
               <td>{p.modules.length}</td>
               <td>{p.location ?? "—"}</td>
+              <td className="cms-actions">
+                <Link className="cms-btn cms-btn--ghost" href={`/admin/projects/${p.id}`}>Edit</Link>
+                {p.status === "PUBLISHED" ? <Link className="cms-btn cms-btn--ghost" href={`/developments/${p.slug}`} target="_blank">View</Link> : null}
+              </td>
             </tr>
           ))}
           {projects.length === 0 && (
             <tr>
-              <td colSpan={5}>
-                No developments yet. Seed Seven X Seven, Emerald Villa and Dubai Hills
-                Mansion via <code>npm run db:seed</code>, or add them in Phase 2.{" "}
+              <td colSpan={6}>
+                No developments yet. Create the first development template above. {" "}
                 <Link href="/admin">Back to dashboard</Link>
               </td>
             </tr>

@@ -27,6 +27,8 @@ function parseBody(raw: string): string[] {
 }
 
 export type ArticleFormState = { error?: string };
+export type ProjectFormState = { error?: string };
+export type ProjectModuleFormState = { error?: string };
 
 export async function saveArticle(
   _prev: ArticleFormState,
@@ -130,4 +132,127 @@ export async function reviewRssItem(formData: FormData) {
   }
 
   revalidatePath("/admin/rss");
+}
+
+function projectStatus(value: FormDataEntryValue | null) {
+  return ["DRAFT", "PUBLISHED", "ARCHIVED"].includes(String(value))
+    ? (String(value) as "DRAFT" | "PUBLISHED" | "ARCHIVED")
+    : "DRAFT";
+}
+
+function projectProfile(value: FormDataEntryValue | null): "FULL" | "RESTRICTED" {
+  return value === "RESTRICTED" ? "RESTRICTED" : "FULL";
+}
+
+function moduleKind(value: FormDataEntryValue | null) {
+  const kinds = ["GALLERY", "FLOOR_PLAN", "SPECIFICATIONS", "LOCATION", "VIDEO", "BROCHURE", "CUSTOM"];
+  return kinds.includes(String(value))
+    ? (String(value) as "GALLERY" | "FLOOR_PLAN" | "SPECIFICATIONS" | "LOCATION" | "VIDEO" | "BROCHURE" | "CUSTOM")
+    : "CUSTOM";
+}
+
+function parseModuleContent(raw: string) {
+  try {
+    const content: unknown = JSON.parse(raw || "{}");
+    if (!content || Array.isArray(content) || typeof content !== "object") {
+      throw new Error("Module content must be a JSON object.");
+    }
+    return content;
+  } catch (err) {
+    throw new Error((err as Error).message === "Module content must be a JSON object."
+      ? "Module content must be a JSON object."
+      : "Module content must be valid JSON.");
+  }
+}
+
+/// Create or update a development shell; its reusable content is managed as modules.
+export async function saveProject(
+  _prev: ProjectFormState,
+  formData: FormData,
+): Promise<ProjectFormState> {
+  await requireSession();
+
+  const id = String(formData.get("id") || "");
+  const name = String(formData.get("name") || "").trim();
+  const slug = slugify(String(formData.get("slug") || "") || name);
+  if (!name || !slug) return { error: "Development name is required." };
+
+  const status = projectStatus(formData.get("status"));
+  const data = {
+    slug,
+    name,
+    tagline: String(formData.get("tagline") || "").trim() || null,
+    description: String(formData.get("description") || "").trim() || null,
+    profile: projectProfile(formData.get("profile")),
+    status,
+    heroImage: String(formData.get("heroImage") || "").trim() || null,
+    location: String(formData.get("location") || "").trim() || null,
+    sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
+    publishedAt: status === "PUBLISHED" ? new Date() : null,
+  };
+
+  try {
+    const project = id
+      ? await db.project.update({ where: { id }, data })
+      : await db.project.create({ data });
+    revalidatePath("/admin/projects");
+    revalidatePath(`/admin/projects/${project.id}`);
+    revalidatePath(`/developments/${project.slug}`);
+    redirect(`/admin/projects/${project.id}`);
+  } catch (err) {
+    const msg = (err as Error).message;
+    return { error: msg.includes("Unique") ? "Slug already exists." : "Unable to save this development." };
+  }
+}
+
+/// Add or update one ordered module on a development template.
+export async function saveProjectModule(
+  _prev: ProjectModuleFormState,
+  formData: FormData,
+): Promise<ProjectModuleFormState> {
+  await requireSession();
+  const id = String(formData.get("id") || "");
+  const projectId = String(formData.get("projectId") || "");
+  const title = String(formData.get("title") || "").trim();
+  const slug = slugify(String(formData.get("slug") || "") || title);
+  if (!projectId || !title || !slug) return { error: "Module title is required." };
+
+  let content: unknown;
+  try {
+    content = parseModuleContent(String(formData.get("content") || "{}"));
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+
+  const data = {
+    slug,
+    title,
+    kind: moduleKind(formData.get("kind")),
+    profile: projectProfile(formData.get("profile")),
+    content: content as never,
+    sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
+  };
+
+  try {
+    const module = id
+      ? await db.projectModule.update({ where: { id }, data })
+      : await db.projectModule.create({ data: { ...data, projectId } });
+    const project = await db.project.findUnique({ where: { id: module.projectId }, select: { slug: true } });
+    revalidatePath(`/admin/projects/${projectId}`);
+    if (project) revalidatePath(`/developments/${project.slug}`);
+    redirect(`/admin/projects/${projectId}`);
+  } catch (err) {
+    const msg = (err as Error).message;
+    return { error: msg.includes("Unique") ? "A module with this slug already exists." : "Unable to save this module." };
+  }
+}
+
+export async function deleteProjectModule(formData: FormData) {
+  await requireSession();
+  const id = String(formData.get("id") || "");
+  const projectId = String(formData.get("projectId") || "");
+  if (!id || !projectId) return;
+  const module = await db.projectModule.delete({ where: { id }, select: { project: { select: { slug: true } } } });
+  revalidatePath(`/admin/projects/${projectId}`);
+  revalidatePath(`/developments/${module.project.slug}`);
 }

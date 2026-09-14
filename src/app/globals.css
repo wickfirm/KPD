@@ -1,3 +1,11 @@
-/* Intentionally minimal — the delivered design's stylesheet
-   (public/legacy/assets/css/site.css) is linked from the legacy pages and will
-   be absorbed into the Next.js app during Phase 2 template build-out. */
+/* Public CMS-rendered development template. The legacy public site remains
+   available while projects are progressively assembled from these modules. */
+.kpd-project-template { min-height: 100vh; background: #f5f3ef; color: #152018; font-family: Arial, sans-serif; }
+.kpd-project-nav { display: flex; gap: 28px; justify-content: space-between; padding: 20px 6vw; background: #142019; }
+.kpd-project-nav a, .kpd-project-hero a, .kpd-project-enquire a, .kpd-project-link { color: inherit; text-decoration: none; }
+.kpd-project-nav a { color: #fff; font-size: 14px; letter-spacing: .08em; text-transform: uppercase; }
+.kpd-project-hero { min-height: 66vh; display: flex; align-items: end; padding: 8vw 10vw; color: #fff; background: #29332d center/cover; }
+.kpd-project-hero > div { max-width: 700px; }.kpd-project-hero h1 { margin: 0; font-size: clamp(48px, 8vw, 108px); font-weight: 400; }.kpd-project-hero h2 { font-weight: 400; font-size: clamp(24px, 3vw, 42px); }.kpd-project-hero a, .kpd-project-enquire a, .kpd-project-link { display: inline-block; padding: 12px 18px; border: 1px solid currentColor; margin-top: 12px; }
+.kpd-project-module { max-width: 1180px; margin: 0 auto; padding: 72px 6vw; border-bottom: 1px solid #d6d2ca; }.kpd-project-module h2 { font-size: clamp(30px, 4vw, 54px); font-weight: 400; margin: 0 0 20px; }.kpd-project-module > p { max-width: 700px; font-size: 18px; line-height: 1.6; }
+.kpd-project-gallery, .kpd-project-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 30px; }.kpd-project-gallery img, .kpd-project-items img { width: 100%; aspect-ratio: 4/3; object-fit: cover; }.kpd-project-items article { display: grid; gap: 8px; padding: 18px; background: #fff; }.kpd-project-items span { color: #57635a; }
+.kpd-project-enquire { padding: 96px 10vw; background: #142019; color: #fff; text-align: center; }.kpd-project-enquire h2 { font-size: clamp(32px, 5vw, 64px); font-weight: 400; margin: 0; }
