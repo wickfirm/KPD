@@ -31,6 +31,7 @@ export type ArticleFormState = { error?: string };
 export type ProjectFormState = { error?: string };
 export type ProjectModuleFormState = { error?: string };
 export type StaticPageFormState = { error?: string };
+export type SiteSettingsFormState = { error?: string };
 
 export async function saveArticle(
   _prev: ArticleFormState,
@@ -315,6 +316,41 @@ export async function deleteStaticPage(formData: FormData) {
   await db.staticPage.delete({ where: { id } });
   revalidatePath("/admin/pages");
   redirect("/admin/pages");
+}
+
+/// Site-wide and homepage content is stored in two named settings records so
+/// navigation, contact details, and homepage copy have one editorial source.
+export async function saveSiteSettings(
+  _prev: SiteSettingsFormState,
+  formData: FormData,
+): Promise<SiteSettingsFormState> {
+  await requireSession();
+  const global = {
+    email: String(formData.get("email") || "").trim(),
+    phone: String(formData.get("phone") || "").trim(),
+    whatsapp: String(formData.get("whatsapp") || "").trim(),
+    newsletterNote: String(formData.get("newsletterNote") || "").trim(),
+  };
+  const home = {
+    heroVideo: String(formData.get("heroVideo") || "").trim(),
+    introHeading: String(formData.get("introHeading") || "").trim(),
+    introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
+    developmentHeading: String(formData.get("developmentHeading") || "").trim(),
+    contactHeading: String(formData.get("contactHeading") || "").trim(),
+    contactText: String(formData.get("contactText") || "").trim(),
+    experienceImages: nonEmptyLines(formData.get("experienceImages")),
+  };
+  try {
+    await db.$transaction([
+      db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } }),
+      db.siteSetting.upsert({ where: { key: "home" }, update: { value: home }, create: { key: "home", value: home } }),
+    ]);
+    revalidatePath("/");
+    revalidatePath("/admin/settings");
+    redirect("/admin/settings");
+  } catch {
+    return { error: "Unable to save site settings." };
+  }
 }
 
 /// One-time bridge from the delivered static development pages into editable CMS modules.

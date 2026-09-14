@@ -212,6 +212,24 @@ async function main() {
     });
   }
 
+  console.log("Seeding public settings…");
+  await db.siteSetting.upsert({
+    where: { key: "global" }, update: {}, create: { key: "global", value: {
+      email: "info@kpd.ae", phone: "+971 4 388 3099", whatsapp: "https://wa.me/97143883099",
+      newsletterNote: "Contact the KPD team to receive company and project updates.",
+    } },
+  });
+  await db.siteSetting.upsert({
+    where: { key: "home" }, update: {}, create: { key: "home", value: {
+      heroVideo: "/legacy/assets/images/experience-center/hq/5.mp4",
+      introHeading: "Turning Challenge Into Value",
+      introParagraphs: ["KPD extends Kasumigaseki Capital's development, investment, and asset-management discipline into Dubai, pairing long-term capital with a carefully curated residential pipeline.", "Established to extend that legacy into one of the world's most dynamic property markets, KPD brings institutional discipline, long-term capital, and a decades-deep development track record to the UAE."],
+      developmentHeading: "Our Developments", contactHeading: "A first point of contact",
+      contactText: "The Experience Center is designed for focused project previews, private advisory conversations, model walkthroughs, and material review in one calm appointment-led setting.",
+      experienceImages: ["/legacy/assets/images/experience-center/hq/1.jpg", "/legacy/assets/images/experience-center/hq/4.jpg", "/legacy/assets/images/experience-center/hq/7.jpg"],
+    } },
+  });
+
   console.log("Seed complete.");
 }
 

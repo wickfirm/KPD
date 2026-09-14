@@ -12,6 +12,7 @@ const navItems = [
   { href: "/admin/articles", label: "News & Blog" },
   { href: "/admin/projects", label: "Developments" },
   { href: "/admin/pages", label: "Pages" },
+  { href: "/admin/settings", label: "Settings" },
   { href: "/admin/rss", label: "RSS Queue" },
   { href: "/admin/submissions", label: "Submissions" },
 ];
