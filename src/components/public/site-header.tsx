@@ -29,14 +29,14 @@ export function SiteHeader() {
         </nav>
         <Link href="/" className="brand-link" aria-label="Kasumigaseki Properties Development home"><img className="brand-logo brand-logo-dark" src="/legacy/assets/images/brand/kasumigaseki-logo-horizontal-black-text.svg" alt="Kasumigaseki Properties Development" /></Link>
         <div className="header-right-cluster">
-          <nav className="header-nav header-nav-right" aria-label="Secondary navigation"><Link href="/legacy/legacy.html">Legacy</Link><Link href="/legacy/news.html">Media</Link><Link href="/legacy/contact.html">Contact</Link></nav>
-          <Link className="btn-pill header-book-call" href="/legacy/contact.html">Book online call</Link>
+          <nav className="header-nav header-nav-right" aria-label="Secondary navigation"><Link href="/legacy/legacy.html">Legacy</Link><Link href="/legacy/news.html">Media</Link><Link href="/contact">Contact</Link></nav>
+          <Link className="btn-pill header-book-call" href="/contact">Book online call</Link>
         </div>
       </div>
     </header>
     <nav className={`menu-panel${menuOpen ? " open" : ""}`} aria-label="Site menu">
       <button className="menu-close" type="button" onClick={() => setMenuOpen(false)} aria-label="Close menu" />
-      <div className="menu-inner"><ul className="menu-list"><li className="menu-item menu-item-main"><Link href="/" onClick={() => setMenuOpen(false)}>Home</Link></li><li className="menu-item menu-item-main has-sub"><span>Developments</span><ul className="menu-sublist">{developments.map((item) => <li key={item.href}><Link href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link></li>)}</ul></li><li className="menu-item menu-item-main"><Link href="/legacy/about-us.html" onClick={() => setMenuOpen(false)}>About</Link></li><li className="menu-item menu-item-main"><Link href="/legacy/news.html" onClick={() => setMenuOpen(false)}>Media</Link></li><li className="menu-item menu-item-main"><Link href="/legacy/contact.html" onClick={() => setMenuOpen(false)}>Contact</Link></li></ul></div>
+      <div className="menu-inner"><ul className="menu-list"><li className="menu-item menu-item-main"><Link href="/" onClick={() => setMenuOpen(false)}>Home</Link></li><li className="menu-item menu-item-main has-sub"><span>Developments</span><ul className="menu-sublist">{developments.map((item) => <li key={item.href}><Link href={item.href} onClick={() => setMenuOpen(false)}>{item.label}</Link></li>)}</ul></li><li className="menu-item menu-item-main"><Link href="/legacy/about-us.html" onClick={() => setMenuOpen(false)}>About</Link></li><li className="menu-item menu-item-main"><Link href="/legacy/news.html" onClick={() => setMenuOpen(false)}>Media</Link></li><li className="menu-item menu-item-main"><Link href="/contact" onClick={() => setMenuOpen(false)}>Contact</Link></li></ul></div>
     </nav>
   </>;
 }
