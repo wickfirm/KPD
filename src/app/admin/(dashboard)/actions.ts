@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
+import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
 
 function slugify(value: string) {
   return value
@@ -255,4 +256,31 @@ export async function deleteProjectModule(formData: FormData) {
   const module = await db.projectModule.delete({ where: { id }, select: { project: { select: { slug: true } } } });
   revalidatePath(`/admin/projects/${projectId}`);
   revalidatePath(`/developments/${module.project.slug}`);
+}
+
+/// One-time bridge from the delivered static development pages into editable CMS modules.
+export async function importLegacyProjectTemplate(formData: FormData) {
+  await requireSession();
+  const projectId = String(formData.get("projectId") || "");
+  const slug = String(formData.get("slug") || "");
+  const template = legacyProjectTemplates[slug];
+  if (!projectId || !template) return;
+
+  await db.$transaction(async (tx) => {
+    await tx.project.update({
+      where: { id: projectId },
+      data: { tagline: template.tagline, description: template.description },
+    });
+    for (const module of template.modules) {
+      await tx.projectModule.upsert({
+        where: { projectId_slug: { projectId, slug: module.slug } },
+        update: { title: module.title, kind: module.kind, profile: "FULL", content: module.content as never, sortOrder: module.sortOrder },
+        create: { projectId, ...module, profile: "FULL", content: module.content as never },
+      });
+    }
+  });
+
+  revalidatePath(`/admin/projects/${projectId}`);
+  revalidatePath(`/developments/${slug}`);
+  redirect(`/admin/projects/${projectId}`);
 }

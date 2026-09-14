@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { deleteProjectModule } from "../../actions";
+import { deleteProjectModule, importLegacyProjectTemplate } from "../../actions";
 import ProjectForm from "../project-form";
 import ModuleForm from "./module-form";
 
@@ -21,6 +21,7 @@ export default async function ProjectEditorPage({ params }: { params: Promise<{ 
       <div className="cms-actions"><Link className="cms-btn cms-btn--ghost" href="/admin/projects">Back</Link>{project.status === "PUBLISHED" ? <Link className="cms-btn" href={`/developments/${project.slug}`} target="_blank">View public page</Link> : null}</div>
     </div>
     <div className="cms-card"><ProjectForm defaults={project} /></div>
+    {project.modules.length <= 1 ? <div className="cms-card"><h2>Bring in the original front-end content</h2><p style={{ color: "#5b6675" }}>Import the delivered project page&apos;s existing sections, images, location details, gallery, floor plans, and payment plan as editable modules.</p><form action={importLegacyProjectTemplate}><input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="slug" value={project.slug} /><button className="cms-btn" type="submit">Import original page content</button></form></div> : null}
     <div className="cms-actions" style={{ justifyContent: "space-between", marginTop: 32, marginBottom: 16 }}><h2 style={{ margin: 0 }}>Reusable page modules</h2><span style={{ color: "#5b6675", fontSize: 13 }}>Modules render in display-order sequence on the public template.</span></div>
     {project.modules.map((module) => <div className="cms-card" key={module.id}>
       <div className="cms-actions" style={{ justifyContent: "space-between" }}><strong>{module.sortOrder}. {module.title} <span className="cms-badge">{module.kind}</span></strong><form action={deleteProjectModule}><input type="hidden" name="id" value={module.id} /><input type="hidden" name="projectId" value={project.id} /><button className="cms-btn cms-btn--danger" type="submit">Delete</button></form></div>
