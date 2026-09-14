@@ -8,13 +8,15 @@
 CREATE SCHEMA IF NOT EXISTS "public";
 
 -- ── Enums ────────────────────────────────────────────────────────────────────
-CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'EDITOR');
-CREATE TYPE "ArticleKind" AS ENUM ('NEWS', 'BLOG');
-CREATE TYPE "ContentStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED');
-CREATE TYPE "ProjectProfile" AS ENUM ('FULL', 'RESTRICTED');
-CREATE TYPE "ModuleKind" AS ENUM ('GALLERY', 'FLOOR_PLAN', 'SPECIFICATIONS', 'LOCATION', 'VIDEO', 'BROCHURE', 'CUSTOM');
-CREATE TYPE "RssItemStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
-CREATE TYPE "SubmissionStatus" AS ENUM ('NEW', 'SYNCED', 'FAILED');
+-- PostgreSQL does not support CREATE TYPE IF NOT EXISTS. These guarded blocks
+-- keep this bootstrap safe to re-run after a partially completed setup.
+DO $$ BEGIN CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'EDITOR'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "ArticleKind" AS ENUM ('NEWS', 'BLOG'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "ContentStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "ProjectProfile" AS ENUM ('FULL', 'RESTRICTED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "ModuleKind" AS ENUM ('GALLERY', 'FLOOR_PLAN', 'SPECIFICATIONS', 'LOCATION', 'VIDEO', 'BROCHURE', 'CUSTOM'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "RssItemStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "SubmissionStatus" AS ENUM ('NEW', 'SYNCED', 'FAILED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- ── Tables ───────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS "users" (
