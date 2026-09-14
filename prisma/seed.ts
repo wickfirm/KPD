@@ -188,6 +188,7 @@ async function main() {
   console.log("Seeding CMS pages…");
   const pages = [
     { slug: "about", title: "About" },
+    { slug: "legacy", title: "Legacy" },
     { slug: "faq", title: "Frequently Asked Questions" },
     { slug: "privacy-policy", title: "Privacy Policy" },
     { slug: "terms", title: "Terms & Conditions" },
@@ -203,7 +204,9 @@ async function main() {
           {
             type: "paragraph",
             text:
-            p.slug === "about"
+            p.slug === "legacy"
+              ? "From Tokyo to Dubai, the KPD platform is shaped by disciplined capital, measured execution, and development value built to hold over time."
+              : p.slug === "about"
               ? "Kasumigaseki Properties Development brings institutional discipline, long-term capital, and a decades-deep development track record into Dubai's property market."
               : p.slug === "faq"
                 ? "Placeholder — FAQ copywriting to be produced during Phase 4 (content population)."

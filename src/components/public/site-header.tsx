@@ -29,7 +29,7 @@ export function SiteHeader() {
         </nav>
         <Link href="/" className="brand-link" aria-label="Kasumigaseki Properties Development home"><img className="brand-logo brand-logo-dark" src="/legacy/assets/images/brand/kasumigaseki-logo-horizontal-black-text.svg" alt="Kasumigaseki Properties Development" /></Link>
         <div className="header-right-cluster">
-          <nav className="header-nav header-nav-right" aria-label="Secondary navigation"><Link href="/legacy/legacy.html">Legacy</Link><Link href="/legacy/news.html">Media</Link><Link href="/contact">Contact</Link></nav>
+          <nav className="header-nav header-nav-right" aria-label="Secondary navigation"><Link href="/legacy">Legacy</Link><Link href="/legacy/news.html">Media</Link><Link href="/contact">Contact</Link></nav>
           <Link className="btn-pill header-book-call" href="/contact">Book online call</Link>
         </div>
       </div>
