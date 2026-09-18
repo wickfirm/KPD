@@ -210,18 +210,19 @@ export async function saveProject(
     publishedAt: status === "PUBLISHED" ? new Date() : null,
   };
 
+  let project: { id: string; slug: string };
   try {
-    const project = id
+    project = id
       ? await db.project.update({ where: { id }, data })
       : await db.project.create({ data });
-    revalidatePath("/admin/projects");
-    revalidatePath(`/admin/projects/${project.id}`);
-    revalidatePath(`/developments/${project.slug}`);
-    redirect(`/admin/projects/${project.id}`);
   } catch (err) {
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "Slug already exists." : "Unable to save this development." };
   }
+  revalidatePath("/admin/projects");
+  revalidatePath(`/admin/projects/${project.id}`);
+  revalidatePath(`/developments/${project.slug}`);
+  redirect(`/admin/projects/${project.id}`);
 }
 
 /// Add or update one ordered module on a development template.
@@ -248,18 +249,19 @@ export async function saveProjectModule(
     sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
   };
 
+  let module: { projectId: string };
   try {
-    const module = id
+    module = id
       ? await db.projectModule.update({ where: { id }, data })
       : await db.projectModule.create({ data: { ...data, projectId } });
-    const project = await db.project.findUnique({ where: { id: module.projectId }, select: { slug: true } });
-    revalidatePath(`/admin/projects/${projectId}`);
-    if (project) revalidatePath(`/developments/${project.slug}`);
-    redirect(`/admin/projects/${projectId}`);
   } catch (err) {
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "A module with this slug already exists." : "Unable to save this module." };
   }
+  const project = await db.project.findUnique({ where: { id: module.projectId }, select: { slug: true } });
+  revalidatePath(`/admin/projects/${projectId}`);
+  if (project) revalidatePath(`/developments/${project.slug}`);
+  redirect(`/admin/projects/${projectId}`);
 }
 
 export async function deleteProjectModule(formData: FormData) {
@@ -296,17 +298,18 @@ export async function saveStaticPage(
     ...paragraphs.map((text) => ({ type: "paragraph", text })),
   ];
 
+  let page: { id: string };
   try {
-    const page = id
+    page = id
       ? await db.staticPage.update({ where: { id }, data: { slug, title, status, content } })
       : await db.staticPage.create({ data: { slug, title, status, content } });
-    revalidatePath("/admin/pages");
-    revalidatePath(`/admin/pages/${page.id}`);
-    redirect(`/admin/pages/${page.id}`);
   } catch (err) {
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "A page with this slug already exists." : "Unable to save this page." };
   }
+  revalidatePath("/admin/pages");
+  revalidatePath(`/admin/pages/${page.id}`);
+  redirect(`/admin/pages/${page.id}`);
 }
 
 export async function deleteStaticPage(formData: FormData) {
@@ -345,12 +348,12 @@ export async function saveSiteSettings(
       db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } }),
       db.siteSetting.upsert({ where: { key: "home" }, update: { value: home }, create: { key: "home", value: home } }),
     ]);
-    revalidatePath("/");
-    revalidatePath("/admin/settings");
-    redirect("/admin/settings");
   } catch {
     return { error: "Unable to save site settings." };
   }
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  redirect("/admin/settings");
 }
 
 /// One-time bridge from the delivered static development pages into editable CMS modules.
