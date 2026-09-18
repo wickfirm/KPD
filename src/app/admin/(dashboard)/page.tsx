@@ -24,8 +24,8 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <h1>Dashboard</h1>
-      <div className="cms-grid">
+      <div className="cms-page-heading cms-dashboard-heading"><div><span className="cms-eyebrow">KPD editorial studio</span><h1>Good to see you.</h1><p>A clear view of what needs attention across the site.</p></div></div>
+      <div className="cms-grid cms-stat-grid">
         {stats.map((s) => (
           <div key={s.label} className="cms-card cms-stat">
             <strong>{s.value}</strong>
@@ -34,8 +34,8 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      <div className="cms-card">
-        <h2>Quick actions</h2>
+      <div className="cms-card cms-quick-actions">
+        <span className="cms-eyebrow">Start here</span><h2>Quick actions</h2>
         <div className="cms-actions">
           <Link className="cms-btn" href="/admin/articles/new">
             Write an article
@@ -46,7 +46,7 @@ export default async function DashboardPage() {
           <Link className="cms-btn cms-btn--ghost" href="/admin/pages">
             Manage pages
           </Link>
-          <Link className="cms-btn cms-btn--ghost" href="/legacy/index.html" target="_blank">
+          <Link className="cms-btn cms-btn--ghost" href="/" target="_blank">
             View current site
           </Link>
         </div>

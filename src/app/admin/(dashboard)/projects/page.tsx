@@ -16,45 +16,7 @@ export default async function ProjectsPage() {
         <Link className="cms-btn" href="/admin/projects/new">New development</Link>
       </div>
 
-      <table className="cms-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Profile</th>
-            <th>Status</th>
-            <th>Modules</th>
-            <th>Location</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {projects.map((p) => (
-            <tr key={p.id}>
-              <td>{p.name}</td>
-              <td>
-                <span className="cms-badge">{p.profile}</span>
-              </td>
-              <td>
-                <span className={`cms-badge cms-badge--${p.status}`}>{p.status}</span>
-              </td>
-              <td>{p.modules.length}</td>
-              <td>{p.location ?? "—"}</td>
-              <td className="cms-actions">
-                <Link className="cms-btn cms-btn--ghost" href={`/admin/projects/${p.id}`}>Edit</Link>
-                {p.status === "PUBLISHED" ? <Link className="cms-btn cms-btn--ghost" href={`/developments/${p.slug}`} target="_blank">View</Link> : null}
-              </td>
-            </tr>
-          ))}
-          {projects.length === 0 && (
-            <tr>
-              <td colSpan={6}>
-                No developments yet. Create the first development template above. {" "}
-                <Link href="/admin">Back to dashboard</Link>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+      <div className="cms-collection">{projects.map((p) => <article className="cms-collection-card" key={p.id}><div className="cms-collection-card__main"><div><span className="cms-eyebrow">{p.location ?? "Development"}</span><h2>{p.name}</h2><p>{p.modules.length} editable sections · {p.profile === "FULL" ? "Public profile" : "Restricted profile"}</p></div><span className={`cms-badge cms-badge--${p.status}`}>{p.status}</span></div><div className="cms-collection-card__actions"><Link className="cms-btn cms-btn--ghost" href={`/admin/projects/${p.id}`}>Edit development</Link>{p.status === "PUBLISHED" ? <Link className="cms-btn cms-btn--outline" href={`/developments/${p.slug}`} target="_blank">Preview ↗</Link> : null}</div></article>)}{projects.length === 0 ? <div className="cms-card"><p>No developments yet. Create the first development template above.</p></div> : null}</div>
     </>
   );
 }
