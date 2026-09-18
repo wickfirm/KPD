@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { saveStaticPage, type StaticPageFormState } from "../actions";
+import { AssetUrlField } from "@/components/admin/asset-url-field";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; ctaLabel?: string; ctaUrl?: string };
 export type StaticPageDefaults = { id?: string; slug?: string; title?: string; status?: string; content?: Block[] };
@@ -28,7 +29,7 @@ export default function StaticPageForm({ defaults }: { defaults?: StaticPageDefa
     <label className="cms-field"><span>Heading</span><input name="heading" defaultValue={hero?.heading ?? ""} /></label>
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text ?? ""} /></label>
     <div className="cms-grid">
-      <label className="cms-field"><span>Feature image URL</span><input name="image" defaultValue={hero?.image ?? ""} placeholder="/legacy/assets/images/..." /></label>
+      <label className="cms-field"><span>Feature image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} placeholder="/legacy/assets/images/..." /></label>
       <label className="cms-field"><span>CTA label</span><input name="ctaLabel" defaultValue={hero?.ctaLabel ?? ""} /></label>
       <label className="cms-field"><span>CTA link</span><input name="ctaUrl" defaultValue={hero?.ctaUrl ?? ""} /></label>
     </div>

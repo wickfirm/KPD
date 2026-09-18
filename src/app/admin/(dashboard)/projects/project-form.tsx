@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { saveProject, type ProjectFormState } from "../actions";
+import { AssetUrlField } from "@/components/admin/asset-url-field";
 
 export type ProjectDefaults = {
   id?: string; slug?: string; name?: string; tagline?: string | null; description?: string | null;
@@ -24,7 +25,7 @@ export default function ProjectForm({ defaults }: { defaults?: ProjectDefaults }
       <label className="cms-field"><span>Access profile</span><select name="profile" defaultValue={defaults?.profile ?? "FULL"}><option value="FULL">Public</option><option value="RESTRICTED">Restricted</option></select></label>
       <label className="cms-field"><span>Display order</span><input name="sortOrder" type="number" min="0" defaultValue={defaults?.sortOrder ?? 0} /></label>
     </div>
-    <label className="cms-field"><span>Hero image URL</span><input name="heroImage" defaultValue={defaults?.heroImage ?? ""} placeholder="/legacy/assets/images/..." /></label>
+    <label className="cms-field"><span>Hero image</span><AssetUrlField name="heroImage" defaultValue={defaults?.heroImage ?? ""} placeholder="/legacy/assets/images/..." /></label>
     <label className="cms-field"><span>Location label</span><input name="location" defaultValue={defaults?.location ?? ""} /></label>
     <button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save development"}</button>
   </form>;
