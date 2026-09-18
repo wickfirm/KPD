@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { deleteProjectModule, importLegacyProjectTemplate } from "../../actions";
+import { deleteProjectModule } from "../../actions";
 import ProjectForm from "../project-form";
 import ModuleForm from "./module-form";
 
@@ -15,18 +15,17 @@ export default async function ProjectEditorPage({ params }: { params: Promise<{ 
   });
   if (!project) notFound();
 
-  return <>
-    <div className="cms-actions" style={{ justifyContent: "space-between", marginBottom: 20 }}>
-      <h1 style={{ margin: 0 }}>Edit development</h1>
+  return <div className="cms-editor">
+    <div className="cms-page-heading">
+      <div><span className="cms-eyebrow">Development editor</span><h1>{project.name}</h1><p>Manage the page content, media, and section order from one place.</p></div>
       <div className="cms-actions"><Link className="cms-btn cms-btn--ghost" href="/admin/projects">Back</Link>{project.status === "PUBLISHED" ? <Link className="cms-btn" href={`/developments/${project.slug}`} target="_blank">View public page</Link> : null}</div>
     </div>
-    <div className="cms-card"><ProjectForm defaults={project} /></div>
-    <div className="cms-card"><h2>Sync original front-end structure</h2><p style={{ color: "#5b6675" }}>Load the delivered project page&apos;s section variants, images, map data, gallery, floor plans, and payment plan as editable modules. This refreshes matching imported modules; modules you add with different slugs are preserved.</p><form action={importLegacyProjectTemplate}><input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="slug" value={project.slug} /><button className="cms-btn cms-btn--ghost" type="submit">Sync original page content</button></form></div>
-    <div className="cms-actions" style={{ justifyContent: "space-between", marginTop: 32, marginBottom: 16 }}><h2 style={{ margin: 0 }}>Template sections</h2><span style={{ color: "#5b6675", fontSize: 13 }}>These follow the delivered development-page structure and render in display order.</span></div>
-    {project.modules.map((module) => <div className="cms-card" key={module.id}>
-      <div className="cms-actions" style={{ justifyContent: "space-between" }}><strong>{module.sortOrder}. {module.title} <span className="cms-badge">{module.kind}</span></strong><form action={deleteProjectModule}><input type="hidden" name="id" value={module.id} /><input type="hidden" name="projectId" value={project.id} /><button className="cms-btn cms-btn--danger" type="submit">Delete</button></form></div>
+    <div className="cms-card cms-card--settings"><div className="cms-card-intro"><span className="cms-eyebrow">Page settings</span><h2>Development details</h2><p>These details power the listing card and first view of the page.</p></div><ProjectForm defaults={project} /></div>
+    <div className="cms-section-heading"><div><span className="cms-eyebrow">Page builder</span><h2>Content sections</h2><p>These sections appear on the public development page in the order below.</p></div><span className="cms-section-count">{project.modules.length} sections</span></div>
+    {project.modules.map((module) => <div className="cms-card cms-module-card" key={module.id}>
+      <div className="cms-module-card__header"><div className="cms-module-title"><span className="cms-module-order">{module.sortOrder}</span><div><h3>{module.title}</h3><span className="cms-badge">{module.kind.replace("_", " ")}</span></div></div><form action={deleteProjectModule}><input type="hidden" name="id" value={module.id} /><input type="hidden" name="projectId" value={project.id} /><button className="cms-text-button cms-text-button--danger" type="submit">Delete section</button></form></div>
       <ModuleForm projectId={project.id} defaults={{ ...module, content: module.content as { text?: string; images?: string[]; items?: { label?: string; value?: string; image?: string; url?: string }[]; url?: string; mapUrl?: string; presentation?: string } }} />
     </div>)}
-    <div className="cms-card"><h3>Add module</h3><ModuleForm projectId={project.id} /></div>
-  </>;
+    <div className="cms-card cms-add-section"><span className="cms-eyebrow">Extend the page</span><h2>Add a new content section</h2><p>Choose a section type, then add its copy and media.</p><ModuleForm projectId={project.id} /></div>
+  </div>;
 }
