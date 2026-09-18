@@ -211,7 +211,8 @@ body { background: #f4f5f3; color: #14241f; }
 .cms-main { max-width: 1240px; padding: 54px 36px 80px; }
 .cms-card { border-color: #dde3dc; border-radius: 18px; padding: 30px; margin-bottom: 24px; box-shadow: 0 12px 32px rgba(20,36,31,.045); }
 .cms-btn { background: #14241f; border-radius: 999px; padding: 10px 17px; }
-.cms-btn--ghost { border-color: #c6d0c7; }
+.cms-btn--ghost { background:#fff; color:#244633; border-color: #b9c9bd; }
+.cms-btn--ghost:hover { background:#eef5ee; }
 .cms-field span { color: #30423c; font-weight: 650; }
 .cms-field input,.cms-field select,.cms-field textarea { background: #fbfcfa; border-color: #ccd5ce; border-radius: 10px; }
 .cms-editor-section { border-color: #e0e7e0; margin-top: 28px; padding-top: 24px; }
