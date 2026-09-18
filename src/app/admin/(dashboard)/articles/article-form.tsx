@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { saveArticle, type ArticleFormState } from "../actions";
+import { AssetUrlField } from "@/components/admin/asset-url-field";
 
 export type ArticleDefaults = {
   id?: string;
@@ -57,10 +58,7 @@ export default function ArticleForm({ defaults }: { defaults?: ArticleDefaults }
         <textarea name="summary" rows={3} defaultValue={defaults?.summary} required />
       </label>
 
-      <label className="cms-field">
-        <span>Cover image URL</span>
-        <input name="coverImage" defaultValue={defaults?.coverImage ?? ""} />
-      </label>
+      <section className="cms-editor-section"><h3>Cover image</h3><p className="cms-muted">Upload the lead image used on article cards and the article page.</p><AssetUrlField name="coverImage" defaultValue={defaults?.coverImage ?? ""} accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" placeholder="https://…" /></section>
 
       <label className="cms-field">
         <span>Cover image alt text</span>
