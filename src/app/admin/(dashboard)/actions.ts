@@ -293,9 +293,28 @@ export async function saveStaticPage(
   const ctaLabel = String(formData.get("ctaLabel") || "").trim();
   const ctaUrl = String(formData.get("ctaUrl") || "").trim();
   const paragraphs = nonEmptyLines(formData.get("paragraphs"));
+  const management = nonEmptyLines(formData.get("management")).map((line) => {
+    const [name = "", role = "", bio = "", image = ""] = line.split("|").map((part) => part.trim());
+    return { name, role, bio, image };
+  }).filter((person) => person.name || person.role || person.bio || person.image);
+  const about = slug === "about" ? {
+    type: "about",
+    mission: String(formData.get("mission") || "").trim(),
+    vision: String(formData.get("vision") || "").trim(),
+    chairmanText: String(formData.get("chairmanText") || "").trim(),
+    chairmanName: String(formData.get("chairmanName") || "").trim(),
+    chairmanRole: String(formData.get("chairmanRole") || "").trim(),
+    chairmanImage: String(formData.get("chairmanImage") || "").trim(),
+    ceoText: String(formData.get("ceoText") || "").trim(),
+    ceoName: String(formData.get("ceoName") || "").trim(),
+    ceoRole: String(formData.get("ceoRole") || "").trim(),
+    ceoImage: String(formData.get("ceoImage") || "").trim(),
+    management,
+  } : null;
   const content = [
     ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
     ...paragraphs.map((text) => ({ type: "paragraph", text })),
+    ...(about ? [about] : []),
   ];
 
   let page: { id: string };
@@ -309,6 +328,7 @@ export async function saveStaticPage(
   }
   revalidatePath("/admin/pages");
   revalidatePath(`/admin/pages/${page.id}`);
+  if (slug === "about") revalidatePath("/about");
   redirect(`/admin/pages/${page.id}`);
 }
 
