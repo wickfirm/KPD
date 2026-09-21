@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { deleteProjectModule } from "../../actions";
+import { deleteProjectModule, importLegacyProjectTemplate } from "../../actions";
+import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
 import ProjectForm from "../project-form";
 import ModuleForm from "./module-form";
 
@@ -14,12 +15,15 @@ export default async function ProjectEditorPage({ params }: { params: Promise<{ 
     include: { modules: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] } },
   });
   if (!project) notFound();
+  const clientTemplate = legacyProjectTemplates[project.slug];
+  const hasClientSections = clientTemplate?.modules.every((template) => project.modules.some((module) => module.slug === template.slug));
 
   return <div className="cms-editor">
     <div className="cms-page-heading">
       <div><span className="cms-eyebrow">Development editor</span><h1>{project.name}</h1><p>Manage the page content, media, and section order from one place.</p></div>
       <div className="cms-actions"><Link className="cms-btn cms-btn--ghost" href="/admin/projects">Back</Link>{project.status === "PUBLISHED" ? <Link className="cms-btn" href={`/developments/${project.slug}`} target="_blank">View public page</Link> : null}</div>
     </div>
+    {clientTemplate && !hasClientSections ? <div className="cms-card cms-card--settings"><div className="cms-card-intro"><span className="cms-eyebrow">Client page setup</span><h2>Make this page editable</h2><p>Load the delivered project sections once. You will then edit copy, galleries, plans, and images with clear CMS cards below.</p></div><form action={importLegacyProjectTemplate}><input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="slug" value={project.slug} /><button className="cms-btn" type="submit">Load delivered page content</button></form></div> : null}
     <div className="cms-card cms-card--settings"><div className="cms-card-intro"><span className="cms-eyebrow">Page settings</span><h2>Development details</h2><p>These details power the listing card and first view of the page.</p></div><ProjectForm defaults={project} /></div>
     <div className="cms-section-heading"><div><span className="cms-eyebrow">Page builder</span><h2>Content sections</h2><p>These sections appear on the public development page in the order below.</p></div><span className="cms-section-count">{project.modules.length} sections</span></div>
     {project.modules.map((module, index) => <details className="cms-module-disclosure" key={module.id} open={index === 0}>

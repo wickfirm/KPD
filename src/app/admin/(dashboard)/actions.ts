@@ -402,7 +402,7 @@ export async function importLegacyProjectTemplate(formData: FormData) {
   await db.$transaction(async (tx) => {
     await tx.project.update({
       where: { id: projectId },
-      data: { tagline: template.tagline, description: template.description },
+      data: { tagline: template.tagline, description: template.description, heroImage: template.heroImage },
     });
     for (const module of template.modules) {
       await tx.projectModule.upsert({
