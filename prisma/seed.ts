@@ -235,7 +235,7 @@ async function main() {
       introParagraphs: ["KPD extends Kasumigaseki Capital's development, investment, and asset-management discipline into Dubai, pairing long-term capital with a carefully curated residential pipeline.", "Established to extend that legacy into one of the world's most dynamic property markets, KPD brings institutional discipline, long-term capital, and a decades-deep development track record to the UAE."],
       developmentHeading: "Our Developments", contactHeading: "A first point of contact",
       contactText: "The Experience Center is designed for focused project previews, private advisory conversations, model walkthroughs, and material review in one calm appointment-led setting.",
-      experienceImages: ["/legacy/assets/images/experience-center/hq/1.jpg", "/legacy/assets/images/experience-center/hq/4.jpg", "/legacy/assets/images/experience-center/hq/7.jpg"],
+      experienceImages: ["/legacy/assets/images/experience-center/hq/1.jpg", "/legacy/assets/images/experience-center/hq/4.jpg", "/legacy/assets/images/experience-center/hq/7.jpg", "/legacy/assets/images/experience-center/hq/14.jpg", "/legacy/assets/images/experience-center/hq/17.jpg"],
     } },
   });
 
