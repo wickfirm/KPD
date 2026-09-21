@@ -293,10 +293,22 @@ export async function saveStaticPage(
   const ctaLabel = String(formData.get("ctaLabel") || "").trim();
   const ctaUrl = String(formData.get("ctaUrl") || "").trim();
   const paragraphs = nonEmptyLines(formData.get("paragraphs"));
-  const management = nonEmptyLines(formData.get("management")).map((line) => {
+  const legacyManagement = nonEmptyLines(formData.get("management")).map((line) => {
     const [name = "", role = "", bio = "", image = ""] = line.split("|").map((part) => part.trim());
     return { name, role, bio, image };
   }).filter((person) => person.name || person.role || person.bio || person.image);
+  const managementNames = formData.getAll("managementName").map(String);
+  const managementRoles = formData.getAll("managementRole").map(String);
+  const managementBios = formData.getAll("managementBio").map(String);
+  const managementImages = formData.getAll("managementImage").map(String);
+  const management = managementNames.length
+    ? managementNames.map((name, index) => ({
+      name: name.trim(),
+      role: (managementRoles[index] || "").trim(),
+      bio: (managementBios[index] || "").trim(),
+      image: (managementImages[index] || "").trim(),
+    })).filter((person) => person.name || person.role || person.bio || person.image)
+    : legacyManagement;
   const legacyTimeline = nonEmptyLines(formData.get("legacyTimeline")).map((line) => {
     const [year = "", title = "", summary = "", body = "", image = ""] = line.split("|").map((part) => part.trim());
     return { year, title, summary, body, image };

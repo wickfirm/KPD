@@ -184,6 +184,11 @@ body {
 .cms-editor-section { border-top: 1px solid #e3e7ec; margin-top: 24px; padding-top: 20px; }
 .cms-editor-section h3 { margin: 0; }
 .cms-repeat-card { background: #fafbfc; border: 1px solid #e3e7ec; border-radius: 8px; padding: 16px; margin: 14px 0; }
+.cms-repeat-card legend { color:#244633; font-size:14px; font-weight:750; padding:0 6px; }
+.cms-management-heading { align-items:end; display:flex; justify-content:space-between; gap:18px; margin-top:28px; }
+.cms-management-heading h3 { margin:0 0 6px; }
+.cms-management-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:16px; margin-top:14px; }
+.cms-management-grid .cms-repeat-card { margin:0; min-width:0; }
 .cms-repeat-card__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
 .cms-btn:focus-visible, .cms-field input:focus-visible, .cms-field textarea:focus-visible, .cms-field select:focus-visible, .cms-upload input:focus-visible { outline: 3px solid #3b82f6; outline-offset: 2px; }
 .cms-login {
