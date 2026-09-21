@@ -297,6 +297,10 @@ export async function saveStaticPage(
     const [name = "", role = "", bio = "", image = ""] = line.split("|").map((part) => part.trim());
     return { name, role, bio, image };
   }).filter((person) => person.name || person.role || person.bio || person.image);
+  const legacyTimeline = nonEmptyLines(formData.get("legacyTimeline")).map((line) => {
+    const [year = "", title = "", summary = "", body = "", image = ""] = line.split("|").map((part) => part.trim());
+    return { year, title, summary, body, image };
+  }).filter((item) => item.year || item.title || item.summary || item.body || item.image);
   const about = slug === "about" ? {
     type: "about",
     mission: String(formData.get("mission") || "").trim(),
@@ -305,16 +309,14 @@ export async function saveStaticPage(
     chairmanName: String(formData.get("chairmanName") || "").trim(),
     chairmanRole: String(formData.get("chairmanRole") || "").trim(),
     chairmanImage: String(formData.get("chairmanImage") || "").trim(),
-    ceoText: String(formData.get("ceoText") || "").trim(),
-    ceoName: String(formData.get("ceoName") || "").trim(),
-    ceoRole: String(formData.get("ceoRole") || "").trim(),
-    ceoImage: String(formData.get("ceoImage") || "").trim(),
     management,
   } : null;
+  const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline } : null;
   const content = [
     ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
     ...paragraphs.map((text) => ({ type: "paragraph", text })),
     ...(about ? [about] : []),
+    ...(legacy ? [legacy] : []),
   ];
 
   let page: { id: string };
@@ -329,6 +331,7 @@ export async function saveStaticPage(
   revalidatePath("/admin/pages");
   revalidatePath(`/admin/pages/${page.id}`);
   if (slug === "about") revalidatePath("/about");
+  if (slug === "legacy") revalidatePath("/legacy");
   redirect(`/admin/pages/${page.id}`);
 }
 

@@ -12,10 +12,6 @@ export type AboutContent = {
   chairmanName?: string;
   chairmanRole?: string;
   chairmanImage?: string;
-  ceoText?: string;
-  ceoName?: string;
-  ceoRole?: string;
-  ceoImage?: string;
   management?: { name?: string; role?: string; bio?: string; image?: string }[];
 };
 
@@ -63,13 +59,11 @@ export function getLegacyAbout(content: AboutContent) {
   if (content.chairmanName) html = html.replace(/(<section class="about-chairman"[\s\S]*?<div class="about-chairman-signature">\s*<strong>)[\s\S]*?(<\/strong>)/, `$1${escapeHtml(content.chairmanName)}$2`);
   if (content.chairmanRole) html = html.replace(/(<section class="about-chairman"[\s\S]*?<div class="about-chairman-signature">[\s\S]*?<span>)[\s\S]*?(<\/span>)/, `$1${escapeHtml(content.chairmanRole)}$2`);
   if (content.chairmanImage) html = html.replace(/(<div class="about-chairman-media">\s*<img src=")[^"]+/, `$1${escapeHtml(content.chairmanImage)}`);
-  if (content.ceoText) html = html.replace(/(<section class="about-ceo"[\s\S]*?<div class="about-ceo-copy">\s*<p>)[\s\S]*?(<\/p>)/, `$1${richText(content.ceoText)}$2`);
-  if (content.ceoName) html = html.replace(/(<section class="about-ceo"[\s\S]*?<div class="about-chairman-signature">\s*<strong>)[\s\S]*?(<\/strong>)/, `$1${escapeHtml(content.ceoName)}$2`);
-  if (content.ceoRole) html = html.replace(/(<section class="about-ceo"[\s\S]*?<div class="about-chairman-signature">[\s\S]*?<span>)[\s\S]*?(<\/span>)/, `$1${escapeHtml(content.ceoRole)}$2`);
-  if (content.ceoImage) html = html.replace(/(<div class="about-ceo-media">\s*<img src=")[^"]+/, `$1${escapeHtml(content.ceoImage)}`);
   if (content.management?.length === 3) {
     const cards = content.management.map((person, index) => `<article class="about-management-card" role="button" tabindex="0" aria-label="Open biography for ${escapeHtml(person.name || `Executive ${index + 1}`)}" data-management-name="${escapeHtml(person.name || "")}" data-management-role="${escapeHtml(person.role || "")}" data-management-bio="${escapeHtml(person.bio || "")}"><figure><div class="about-management-image"><img src="${escapeHtml(person.image || "")}" alt="Executive management portrait"></div><figcaption><strong>${escapeHtml(person.name || "")}</strong><span>${escapeHtml(person.role || "")}</span></figcaption></figure></article>`).join("");
     html = html.replace(/(<div class="about-management-grid">)[\s\S]*?(<\/div>\s*<\/section>)/, `$1${cards}$2`);
   }
-  return html;
+  // The supplied file repeats the Chairman's copy in a second CEO block. The
+  // client has confirmed that duplicate should not appear on the public page.
+  return html.replace(/\s*<section class="about-ceo"[\s\S]*?<\/section>/, "");
 }
