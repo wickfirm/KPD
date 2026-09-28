@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { getLegacyProject } from "@/lib/legacy-project";
+import { OwnershipCostPlannerScripts } from "@/components/public/ownership-cost-planner-scripts";
 
 export const dynamic = "force-dynamic";
 
@@ -13,5 +14,5 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   if (!project) notFound();
   const html = getLegacyProject(project);
   if (!html) notFound();
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  return <><div dangerouslySetInnerHTML={{ __html: html }} /><OwnershipCostPlannerScripts /></>;
 }

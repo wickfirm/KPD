@@ -4,6 +4,7 @@
 // - Creates placeholder CMS pages (FAQ / Privacy / Terms)
 // Run: npm run db:seed
 import { PrismaClient } from "@prisma/client";
+import { ownershipCostPlannerDefaults } from "../src/lib/ownership-cost-planner";
 
 const db = new PrismaClient();
 
@@ -227,6 +228,9 @@ async function main() {
       email: "info@kpd.ae", phone: "+971 4 388 3099", whatsapp: "https://wa.me/97143883099",
       newsletterNote: "Contact the KPD team to receive company and project updates.",
     } },
+  });
+  await db.siteSetting.upsert({
+    where: { key: "ownership_cost_planner" }, update: {}, create: { key: "ownership_cost_planner", value: ownershipCostPlannerDefaults },
   });
   await db.siteSetting.upsert({
     where: { key: "home" }, update: {}, create: { key: "home", value: {

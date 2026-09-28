@@ -1534,6 +1534,9 @@
     const interest = valueFrom(formData, ["Project of Interest", "Related Project", "Interest", "interest"]);
     const message = valueFrom(formData, ["Sales Message", "Customer Message", "Partner Message", "Message", "message"])
       || (form.id === "footer-email-form" ? "Newsletter signup." : "Website enquiry.");
+    const plannerScenario = window.sessionStorage.getItem("kpdPlannerScenario");
+    const plannerProject = window.sessionStorage.getItem("kpdPlannerProject");
+    const enrichedMessage = plannerScenario ? `${message}\n\nOwnership Cost Planner scenario: ${plannerScenario}` : message;
     const name = [firstName, lastName].filter(Boolean).join(" ") || "Website visitor";
     const submit = form.querySelector("button[type='submit'], input[type='submit']");
 
@@ -1548,11 +1551,13 @@
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message, interest, sourcePage: window.location.pathname })
+        body: JSON.stringify({ name, email, phone, message: enrichedMessage, interest: plannerProject || interest, sourcePage: window.location.pathname })
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();
+      if (plannerScenario) window.sessionStorage.removeItem("kpdPlannerScenario");
+      if (plannerProject) window.sessionStorage.removeItem("kpdPlannerProject");
       formStatus(form, "Thank you. Your enquiry has been received.", false);
     } catch (error) {
       formStatus(form, error instanceof Error ? error.message : "Unable to send your enquiry. Please try again.", true);

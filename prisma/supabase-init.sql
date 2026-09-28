@@ -217,6 +217,11 @@ VALUES
  'PUBLISHED', '2026-05-22T00:00:00Z', NOW())
 ON CONFLICT ("slug") DO NOTHING;
 
+-- ── Ownership Cost Planner (illustrative data; editable in KPD CMS) ─────────
+INSERT INTO "site_settings" ("key", "value", "updatedAt") VALUES
+('ownership_cost_planner', '{"dldRate":4,"registrationFee":5000,"mortgageRegistrationRate":0.25,"mortgageAdminFee":290,"bankArrangementRate":1,"vatRate":5,"ltv":{"national":80,"resident":75,"nonResident":65},"disclaimer":"Illustrative figures only. This is not an offer of finance. Fees, lending criteria, payment plans and availability are subject to confirmation by KPD, the relevant authorities and lending partners.","projects":[{"slug":"seven-x-seven","name":"Seven X Seven","startingPrice":3000000,"interestRate":4,"milestones":[{"label":"Booking","percentage":20,"date":"2026-10-01"},{"label":"During construction","percentage":40,"date":"2027-06-01"},{"label":"Handover balance","percentage":40,"date":"2028-12-01"}]},{"slug":"emerald-villa","name":"Emerald Villa","startingPrice":5500000,"interestRate":4,"milestones":[{"label":"Booking","percentage":20,"date":"2026-10-01"},{"label":"During construction","percentage":40,"date":"2027-08-01"},{"label":"Handover balance","percentage":40,"date":"2029-03-01"}]},{"slug":"dubai-hills-mansion","name":"Dubai Hills Mansion","startingPrice":12000000,"interestRate":4,"milestones":[{"label":"Booking","percentage":20,"date":"2026-10-01"},{"label":"During construction","percentage":40,"date":"2027-09-01"},{"label":"Handover balance","percentage":40,"date":"2029-06-01"}]}]}'::jsonb, NOW())
+ON CONFLICT ("key") DO NOTHING;
+
 INSERT INTO "articles" ("id", "slug", "kind", "title", "summary", "body", "coverImage", "coverImageAlt", "status", "publishedAt", "updatedAt")
 VALUES
 ('kpd_art_04', 'land-logic-before-form', 'BLOG',

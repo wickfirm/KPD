@@ -14,6 +14,7 @@ const navItems = [
   { href: "/admin/about", label: "About us" },
   { href: "/admin/pages", label: "Pages" },
   { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/calculator", label: "Calculator" },
   { href: "/admin/rss", label: "RSS Queue" },
   { href: "/admin/submissions", label: "Submissions" },
 ];

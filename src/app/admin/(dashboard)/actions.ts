@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireSession } from "@/lib/auth";
 import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
+import { ownershipCostPlannerDefaults, type OwnershipCostPlanner } from "@/lib/ownership-cost-planner";
 
 function slugify(value: string) {
   return value
@@ -32,6 +33,7 @@ export type ProjectFormState = { error?: string };
 export type ProjectModuleFormState = { error?: string };
 export type StaticPageFormState = { error?: string };
 export type SiteSettingsFormState = { error?: string };
+export type OwnershipCostPlannerFormState = { error?: string };
 
 export async function saveArticle(
   _prev: ArticleFormState,
@@ -389,6 +391,61 @@ export async function saveSiteSettings(
   revalidatePath("/");
   revalidatePath("/admin/settings");
   redirect("/admin/settings");
+}
+
+/// Stores editable calculator assumptions in a single named setting. Keeping
+/// this JSON record makes fee/rate updates independent of a code deployment.
+export async function saveOwnershipCostPlanner(
+  _prev: OwnershipCostPlannerFormState,
+  formData: FormData,
+): Promise<OwnershipCostPlannerFormState> {
+  await requireSession();
+  const number = (name: string, fallback: number) => {
+    const parsed = Number(formData.get(name));
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  };
+  const slugs = formData.getAll("projectSlug").map(String);
+  const prices = formData.getAll("startingPrice");
+  const rates = formData.getAll("interestRate");
+  const milestoneRows = formData.getAll("milestones");
+  const projects = ownershipCostPlannerDefaults.projects.map((fallback) => {
+    const index = slugs.indexOf(fallback.slug);
+    const rawRows = String(milestoneRows[index] || "").split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
+    const milestones = rawRows.map((row) => {
+      const [label = "", percentage = "", date = ""] = row.split("|").map((part) => part.trim());
+      return { label, percentage: Number(percentage), date };
+    }).filter((milestone) => milestone.label && Number.isFinite(milestone.percentage) && milestone.percentage >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(milestone.date));
+    return {
+      ...fallback,
+      startingPrice: numberFrom(prices[index], fallback.startingPrice),
+      interestRate: numberFrom(rates[index], fallback.interestRate),
+      milestones,
+    };
+  });
+  if (projects.some((project) => !project.milestones.length || Math.abs(project.milestones.reduce((total, milestone) => total + milestone.percentage, 0) - 100) > 0.01)) {
+    return { error: "Each development needs valid milestones that add up to 100%. Use: Label | percentage | YYYY-MM-DD." };
+  }
+  const planner: OwnershipCostPlanner = {
+    dldRate: number("dldRate", ownershipCostPlannerDefaults.dldRate), registrationFee: number("registrationFee", ownershipCostPlannerDefaults.registrationFee),
+    mortgageRegistrationRate: number("mortgageRegistrationRate", ownershipCostPlannerDefaults.mortgageRegistrationRate), mortgageAdminFee: number("mortgageAdminFee", ownershipCostPlannerDefaults.mortgageAdminFee),
+    bankArrangementRate: number("bankArrangementRate", ownershipCostPlannerDefaults.bankArrangementRate), vatRate: number("vatRate", ownershipCostPlannerDefaults.vatRate),
+    ltv: { national: number("ltvNational", ownershipCostPlannerDefaults.ltv.national), resident: number("ltvResident", ownershipCostPlannerDefaults.ltv.resident), nonResident: number("ltvNonResident", ownershipCostPlannerDefaults.ltv.nonResident) },
+    disclaimer: String(formData.get("disclaimer") || "").trim() || ownershipCostPlannerDefaults.disclaimer,
+    projects,
+  };
+  try {
+    await db.siteSetting.upsert({ where: { key: "ownership_cost_planner" }, update: { value: planner }, create: { key: "ownership_cost_planner", value: planner } });
+  } catch {
+    return { error: "Unable to save calculator settings." };
+  }
+  revalidatePath("/admin/calculator");
+  revalidatePath("/api/calculator/kpd");
+  redirect("/admin/calculator");
+}
+
+function numberFrom(value: FormDataEntryValue | undefined, fallback: number) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
 }
 
 /// One-time bridge from the delivered static development pages into editable CMS modules.
