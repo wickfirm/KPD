@@ -346,6 +346,8 @@ export async function saveStaticPage(
   revalidatePath(`/admin/pages/${page.id}`);
   if (slug === "about") revalidatePath("/about");
   if (slug === "legacy") revalidatePath("/legacy");
+  if (slug === "invest-in-dubai") revalidatePath("/invest-in-dubai");
+  if (slug === "contact") revalidatePath("/contact");
   redirect(`/admin/pages/${page.id}`);
 }
 
@@ -358,9 +360,9 @@ export async function deleteStaticPage(formData: FormData) {
   redirect("/admin/pages");
 }
 
-/// Site-wide and homepage content is stored in two named settings records so
-/// navigation, contact details, and homepage copy have one editorial source.
-export async function saveSiteSettings(
+/// Site-wide contact details live in one named settings record. Homepage
+/// content has its own editor under Pages → Homepage (saveHomeSettings).
+export async function saveGlobalSettings(
   _prev: SiteSettingsFormState,
   formData: FormData,
 ): Promise<SiteSettingsFormState> {
@@ -371,6 +373,23 @@ export async function saveSiteSettings(
     whatsapp: String(formData.get("whatsapp") || "").trim(),
     newsletterNote: String(formData.get("newsletterNote") || "").trim(),
   };
+  try {
+    await db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } });
+  } catch {
+    return { error: "Unable to save site settings." };
+  }
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  redirect("/admin/settings");
+}
+
+/// Homepage content is stored in the "home" settings record and edited from
+/// the Pages section, where editors expect to find page content.
+export async function saveHomeSettings(
+  _prev: SiteSettingsFormState,
+  formData: FormData,
+): Promise<SiteSettingsFormState> {
+  await requireSession();
   const home = {
     heroVideo: String(formData.get("heroVideo") || "").trim(),
     introHeading: String(formData.get("introHeading") || "").trim(),
@@ -381,16 +400,13 @@ export async function saveSiteSettings(
     experienceImages: nonEmptyLines(formData.get("experienceImages")),
   };
   try {
-    await db.$transaction([
-      db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } }),
-      db.siteSetting.upsert({ where: { key: "home" }, update: { value: home }, create: { key: "home", value: home } }),
-    ]);
+    await db.siteSetting.upsert({ where: { key: "home" }, update: { value: home }, create: { key: "home", value: home } });
   } catch {
-    return { error: "Unable to save site settings." };
+    return { error: "Unable to save the homepage." };
   }
   revalidatePath("/");
-  revalidatePath("/admin/settings");
-  redirect("/admin/settings");
+  revalidatePath("/admin/pages/home");
+  redirect("/admin/pages/home");
 }
 
 /// Stores editable calculator assumptions in a single named setting. Keeping
@@ -407,14 +423,21 @@ export async function saveOwnershipCostPlanner(
   const slugs = formData.getAll("projectSlug").map(String);
   const prices = formData.getAll("startingPrice");
   const rates = formData.getAll("interestRate");
-  const milestoneRows = formData.getAll("milestones");
-  const projects = ownershipCostPlannerDefaults.projects.map((fallback) => {
+  const projects = ownershipCostPlannerDefaults.projects.map((fallback, projectIndex) => {
     const index = slugs.indexOf(fallback.slug);
-    const rawRows = String(milestoneRows[index] || "").split(/\r?\n/).map((row) => row.trim()).filter(Boolean);
-    const milestones = rawRows.map((row) => {
-      const [label = "", percentage = "", date = ""] = row.split("|").map((part) => part.trim());
-      return { label, percentage: Number(percentage), date };
-    }).filter((milestone) => milestone.label && Number.isFinite(milestone.percentage) && milestone.percentage >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(milestone.date));
+    const rowCount = Math.max(0, Number(formData.get(`milestoneCount-${projectIndex}`)) || 0);
+    const milestones: { label: string; percentage: number; date: string }[] = [];
+    for (let row = 0; row < rowCount; row += 1) {
+      const rawLabel = formData.get(`ml-${projectIndex}-${row}`);
+      const rawPercentage = formData.get(`mp-${projectIndex}-${row}`);
+      const rawDate = formData.get(`md-${projectIndex}-${row}`);
+      // Silently drop rows the editor left completely blank.
+      if (!String(rawLabel || "").trim() && !String(rawPercentage || "").trim() && !String(rawDate || "").trim()) continue;
+      const percentage = Number(rawPercentage);
+      if (String(rawLabel || "").trim() && Number.isFinite(percentage) && percentage >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(String(rawDate || "").trim())) {
+        milestones.push({ label: String(rawLabel).trim(), percentage, date: String(rawDate).trim() });
+      }
+    }
     return {
       ...fallback,
       startingPrice: numberFrom(prices[index], fallback.startingPrice),
@@ -423,7 +446,7 @@ export async function saveOwnershipCostPlanner(
     };
   });
   if (projects.some((project) => !project.milestones.length || Math.abs(project.milestones.reduce((total, milestone) => total + milestone.percentage, 0) - 100) > 0.01)) {
-    return { error: "Each development needs valid milestones that add up to 100%. Use: Label | percentage | YYYY-MM-DD." };
+    return { error: "Every development needs at least one payment step with a label, percentage, and date, and the percentages must add up to 100%." };
   }
   const planner: OwnershipCostPlanner = {
     dldRate: number("dldRate", ownershipCostPlannerDefaults.dldRate), registrationFee: number("registrationFee", ownershipCostPlannerDefaults.registrationFee),

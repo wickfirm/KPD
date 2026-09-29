@@ -256,3 +256,19 @@ body { background: #f4f5f3; color: #14241f; }
 .cms-module-toolbar form { padding:0; margin:0 !important; }
 .cms-module-body > form { padding:0; }
 @media (max-width:760px) { .cms-module-body { padding:0 20px 22px; }.cms-module-toolbar { align-items:flex-start; flex-direction:column; }.cms-module-disclosure .cms-module-card__header { padding:20px; } }
+
+/* -- Team member cards: portrait-first arrangement (2026-09-29) -- */
+.cms-repeat-card--member { display: grid; grid-template-columns: 92px 1fr; gap: 16px; }
+.cms-repeat-card--member legend { grid-column: 1 / -1; }
+.cms-member-portrait { align-self: start; background: #fff; border: 1px solid #dfe7df; border-radius: 12px; overflow: hidden; }
+.cms-member-portrait img { aspect-ratio: 1; display: block; height: 100%; object-fit: cover; width: 100%; }
+.cms-member-portrait-empty { align-items: center; aspect-ratio: 1; color: #8a978d; display: flex; font-size: 12px; justify-content: center; padding: 8px; text-align: center; }
+.cms-member-fields { min-width: 0; }
+@media (max-width: 560px) { .cms-repeat-card--member { grid-template-columns: 1fr; } .cms-member-portrait { max-width: 140px; } }
+
+/* -- Calculator editor: labeled payment-step rows -- */
+.cms-milestone-row { align-items: end; display: grid; gap: 10px; grid-template-columns: 1fr 90px 170px auto; margin-bottom: 10px; }
+.cms-milestone-row .cms-field { margin-bottom: 0; }
+.cms-milestone-row__remove { border: 0; background: transparent; color: #a3413a; cursor: pointer; font: inherit; font-size: 13px; padding: 8px 4px; }
+.cms-milestone-total { color: #244633; font-size: 13px; margin: 4px 0 10px; }
+@media (max-width: 700px) { .cms-milestone-row { grid-template-columns: 1fr 70px; } }

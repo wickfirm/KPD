@@ -18,6 +18,20 @@ export type ArticleDefaults = {
 
 const initialState: ArticleFormState = {};
 
+/// Editors write plain paragraphs; the database stores a JSON array. Convert
+/// the stored array into blank-line-separated text so the editor never sees
+/// JSON notation strings.
+function bodyToText(raw?: string) {
+  if (!raw) return "";
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map(String).join("\n\n");
+  } catch {
+    // Already plain text.
+  }
+  return raw;
+}
+
 export default function ArticleForm({ defaults }: { defaults?: ArticleDefaults }) {
   const [state, formAction, pending] = useActionState(saveArticle, initialState);
 
@@ -72,10 +86,8 @@ export default function ArticleForm({ defaults }: { defaults?: ArticleDefaults }
         <textarea
           name="body"
           rows={12}
-          defaultValue={
-            defaults?.body ??
-            JSON.stringify([""], null, 0)
-          }
+          defaultValue={bodyToText(defaults?.body)}
+          placeholder="Write the first paragraph, then leave a blank line before the next."
         />
       </label>
 
