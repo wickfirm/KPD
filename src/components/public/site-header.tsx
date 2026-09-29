@@ -30,7 +30,7 @@ export function SiteHeader() {
         <Link href="/" className="brand-link" aria-label="Kasumigaseki Properties Development home"><img className="brand-logo brand-logo-dark" src="/legacy/assets/images/brand/kasumigaseki-logo-horizontal-black-text.svg" alt="Kasumigaseki Properties Development" /></Link>
         <div className="header-right-cluster">
           <nav className="header-nav header-nav-right" aria-label="Secondary navigation"><Link href="/legacy">Legacy</Link><Link href="/news">Media</Link><Link href="/contact">Contact</Link></nav>
-          <Link className="btn-pill header-book-call" href="/contact">Book online call</Link>
+          <button className="btn-pill header-book-call" type="button" data-booking-open>Book online call</button>
         </div>
       </div>
     </header>

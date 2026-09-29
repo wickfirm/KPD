@@ -1,5 +1,6 @@
 import { SiteFooter } from "@/components/public/site-footer";
 import { SiteHeader } from "@/components/public/site-header";
+import { BookingWidget } from "@/components/public/booking-widget";
 import { db } from "@/lib/db";
 import "./public.css";
 
@@ -13,5 +14,5 @@ export default async function PublicLayout({ children }: { children: React.React
   } catch {
     // A missing database must not make the static fallback unavailable.
   }
-  return <div className="home-development-page"><SiteHeader /><main>{children}</main><SiteFooter email={global.email} newsletterNote={global.newsletterNote} /></div>;
+  return <div className="home-development-page"><SiteHeader /><main>{children}</main><SiteFooter email={global.email} newsletterNote={global.newsletterNote} /><BookingWidget /></div>;
 }

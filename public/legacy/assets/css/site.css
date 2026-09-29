@@ -17955,3 +17955,26 @@ select.booking-lead-field {
     width: 100%;
   }
 }
+
+/* -- Ownership Cost Planner: purchase-price accordion + booking plan note
+   (CMS-era additions, 2026-09-29). Appended so delivered planner styles stay untouched. -- */
+.ownership-planner__price { display: grid; gap: 8px; }
+.ownership-planner__price-acc { background: #fafbf9; border: 1px solid #cdd6ce; border-radius: 0; }
+.ownership-planner__price-acc summary { align-items: center; cursor: pointer; display: flex; gap: 12px; justify-content: space-between; list-style: none; min-height: 48px; padding: 12px 14px; }
+.ownership-planner__price-acc summary::-webkit-details-marker { display: none; }
+.ownership-planner__price-current { color: #17211d; display: block; font-size: 15px; font-weight: 600; }
+.ownership-planner__price-source { color: #66736b; display: block; font-size: 12px; font-style: normal; }
+.ownership-planner__price-acc summary i { border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #4e5b53; transition: transform .2s ease; }
+.ownership-planner__price-acc[open] summary i { transform: rotate(180deg); }
+.ownership-planner__price-list { border-top: 1px solid #e0e5df; }
+.ownership-planner__price-option { align-items: center; background: #fff; border: 0; border-bottom: 1px solid #e0e5df; cursor: pointer; display: flex; font: inherit; gap: 10px; justify-content: space-between; padding: 12px 14px; text-align: left; width: 100%; }
+.ownership-planner__price-option:hover { background: #f4f5f1; }
+.ownership-planner__price-option strong { color: #17211d; font-size: 14px; font-weight: 600; }
+.ownership-planner__price-option em { color: #66736b; font-size: 12px; font-style: normal; }
+.ownership-planner__price-option.is-active { background: #eef3ec; }
+.ownership-planner__price-option.is-active strong::after { color: #3f6b4f; content: " \2713"; font-weight: 700; }
+.ownership-planner__price-custom { background: #f4f5f1; border: 0; border-top: 1px solid #e0e5df; color: #17211d; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700; letter-spacing: .02em; padding: 12px 14px; text-align: left; width: 100%; }
+.ownership-planner__price-custom:hover { background: #eceee7; }
+.ownership-planner__form input, .ownership-planner__form select, .ownership-planner__form textarea, .ownership-planner__form button { font-family: inherit; }
+.booking-plan-note { background: #f4f5f1; border: 1px solid #d9dfd8; color: #3a4940; font-size: 13px; line-height: 1.5; margin: 0 0 14px; padding: 10px 12px; }
+.ownership-planner__amount--manual[hidden] { display: none; }

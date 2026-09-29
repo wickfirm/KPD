@@ -20,7 +20,7 @@
       <div class="ownership-planner__intro"><span class="kpd-eyebrow">Ownership Cost Planner</span><h2>Plan the path to ownership.</h2><p>Review indicative payment milestones, fees and optional handover financing for your selected KPD residence.</p></div>
       <div class="ownership-planner__body"><form class="ownership-planner__form" novalidate>
         <label><span>Development</span><select data-planner-project></select></label>
-        <label><span>Purchase price</span><div class="ownership-planner__amount"><span>AED</span><input data-planner-price type="number" min="100000" step="50000" inputmode="numeric"></div></label>
+        <label><span>Purchase price</span><div class="ownership-planner__price"><details class="ownership-planner__price-acc" data-planner-price-acc><summary><span><span class="ownership-planner__price-current" data-planner-price-label></span><em class="ownership-planner__price-source" data-planner-price-source></em></span><i aria-hidden="true"></i></summary><div class="ownership-planner__price-list" data-planner-price-list></div><button type="button" class="ownership-planner__price-custom" data-planner-price-custom>Enter a custom amount</button></details><div class="ownership-planner__amount ownership-planner__amount--manual" data-planner-price-manual hidden><span>AED</span><input data-planner-price type="number" min="100000" step="50000" inputmode="numeric" aria-label="Custom purchase price"></div></div></label>
         <label><span>Residency status</span><select data-planner-residency><option value="resident">UAE resident</option><option value="national">UAE national</option><option value="nonResident">Non-resident</option></select></label>
         <label class="ownership-planner__toggle"><input data-planner-finance type="checkbox"><span>Finance handover balance</span></label>
         <div class="ownership-planner__finance" data-planner-finance-fields hidden>
@@ -41,11 +41,39 @@
     projectField.innerHTML = settings.projects.map((project) => `<option value="${escape(project.slug)}">${escape(project.name)}</option>`).join("");
     if (settings.projects.some((project) => project.slug === initialProject)) projectField.value = initialProject;
     const selected = () => settings.projects.find((project) => project.slug === projectField.value) || settings.projects[0];
+    // ── Purchase price accordion: project price presets + manual entry ──
+    const priceAcc = find("[data-planner-price-acc]"); const priceList = find("[data-planner-price-list]"); const priceLabel = find("[data-planner-price-label]"); const priceSource = find("[data-planner-price-source]"); const priceManual = find("[data-planner-price-manual]");
+    priceList.innerHTML = settings.projects.map((project) => `<button type="button" class="ownership-planner__price-option" data-planner-price-option="${escape(project.slug)}"><strong>${escape(project.name)}</strong><em>from ${money(project.startingPrice)}</em></button>`).join("");
+    const syncPriceUi = () => {
+      const project = selected(); const price = number(priceField.value); const custom = priceAcc.classList.contains("is-custom");
+      priceLabel.textContent = money(price);
+      priceSource.textContent = project.name;
+      priceManual.hidden = !custom;
+      priceList.querySelectorAll("[data-planner-price-option]").forEach((option) => option.classList.toggle("is-active", !custom && option.getAttribute("data-planner-price-option") === project.slug && price === project.startingPrice));
+    };
+    priceList.addEventListener("click", (event) => {
+      const option = event.target.closest("[data-planner-price-option]");
+      if (!option) return;
+      const project = settings.projects.find((item) => item.slug === option.getAttribute("data-planner-price-option"));
+      if (!project) return;
+      priceAcc.classList.remove("is-custom");
+      priceField.value = project.startingPrice;
+      priceAcc.removeAttribute("open");
+      update();
+    });
+    find("[data-planner-price-custom]").addEventListener("click", () => {
+      priceAcc.classList.add("is-custom");
+      priceManual.hidden = false;
+      priceAcc.removeAttribute("open");
+      priceField.focus();
+      update();
+    });
     const update = ({ resetPrice = false } = {}) => {
       const project = selected();
       if (resetPrice || !number(priceField.value)) priceField.value = project.startingPrice;
       if (resetPrice || !number(rateField.value)) rateField.value = project.interestRate;
       const price = number(priceField.value); const handover = project.milestones[project.milestones.length - 1] || { percentage: 0 };
+      syncPriceUi();
       const maximumLoan = Math.min(number(settings.ltv[residencyField.value]) / 100 * price, handover.percentage / 100 * price);
       loanField.max = String(Math.round(maximumLoan / price * 100));
       if (resetPrice || number(loanField.value) > number(loanField.max) || !number(loanField.value)) loanField.value = loanField.max;
@@ -64,9 +92,9 @@
       const mortgage = find("[data-planner-mortgage]"); mortgage.hidden = !finance;
       if (finance) { find("[data-planner-monthly]").textContent = money(payment(loan, number(rateField.value), number(periodField.value))); find("[data-planner-mortgage-detail]").textContent = `${money(loan)} over ${periodField.value} years at ${rateField.value}% p.a.`; }
       find("[data-planner-disclaimer]").textContent = settings.disclaimer;
-      find("[data-planner-discuss]").onclick = () => { const scenario = `${project.name}: purchase price ${money(price)}; ${finance ? `financing ${money(loan)} at ${rateField.value}% over ${periodField.value} years; ` : ""}cash required before keys ${money(beforeKeys)}.`; sessionStorage.setItem("kpdPlannerScenario", scenario); sessionStorage.setItem("kpdPlannerProject", project.name); window.location.href = "/contact#experience-center"; };
+      find("[data-planner-discuss]").onclick = () => { const scenario = `${project.name}: purchase price ${money(price)}; ${finance ? `financing ${money(loan)} at ${rateField.value}% over ${periodField.value} years; ` : ""}cash required before keys ${money(beforeKeys)}.`; sessionStorage.setItem("kpdPlannerScenario", scenario); sessionStorage.setItem("kpdPlannerProject", project.name); const opener = document.querySelector("[data-booking-launcher]"); if (opener) { opener.click(); } else { window.location.href = "/contact#experience-center"; } };
     };
-    projectField.addEventListener("change", () => update({ resetPrice: true }));
+    projectField.addEventListener("change", () => { priceAcc.classList.remove("is-custom"); update({ resetPrice: true }); });
     [priceField, residencyField, financeField, loanField, rateField, periodField].forEach((field) => field.addEventListener("input", () => update()));
     update({ resetPrice: true });
   }
@@ -74,4 +102,20 @@
   const holders = document.querySelectorAll("[data-kpd-planner]");
   if (!holders.length) return;
   fetch("/api/calculator/kpd").then((response) => response.ok ? response.json() : Promise.reject()).then((settings) => holders.forEach((holder) => mount(holder, settings))).catch(() => holders.forEach((holder) => { holder.innerHTML = '<p class="ownership-planner__unavailable">The planner is temporarily unavailable. Please contact the KPD team for a tailored payment plan.</p>'; }));
+
+  // ── Prefill the booking modal with a saved planner scenario. Works with
+  // both the legacy site.js modal (textarea name="Message") and the migrated
+  // React booking widget (textarea name="message"). ──
+  const bookingModal = document.querySelector(".booking-modal");
+  if (bookingModal && typeof MutationObserver === "function") {
+    const fillScenario = () => {
+      if (!bookingModal.classList.contains("open")) return;
+      const scenario = sessionStorage.getItem("kpdPlannerScenario");
+      if (!scenario) return;
+      const message = bookingModal.querySelector("textarea[name='Message'], textarea[name='message']");
+      if (message && !message.value) message.value = scenario;
+    };
+    new MutationObserver(fillScenario).observe(bookingModal, { attributes: true, attributeFilter: ["class"] });
+    fillScenario();
+  }
 })();
