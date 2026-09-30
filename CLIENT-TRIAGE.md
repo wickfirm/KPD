@@ -32,3 +32,19 @@ Status after the 2026-09-29 fix round. Verification: `npx tsc --noEmit` clean, `
 - Legacy pages under `/legacy/**` also benefit from fixes 2â€“3 (shared planner JS; their `site.js` booking modal is auto-filled with the scenario via a small observer added to the planner script).
 - No database schema changes were made, so no migration is required for this round.
 - Cache-busting: planner script version bumped to `?v=20260929` in both the migrated page and legacy template.
+
+---
+
+## RESOLVED — Work order 2026-10 (delivered)
+
+The client green-lit the full 7-point admin work order. Delivered on branch `cline/wo-2026-10`:
+
+1. **CMS UX overhaul** — sidebar shell with grouped plain-language navigation, friendly dashboard (attention list, quick actions, stats, tips), success/confirmation banners on every editor, confirmation dialogs on destructive actions, friendly empty states, polished login.
+2. **KPD calculator restyle** — full visual pass on the public Ownership Cost Planner (`.ownership-planner`), matched to site styling: spacing, typography, focus rings, price accordion, results panel with dotted-leader timeline, compact + mobile variants. (`public/legacy/assets/css/site.css`, appended block dated 2026-10-01.)
+3. **Roles & permissions** — `ADMIN` (settings, team, activity log, media deletion) vs `EDITOR` (content + media uploads + reviews). Enforced three layers: sidebar visibility, page guards (`requireRole`), and every server action (`requireUser` re-checks the live account; deactivated users are bounced immediately).
+4. **Password & profile management** — `/admin/profile`: change own password (current password required, 10+ chars with letters+numbers), update display name, see last sign-in / password age. Admins reset any password under `/admin/users`.
+5. **Activity log** — append-only `activity_logs` table; every admin mutation, sign-in/out (incl. failures), media and version action is recorded. `/admin/activity` (admin-only): action filter chips + 50-per-page pagination; latest 6 shown on the dashboard.
+6. **Version control + rollback** — every save of articles, pages, homepage, about, developments, sections, site settings and the calculator stores a snapshot; newest 5 kept per item (6th save evicts the oldest, FIFO). Restore replays the snapshot through the normal save path (same validation + logging), is itself undoable, and can even resurrect deleted items. UI: "Version history" panels on each editor + per-section history inside development pages.
+7. **Media manager** — `/admin/media` backed by Cloudflare R2 + new `media_assets` registry: multi-file upload (25 MB, typed), copy-link buttons, thumbnails, pagination, admin delete (R2 + registry), one-click "import files already in storage". All CMS uploads (including the cover-image picker API) now register automatically.
+
+Schema: new tables `activity_logs`, `content_versions`, `media_assets`; new `users` columns `isActive`, `lastLoginAt`, `passwordChangedAt`. Applied to production (Supabase) on 2026-10-01; also mirrored in `prisma/supabase-init.sql` for fresh environments.

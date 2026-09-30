@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { db } from "@/lib/db";
 import { authenticate, setSessionCookie } from "@/lib/auth";
+import { logActivity } from "@/lib/activity";
 
 export type LoginState = { error?: string };
 
@@ -21,13 +23,17 @@ export async function login(_prev: LoginState, formData: FormData): Promise<Logi
         "The CMS cannot reach its database right now. Please verify the Vercel database connection settings and try again.",
     };
   }
-  if (!user) return { error: "Invalid credentials." };
+  if (!user) {
+    // One generic message for wrong password, unknown email and deactivated
+    // accounts alike — never reveal which detail was wrong.
+    await logActivity({ action: "auth.login_failed", summary: `Failed sign-in attempt for ${email.trim().toLowerCase()}` });
+    return { error: "That email and password combination does not match an account." };
+  }
 
-  await setSessionCookie({
-    userId: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-  });
+  const session = { userId: user.id, email: user.email, name: user.name, role: user.role };
+  await setSessionCookie(session);
+  await db.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } }).catch(() => null);
+  await logActivity({ session, action: "auth.login", summary: `${user.name} signed in` });
   redirect("/admin");
 }
+

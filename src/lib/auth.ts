@@ -27,6 +27,33 @@ export async function requireSession(): Promise<SessionPayload> {
   return session;
 }
 
+/// Session + live-user verification. The signed cookie alone cannot tell
+/// whether the account was deleted or deactivated after sign-in, so every
+/// server component / action re-checks the users table through this guard.
+export async function requireUser() {
+  const session = await requireSession();
+  const user = await db.user.findUnique({ where: { id: session.userId } });
+  if (!user || !user.isActive) {
+    await clearSessionCookie();
+    redirect("/admin/login");
+  }
+  return { session, user };
+}
+
+export type AdminRole = "ADMIN" | "EDITOR";
+
+/// Role guard built on requireUser: redirects non-privileged users back to the
+/// dashboard with ?denied=1 (pages and actions both render the explanation).
+/// Permission model (work order 2026-10):
+///   ADMIN  — everything: content, media, settings, users, activity log.
+///   EDITOR — content + media uploads + submissions/RSS review; no settings,
+///            no user management, no activity log, no media deletion.
+export async function requireRole(roles: AdminRole[]) {
+  const { session, user } = await requireUser();
+  if (!roles.includes(user.role)) redirect("/admin?denied=1");
+  return { session, user };
+}
+
 export async function setSessionCookie(payload: SessionPayload) {
   const token = await createSessionToken(payload);
   const store = await cookies();
@@ -80,6 +107,7 @@ export async function authenticate(email: string, password: string) {
 
   const user = await db.user.findUnique({ where: { email: email.trim().toLowerCase() } });
   if (!user) return null;
+  if (!user.isActive) return null; // deactivated accounts cannot sign in
   const ok = await verifyPassword(password, user.passwordHash);
   return ok ? user : null;
 }

@@ -280,3 +280,56 @@ VALUES
  '[{"type":"paragraph","text":"Placeholder — final text to be supplied by the client''s legal counsel (Clause 3) and wired through the CMS (Clause 2)."}]'::jsonb,
  'DRAFT', NOW())
 ON CONFLICT ("slug") DO NOTHING;
+
+-- ═════════════════════════════════════════════════════════════════════════════
+-- Work order 2026-10 — governance layer (activity log, content versions, media)
+-- Idempotent: new tables + new columns on users. Safe to re-run.
+-- ═════════════════════════════════════════════════════════════════════════════
+
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "isActive" BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "lastLoginAt" TIMESTAMP(3);
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "passwordChangedAt" TIMESTAMP(3);
+
+CREATE TABLE IF NOT EXISTS "activity_logs" (
+    "id" TEXT NOT NULL,
+    "actorEmail" TEXT,
+    "actorName" TEXT,
+    "action" TEXT NOT NULL,
+    "entityType" TEXT,
+    "entityId" TEXT,
+    "summary" TEXT NOT NULL,
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "activity_logs_pkey" PRIMARY KEY ("id")
+);
+CREATE INDEX IF NOT EXISTS "activity_logs_createdAt_idx" ON "activity_logs"("createdAt");
+CREATE INDEX IF NOT EXISTS "activity_logs_action_idx" ON "activity_logs"("action");
+
+CREATE TABLE IF NOT EXISTS "content_versions" (
+    "id" TEXT NOT NULL,
+    "entityType" TEXT NOT NULL,
+    "entityId" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "versionNumber" INTEGER NOT NULL,
+    "snapshot" JSONB NOT NULL,
+    "authorEmail" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "content_versions_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "content_versions_entityType_entityId_versionNumber_key" ON "content_versions"("entityType", "entityId", "versionNumber");
+CREATE INDEX IF NOT EXISTS "content_versions_entityType_entityId_versionNumber_idx" ON "content_versions"("entityType", "entityId", "versionNumber" DESC);
+
+CREATE TABLE IF NOT EXISTS "media_assets" (
+    "id" TEXT NOT NULL,
+    "key" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "fileName" TEXT NOT NULL,
+    "contentType" TEXT NOT NULL,
+    "size" INTEGER NOT NULL,
+    "uploadedBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "media_assets_pkey" PRIMARY KEY ("id")
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "media_assets_key_key" ON "media_assets"("key");
+CREATE INDEX IF NOT EXISTS "media_assets_createdAt_idx" ON "media_assets"("createdAt");

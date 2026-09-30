@@ -3,7 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireSession } from "@/lib/auth";
+import { requireUser } from "@/lib/auth";
+import { logActivity } from "@/lib/activity";
+import {
+  recordVersion,
+  snapshotFormData,
+  snapshotToFormData,
+  type ContentVersionEntity,
+  type VersionSnapshot,
+} from "@/lib/versions";
 import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
 import { ownershipCostPlannerDefaults, type OwnershipCostPlanner } from "@/lib/ownership-cost-planner";
 
@@ -35,13 +43,32 @@ export type StaticPageFormState = { error?: string };
 export type SiteSettingsFormState = { error?: string };
 export type OwnershipCostPlannerFormState = { error?: string };
 
-export async function saveArticle(
-  _prev: ArticleFormState,
-  formData: FormData
-): Promise<ArticleFormState> {
-  await requireSession();
+type ApplyResult = { error?: string; id?: string; projectId?: string; label?: string };
 
-  const id = String(formData.get("id") || "");
+function isMissingRecord(error: unknown) {
+  return (
+    String((error as { code?: string }).code) === "P2025" ||
+    String((error as Error).message).includes("Record to update not found")
+  );
+}
+
+/// Editor URL for a versioned entity — where restores return the editor to.
+function editorPathFor(entityType: string, entityId: string): string {
+  switch (entityType) {
+    case "ARTICLE": return `/admin/articles/${entityId}`;
+    case "STATIC_PAGE": return `/admin/pages/${entityId}`;
+    case "PROJECT": return `/admin/projects/${entityId}`;
+    case "PROJECT_MODULE": return "/admin/projects";
+    case "HOME_SETTINGS": return "/admin/pages/home";
+    case "GLOBAL_SETTINGS": return "/admin/settings";
+    case "CALCULATOR": return "/admin/calculator";
+    default: return "/admin";
+  }
+}
+
+/// Shared article write path, used by both the editor form and version restore.
+/// If the record was hard-deleted, a restore re-creates it (recovery).
+async function applyArticle(id: string, formData: FormData): Promise<ApplyResult> {
   const title = String(formData.get("title") || "").trim();
   const kind = formData.get("kind") === "BLOG" ? "BLOG" : "NEWS";
   const slug = slugify(String(formData.get("slug") || "") || title);
@@ -75,28 +102,64 @@ export async function saveArticle(
 
   try {
     if (id) {
-      await db.article.update({ where: { id }, data });
-    } else {
-      await db.article.create({ data });
+      const existing = await db.article.findUnique({ where: { id }, select: { id: true } });
+      if (!existing) {
+        const created = await db.article.create({ data });
+        return { id: created.id, label: created.title };
+      }
+      const updated = await db.article.update({ where: { id }, data });
+      return { id: updated.id, label: updated.title };
     }
+    const created = await db.article.create({ data });
+    return { id: created.id, label: created.title };
   } catch (err) {
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "Slug already exists." : msg };
   }
+}
 
+export async function saveArticle(
+  _prev: ArticleFormState,
+  formData: FormData
+): Promise<ArticleFormState> {
+  const { session } = await requireUser();
+
+  const id = String(formData.get("id") || "");
+  const result = await applyArticle(id, formData);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this article." };
+
+  revalidatePath("/");
+  revalidatePath("/news");
   revalidatePath("/admin/articles");
-  redirect("/admin/articles");
+  revalidatePath(`/admin/articles/${result.id}`);
+  await recordVersion({
+    entityType: "ARTICLE",
+    entityId: result.id,
+    path: `/admin/articles/${result.id}`,
+    label: result.label || "Article",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "content.save", session, entityType: "ARTICLE", entityId: result.id, summary: `Saved article “${result.label}”` });
+  redirect(`/admin/articles/${result.id}?saved=1`);
 }
 
 export async function deleteArticle(formData: FormData) {
-  await requireSession();
+  const { session } = await requireUser();
   const id = String(formData.get("id") || "");
-  if (id) await db.article.delete({ where: { id } });
+  if (!id) return;
+  const article = await db.article.delete({ where: { id } }).catch(() => null);
+  if (article) {
+    await db.contentVersion.deleteMany({ where: { entityType: "ARTICLE", entityId: id } });
+    await logActivity({ action: "content.delete", session, entityType: "ARTICLE", entityId: id, summary: `Deleted article “${article.title}”` });
+  }
+  revalidatePath("/");
+  revalidatePath("/news");
   revalidatePath("/admin/articles");
 }
 
 export async function reviewRssItem(formData: FormData) {
-  const session = await requireSession();
+  const session = (await requireUser()).session;
   const id = String(formData.get("id") || "");
   const decision = String(formData.get("decision") || "");
 
@@ -107,6 +170,7 @@ export async function reviewRssItem(formData: FormData) {
       where: { id },
       data: { status: "REJECTED", reviewedBy: session.email, reviewedAt: new Date() },
     });
+    await logActivity({ action: "rss.reject", session, entityType: "RSS_ITEM", entityId: id, summary: `Rejected RSS item “${String(formData.get("title") || id)}”` });
   } else if (decision === "APPROVE") {
     const item = await db.rssItem.findUnique({ where: { id } });
     if (!item) return;
@@ -134,9 +198,11 @@ export async function reviewRssItem(formData: FormData) {
         },
       });
     });
+    await logActivity({ action: "rss.approve", session, entityType: "RSS_ITEM", entityId: id, summary: `Approved RSS item and published article “${item.title}”` });
   }
 
   revalidatePath("/admin/rss");
+  revalidatePath("/news");
 }
 
 function projectStatus(value: FormDataEntryValue | null) {
@@ -186,14 +252,8 @@ function moduleContentFromForm(formData: FormData, kind: ReturnType<typeof modul
   };
 }
 
-/// Create or update a development shell; its reusable content is managed as modules.
-export async function saveProject(
-  _prev: ProjectFormState,
-  formData: FormData,
-): Promise<ProjectFormState> {
-  await requireSession();
-
-  const id = String(formData.get("id") || "");
+/// Shared development write path (editor form + version restore).
+async function applyProject(id: string, formData: FormData): Promise<ApplyResult> {
   const name = String(formData.get("name") || "").trim();
   const slug = slugify(String(formData.get("slug") || "") || name);
   if (!name || !slug) return { error: "Development name is required." };
@@ -212,28 +272,54 @@ export async function saveProject(
     publishedAt: status === "PUBLISHED" ? new Date() : null,
   };
 
-  let project: { id: string; slug: string };
   try {
-    project = id
-      ? await db.project.update({ where: { id }, data })
-      : await db.project.create({ data });
+    if (id) {
+      const existing = await db.project.findUnique({ where: { id }, select: { id: true } });
+      if (!existing) {
+        const created = await db.project.create({ data });
+        return { id: created.id, label: created.name };
+      }
+      const updated = await db.project.update({ where: { id }, data });
+      return { id: updated.id, label: updated.name };
+    }
+    const created = await db.project.create({ data });
+    return { id: created.id, label: created.name };
   } catch (err) {
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "Slug already exists." : "Unable to save this development." };
   }
-  revalidatePath("/admin/projects");
-  revalidatePath(`/admin/projects/${project.id}`);
-  revalidatePath(`/developments/${project.slug}`);
-  redirect(`/admin/projects/${project.id}`);
 }
 
-/// Add or update one ordered module on a development template.
-export async function saveProjectModule(
-  _prev: ProjectModuleFormState,
+/// Create or update a development shell; its reusable content is managed as modules.
+export async function saveProject(
+  _prev: ProjectFormState,
   formData: FormData,
-): Promise<ProjectModuleFormState> {
-  await requireSession();
+): Promise<ProjectFormState> {
+  const { session } = await requireUser();
   const id = String(formData.get("id") || "");
+
+  const result = await applyProject(id, formData);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
+
+  const publicSlug = slugify(String(formData.get("slug") || "") || String(formData.get("name") || ""));
+  revalidatePath("/admin/projects");
+  revalidatePath(`/admin/projects/${result.id}`);
+  if (publicSlug) revalidatePath(`/developments/${publicSlug}`);
+  await recordVersion({
+    entityType: "PROJECT",
+    entityId: result.id,
+    path: `/admin/projects/${result.id}`,
+    label: result.label || "Development",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "content.save", session, entityType: "PROJECT", entityId: result.id, summary: `Saved development “${result.label}”` });
+  redirect(`/admin/projects/${result.id}?saved=1`);
+}
+
+/// Shared module write path (editor form + version restore). Restoring a
+/// module that was meanwhile deleted re-creates it inside its development.
+async function applyProjectModule(id: string, formData: FormData): Promise<ApplyResult> {
   const projectId = String(formData.get("projectId") || "");
   const title = String(formData.get("title") || "").trim();
   const slug = slugify(String(formData.get("slug") || "") || title);
@@ -251,39 +337,75 @@ export async function saveProjectModule(
     sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
   };
 
-  let module: { projectId: string };
   try {
-    module = id
-      ? await db.projectModule.update({ where: { id }, data })
-      : await db.projectModule.create({ data: { ...data, projectId } });
+    if (id) {
+      const existing = await db.projectModule.findUnique({ where: { id }, select: { projectId: true } });
+      if (!existing) {
+        const created = await db.projectModule.create({ data: { ...data, projectId } });
+        return { id: created.id, projectId, label: created.title };
+      }
+      const updated = await db.projectModule.update({ where: { id }, data });
+      return { id, projectId: updated.projectId, label: updated.title };
+    }
+    const created = await db.projectModule.create({ data: { ...data, projectId } });
+    return { id: created.id, projectId, label: created.title };
   } catch (err) {
+    if (isMissingRecord(err)) {
+      const created = await db.projectModule.create({ data: { ...data, projectId } }).catch(() => null);
+      if (created) return { id: created.id, projectId, label: created.title };
+    }
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "A module with this slug already exists." : "Unable to save this module." };
   }
-  const project = await db.project.findUnique({ where: { id: module.projectId }, select: { slug: true } });
-  revalidatePath(`/admin/projects/${projectId}`);
+}
+
+/// Add or update one ordered module on a development template.
+export async function saveProjectModule(
+  _prev: ProjectModuleFormState,
+  formData: FormData,
+): Promise<ProjectModuleFormState> {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const projectId = String(formData.get("projectId") || "");
+
+  const result = await applyProjectModule(id, formData);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this module." };
+
+  const ownerProjectId = result.projectId ?? projectId;
+  const project = await db.project.findUnique({ where: { id: ownerProjectId }, select: { slug: true } });
+  revalidatePath(`/admin/projects/${ownerProjectId}`);
   if (project) revalidatePath(`/developments/${project.slug}`);
-  redirect(`/admin/projects/${projectId}`);
+  await recordVersion({
+    entityType: "PROJECT_MODULE",
+    entityId: result.id,
+    path: `/admin/projects/${ownerProjectId}`,
+    label: result.label || "Content section",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "content.save", session, entityType: "PROJECT_MODULE", entityId: result.id, summary: `Saved section “${result.label}”` });
+  redirect(`/admin/projects/${ownerProjectId}?saved=1`);
 }
 
 export async function deleteProjectModule(formData: FormData) {
-  await requireSession();
+  const { session } = await requireUser();
   const id = String(formData.get("id") || "");
   const projectId = String(formData.get("projectId") || "");
   if (!id || !projectId) return;
-  const module = await db.projectModule.delete({ where: { id }, select: { project: { select: { slug: true } } } });
+  const module = await db.projectModule.delete({ where: { id }, select: { project: { select: { slug: true } }, title: true } }).catch(() => null);
+  if (module) {
+    await db.contentVersion.deleteMany({ where: { entityType: "PROJECT_MODULE", entityId: id } });
+    await logActivity({ action: "content.delete", session, entityType: "PROJECT_MODULE", entityId: id, summary: `Deleted section “${module.title}”` });
+    revalidatePath(`/developments/${module.project.slug}`);
+  }
   revalidatePath(`/admin/projects/${projectId}`);
-  revalidatePath(`/developments/${module.project.slug}`);
 }
 
 /// Save a conventional editorial page. Page templates render these named
 /// blocks; editors never need to hand-author the JSON representation.
-export async function saveStaticPage(
-  _prev: StaticPageFormState,
-  formData: FormData,
-): Promise<StaticPageFormState> {
-  await requireSession();
-  const id = String(formData.get("id") || "");
+/// Shared page write path (editor form + version restore). Registry pages and
+/// hard-deleted rows are re-created on restore.
+async function applyStaticPage(id: string, formData: FormData): Promise<ApplyResult> {
   const title = String(formData.get("title") || "").trim();
   const slug = slugify(String(formData.get("slug") || "") || title);
   const status = projectStatus(formData.get("status"));
@@ -333,40 +455,73 @@ export async function saveStaticPage(
     ...(legacy ? [legacy] : []),
   ];
 
-  let page: { id: string };
   try {
-    page = id
-      ? await db.staticPage.update({ where: { id }, data: { slug, title, status, content } })
-      : await db.staticPage.create({ data: { slug, title, status, content } });
+    if (id) {
+      const existing = await db.staticPage.findUnique({ where: { id }, select: { id: true } });
+      if (!existing) {
+        const created = await db.staticPage.create({ data: { slug, title, status, content } });
+        return { id: created.id, label: created.title };
+      }
+      const updated = await db.staticPage.update({ where: { id }, data: { slug, title, status, content } });
+      return { id: updated.id, label: updated.title };
+    }
+    const created = await db.staticPage.create({ data: { slug, title, status, content } });
+    return { id: created.id, label: created.title };
   } catch (err) {
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "A page with this slug already exists." : "Unable to save this page." };
   }
-  revalidatePath("/admin/pages");
-  revalidatePath(`/admin/pages/${page.id}`);
+}
+
+function revalidatePublicPage(slug: string) {
   if (slug === "about") revalidatePath("/about");
   if (slug === "legacy") revalidatePath("/legacy");
   if (slug === "invest-in-dubai") revalidatePath("/invest-in-dubai");
   if (slug === "contact") revalidatePath("/contact");
-  redirect(`/admin/pages/${page.id}`);
+}
+
+export async function saveStaticPage(
+  _prev: StaticPageFormState,
+  formData: FormData,
+): Promise<StaticPageFormState> {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const slug = slugify(String(formData.get("slug") || "") || String(formData.get("title") || ""));
+
+  const result = await applyStaticPage(id, formData);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this page." };
+
+  revalidatePath("/admin/pages");
+  revalidatePath(`/admin/pages/${result.id}`);
+  revalidatePublicPage(slug);
+  await recordVersion({
+    entityType: "STATIC_PAGE",
+    entityId: result.id,
+    path: `/admin/pages/${result.id}`,
+    label: result.label || "Page",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "content.save", session, entityType: "STATIC_PAGE", entityId: result.id, summary: `Saved page “${result.label}”` });
+  redirect(`/admin/pages/${result.id}?saved=1`);
 }
 
 export async function deleteStaticPage(formData: FormData) {
-  await requireSession();
+  const { session } = await requireUser();
   const id = String(formData.get("id") || "");
   if (!id) return;
-  await db.staticPage.delete({ where: { id } });
+  const page = await db.staticPage.delete({ where: { id } }).catch(() => null);
+  if (page) {
+    await db.contentVersion.deleteMany({ where: { entityType: "STATIC_PAGE", entityId: id } });
+    await logActivity({ action: "content.delete", session, entityType: "STATIC_PAGE", entityId: id, summary: `Deleted page “${page.title}”` });
+    revalidatePublicPage(page.slug);
+  }
   revalidatePath("/admin/pages");
   redirect("/admin/pages");
 }
 
-/// Site-wide contact details live in one named settings record. Homepage
-/// content has its own editor under Pages → Homepage (saveHomeSettings).
-export async function saveGlobalSettings(
-  _prev: SiteSettingsFormState,
-  formData: FormData,
-): Promise<SiteSettingsFormState> {
-  await requireSession();
+/// Shared write path for the site-wide contact details record.
+async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
   const global = {
     email: String(formData.get("email") || "").trim(),
     phone: String(formData.get("phone") || "").trim(),
@@ -375,21 +530,37 @@ export async function saveGlobalSettings(
   };
   try {
     await db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } });
+    return { label: "Site settings" };
   } catch {
     return { error: "Unable to save site settings." };
   }
-  revalidatePath("/");
-  revalidatePath("/admin/settings");
-  redirect("/admin/settings");
 }
 
-/// Homepage content is stored in the "home" settings record and edited from
-/// the Pages section, where editors expect to find page content.
-export async function saveHomeSettings(
+/// Site-wide contact details live in one named settings record. Homepage
+/// content has its own editor under Pages → Homepage (saveHomeSettings).
+export async function saveGlobalSettings(
   _prev: SiteSettingsFormState,
   formData: FormData,
 ): Promise<SiteSettingsFormState> {
-  await requireSession();
+  const { session } = await requireUser();
+  const result = await applyGlobalSettings(formData);
+  if (result.error) return { error: result.error };
+  revalidatePath("/");
+  revalidatePath("/admin/settings");
+  await recordVersion({
+    entityType: "GLOBAL_SETTINGS",
+    entityId: "global",
+    path: "/admin/settings",
+    label: "Site settings",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "settings.save", session, entityType: "GLOBAL_SETTINGS", entityId: "global", summary: "Saved site settings" });
+  redirect("/admin/settings?saved=1");
+}
+
+/// Shared write path for the homepage content record.
+async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
   const home = {
     heroVideo: String(formData.get("heroVideo") || "").trim(),
     introHeading: String(formData.get("introHeading") || "").trim(),
@@ -401,21 +572,37 @@ export async function saveHomeSettings(
   };
   try {
     await db.siteSetting.upsert({ where: { key: "home" }, update: { value: home }, create: { key: "home", value: home } });
+    return { label: "Homepage" };
   } catch {
     return { error: "Unable to save the homepage." };
   }
-  revalidatePath("/");
-  revalidatePath("/admin/pages/home");
-  redirect("/admin/pages/home");
 }
 
-/// Stores editable calculator assumptions in a single named setting. Keeping
-/// this JSON record makes fee/rate updates independent of a code deployment.
-export async function saveOwnershipCostPlanner(
-  _prev: OwnershipCostPlannerFormState,
+/// Homepage content is stored in the "home" settings record and edited from
+/// the Pages section, where editors expect to find page content.
+export async function saveHomeSettings(
+  _prev: SiteSettingsFormState,
   formData: FormData,
-): Promise<OwnershipCostPlannerFormState> {
-  await requireSession();
+): Promise<SiteSettingsFormState> {
+  const { session } = await requireUser();
+  const result = await applyHomeSettings(formData);
+  if (result.error) return { error: result.error };
+  revalidatePath("/");
+  revalidatePath("/admin/pages/home");
+  await recordVersion({
+    entityType: "HOME_SETTINGS",
+    entityId: "home",
+    path: "/admin/pages/home",
+    label: "Homepage",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "content.save", session, entityType: "HOME_SETTINGS", entityId: "home", summary: "Saved homepage content" });
+  redirect("/admin/pages/home?saved=1");
+}
+
+/// Shared write path for the calculator assumptions record (form + restore).
+async function applyCalculator(formData: FormData): Promise<ApplyResult> {
   const number = (name: string, fallback: number) => {
     const parsed = Number(formData.get(name));
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
@@ -458,12 +645,33 @@ export async function saveOwnershipCostPlanner(
   };
   try {
     await db.siteSetting.upsert({ where: { key: "ownership_cost_planner" }, update: { value: planner }, create: { key: "ownership_cost_planner", value: planner } });
+    return { label: "Ownership Cost Planner" };
   } catch {
     return { error: "Unable to save calculator settings." };
   }
+}
+
+/// Stores editable calculator assumptions in a single named setting. Keeping
+/// this JSON record makes fee/rate updates independent of a code deployment.
+export async function saveOwnershipCostPlanner(
+  _prev: OwnershipCostPlannerFormState,
+  formData: FormData,
+): Promise<OwnershipCostPlannerFormState> {
+  const { session } = await requireUser();
+  const result = await applyCalculator(formData);
+  if (result.error) return { error: result.error };
   revalidatePath("/admin/calculator");
   revalidatePath("/api/calculator/kpd");
-  redirect("/admin/calculator");
+  await recordVersion({
+    entityType: "CALCULATOR",
+    entityId: "ownership_cost_planner",
+    path: "/admin/calculator",
+    label: "Ownership Cost Planner",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "settings.save", session, entityType: "CALCULATOR", entityId: "ownership_cost_planner", summary: "Saved calculator settings" });
+  redirect("/admin/calculator?saved=1");
 }
 
 function numberFrom(value: FormDataEntryValue | undefined, fallback: number) {
@@ -473,7 +681,7 @@ function numberFrom(value: FormDataEntryValue | undefined, fallback: number) {
 
 /// One-time bridge from the delivered static development pages into editable CMS modules.
 export async function importLegacyProjectTemplate(formData: FormData) {
-  await requireSession();
+  const { session } = await requireUser();
   const projectId = String(formData.get("projectId") || "");
   const slug = String(formData.get("slug") || "");
   const template = legacyProjectTemplates[slug];
@@ -493,7 +701,54 @@ export async function importLegacyProjectTemplate(formData: FormData) {
     }
   });
 
+  await logActivity({ action: "content.import", session, entityType: "PROJECT", entityId: projectId, summary: `Imported the delivered page content (template: ${slug})` });
   revalidatePath(`/admin/projects/${projectId}`);
   revalidatePath(`/developments/${slug}`);
-  redirect(`/admin/projects/${projectId}`);
+  redirect(`/admin/projects/${projectId}?saved=1`);
+}
+
+// ── Version restore ──────────────────────────────────────────────────────────
+// Replays a stored editor payload through the regular save path, so validation,
+// revalidation and activity logging behave exactly like a manual save. The
+// restore itself is recorded as a new version, which makes it undoable.
+
+export async function restoreVersion(formData: FormData) {
+  const { session } = await requireUser();
+  const versionId = String(formData.get("versionId") || "");
+  const version = await db.contentVersion.findUnique({ where: { id: versionId } });
+  if (!version) redirect("/admin");
+
+  const payload = snapshotToFormData(version.snapshot);
+  let result: ApplyResult;
+  switch (version.entityType) {
+    case "ARTICLE": result = await applyArticle(version.entityId, payload); break;
+    case "STATIC_PAGE": result = await applyStaticPage(version.entityId, payload); break;
+    case "PROJECT": result = await applyProject(version.entityId, payload); break;
+    case "PROJECT_MODULE": result = await applyProjectModule(version.entityId, payload); break;
+    case "HOME_SETTINGS": result = await applyHomeSettings(payload); break;
+    case "GLOBAL_SETTINGS": result = await applyGlobalSettings(payload); break;
+    case "CALCULATOR": result = await applyCalculator(payload); break;
+    default: redirect(version.path || "/admin");
+  }
+
+  const returnPath = version.entityType === "PROJECT_MODULE"
+    ? version.path
+    : editorPathFor(version.entityType, result.id ?? version.entityId);
+  if (result.error) redirect(`${returnPath}?error=${encodeURIComponent(result.error)}`);
+
+  const entityId = result.id ?? version.entityId;
+  await recordVersion({
+    entityType: version.entityType as ContentVersionEntity,
+    entityId,
+    path: returnPath,
+    label: `${version.label} — restored from v${version.versionNumber}`,
+    snapshot: snapshotFormData(payload),
+    authorEmail: session.email,
+  });
+  await logActivity({ action: "content.restore", session, entityType: version.entityType, entityId, summary: `Restored “${version.label}” to version ${version.versionNumber}` });
+
+  if (version.entityType === "ARTICLE" || version.entityType === "STATIC_PAGE") revalidatePath("/");
+  if (version.entityType === "CALCULATOR") revalidatePath("/api/calculator/kpd");
+  revalidatePath(returnPath);
+  redirect(`${returnPath}?restored=1`);
 }

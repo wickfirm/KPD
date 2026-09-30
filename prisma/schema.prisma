@@ -29,13 +29,18 @@ enum UserRole {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         UserRole @default(EDITOR)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String    @id @default(cuid())
+  email             String    @unique
+  passwordHash      String
+  name              String
+  role              UserRole  @default(EDITOR)
+  /// Deactivated accounts cannot sign in; existing sessions are bounced by
+  /// requireUser() (server components/actions re-check the row on every hit).
+  isActive          Boolean   @default(true)
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@map("users")
 }
@@ -263,5 +268,71 @@ model SiteSetting {
   updatedAt DateTime @updatedAt
 
   @@map("site_settings")
+}
+
+
+// ── Governance layer (work order 2026-10) ───────────────────────────────────
+// Activity log, rolling content versions, and the R2 media registry.
+
+/// Append-only audit trail: who changed what, and when. Written best-effort by
+/// src/lib/activity.ts — a logging failure must never break a content save.
+model ActivityLog {
+  id         String   @id @default(cuid())
+  actorEmail String?
+  actorName  String?
+  /// Dot-namespaced action, e.g. "content.save", "user.create", "auth.login".
+  action     String
+  entityType String?
+  entityId   String?
+  /// Human-readable one-liner rendered in the admin activity screen.
+  summary    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+  @@map("activity_logs")
+}
+
+/// Rolling content history. At most MAX_CONTENT_VERSIONS (5) rows are kept per
+/// entity; saving a 6th version evicts the oldest. `snapshot` stores the
+/// editor's form payload so a restore can replay it through the regular save
+/// path (same validation, same activity logging).
+model ContentVersion {
+  id            String   @id @default(cuid())
+  /// ARTICLE | STATIC_PAGE | PROJECT | PROJECT_MODULE | HOME_SETTINGS |
+  /// GLOBAL_SETTINGS | CALCULATOR
+  entityType    String
+  entityId      String
+  /// Editor URL the restore action returns the editor to.
+  path          String
+  /// Short human label shown in the history list (e.g. the content title).
+  label         String
+  versionNumber Int
+  /// Record<string, string[]> — the captured FormData entries.
+  snapshot      Json
+  authorEmail   String?
+  createdAt     DateTime @default(now())
+
+  @@unique([entityType, entityId, versionNumber])
+  @@index([entityType, entityId, versionNumber(sort: Desc)])
+  @@map("content_versions")
+}
+
+/// Registry of files stored in Cloudflare R2 — the media library's source of
+/// truth for listing, copy-link and housekeeping. Uploads (CMS API route and
+/// the media manager) register here; an import action backfills older files.
+model MediaAsset {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  url         String
+  fileName    String
+  contentType String
+  size        Int
+  uploadedBy  String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("media_assets")
 }
 

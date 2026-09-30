@@ -12,14 +12,19 @@ export default async function RssQueuePage() {
 
   return (
     <>
-      <h1>RSS moderation queue</h1>
-      <p style={{ color: "#5b6675", fontSize: 14 }}>
-        Matching items from Google News &amp; GDELT arrive here (Vercel Cron ingests
-        every 30 minutes). Approve to publish as a News article, or reject.
-      </p>
+      <div className="cms-page-heading">
+        <div>
+          <span className="cms-eyebrow">Audience</span>
+          <h1>News inbox</h1>
+          <p>Press mentions found automatically (Google News &amp; GDELT, checked every 30 minutes). Approve to publish as a News article, or reject to file away.</p>
+        </div>
+      </div>
 
       {items.length === 0 && (
-        <div className="cms-card">Queue is empty. Nothing awaiting review.</div>
+        <div className="cms-card cms-empty">
+          <h2>Nothing waiting for review</h2>
+          <p>New press mentions land here automatically. You will see them the next time something is found.</p>
+        </div>
       )}
 
       {items.map((item) => (

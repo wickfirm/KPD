@@ -10,11 +10,13 @@ export default async function SubmissionsPage() {
 
   return (
     <>
-      <h1>Form submissions</h1>
-      <p style={{ color: "#5b6675", fontSize: 14 }}>
-        Dual-write status of contact / booking submissions. NEW = awaiting Salesforce
-        sync, SYNCED = mirrored to Salesforce, FAILED = will retry.
-      </p>
+      <div className="cms-page-heading">
+        <div>
+          <span className="cms-eyebrow">Audience</span>
+          <h1>Messages</h1>
+          <p>Enquiries from the website's contact and booking forms. Every message is stored here and mirrored to Salesforce (NEW = awaiting sync, SYNCED = delivered, FAILED = needs a look).</p>
+        </div>
+      </div>
 
       <table className="cms-table">
         <thead>
@@ -32,7 +34,7 @@ export default async function SubmissionsPage() {
             <tr key={s.id}>
               <td>{s.createdAt.toLocaleString("en-GB")}</td>
               <td>{s.name}</td>
-              <td>{s.email}</td>
+              <td><a href={`mailto:${s.email}`}>{s.email}</a></td>
               <td>{s.interest ?? "—"}</td>
               <td>
                 <span className={`cms-badge cms-badge--${s.status}`}>{s.status}</span>
@@ -42,7 +44,7 @@ export default async function SubmissionsPage() {
           ))}
           {submissions.length === 0 && (
             <tr>
-              <td colSpan={6}>No submissions yet.</td>
+              <td colSpan={6}>No messages yet — new enquiries from the website will appear here.</td>
             </tr>
           )}
         </tbody>
