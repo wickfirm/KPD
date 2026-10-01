@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
+import { revalidatePublicContent } from "@/lib/revalidate";
 import {
   recordVersion,
   snapshotFormData,
@@ -132,6 +133,7 @@ export async function saveArticle(
   revalidatePath("/news");
   revalidatePath("/admin/articles");
   revalidatePath(`/admin/articles/${result.id}`);
+  revalidatePublicContent();
   await recordVersion({
     entityType: "ARTICLE",
     entityId: result.id,
@@ -156,6 +158,7 @@ export async function deleteArticle(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/news");
   revalidatePath("/admin/articles");
+  revalidatePublicContent();
 }
 
 export async function reviewRssItem(formData: FormData) {
@@ -203,6 +206,7 @@ export async function reviewRssItem(formData: FormData) {
 
   revalidatePath("/admin/rss");
   revalidatePath("/news");
+  revalidatePublicContent();
 }
 
 function projectStatus(value: FormDataEntryValue | null) {
@@ -304,6 +308,7 @@ export async function saveProject(
   const publicSlug = slugify(String(formData.get("slug") || "") || String(formData.get("name") || ""));
   revalidatePath("/admin/projects");
   revalidatePath(`/admin/projects/${result.id}`);
+  revalidatePublicContent();
   if (publicSlug) revalidatePath(`/developments/${publicSlug}`);
   await recordVersion({
     entityType: "PROJECT",
@@ -374,6 +379,7 @@ export async function saveProjectModule(
   const ownerProjectId = result.projectId ?? projectId;
   const project = await db.project.findUnique({ where: { id: ownerProjectId }, select: { slug: true } });
   revalidatePath(`/admin/projects/${ownerProjectId}`);
+  revalidatePublicContent();
   if (project) revalidatePath(`/developments/${project.slug}`);
   await recordVersion({
     entityType: "PROJECT_MODULE",
@@ -399,6 +405,7 @@ export async function deleteProjectModule(formData: FormData) {
     revalidatePath(`/developments/${module.project.slug}`);
   }
   revalidatePath(`/admin/projects/${projectId}`);
+  revalidatePublicContent();
 }
 
 /// Save a conventional editorial page. Page templates render these named
@@ -494,6 +501,7 @@ export async function saveStaticPage(
   revalidatePath("/admin/pages");
   revalidatePath(`/admin/pages/${result.id}`);
   revalidatePublicPage(slug);
+  revalidatePublicContent();
   await recordVersion({
     entityType: "STATIC_PAGE",
     entityId: result.id,
@@ -517,6 +525,7 @@ export async function deleteStaticPage(formData: FormData) {
     revalidatePublicPage(page.slug);
   }
   revalidatePath("/admin/pages");
+  revalidatePublicContent();
   redirect("/admin/pages");
 }
 
@@ -547,6 +556,7 @@ export async function saveGlobalSettings(
   if (result.error) return { error: result.error };
   revalidatePath("/");
   revalidatePath("/admin/settings");
+  revalidatePublicContent();
   await recordVersion({
     entityType: "GLOBAL_SETTINGS",
     entityId: "global",
@@ -589,6 +599,7 @@ export async function saveHomeSettings(
   if (result.error) return { error: result.error };
   revalidatePath("/");
   revalidatePath("/admin/pages/home");
+  revalidatePublicContent();
   await recordVersion({
     entityType: "HOME_SETTINGS",
     entityId: "home",
@@ -704,6 +715,7 @@ export async function importLegacyProjectTemplate(formData: FormData) {
   await logActivity({ action: "content.import", session, entityType: "PROJECT", entityId: projectId, summary: `Imported the delivered page content (template: ${slug})` });
   revalidatePath(`/admin/projects/${projectId}`);
   revalidatePath(`/developments/${slug}`);
+  revalidatePublicContent();
   redirect(`/admin/projects/${projectId}?saved=1`);
 }
 
@@ -750,5 +762,6 @@ export async function restoreVersion(formData: FormData) {
   if (version.entityType === "ARTICLE" || version.entityType === "STATIC_PAGE") revalidatePath("/");
   if (version.entityType === "CALCULATOR") revalidatePath("/api/calculator/kpd");
   revalidatePath(returnPath);
+  revalidatePublicContent();
   redirect(`${returnPath}?restored=1`);
 }

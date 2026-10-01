@@ -12,7 +12,7 @@ type HomeContent = {
   experienceImages?: string[];
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 /// The original homepage remains the visual source of truth. CMS fields
 /// replace its corresponding content only when an editor has supplied a value.

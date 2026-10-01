@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 type Block = { type?: string; heading?: string; text?: string; image?: string; [key: string]: unknown };
 
 export const metadata = { title: "About", description: "Learn about Kasumigaseki Properties Development and its Dubai platform." };
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function AboutPage() {
   let content: AboutContent = {};

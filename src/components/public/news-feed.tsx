@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 /// Restores the approved News design behaviour: All / News / Blogs filter
@@ -30,7 +31,7 @@ function formatDate(iso: string | null) {
 function Card({ article }: { article: NewsCard }) {
   return (
     <article className="news-card-item kpd-news-card">
-      {article.coverImage ? <img src={article.coverImage} alt={article.coverImageAlt || article.title} /> : null}
+      {article.coverImage ? <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill sizes="(max-width: 1024px) 88vw, 31vw" /> : null}
       <div className="kpd-card-content">
         <span className="small-kicker">
           {article.kind === "BLOG" ? "BLOG" : "NEWS"}
