@@ -10,6 +10,22 @@ const nextConfig = {
       { protocol: "https", hostname: "assets.kpd.ae" },
       { protocol: "https", hostname: "*.r2.dev" },
     ],
+    // AVIF first (≈20–30% smaller than WebP), WebP as fallback.
+    formats: ["image/avif", "image/webp"],
+    // Optimized images stay cached on Vercel's edge even when an R2 object
+    // ships without a long Cache-Control (the default TTL is only 60s).
+    minimumCacheTTL: 2678400,
+  },
+  poweredByHeader: false,
+  /// The delivered legacy design assets are content-stable: browsers keep them
+  /// for a day and the edge serves stale copies while revalidating in background.
+  async headers() {
+    return [
+      {
+        source: "/legacy/assets/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+    ];
   },
   /// Canonical public routes are the clean Next.js URLs. Keep the delivered
   /// HTML addresses as permanent redirects so existing links do not 404.

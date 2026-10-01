@@ -6,6 +6,13 @@ type Block = { type?: string; heading?: string; text?: string; image?: string; c
 const legalPages: Record<string, string> = { "privacy-policy": "privacy-policy.html", terms: "terms.html", "cookie-policy": "cookie-policy.html" };
 
 export const revalidate = 300;
+
+/// The managed slugs are a fixed set — prerendered at deploy time; content is
+/// still fetched per render and revalidated after 300s.
+export function generateStaticParams() {
+  return Object.keys(legalPages).map((slug) => ({ slug }));
+}
+
 export default async function ManagedLegalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const legacyFile = legalPages[slug];

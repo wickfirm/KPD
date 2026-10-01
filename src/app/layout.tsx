@@ -30,6 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        {/* Warm up the third-party icon CDNs used by the public templates. */}
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://cdn-uicons.flaticon.com" crossOrigin="anonymous" />
         {children}
         <script
           type="application/ld+json"

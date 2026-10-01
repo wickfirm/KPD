@@ -2,13 +2,32 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { cache } from "react";
 import { db } from "@/lib/db";
 import { absoluteUrl } from "@/lib/site";
 
 export const revalidate = 300;
 
-async function getPublishedArticle(slug: string) {
+/// React cache(): generateMetadata and the page share one query per request.
+const getPublishedArticle = cache(async (slug: string) => {
   return db.article.findFirst({ where: { slug, status: "PUBLISHED" } });
+});
+
+/// Published articles are prerendered at deploy time (capped to keep builds
+/// fast); newer articles render on demand and revalidate after 300s.
+export async function generateStaticParams() {
+  try {
+    const rows = await db.article.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { publishedAt: "desc" },
+      take: 200,
+      select: { slug: true },
+    });
+    return rows.map((row) => ({ slug: row.slug }));
+  } catch {
+    // Database unavailable at build time — routes still render on demand.
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
