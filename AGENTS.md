@@ -43,7 +43,7 @@ npm run db:studio      # Prisma Studio
   - `src/lib/salesforce.ts` — OAuth2 password-grant + Lead create; caches `instanceUrl` in a module variable (mind serverless cold starts). Throws when unconfigured.
   - `src/lib/r2.ts` — Cloudflare R2 upload/delete/public-URL helpers.
 - **RSS pipeline**: Vercel Cron (`vercel.json`, every 30 min) → `GET /api/cron/rss-ingest` (Bearer `CRON_SECRET`) → inserts PENDING `RssItem`s (dedupe by URL) → admin reviews (`/admin/rss`): approve creates a PUBLISHED Article inside a `$transaction`, reject marks REJECTED.
-- **Contact form dual-write**: `POST /api/contact` always persists a `ContactSubmission` locally first, then mirrors to Salesforce as a Lead. Salesforce failure marks the row `FAILED` with `syncError` but still returns 201 — locals-first is intentional; there is NO retry job yet (admin `/submissions` shows failed syncs).
+- **Contact form dual-write**: `POST /api/contact` always persists a `ContactSubmission` locally first, then mirrors to Salesforce as a Lead. Salesforce failure marks the row `FAILED` with `syncError` but still returns 201 — locals-first is intentional. There is no *automated* retry job, but admin `/submissions` has a per-row **Retry sync** action (`submissions/actions.ts` → `retrySubmissionSync`, audits as `submission.retry`) for replaying NEW/FAILED rows once Salesforce credentials are configured; retries use the same bounded-timeout `pushLeadToSalesforce`.
 - **Public API**: `GET /api/articles` (published only, `kind=NEWS|BLOG`, `limit` capped at 100, `publishedAt desc`). DB-failure paths return a graceful 503 (pattern set in commit dc0f50b) — keep that behavior.
 
 ## Data model (prisma/schema.prisma)
