@@ -1,5 +1,8 @@
-// Intentionally empty — prevents Next.js from walking up to a parent folder
-// and picking up a foreign postcss/tailwind configuration.
+// Tailwind v4 processes the admin stylesheet (src/app/admin/admin.css).
+// The empty-file workaround from the pre-Tailwind era is no longer needed —
+// v4 is CSS-first configured and cannot pick up a foreign parent config.
 export default {
-  plugins: [],
+  plugins: {
+    "@tailwindcss/postcss": {},
+  },
 };
