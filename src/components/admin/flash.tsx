@@ -11,6 +11,7 @@ function firstValue(params: FlashParams | undefined, key: string) {
 export function SavedBanner({ params }: { params?: FlashParams }) {
   const restored = firstValue(params, "restored");
   const saved = firstValue(params, "saved");
+  const synced = firstValue(params, "synced");
   const error = firstValue(params, "error");
   const denied = firstValue(params, "denied");
   if (restored) {
@@ -18,6 +19,9 @@ export function SavedBanner({ params }: { params?: FlashParams }) {
   }
   if (saved) {
     return <p className="cms-ok" role="status">Changes saved.</p>;
+  }
+  if (synced) {
+    return <p className="cms-ok" role="status">Enquiry synced to Salesforce.</p>;
   }
   if (error) {
     return <p className="cms-error" role="alert">{error}</p>;

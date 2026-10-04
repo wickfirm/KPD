@@ -26,6 +26,7 @@ export const activityActions = [
   "media.import",
   "rss.approve",
   "rss.reject",
+  "submission.retry",
 ] as const;
 
 export type ActivityAction = (typeof activityActions)[number];
@@ -49,6 +50,7 @@ export const activityActionLabels: Record<ActivityAction, string> = {
   "media.import": "Media imports",
   "rss.approve": "RSS approvals",
   "rss.reject": "RSS rejections",
+  "submission.retry": "Salesforce retries",
 };
 
 export type ActivityInput = {
