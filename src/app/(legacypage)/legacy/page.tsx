@@ -1,17 +1,17 @@
 import { db } from "@/lib/db";
-import { getLegacyPageShell } from "@/lib/legacy-legacy";
 import type { LegacyContent, LegacyMilestone } from "@/lib/legacy-defaults";
 import { LegacyMain } from "@/components/public/legacy-page";
-import { LegacyPageScripts } from "@/components/public/legacy-page-scripts";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; timeline?: LegacyMilestone[] };
 
 export const metadata = { title: "Legacy", description: "The long-horizon KPD platform, from Tokyo to Dubai." };
 export const dynamic = "force-dynamic";
 
-/// Pixel-identical shell (header, menu, booking dialog, footer) served from the
-/// delivered file; the hero and timeline render as React components from CMS
-/// content. The delivered design is the fallback for every field.
+/// Unified delivered shell + React content; the delivered design is the
+/// fallback for every field.
 export default async function LegacyPage() {
   let content: LegacyContent = {};
   try {
@@ -23,11 +23,11 @@ export default async function LegacyPage() {
   } catch {
     // The delivered page stays available if the CMS cannot be read.
   }
-  const shell = getLegacyPageShell();
   return <>
-    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <SiteShellHeader />
     <LegacyMain content={content} />
-    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
-    <LegacyPageScripts />
+    <SiteShellFooter />
+    <DeliveredScripts />
   </>;
 }
+

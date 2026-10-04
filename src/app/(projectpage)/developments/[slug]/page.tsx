@@ -4,7 +4,9 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { getProjectShell } from "@/lib/legacy-project";
 import { DevelopmentMain } from "@/components/public/development-page";
-import { DevelopmentPageScripts } from "@/components/public/development-page-scripts";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 
 export const revalidate = 300;
 
@@ -41,8 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-/// Pixel-identical shell (header, menu, booking dialog, footer) served from the
-/// delivered template; every section renders as React from the project row and
+/// Unified delivered shell + React content rendered from the project row and
 /// its CMS modules.
 export default async function DevelopmentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -51,10 +52,10 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   const shell = getProjectShell(project.slug);
   if (!shell) notFound();
   return <>
-    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <SiteShellHeader />
     <DevelopmentMain project={project} shell={shell} />
-    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
-    <DevelopmentPageScripts />
+    <SiteShellFooter />
+    <DeliveredScripts sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
 }
 

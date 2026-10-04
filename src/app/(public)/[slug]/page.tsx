@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; ctaLabel?: string; ctaUrl?: string };
 const legalPages: Record<string, string> = { "privacy-policy": "privacy-policy.html", terms: "terms.html", "cookie-policy": "cookie-policy.html" };
@@ -23,5 +26,5 @@ export default async function ManagedLegalPage({ params }: { params: Promise<{ s
   const blocks = Array.isArray(page.content) ? page.content as Block[] : [];
   const hero = blocks.find((block) => block.type === "hero");
   const paragraphs = blocks.filter((block) => block.type === "paragraph" && block.text);
-  return <article className="page-reference-main legal-page" id="top"><section className="page-reference-hero"><Image src={hero?.image || "/legacy/assets/images/library/modern-office-glasses-buildings-cityscape-under-bl-2026-03-10-02-05-10-utc.jpg"} alt="KPD legal information" fill priority sizes="100vw" /><div className="page-reference-hero-copy"><span>Legal</span><h1>{hero?.heading || page.title}</h1>{hero?.text ? <p>{hero.text}</p> : null}</div></section><section className="kpd-section legal-page-copy">{paragraphs.map((block, index) => <p key={`${block.text}-${index}`}>{block.text}</p>)}</section></article>;
+  return <><SiteShellHeader /><article className="page-reference-main legal-page" id="top"><section className="page-reference-hero"><Image src={hero?.image || "/legacy/assets/images/library/modern-office-glasses-buildings-cityscape-under-bl-2026-03-10-02-05-10-utc.jpg"} alt="KPD legal information" fill priority sizes="100vw" /><div className="page-reference-hero-copy"><span>Legal</span><h1>{hero?.heading || page.title}</h1>{hero?.text ? <p>{hero.text}</p> : null}</div></section><section className="kpd-section legal-page-copy">{paragraphs.map((block, index) => <p key={`${block.text}-${index}`}>{block.text}</p>)}</section></article><SiteShellFooter /><DeliveredScripts /></>;
 }

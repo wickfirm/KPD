@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { db } from "@/lib/db";
 import { NewsFeed, type NewsCard } from "@/components/public/news-feed";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 
 export const metadata = { title: "News and updates", description: "Announcements, market observations, and development commentary from KPD." };
 export const revalidate = 300;
@@ -31,8 +34,8 @@ export default async function NewsPage() {
   } catch {
     // A missing database must not take the page down; the feed shows its empty state.
   }
-  return <div className="news-design-page news-main page-reference-main" id="top">
+  return <><SiteShellHeader /><div className="news-design-page news-main page-reference-main" id="top">
     <section className="page-reference-hero" aria-label="Media"><Image src="/legacy/assets/images/library/modern-office-glasses-buildings-cityscape-under-bl-2026-03-10-02-05-10-utc.jpg" alt="Modern office towers for media updates" fill priority sizes="100vw" /><div className="page-reference-hero-copy motion-reveal"><span>Media</span><h1>News and<br />updates</h1><p>Announcements, market observations, and development commentary from Kasumigaseki Properties Development.</p></div></section>
     <NewsFeed initialNews={news} initialBlog={blog} />
-  </div>;
+  </div><SiteShellFooter /><DeliveredScripts /></>;
 }
