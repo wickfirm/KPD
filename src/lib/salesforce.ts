@@ -33,6 +33,9 @@ async function getAccessToken(): Promise<string> {
   const res = await fetch(`${process.env.SALESFORCE_LOGIN_URL}/services/oauth2/token`, {
     method: "POST",
     body: params,
+    // Bound the handshake so a slow/hung Salesforce cannot pin the public
+    // enquiry buttons (both /contact and the booking widget await this API).
+    signal: AbortSignal.timeout(5_000),
   });
   if (!res.ok) throw new Error(`Salesforce auth failed (${res.status})`);
   const data = (await res.json()) as { access_token: string; instance_url: string };
@@ -68,6 +71,9 @@ export async function pushLeadToSalesforce(lead: LeadPayload): Promise<string> {
       ...(lead.interest ? { ProductInterest__c: lead.interest } : {}),
       ...(lead.sourcePage ? { LeadSourceDetail__c: lead.sourcePage } : {}),
     }),
+    // Worst-case button wait stays deterministic (~11s total across both
+    // calls); a timeout is caught by /api/contact and recorded as FAILED.
+    signal: AbortSignal.timeout(6_000),
   });
   if (!res.ok) {
     const body = await res.text();

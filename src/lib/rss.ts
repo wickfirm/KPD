@@ -66,7 +66,9 @@ type Candidate = {
 };
 
 async function fetchGoogleNews(): Promise<Candidate[]> {
-  const res = await fetch(buildGoogleFeedUrl(), { cache: "no-store" });
+  // Timeout keeps a hung feed from pinning the cron function; an abort throws,
+  // which the Promise.allSettled in ingestFeeds already isolates per source.
+  const res = await fetch(buildGoogleFeedUrl(), { cache: "no-store", signal: AbortSignal.timeout(10_000) });
   if (!res.ok) return [];
   const xml = await res.text();
   const items: Candidate[] = [];
@@ -95,7 +97,7 @@ async function fetchGoogleNews(): Promise<Candidate[]> {
 }
 
 async function fetchGdelt(): Promise<Candidate[]> {
-  const res = await fetch(buildGdeltUrl(), { cache: "no-store" });
+  const res = await fetch(buildGdeltUrl(), { cache: "no-store", signal: AbortSignal.timeout(10_000) });
   if (!res.ok) return [];
   const data = (await res.json()) as {
     articles?: { title: string; url: string; seendate?: string; socialimage?: string }[];
