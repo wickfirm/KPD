@@ -1,4 +1,7 @@
-import { getLegacyAbout, type AboutContent } from "@/lib/legacy-about";
+import { getAboutPageShell } from "@/lib/legacy-about";
+import { type AboutContent } from "@/lib/about-defaults";
+import { AboutMain } from "@/components/public/about-page";
+import { AboutPageScripts } from "@/components/public/about-page-scripts";
 import { db } from "@/lib/db";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; [key: string]: unknown };
@@ -6,6 +9,9 @@ type Block = { type?: string; heading?: string; text?: string; image?: string; [
 export const metadata = { title: "About", description: "Learn about Kasumigaseki Properties Development and its Dubai platform." };
 export const revalidate = 300;
 
+/// Pixel-identical shell (header, menu, booking dialog, footer) served from the
+/// delivered file; every main section renders as React components from CMS
+/// content. The delivered design is the fallback for every field.
 export default async function AboutPage() {
   let content: AboutContent = {};
   try {
@@ -23,5 +29,12 @@ export default async function AboutPage() {
   } catch {
     // The delivered client page stays available if the CMS database is unavailable.
   }
-  return <div dangerouslySetInnerHTML={{ __html: getLegacyAbout(content) }} />;
+  const shell = getAboutPageShell();
+  return <>
+    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <AboutMain content={content} />
+    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
+    <AboutPageScripts />
+  </>;
 }
+

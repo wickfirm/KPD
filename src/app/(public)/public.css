@@ -1,3 +1,13 @@
 /* The supplied client stylesheet remains the visual source of truth during
    migration. New routes consume it once through the shared public layout. */
 @import url("/legacy/assets/css/site.css");
+
+/* The homepage main renders its CMS sections as React; the delivered static
+   tail rides in a wrapper div (.pdf-static-tail). Keep the delivered rule
+   ".development-pdf-home > section:not(.pdf-section) { display: none }"
+   (site.css ~line 3424) working through that wrapper so the legacy design
+   bands stay hidden exactly as delivered. */
+.development-pdf-home > .pdf-static-tail > section:not(.pdf-section) {
+  display: none;
+}
+

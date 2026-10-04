@@ -1,18 +1,11 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { legacyDefaults } from "./legacy-defaults";
 
-export type LegacyMilestone = { year?: string; title?: string; summary?: string; body?: string; image?: string };
-export type LegacyContent = { heading?: string; text?: string; image?: string; timeline?: LegacyMilestone[] };
+export { legacyDefaults };
+export type { LegacyContent, LegacyMilestone } from "./legacy-defaults";
 
 const legacyPath = join(process.cwd(), "public", "legacy", "legacy.html");
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] || character);
-}
-
-function richText(value: string) {
-  return escapeHtml(value).replace(/\n\s*\n/g, "<br><br>").replace(/\n/g, "<br>");
-}
 
 function pageBody() {
   const document = readFileSync(legacyPath, "utf8");
@@ -29,20 +22,18 @@ function routeLinks(html: string) {
   return html;
 }
 
-function timelineMarkup(timeline: LegacyMilestone[]) {
-  return `<section class="legacy-timeline-section kpd-section" id="legacy-timeline" aria-label="Legacy milestones"><div class="legacy-timeline">${timeline.map((milestone, index) => {
-    const side = index % 2 ? "right" : "left";
-    const active = index === 0;
-    return `<div class="legacy-timeline-row is-${side}${active ? " is-expanded" : ""}"${active ? ' style="--legacy-media-height: 420px;"' : ""}><details class="legacy-timeline-item timeline-item is-${side}${active ? " is-expanded" : ""}"${active ? " open" : ""}><summary><span class="legacy-year">${escapeHtml(milestone.year || "")}</span><span class="legacy-summary-copy"><strong>${escapeHtml(milestone.title || "")}</strong><span>${richText(milestone.summary || "")}</span></span></summary><div class="legacy-timeline-body"><p>${richText(milestone.body || "")}</p></div></details><figure class="legacy-timeline-media"><img src="${escapeHtml(milestone.image || "")}" alt="Legacy milestone ${escapeHtml(milestone.year || "")}"></figure></div>`;
-  }).join("")}</div></section>`;
+/// The delivered page keeps a guaranteed pixel-identical shell: everything
+/// outside <main> (header, menu, booking dialog, footer) is served verbatim,
+/// with legacy routes mapped to the Next.js ones. The main content is rendered
+/// by React components instead of regex-patching this HTML.
+export function getLegacyPageShell() {
+  const body = routeLinks(pageBody());
+  const mainStart = body.indexOf("<main");
+  const mainEnd = body.indexOf("</main>");
+  if (mainStart === -1 || mainEnd === -1) throw new Error("The delivered Legacy page does not contain a main element.");
+  // The delivered <script src="…site.js"> tag is inert inside innerHTML — the
+  // page re-attaches it via LegacyPageScripts. Drop it from the shell.
+  const afterMain = body.slice(mainEnd + "</main>".length).replace(/\s*<script src="[^"]*site\.js[^"]*"><\/script>\s*$/i, "");
+  return { beforeMain: body.slice(0, mainStart), afterMain };
 }
 
-/// The supplied Legacy page remains the visual and interaction baseline.
-export function getLegacyPage(content: LegacyContent) {
-  let html = routeLinks(pageBody());
-  if (content.heading) html = html.replace(/(<div class="page-reference-hero-copy[\s\S]*?<span>Legacy<\/span>\s*<h1>)[\s\S]*?(<\/h1>)/, `$1${richText(content.heading)}$2`);
-  if (content.text) html = html.replace(/(<div class="page-reference-hero-copy[\s\S]*?<\/h1>\s*<p>)[\s\S]*?(<\/p>)/, `$1${richText(content.text)}$2`);
-  if (content.image) html = html.replace(/(<section class="page-reference-hero"[\s\S]*?<img src=")[^"]+/, `$1${escapeHtml(content.image)}`);
-  if (content.timeline?.length === 6) html = html.replace(/<section class="legacy-timeline-section kpd-section" id="legacy-timeline"[\s\S]*?<\/section>/, timelineMarkup(content.timeline));
-  return html;
-}
