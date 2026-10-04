@@ -5,6 +5,9 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { db } from "@/lib/db";
 import { absoluteUrl } from "@/lib/site";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 
 export const revalidate = 300;
 
@@ -63,6 +66,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     publisher: { "@type": "Organization", name: "Kasumigaseki Properties Development" },
     mainEntityOfPage: absoluteUrl(`/news/${article.slug}`),
   };
-  return <article className="news-article-main page-reference-main"><section className="page-reference-hero">{article.coverImage ? <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill priority sizes="100vw" /> : null}<div className="page-reference-hero-copy"><span>{article.kind}</span><h1>{article.title}</h1><p>{article.summary}</p></div></section><div className="kpd-section news-article-copy"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />{body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<Link className="btn-pill" href="/news">Back to news</Link></div></article>;
+  return <><SiteShellHeader /><article className="news-article-main page-reference-main"><section className="page-reference-hero">{article.coverImage ? <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill priority sizes="100vw" /> : null}<div className="page-reference-hero-copy"><span>{article.kind}</span><h1>{article.title}</h1><p>{article.summary}</p></div></section><div className="kpd-section news-article-copy"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />{body.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}<Link className="btn-pill" href="/news">Back to news</Link></div></article><SiteShellFooter /><DeliveredScripts /></>;
 }
 

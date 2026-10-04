@@ -1,7 +1,8 @@
-import { getAboutPageShell } from "@/lib/legacy-about";
 import { type AboutContent } from "@/lib/about-defaults";
 import { AboutMain } from "@/components/public/about-page";
-import { AboutPageScripts } from "@/components/public/about-page-scripts";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 import { db } from "@/lib/db";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; [key: string]: unknown };
@@ -9,9 +10,8 @@ type Block = { type?: string; heading?: string; text?: string; image?: string; [
 export const metadata = { title: "About", description: "Learn about Kasumigaseki Properties Development and its Dubai platform." };
 export const revalidate = 300;
 
-/// Pixel-identical shell (header, menu, booking dialog, footer) served from the
-/// delivered file; every main section renders as React components from CMS
-/// content. The delivered design is the fallback for every field.
+/// Unified delivered shell + React content; the delivered design is the
+/// fallback for every field.
 export default async function AboutPage() {
   let content: AboutContent = {};
   try {
@@ -29,12 +29,12 @@ export default async function AboutPage() {
   } catch {
     // The delivered client page stays available if the CMS database is unavailable.
   }
-  const shell = getAboutPageShell();
   return <>
-    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <SiteShellHeader />
     <AboutMain content={content} />
-    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
-    <AboutPageScripts />
+    <SiteShellFooter />
+    <DeliveredScripts />
   </>;
 }
+
 

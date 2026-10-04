@@ -7,14 +7,6 @@ export type { HomeSettings } from "./home-defaults";
 
 const legacyPath = join(process.cwd(), "public", "legacy", "index.html");
 
-function bodyFromDocument(document: string) {
-  const match = document.match(/<body[^>]*>([\s\S]*)<\/body>/i);
-  if (!match) throw new Error("The delivered homepage does not contain a body element.");
-  return match[1]
-    .replace(/\s*<script\b[^>]*src="assets\/js\/(?:live-news|site)\.js[^"]*"[^>]*><\/script>/gi, "")
-    .replace(/\b(src|href|data-lightbox-src|data-image)="assets\//g, "$1=\"/legacy/assets/");
-}
-
 function routeLinks(html: string) {
   const routes: Record<string, string> = {
     "index.html#top": "/#top",
@@ -35,21 +27,18 @@ function routeLinks(html: string) {
   return html;
 }
 
-/// The delivered page keeps a guaranteed pixel-identical shell: everything
-/// outside <main> (header, menu, booking dialog, footer) is served verbatim,
-/// with legacy routes mapped to the Next.js ones. The CMS-managed homepage
-/// sections render as React (src/components/public/home-page.tsx); everything
-/// from the events section onward is returned as a verbatim static tail.
-export function getHomePageShell() {
-  const body = routeLinks(bodyFromDocument(readFileSync(legacyPath, "utf8")));
-  const mainStart = body.indexOf("<main");
-  const mainEnd = body.indexOf("</main>");
-  if (mainStart === -1 || mainEnd === -1) throw new Error("The delivered homepage does not contain a main element.");
+/// The delivered static tail of the homepage main (events, sunset band, live
+/// news grid and the hidden legacy bands) — served verbatim inside the React
+/// main with assets routed and legacy links mapped.
+export function getHomeStaticTail(): string {
+  const document = readFileSync(legacyPath, "utf8");
+  const match = document.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  if (!match) throw new Error("The delivered homepage does not contain a body element.");
+  const body = routeLinks(match[1]
+    .replace(/\s*<script\b[^>]*src="assets\/js\/(?:live-news|site)\.js[^"]*"[^>]*><\/script>/gi, "")
+    .replace(/\b(src|href|data-lightbox-src|data-image)="assets\//g, "$1=\"/legacy/assets/"));
   const eventsStart = body.indexOf('<section class="pdf-section pdf-events-head"');
-  if (eventsStart === -1 || eventsStart > mainEnd) throw new Error("The delivered homepage events section could not be located.");
-  return {
-    beforeMain: body.slice(0, mainStart),
-    staticTail: body.slice(eventsStart, mainEnd),
-    afterMain: body.slice(mainEnd + "</main>".length),
-  };
+  const mainEnd = body.indexOf("</main>");
+  if (eventsStart === -1 || mainEnd === -1) throw new Error("The delivered homepage tail could not be located.");
+  return body.slice(eventsStart, mainEnd);
 }

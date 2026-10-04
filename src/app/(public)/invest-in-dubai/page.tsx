@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { OwnershipCostPlannerScripts } from "@/components/public/ownership-cost-planner-scripts";
 import { InvestEnhancements } from "@/components/public/invest-enhancements";
+import { SiteShellHeader } from "@/components/public/site-shell-header";
+import { SiteShellFooter } from "@/components/public/site-shell-footer";
+import { DeliveredScripts } from "@/components/public/delivered-scripts";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string };
 
@@ -68,7 +70,7 @@ export default async function InvestPage() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/css/flag-icons.min.css" />
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css" />
-    <div className="invest-dubai-page"><div className="invest-main page-reference-main" id="top">
+    <div className="invest-dubai-page"><SiteShellHeader /><div className="invest-main page-reference-main" id="top">
       <section className="page-reference-hero invest-hero" aria-label="Invest in Dubai">
         <Image src={hero?.image || "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg"} alt="Dubai skyline with Burj Khalifa" fill priority sizes="100vw" />
         <div className="page-reference-hero-copy motion-reveal"><span>Invest in Dubai</span><h1>{hero?.heading || <>Long-horizon<br />value in Dubai</>}</h1><p>{hero?.text || "A focused investment pathway for buyers seeking regulated ownership, composed residential assets, and advisory clarity across Dubai's next chapter."}</p></div>
@@ -211,8 +213,8 @@ export default async function InvestPage() {
           </div>
         </div>
       </section>
-    </div></div>
+    </div><SiteShellFooter /></div>
     <InvestEnhancements />
-    <OwnershipCostPlannerScripts />
+    <DeliveredScripts sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
 }
