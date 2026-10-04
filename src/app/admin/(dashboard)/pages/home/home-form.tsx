@@ -3,8 +3,9 @@
 import { useActionState, useState } from "react";
 import { saveHomeSettings, type SiteSettingsFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
+import type { HomeSettings } from "@/lib/home-defaults";
 
-export type HomeSettings = { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] };
+export type { HomeSettings };
 const initialState: SiteSettingsFormState = {};
 
 /// Homepage editor: the content that was previously buried under Site

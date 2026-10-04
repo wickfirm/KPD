@@ -2,8 +2,9 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { getLegacyProject } from "@/lib/legacy-project";
-import { OwnershipCostPlannerScripts } from "@/components/public/ownership-cost-planner-scripts";
+import { getProjectShell } from "@/lib/legacy-project";
+import { DevelopmentMain } from "@/components/public/development-page";
+import { DevelopmentPageScripts } from "@/components/public/development-page-scripts";
 
 export const revalidate = 300;
 
@@ -40,12 +41,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-
+/// Pixel-identical shell (header, menu, booking dialog, footer) served from the
+/// delivered template; every section renders as React from the project row and
+/// its CMS modules.
 export default async function DevelopmentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const project = await getPublishedProject(slug);
   if (!project) notFound();
-  const html = getLegacyProject(project);
-  if (!html) notFound();
-  return <><div dangerouslySetInnerHTML={{ __html: html }} /><OwnershipCostPlannerScripts /></>;
+  const shell = getProjectShell(project.slug);
+  if (!shell) notFound();
+  return <>
+    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <DevelopmentMain project={project} shell={shell} />
+    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
+    <DevelopmentPageScripts />
+  </>;
 }
+

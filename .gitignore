@@ -27,3 +27,6 @@ next-env.d.ts
 
 # prisma
 /prisma/dev.db
+
+# client-supplied content deliveries (not app code)
+/content/

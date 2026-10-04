@@ -440,10 +440,34 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
       image: (managementImages[index] || "").trim(),
     })).filter((person) => person.name || person.role || person.bio || person.image)
     : legacyManagement;
-  const legacyTimeline = nonEmptyLines(formData.get("legacyTimeline")).map((line) => {
-    const [year = "", title = "", summary = "", body = "", image = ""] = line.split("|").map((part) => part.trim());
-    return { year, title, summary, body, image };
-  }).filter((item) => item.year || item.title || item.summary || item.body || item.image);
+  // Timeline arrives as JSON from the milestone cards. Version snapshots saved
+  // before the card editor store pipe-delimited lines instead — still accepted.
+  const timelineJson = String(formData.get("legacyTimelineJson") || "").trim();
+  let legacyTimeline: { year: string; title: string; summary: string; body: string; image: string }[];
+  if (timelineJson) {
+    try {
+      const parsed: unknown = JSON.parse(timelineJson);
+      if (!Array.isArray(parsed)) throw new Error("Timeline must be a list of milestones.");
+      legacyTimeline = parsed.map((item) => {
+        const milestone = (item ?? {}) as Record<string, unknown>;
+        return {
+          year: String(milestone.year ?? "").trim(),
+          title: String(milestone.title ?? "").trim(),
+          summary: String(milestone.summary ?? "").trim(),
+          body: String(milestone.body ?? "").trim(),
+          image: String(milestone.image ?? "").trim(),
+        };
+      });
+    } catch {
+      return { error: "The timeline could not be read. Please review the milestone cards and save again." };
+    }
+  } else {
+    legacyTimeline = nonEmptyLines(formData.get("legacyTimeline")).map((line) => {
+      const [year = "", title = "", summary = "", body = "", image = ""] = line.split("|").map((part) => part.trim());
+      return { year, title, summary, body, image };
+    });
+  }
+  legacyTimeline = legacyTimeline.filter((item) => item.year || item.title || item.summary || item.body || item.image);
   const about = slug === "about" ? {
     type: "about",
     mission: String(formData.get("mission") || "").trim(),
