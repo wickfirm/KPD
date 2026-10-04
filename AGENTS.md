@@ -9,13 +9,15 @@ npm install            # postinstall runs `prisma generate` automatically
 npm run dev            # http://localhost:3000
 npm run build          # prisma generate && next build
 npm start              # production server (after build)
+npm run lint           # ESLint 9 (flat config, eslint-config-next ^15.5)
+npm test               # Vitest — unit tests for lib/ pure logic
 npm run db:push        # Prisma schema sync — uses DIRECT_URL (see DB gotchas)
 npm run db:seed        # tsx prisma/seed.ts — idempotent articles/projects/pages
 npm run db:studio      # Prisma Studio
 ```
 
-- `npm run lint` is declared (`next lint`) but **ESLint is not installed and there is no config** — it will fail. Don't rely on it; use `npx tsc --noEmit` for type checking.
-- No test suite exists. Verification = `npm run build` + `tsc` + manual checks.
+- `npm run lint` uses `eslint-config-next@^15.5.0` — **do not bump it to v16** (flat-only; crashes under FlatCompat). 3 rules with pre-existing debt are set to `warn` (documented in `eslint.config.mjs`).
+- Verification = `npm run build` + `tsc --noEmit` + `npm test` + manual checks. `compare-render.mjs` diffs old-vs-new rendered DOM for pixel-fidelity regressions (captures in %TEMP%).
 
 ## Environment & DB gotchas
 
@@ -30,7 +32,7 @@ npm run db:studio      # Prisma Studio
 
 ## Architecture & control flow
 
-- **Public site is the legacy static site**: `/` redirects to `/legacy/index.html`. Everything under `public/legacy/**` is served verbatim and uses **relative paths** (`assets/...`) — preserve them during the Phase 2 migration. `tsconfig.json` excludes `public/legacy`.
+- **Public pages are React ports of the delivered design** (pixel-identical, DOM-diff verified): `/`, `/about`, `/legacy`, `/developments/*` render CMS content as React components (`src/components/public/*-page.tsx`) inside a **delivered shell** — `src/lib/legacy-*.ts` now only *extract* the shell (header/menu/booking/footer verbatim, links routed, asset paths rewritten to `/legacy/assets/`). Canonical delivered copy lives in `src/lib/*-defaults.ts` (single source of truth shared with admin editors). Delivered `site.js` is re-attached per page via `*-page-scripts.tsx` components (innerHTML scripts never execute). Everything under `public/legacy/**` is still served verbatim. `tsconfig.json` excludes `public/legacy`.
 - **CMS lives at `/admin`**:
   - `src/middleware.ts` guards everything under `/admin` (except `/admin/login`) using the edge-safe JWT cookie `kpd_session` (jose HS256, 7-day TTL). The middleware does NOT check the user still exists in the DB; server components/actions re-verify via `requireSession()` (`src/lib/auth.ts`), which redirects to login.
   - Authenticated area is a route group `src/app/admin/(dashboard)/` with a shared layout that renders nav, shows the session user, and defines an inline `logout` server action.
