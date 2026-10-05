@@ -36,6 +36,6 @@ export default function HomeForm({ settings }: { settings: HomeSettings }) {
       </div>)}
       <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setExperienceImages((images) => [...images, ""])} disabled={experienceImages.length >= 5}>Add gallery image</button>
     </section>
-    <div className="cms-actions"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button></div>
+    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button></div>
   </form>;
 }

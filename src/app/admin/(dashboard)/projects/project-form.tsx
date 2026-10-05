@@ -27,6 +27,6 @@ export default function ProjectForm({ defaults }: { defaults?: ProjectDefaults }
     </div>
     <label className="cms-field"><span>Hero image</span><AssetUrlField name="heroImage" defaultValue={defaults?.heroImage ?? ""} placeholder="/legacy/assets/images/..." /></label>
     <label className="cms-field"><span>Location label</span><input name="location" defaultValue={defaults?.location ?? ""} /></label>
-    <button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save development"}</button>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save development"}</button></div>
   </form>;
 }
