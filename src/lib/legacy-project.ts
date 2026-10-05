@@ -11,6 +11,14 @@ const files: Record<string, string> = {
   "dubai-hills-mansion": "dubai-hills-mansion.html",
 };
 
+/// Delivered hero videos re-encoded for web (public/videos/) — the shell swaps
+/// them in so visitors stream ~2-12MB instead of the 14-46MB originals.
+const compressedVideos: Record<string, string> = {
+  "/legacy/assets/images/video/project-hero.mp4": "/videos/hero-seven-x-seven.mp4",
+  "/legacy/assets/images/video/emerald-villa-hero.mp4": "/videos/hero-emerald-villa.mp4",
+  "/legacy/assets/images/video/dubai-hills-mansion-hero.mp4": "/videos/hero-dubai-hills-mansion.mp4",
+};
+
 function routeLinks(html: string) {
   const routes: Record<string, string> = {
     "index.html#top": "/#top", "single-project.html": "/developments/seven-x-seven", "emerald-villa.html": "/developments/emerald-villa", "dubai-hills-mansion.html": "/developments/dubai-hills-mansion", "about-us.html": "/about", "legacy.html": "/legacy", "news.html": "/news", "invest-in-dubai.html": "/invest-in-dubai", "contact.html": "/contact", "terms.html": "/terms", "privacy-policy.html": "/privacy-policy", "cookie-policy.html": "/cookie-policy",
@@ -73,7 +81,7 @@ export function getProjectShell(slug: string): ProjectShell | null {
   return {
     beforeMain: body.slice(0, mainStart),
     afterMain: body.slice(mainEnd + "</main>".length),
-    heroVideo: hero.match(/\bsrc="([^"]+)"/)?.[1] ?? "",
+    heroVideo: compressedVideos[hero.match(/\bsrc="([^"]+)"/)?.[1] ?? ""] ?? hero.match(/\bsrc="([^"]+)"/)?.[1] ?? "",
     heroPoster: hero.match(/\bposter="([^"]+)"/)?.[1] ?? "",
     overviewHeading: textOf(overview.match(/<h1>([\s\S]*?)<\/h1>/)?.[1] ?? ""),
     overviewText: textOf(overview.match(/<p>([\s\S]*?)<\/p>/)?.[1] ?? ""),
