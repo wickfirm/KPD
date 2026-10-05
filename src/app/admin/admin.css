@@ -880,3 +880,11 @@ h1, h2, h3 { letter-spacing: -0.025em; }
   .cms-page-heading h1 { font-size: 30px; }
   .cms-form-heading { margin: 28px 0 12px; }
 }
+
+/* -- Button text color hardening (explicit on every state) ------------------- */
+
+.cms-btn { color: #fff; }
+.cms-btn:hover { color: #fff; }
+.cms-btn:focus-visible { color: #fff; }
+.cms-btn[disabled] { color: #fff; }
+.cms-save-row .cms-btn { color: #fff; }
