@@ -19,12 +19,31 @@ const aboutFallback = aboutDefaults;
 
 const legacyFallback: LegacyMilestone[] = legacyDefaults.timeline;
 
+/// Delivered hero content per registered page — prefill the editor so it shows
+/// exactly what the public page currently displays when nothing has been saved.
+const pageHeroDefaults: Record<string, { heading?: string; text?: string; image?: string; paragraphs?: string[] }> = {
+  about: { heading: aboutDefaults.heading, text: aboutDefaults.heroText, image: aboutDefaults.heroImage, paragraphs: aboutDefaults.story },
+  legacy: { heading: legacyDefaults.heading, text: legacyDefaults.text, image: legacyDefaults.image },
+  "invest-in-dubai": {
+    heading: "Long-horizon\nvalue in Dubai",
+    text: "A focused investment pathway for buyers seeking regulated ownership, composed residential assets, and advisory clarity across Dubai's next chapter.",
+    image: "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg",
+  },
+  contact: {
+    heading: "Plan a visit,\nor start a conversation.",
+    text: "Tell us what you're looking for and the right person will respond. Previews, walkthroughs, and advisory conversations are handled through the KPD Experience Center.",
+    image: "/legacy/assets/images/experience-center/hq/10.jpg",
+  },
+};
+
 export default function StaticPageForm({ defaults, lockedSlug = false }: { defaults?: StaticPageDefaults; lockedSlug?: boolean }) {
   const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
   const hero = firstBlock(defaults?.content, "hero");
+  const heroPrefill = defaults?.slug ? pageHeroDefaults[defaults.slug] : undefined;
   const about = firstBlock(defaults?.content, "about");
   const legacy = firstBlock(defaults?.content, "legacy");
-  const paragraphs = (defaults?.content ?? []).filter((block) => block.type === "paragraph").map((block) => block.text).filter(Boolean).join("\n\n");
+  const savedParagraphs = (defaults?.content ?? []).filter((block) => block.type === "paragraph").map((block) => block.text).filter(Boolean);
+  const paragraphs = (savedParagraphs.length ? savedParagraphs : heroPrefill?.paragraphs ?? []).join("\n\n");
   const isAbout = defaults?.slug === "about";
   const isLegacy = defaults?.slug === "legacy";
   const aboutValues = { ...aboutFallback, ...(about ?? {}) };
@@ -64,10 +83,11 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
       <label className="cms-field"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option><option value="ARCHIVED">Archived</option></select></label>
     </div>
     <h2 className="cms-form-heading">Page introduction</h2>
-    <label className="cms-field"><span>Heading</span><input name="heading" defaultValue={hero?.heading ?? ""} /></label>
-    <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text ?? ""} /></label>
+    <p className="cms-muted">Fields show the delivered copy until you save your own — the public page works the same way.</p>
+    <label className="cms-field"><span>Heading</span><input name="heading" defaultValue={hero?.heading || heroPrefill?.heading || ""} /></label>
+    <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text || heroPrefill?.text || ""} /></label>
     <div className="cms-grid">
-      <label className="cms-field"><span>Feature image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} placeholder="/legacy/assets/images/..." /></label>
+      <label className="cms-field"><span>Feature image</span><AssetUrlField name="image" defaultValue={hero?.image || heroPrefill?.image || ""} placeholder="/legacy/assets/images/..." /></label>
       <label className="cms-field"><span>CTA label</span><input name="ctaLabel" defaultValue={hero?.ctaLabel ?? ""} /></label>
       <label className="cms-field"><span>CTA link</span><input name="ctaUrl" defaultValue={hero?.ctaUrl ?? ""} /></label>
     </div>
