@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/auth";
+import { requireUser, requireRole } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 import { revalidatePublicContent } from "@/lib/revalidate";
 import {
@@ -103,12 +103,15 @@ async function applyArticle(id: string, formData: FormData): Promise<ApplyResult
 
   try {
     if (id) {
-      const existing = await db.article.findUnique({ where: { id }, select: { id: true } });
+      const existing = await db.article.findUnique({ where: { id }, select: { id: true, status: true, publishedAt: true } });
       if (!existing) {
         const created = await db.article.create({ data });
         return { id: created.id, label: created.title };
       }
-      const updated = await db.article.update({ where: { id }, data });
+      // Re-publishing keeps the original publish date — only a transition into
+      // PUBLISHED (first publish, or publish after draft/archive) stamps a new one.
+      const keepPublishedAt = status === "PUBLISHED" && existing.status === "PUBLISHED" && existing.publishedAt;
+      const updated = await db.article.update({ where: { id }, data: keepPublishedAt ? { ...data, publishedAt: existing.publishedAt } : data });
       return { id: updated.id, label: updated.title };
     }
     const created = await db.article.create({ data });
@@ -575,7 +578,7 @@ export async function saveGlobalSettings(
   _prev: SiteSettingsFormState,
   formData: FormData,
 ): Promise<SiteSettingsFormState> {
-  const { session } = await requireUser();
+  const { session } = await requireRole(["ADMIN"]);
   const result = await applyGlobalSettings(formData);
   if (result.error) return { error: result.error };
   revalidatePath("/");
@@ -749,10 +752,15 @@ export async function importLegacyProjectTemplate(formData: FormData) {
 // restore itself is recorded as a new version, which makes it undoable.
 
 export async function restoreVersion(formData: FormData) {
-  const { session } = await requireUser();
+  const { session, user } = await requireUser();
   const versionId = String(formData.get("versionId") || "");
   const version = await db.contentVersion.findUnique({ where: { id: versionId } });
   if (!version) redirect("/admin");
+  // GLOBAL_SETTINGS snapshots carry site-wide settings — restoring them is
+  // admin-only, exactly like the settings screen that produced them.
+  if (version.entityType === "GLOBAL_SETTINGS" && user.role !== "ADMIN") {
+    redirect(`${version.path || "/admin"}?denied=1`);
+  }
 
   const payload = snapshotToFormData(version.snapshot);
   let result: ApplyResult;
