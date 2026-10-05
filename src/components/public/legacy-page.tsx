@@ -39,7 +39,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
                       <span>{milestone.summary ? multiline(milestone.summary) : ""}</span>
                     </span>
                   </summary>
-                  <div className="legacy-timeline-body"><p>{milestone.body ? multiline(milestone.body) : ""}</p></div>
+                  {milestone.body ? <div className="legacy-timeline-body"><p>{multiline(milestone.body)}</p></div> : null}
                 </details>
                 <figure className="legacy-timeline-media">
                   <img src={milestone.image ?? ""} alt={`Legacy milestone ${milestone.year ?? ""}`} />
