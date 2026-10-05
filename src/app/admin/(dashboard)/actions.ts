@@ -235,12 +235,12 @@ function nonEmptyLines(value: FormDataEntryValue | null) {
 
 /// Converts editor-friendly rows into the stable JSON structure consumed by
 /// the public development renderer. Rows use: Label | Value | Image URL | Link.
-function moduleContentFromForm(formData: FormData, kind: ReturnType<typeof moduleKind>) {
+function moduleContentFromForm(formData: FormData) {
   const images = nonEmptyLines(formData.get("images"));
   const items = nonEmptyLines(formData.get("items")).map((line) => {
     const [label = "", value = "", image = "", url = ""] = line.split("|").map((part) => part.trim());
-    if (kind === "FLOOR_PLAN") return { label, image, url };
-    if (kind === "GALLERY") return { label };
+    // Keep every field the editor collects — renderers read what they need.
+    // (Floor plans previously lost their "Detail" text here.)
     return { label, value, ...(image ? { image } : {}), ...(url ? { url } : {}) };
   }).filter((item) => Object.values(item).some(Boolean));
 
@@ -276,20 +276,24 @@ async function applyProject(id: string, formData: FormData): Promise<ApplyResult
     heroImage: String(formData.get("heroImage") || "").trim() || null,
     location: String(formData.get("location") || "").trim() || null,
     sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
-    publishedAt: status === "PUBLISHED" ? new Date() : null,
   };
 
   try {
     if (id) {
-      const existing = await db.project.findUnique({ where: { id }, select: { id: true } });
+      const existing = await db.project.findUnique({ where: { id }, select: { id: true, status: true, publishedAt: true } });
       if (!existing) {
-        const created = await db.project.create({ data });
+        const created = await db.project.create({ data: { ...data, publishedAt: status === "PUBLISHED" ? new Date() : null } });
         return { id: created.id, label: created.name };
       }
-      const updated = await db.project.update({ where: { id }, data });
+      // Re-publishing keeps the original publish date — only a transition into
+      // PUBLISHED (first publish, or publish after draft/archive) stamps a new one.
+      const publishedAt = status === "PUBLISHED"
+        ? (existing.status === "PUBLISHED" && existing.publishedAt ? existing.publishedAt : new Date())
+        : null;
+      const updated = await db.project.update({ where: { id }, data: { ...data, publishedAt } });
       return { id: updated.id, label: updated.name };
     }
-    const created = await db.project.create({ data });
+    const created = await db.project.create({ data: { ...data, publishedAt: status === "PUBLISHED" ? new Date() : null } });
     return { id: created.id, label: created.name };
   } catch (err) {
     const msg = (err as Error).message;
@@ -334,7 +338,7 @@ async function applyProjectModule(id: string, formData: FormData): Promise<Apply
   if (!projectId || !title || !slug) return { error: "Module title is required." };
 
   const kind = moduleKind(formData.get("kind"));
-  const content = moduleContentFromForm(formData, kind);
+  const content = moduleContentFromForm(formData);
 
   const data = {
     slug,
