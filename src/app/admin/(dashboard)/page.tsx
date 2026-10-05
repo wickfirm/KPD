@@ -30,7 +30,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   const attention = [
     ...(newSubmissions ? [{ label: `${newSubmissions} new message${newSubmissions === 1 ? "" : "s"} from the website`, href: "/admin/submissions", cta: "Open messages" }] : []),
-    ...(pendingRss ? [{ label: `${pendingRss} press item${pendingRss === 1 ? "" : "s"} waiting for review`, href: "/admin/rss", cta: "Review news" }] : []),
+    ...(pendingRss ? [{ label: `${pendingRss} press item${pendingRss === 1 ? "" : "s"} pending review`, href: "/admin/rss", cta: "Review news" }] : []),
     ...(failedSyncs ? [{ label: `${failedSyncs} submission${failedSyncs === 1 ? "" : "s"} could not reach Salesforce`, href: "/admin/submissions", cta: "Inspect" }] : []),
   ];
 
@@ -47,7 +47,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         <div>
           <span className="cms-eyebrow">KPD editorial studio</span>
           <h1>{greeting(new Date())}, {user.name.split(" ")[0]}.</h1>
-          <p>Here is where the website stands today — and what you can do next.</p>
         </div>
       </div>
       <SavedBanner params={params} />
@@ -67,7 +66,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       ) : null}
 
       <div className="cms-grid cms-stat-grid">
-        <div className="cms-card cms-stat"><strong>{publishedArticles}</strong><span>Published articles</span>{draftArticles ? <small>{draftArticles} draft{draftArticles === 1 ? "" : "s"} waiting</small> : null}</div>
+        <div className="cms-card cms-stat"><strong>{publishedArticles}</strong><span>Published articles</span>{draftArticles ? <small>{draftArticles} draft{draftArticles === 1 ? "" : "s"}</small> : null}</div>
         <div className="cms-card cms-stat"><strong>{projects}</strong><span>Developments</span></div>
         <div className="cms-card cms-stat"><strong>{pendingRss}</strong><span>Press items to review</span></div>
         <div className="cms-card cms-stat"><strong>{newSubmissions}</strong><span>New messages</span></div>
@@ -110,8 +109,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       ) : null}
 
       <div className="cms-card cms-help">
-        <span className="cms-eyebrow">Good to know</span>
-        <h2>Nothing here can break the website</h2>
+        <span className="cms-eyebrow">How the CMS works</span>
+        <h2>Publishing basics</h2>
         <ul>
           <li><strong>Drafts are private.</strong> Only “Published” content appears on the public site.</li>
           <li><strong>Every save keeps a snapshot.</strong> Open “Version history” on any page to roll back.</li>

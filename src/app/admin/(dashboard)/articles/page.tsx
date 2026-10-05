@@ -24,7 +24,7 @@ export default async function ArticlesPage() {
       {articles.length === 0 ? (
         <div className="cms-card cms-empty">
           <h2>No articles yet</h2>
-          <p>Your news page is waiting for its first story. Start with a short update — you can always edit it later.</p>
+          <p>No stories yet. Create the first news or blog post — drafts stay private until published.</p>
           <Link className="cms-btn" href="/admin/articles/new">Write the first article</Link>
         </div>
       ) : (

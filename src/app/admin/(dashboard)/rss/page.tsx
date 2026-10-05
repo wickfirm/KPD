@@ -22,7 +22,7 @@ export default async function RssQueuePage() {
 
       {items.length === 0 && (
         <div className="cms-card cms-empty">
-          <h2>Nothing waiting for review</h2>
+          <h2>No items pending review</h2>
           <p>New press mentions land here automatically. You will see them the next time something is found.</p>
         </div>
       )}

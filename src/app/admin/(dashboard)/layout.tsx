@@ -88,7 +88,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       title: "Audience",
       links: [
         { href: "/admin/submissions", label: "Messages", hint: "Enquiries from the website forms", icon: icons.inbox },
-        { href: "/admin/rss", label: "News inbox", hint: "Press mentions waiting for review", icon: icons.rss },
+        { href: "/admin/rss", label: "News inbox", hint: "Press mentions pending review", icon: icons.rss },
       ],
     },
     {
