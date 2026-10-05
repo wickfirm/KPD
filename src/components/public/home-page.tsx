@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { homeDefaults, type GalleryPanel, type HomeSettings } from "@/lib/home-defaults";
 
@@ -7,7 +7,7 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
-/// The delivered development banner slides — static presentation media.
+/// The delivered development banner slides â€” static presentation media.
 const bannerSlides = [
   "/legacy/assets/images/project-media/sxs/facade%20left%202.png",
   "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg",
@@ -140,18 +140,18 @@ export function HomeExperienceGallery({ images }: { images?: string[] }) {
 export function HomeMain({ settings, staticTail }: { settings: HomeSettings; staticTail: string }) {
   return (
     <main className="development-pdf-home" id="top">
-      <HomeHero video={settings.heroVideo ?? homeDefaults.heroVideo} />
+      <HomeHero video={settings.heroVideo || homeDefaults.heroVideo} />
       <HomeIntro
-        heading={settings.introHeading ?? homeDefaults.introHeading}
-        paragraphs={settings.introParagraphs?.length ? settings.introParagraphs : homeDefaults.introParagraphs}
+        heading={settings.introHeading || homeDefaults.introHeading}
+        paragraphs={settings.introParagraphs?.filter(Boolean).length ? settings.introParagraphs.filter(Boolean) : homeDefaults.introParagraphs}
       />
-      <HomeDevelopmentBanner heading={settings.developmentHeading ?? homeDefaults.developmentHeading} />
+      <HomeDevelopmentBanner heading={settings.developmentHeading || homeDefaults.developmentHeading} />
       <HomeDevelopmentCards />
       <HomeContactBlock
-        heading={settings.contactHeading ?? homeDefaults.contactHeading}
-        text={settings.contactText ?? homeDefaults.contactText}
+        heading={settings.contactHeading || homeDefaults.contactHeading}
+        text={settings.contactText || homeDefaults.contactText}
       />
-      <HomeExperienceGallery images={settings.experienceImages} />
+      <HomeExperienceGallery images={(settings.experienceImages ?? []).filter(Boolean)} />
       <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: staticTail }} />
     </main>
   );

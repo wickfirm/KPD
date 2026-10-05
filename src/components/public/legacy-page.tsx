@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react";
+﻿import type { CSSProperties, ReactNode } from "react";
 import { legacyDefaults, type LegacyContent, type LegacyMilestone } from "@/lib/legacy-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -6,13 +6,13 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
-/// The <main> content of the Legacy page as real React — a 1:1 port of the
+/// The <main> content of the Legacy page as real React â€” a 1:1 port of the
 /// delivered markup (public/legacy/legacy.html). Any number of milestones is
 /// supported; years alternate left/right exactly like the delivered design.
 export function LegacyMain({ content }: { content: LegacyContent }) {
-  const heading = content.heading ?? legacyDefaults.heading;
-  const text = content.text ?? legacyDefaults.text;
-  const image = content.image ?? legacyDefaults.image;
+  const heading = content.heading || legacyDefaults.heading;
+  const text = content.text || legacyDefaults.text;
+  const image = content.image || legacyDefaults.image;
   const milestones = content.timeline?.length ? content.timeline : legacyDefaults.timeline;
   return (
     <main className="legacy-main page-reference-main" id="top">
