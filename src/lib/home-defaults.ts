@@ -1,6 +1,6 @@
-/// Canonical homepage content as delivered by the client (public/legacy/
+﻿/// Canonical homepage content as delivered by the client (public/legacy/
 /// index.html). Single source of truth for the public page fallbacks and the
-/// admin homepage editor. Pure data — safe for client components.
+/// admin homepage editor. Pure data â€” safe for client components.
 
 export type HomeSettings = {
   heroVideo?: string;
@@ -15,7 +15,7 @@ export type HomeSettings = {
 export type GalleryPanel = { key: string; image: string; caption: string };
 
 export const homeDefaults = {
-  heroVideo: "/legacy/assets/images/experience-center/hq/5.mp4",
+  heroVideo: "/videos/hero-experience-center.mp4",
   introHeading: "Turning Challenge\nInto Value",
   introParagraphs: [
     "KPD extends Kasumigaseki Capital's development, investment, and asset-management discipline into Dubai, pairing long-term capital with a carefully curated residential pipeline.",

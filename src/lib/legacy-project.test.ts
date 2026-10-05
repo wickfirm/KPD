@@ -10,7 +10,7 @@ describe("getProjectShell", () => {
     if (!shell) return;
     expect(shell.beforeMain).toContain("site-header");
     expect(shell.afterMain).toContain("section_footer");
-    expect(shell.heroVideo).toMatch(/^\/legacy\/assets\//);
+    expect(shell.heroVideo).toMatch(/^\/(videos|legacy\/assets)\//);
     expect(shell.heroPoster).toMatch(/^\/legacy\/assets\//);
     expect(shell.overviewHeading.length).toBeGreaterThan(0);
     expect(shell.overviewText.length).toBeGreaterThan(0);
