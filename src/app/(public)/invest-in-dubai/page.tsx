@@ -107,8 +107,9 @@ export default async function InvestPage() {
           <figure className="invest-payment-media motion-reveal"><img src="/legacy/assets/images/library/luxury-downtown-of-dubai-2026-03-19-09-24-48-utc.jpg" alt="Luxury downtown Dubai skyline" /></figure>
           <div className="invest-payment-cards">
             <article className="invest-payment-card motion-reveal" style={delay("60ms")}><i className="fi fi-tr-wallet-money invest-icon" aria-hidden="true"></i><h3>Reservation</h3><p>Confirm the selected residence, initial booking amount, registration path, and payment-plan version before moving forward.</p></article>
-            <article className="invest-payment-card motion-reveal" style={delay("120ms")}><i className="fi fi-tr-contract invest-icon" aria-hidden="true"></i><h3>Construction</h3><p>Construction-linked milestones keep payments aligned with visible progress on the selected development.</p></article>
-            <article className="invest-payment-card motion-reveal" style={delay("180ms")}><i className="fi fi-tr-key invest-icon" aria-hidden="true"></i><h3>Handover</h3><p>Completion, registration, and handover obligations are reviewed as one final, documented step.</p></article>
+            <article className="invest-payment-card motion-reveal" style={delay("120ms")}><i className="fi fi-tr-calendar-clock invest-icon" aria-hidden="true"></i><h3>Construction milestones</h3><p>Review scheduled payments against construction progress, target handover, and total capital allocation.</p></article>
+            <article className="invest-payment-card motion-reveal" style={delay("180ms")}><i className="fi fi-tr-key invest-icon" aria-hidden="true"></i><h3>Handover balance</h3><p>Understand completion obligations, handover documentation, and the ownership transition before final payment.</p></article>
+            <article className="invest-payment-card motion-reveal" style={delay("240ms")}><i className="fi fi-tr-file-invoice-dollar invest-icon" aria-hidden="true"></i><h3>Post-handover planning</h3><p>Where available, post-handover terms are reviewed alongside leasing, resale, and holding-period objectives.</p></article>
           </div>
         </div>
       </section>
