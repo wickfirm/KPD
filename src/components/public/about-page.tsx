@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+﻿import type { ReactNode } from "react";
 import { aboutDefaults, type AboutContent } from "@/lib/about-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -6,21 +6,21 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
-/// The <main> content of the About page as real React — a 1:1 port of the
+/// The <main> content of the About page as real React â€” a 1:1 port of the
 /// delivered markup (public/legacy/about-us.html). The duplicated CEO section
 /// from the delivered file is intentionally omitted (client-confirmed), and
 /// any number of management cards is supported.
 export function AboutMain({ content }: { content: AboutContent }) {
-  const heading = content.heading ?? aboutDefaults.heading;
-  const heroText = content.heroText ?? aboutDefaults.heroText;
-  const heroImage = content.heroImage ?? aboutDefaults.heroImage;
-  const story = content.story?.length ? content.story : aboutDefaults.story;
-  const mission = content.mission ?? aboutDefaults.mission;
-  const vision = content.vision ?? aboutDefaults.vision;
-  const chairmanText = content.chairmanText ?? aboutDefaults.chairmanText;
-  const chairmanName = content.chairmanName ?? aboutDefaults.chairmanName;
-  const chairmanRole = content.chairmanRole ?? aboutDefaults.chairmanRole;
-  const chairmanImage = content.chairmanImage ?? aboutDefaults.chairmanImage;
+  const heading = content.heading || aboutDefaults.heading;
+  const heroText = content.heroText || aboutDefaults.heroText;
+  const heroImage = content.heroImage || aboutDefaults.heroImage;
+  const story = content.story?.filter(Boolean).length ? content.story.filter(Boolean) : aboutDefaults.story;
+  const mission = content.mission || aboutDefaults.mission;
+  const vision = content.vision || aboutDefaults.vision;
+  const chairmanText = content.chairmanText || aboutDefaults.chairmanText;
+  const chairmanName = content.chairmanName || aboutDefaults.chairmanName;
+  const chairmanRole = content.chairmanRole || aboutDefaults.chairmanRole;
+  const chairmanImage = content.chairmanImage || aboutDefaults.chairmanImage;
   const management = content.management?.length ? content.management : aboutDefaults.management;
   return (
     <main className="about-main page-reference-main" id="top">
