@@ -774,3 +774,109 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 .cms-member-card[open] .cms-member-card__chevron { transform: rotate(225deg); }
 
 .cms-member-card__body { border-top: 1px solid var(--color-line); padding: 16px; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Editor polish layer — lifts every add/edit screen: section headers become
+   labelled rules, editor sections become soft panels, inputs get roomier,
+   primary buttons get depth, and save rows float with the scroll.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.cms-main { padding-top: 34px; }
+
+::selection { background: rgba(20, 36, 31, 0.85); color: #fff; }
+
+.cms-sidebar::-webkit-scrollbar { width: 6px; }
+.cms-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 3px; }
+
+/* -- Page heading --------------------------------------------------------- */
+
+.cms-page-heading {
+  margin: 0 0 26px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--color-line);
+}
+.cms-page-heading h1 { font-size: 38px; font-weight: 680; letter-spacing: -0.035em; }
+
+/* -- Cards ------------------------------------------------------------------ */
+
+.cms-card { padding: 28px; }
+
+.cms-card--settings .cms-card-intro { position: relative; padding-left: 15px; }
+.cms-card--settings .cms-card-intro::before {
+  content: "";
+  position: absolute; left: 0; top: 5px; bottom: 5px;
+  width: 3px; border-radius: 2px;
+  background: var(--color-brand);
+}
+
+/* -- Section headings become labelled rules ---------------------------------- */
+
+.cms-form-heading {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12.5px; font-weight: 750;
+  letter-spacing: 0.11em; text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 36px 0 14px;
+}
+.cms-form-heading::after { content: ""; flex: 1; height: 1px; background: var(--color-line); }
+
+.cms-section-heading h2 { font-size: 22px; }
+
+/* -- Editor sections become soft panels --------------------------------------- */
+
+.cms-editor-section {
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-line);
+  border-radius: 14px;
+  margin-top: 26px;
+  padding: 20px 20px 8px;
+}
+.cms-editor-section h3 { margin: 0 0 4px; font-size: 15.5px; font-weight: 650; }
+
+/* -- Fields --------------------------------------------------------------------- */
+
+.cms-field > span {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+.cms-field input, .cms-field select, .cms-field textarea,
+.cms-inline-form select, .cms-upload input {
+  padding: 10px 13px;
+  font-size: 14px;
+}
+.cms-grid { gap: 16px 18px; }
+
+/* -- Primary button depth ------------------------------------------------------- */
+
+.cms-btn {
+  background: linear-gradient(180deg, #1c3129, var(--color-brand));
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.cms-btn:hover { background: linear-gradient(180deg, #243c33, var(--color-brand-hover)); box-shadow: 0 5px 16px rgba(16,26,22,0.22), inset 0 1px 0 rgba(255,255,255,0.07); }
+
+/* -- Repeatable cards ------------------------------------------------------------ */
+
+.cms-repeat-card { background: #fff; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+.cms-repeat-card:hover { border-color: var(--color-line-strong); box-shadow: 0 4px 14px rgba(16,26,22,0.05); }
+.cms-member-card:hover { border-color: var(--color-line-strong); }
+
+/* -- Floating save row ------------------------------------------------------------ */
+
+.cms-save-row {
+  position: sticky; bottom: 14px; z-index: 5;
+  display: flex; justify-content: flex-end; align-items: center; gap: 10px;
+  margin-top: 28px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(16, 26, 22, 0.12);
+}
+
+@media (max-width: 760px) {
+  .cms-page-heading h1 { font-size: 30px; }
+  .cms-form-heading { margin: 28px 0 12px; }
+}

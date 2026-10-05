@@ -42,6 +42,6 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
       <label className="cms-field"><span>Map embed URL (location only)</span><input name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} placeholder="https://www.google.com/maps/embed?..." /></label>
       <label className="cms-field"><span>Editorial layout</span><select name="presentation" defaultValue={defaults?.content?.presentation ?? "standard"}><option value="standard">Standard section</option><option value="calm">Split editorial panel</option></select></label>
     </div>
-    <button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : defaults?.id ? "Save module" : "Add module"}</button>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : defaults?.id ? "Save module" : "Add module"}</button></div>
   </form>;
 }
