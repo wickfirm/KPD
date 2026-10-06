@@ -41,9 +41,13 @@
     projectField.innerHTML = settings.projects.map((project) => `<option value="${escape(project.slug)}">${escape(project.name)}</option>`).join("");
     if (settings.projects.some((project) => project.slug === initialProject)) projectField.value = initialProject;
     const selected = () => settings.projects.find((project) => project.slug === projectField.value) || settings.projects[0];
-    // ── Purchase price accordion: project price presets + manual entry ──
+    // ── Purchase price accordion: selected development's starting price + manual entry ──
     const priceAcc = find("[data-planner-price-acc]"); const priceList = find("[data-planner-price-list]"); const priceLabel = find("[data-planner-price-label]"); const priceSource = find("[data-planner-price-source]"); const priceManual = find("[data-planner-price-manual]");
-    priceList.innerHTML = settings.projects.map((project) => `<button type="button" class="ownership-planner__price-option" data-planner-price-option="${escape(project.slug)}"><strong>${escape(project.name)}</strong><em>from ${money(project.startingPrice)}</em></button>`).join("");
+    const buildPriceList = () => {
+      const project = selected();
+      priceList.innerHTML = `<button type="button" class="ownership-planner__price-option is-active" data-planner-price-option="${escape(project.slug)}"><strong>${escape(project.name)}</strong><em>from ${money(project.startingPrice)}</em></button>`;
+    };
+    buildPriceList();
     const syncPriceUi = () => {
       const project = selected(); const price = number(priceField.value); const custom = priceAcc.classList.contains("is-custom");
       priceLabel.textContent = money(price);
@@ -94,7 +98,7 @@
       find("[data-planner-disclaimer]").textContent = settings.disclaimer;
       find("[data-planner-discuss]").onclick = () => { const scenario = `${project.name}: purchase price ${money(price)}; ${finance ? `financing ${money(loan)} at ${rateField.value}% over ${periodField.value} years; ` : ""}cash required before keys ${money(beforeKeys)}.`; sessionStorage.setItem("kpdPlannerScenario", scenario); sessionStorage.setItem("kpdPlannerProject", project.name); const opener = document.querySelector("[data-booking-launcher]"); if (opener) { opener.click(); } else { window.location.href = "/contact#experience-center"; } };
     };
-    projectField.addEventListener("change", () => { priceAcc.classList.remove("is-custom"); update({ resetPrice: true }); });
+    projectField.addEventListener("change", () => { priceAcc.classList.remove("is-custom"); buildPriceList(); update({ resetPrice: true }); });
     [priceField, residencyField, financeField, loanField, rateField, periodField].forEach((field) => field.addEventListener("input", () => update()));
     update({ resetPrice: true });
   }
