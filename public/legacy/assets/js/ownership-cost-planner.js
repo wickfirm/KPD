@@ -33,7 +33,11 @@
 
   function mount(holder, settings) {
     const compact = holder.dataset.plannerCompact === "true";
-    holder.innerHTML = plannerMarkup(compact);
+    // Server-rendered pages include the calculator HTML in the initial paint;
+    // only build it here when the mount point is empty (static fallback).
+    if (!holder.querySelector(".ownership-planner")) {
+      holder.innerHTML = plannerMarkup(compact);
+    }
     const find = (selector) => holder.querySelector(selector);
     const projectField = find("[data-planner-project]"); const priceField = find("[data-planner-price]"); const residencyField = find("[data-planner-residency]");
     const financeField = find("[data-planner-finance]"); const financeFields = find("[data-planner-finance-fields]"); const loanField = find("[data-planner-loan]"); const rateField = find("[data-planner-rate]"); const periodField = find("[data-planner-period]");
