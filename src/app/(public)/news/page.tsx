@@ -9,7 +9,7 @@ export const metadata = { title: "News and updates", description: "Announcements
 export const revalidate = 300;
 
 
-type ArticleRow = { slug: string; title: string; summary: string; kind: string; coverImage: string | null; coverImageAlt: string | null; publishedAt: Date | null };
+type ArticleRow = { slug: string; title: string; summary: string; kind: string; coverImage: string | null; coverImageAlt: string | null; publishedAt: Date | null; sourceRssItem: { url: string } | null };
 
 const toCard = (article: ArticleRow): NewsCard => ({
   slug: article.slug,
@@ -19,6 +19,7 @@ const toCard = (article: ArticleRow): NewsCard => ({
   coverImage: article.coverImage,
   coverImageAlt: article.coverImageAlt,
   publishedAt: article.publishedAt ? article.publishedAt.toISOString() : null,
+  sourceUrl: article.sourceRssItem?.url ?? null,
 });
 
 export default async function NewsPage() {
@@ -26,8 +27,8 @@ export default async function NewsPage() {
   let blog: NewsCard[] = [];
   try {
     const [newsRows, blogRows] = await Promise.all([
-      db.article.findMany({ where: { status: "PUBLISHED", kind: "NEWS" }, orderBy: { publishedAt: "desc" }, take: 9, select: { slug: true, title: true, summary: true, kind: true, coverImage: true, coverImageAlt: true, publishedAt: true } }),
-      db.article.findMany({ where: { status: "PUBLISHED", kind: "BLOG" }, orderBy: { publishedAt: "desc" }, take: 9, select: { slug: true, title: true, summary: true, kind: true, coverImage: true, coverImageAlt: true, publishedAt: true } }),
+      db.article.findMany({ where: { status: "PUBLISHED", kind: "NEWS" }, orderBy: { publishedAt: "desc" }, take: 9, select: { slug: true, title: true, summary: true, kind: true, coverImage: true, coverImageAlt: true, publishedAt: true, sourceRssItem: { select: { url: true } } } }),
+      db.article.findMany({ where: { status: "PUBLISHED", kind: "BLOG" }, orderBy: { publishedAt: "desc" }, take: 9, select: { slug: true, title: true, summary: true, kind: true, coverImage: true, coverImageAlt: true, publishedAt: true, sourceRssItem: { select: { url: true } } } }),
     ]);
     news = newsRows.map(toCard);
     blog = blogRows.map(toCard);
@@ -37,5 +38,5 @@ export default async function NewsPage() {
   return <><SiteShellHeader /><div className="news-design-page news-main page-reference-main" id="top">
     <section className="page-reference-hero" aria-label="Media"><Image src="/legacy/assets/images/library/modern-office-glasses-buildings-cityscape-under-bl-2026-03-10-02-05-10-utc.jpg" alt="Modern office towers for media updates" fill priority sizes="100vw" /><div className="page-reference-hero-copy motion-reveal"><span>Media</span><h1>News and<br />updates</h1><p>Announcements, market observations, and development commentary from Kasumigaseki Properties Development.</p></div></section>
     <NewsFeed initialNews={news} initialBlog={blog} />
-  </div><SiteShellFooter /><DeliveredScripts /></>;
+  </div><SiteShellFooter /><DeliveredScripts sources={["/legacy/assets/js/live-news.js?v=20260710-v1-image-style-2"]} /></>;
 }

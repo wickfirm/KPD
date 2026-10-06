@@ -16,6 +16,7 @@ export type NewsCard = {
   coverImage: string | null;
   coverImageAlt: string | null;
   publishedAt: string | null;
+  sourceUrl?: string | null;
 };
 
 const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -28,21 +29,26 @@ function formatDate(iso: string | null) {
   return monthName ? `${Number(day)} ${monthName} ${year}` : "";
 }
 
+/// Press items (RSS-sourced NEWS) link to the external source in a new tab,
+/// matching the delivered live-news.js behaviour. Blog items link internally.
 function Card({ article }: { article: NewsCard }) {
-  return (
-    <article className="news-card-item kpd-news-card">
-      {article.coverImage ? <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill sizes="(max-width: 1024px) 88vw, 31vw" /> : null}
-      <div className="kpd-card-content">
-        <span className="small-kicker">
-          {article.kind === "BLOG" ? "BLOG" : "NEWS"}
-          {article.publishedAt ? ` — ${formatDate(article.publishedAt)}` : ""}
-        </span>
-        <h3>{article.title}</h3>
-        <p>{article.summary}</p>
-        <Link className="btn-pill" href={`/news/${article.slug}`}>Read</Link>
-      </div>
-    </article>
-  );
+  const isPress = article.kind === "NEWS" && article.sourceUrl;
+  const content = <>
+    {article.coverImage ? <Image src={article.coverImage} alt={article.coverImageAlt || article.title} fill sizes="(max-width: 1024px) 88vw, 31vw" /> : null}
+    <div className="kpd-card-content">
+      <span className="small-kicker">
+        {article.kind === "BLOG" ? "BLOG" : "NEWS"}
+        {article.publishedAt ? ` — ${formatDate(article.publishedAt)}` : ""}
+      </span>
+      <h3>{article.title}</h3>
+      <p>{article.summary}</p>
+      <span className="btn-pill">Read</span>
+    </div>
+  </>;
+  if (isPress) {
+    return <a className="news-card-item kpd-news-card live-news-card" href={article.sourceUrl!} target="_blank" rel="noopener noreferrer">{content}</a>;
+  }
+  return <Link className="news-card-item kpd-news-card live-news-card" href={`/news/${article.slug}`}>{content}</Link>;
 }
 
 type Filter = "all" | "news" | "blog";
