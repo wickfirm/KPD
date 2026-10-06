@@ -105,6 +105,9 @@
 
   const holders = document.querySelectorAll("[data-kpd-planner]");
   if (!holders.length) return;
+  holders.forEach((holder) => {
+    holder.innerHTML = `<div class="ownership-planner-loading"><div class="ownership-planner-loading__form"><div class="ownership-planner-loading__label"><span>Development</span><div class="ownership-planner-loading__field"></div></div><div class="ownership-planner-loading__label"><span>Purchase price</span><div class="ownership-planner-loading__field"></div></div><div class="ownership-planner-loading__label"><span>Residency status</span><div class="ownership-planner-loading__field"></div></div></div><div class="ownership-planner-loading__results"><div class="ownership-planner-loading__row" style="width:60%"></div><div class="ownership-planner-loading__row" style="width:100%"></div><div class="ownership-planner-loading__row" style="width:80%"></div><div class="ownership-planner-loading__row" style="width:90%"></div><div class="ownership-planner-loading__row" style="width:50%"></div></div></div>`;
+  });
   fetch("/api/calculator/kpd").then((response) => response.ok ? response.json() : Promise.reject()).then((settings) => holders.forEach((holder) => mount(holder, settings))).catch(() => holders.forEach((holder) => { holder.innerHTML = '<p class="ownership-planner__unavailable">The planner is temporarily unavailable. Please contact the KPD team for a tailored payment plan.</p>'; }));
 
   // ── Prefill the booking modal with a saved planner scenario. Works with
