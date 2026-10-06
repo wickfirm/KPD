@@ -1,19 +1,31 @@
-import type { Project, ProjectModule } from "@prisma/client";
+﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import type { ProjectShell } from "@/lib/legacy-project";
+import { renderPlannerHtml } from "@/lib/ownership-cost-planner";
 import { DevelopmentModule } from "./development-template";
 
-export type DevelopmentProject = Project & { modules: ProjectModule[] };
+export type DevelopmentProject = {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string | null;
+  description: string | null;
+  heroImage: string | null;
+  status: string;
+  profile: string;
+  modules: { id: string; slug: string; title: string; kind: string; content: unknown }[];
+};
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
-function multiline(value: string) {
+function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
 /// The development page <main>: hero and overview render from the project row,
 /// each CMS module renders through DevelopmentModule, and the planner plus the
 /// enquire band close the page exactly as delivered.
-export function DevelopmentMain({ project, shell }: { project: DevelopmentProject; shell: ProjectShell }) {
+export function DevelopmentMain({ project, shell, plannerHtml }: { project: DevelopmentProject; shell: ProjectShell; plannerHtml: string }) {
+   
   return (
     <main className="single-project-main" id="top">
       <section className="single-project-hero pdf-hero" aria-label={`${project.name} video introduction`}>
@@ -46,7 +58,7 @@ export function DevelopmentMain({ project, shell }: { project: DevelopmentProjec
       ))}
 
       <section className="kpd-section ownership-planner-section ownership-planner-section--project" aria-label="Ownership Cost Planner">
-        <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} />
+        <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} data-planner-prerendered="true" dangerouslySetInnerHTML={{ __html: plannerHtml }} />
       </section>
 
       <section className="projects-spec-contact single-project-enquire" aria-label="Arrange a private viewing">

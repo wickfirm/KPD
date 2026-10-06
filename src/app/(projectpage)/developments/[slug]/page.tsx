@@ -7,6 +7,7 @@ import { DevelopmentMain } from "@/components/public/development-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { renderPlannerHtml } from "@/lib/ownership-cost-planner";
 
 export const revalidate = 300;
 
@@ -53,7 +54,7 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   if (!shell) notFound();
   return <>
     <SiteShellHeader />
-    <DevelopmentMain project={project} shell={shell} />
+    <DevelopmentMain project={project} shell={shell} plannerHtml={renderPlannerHtml(true, project.slug)} />
     <SiteShellFooter />
     <DeliveredScripts sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
