@@ -23,7 +23,7 @@ export default async function HomePage() {
     <SiteShellHeader />
     <HomeMain settings={home} staticTail={getHomeStaticTail()} />
     <SiteShellFooter />
-    <DeliveredScripts sources={["/legacy/assets/js/live-news.js?v=20261007-internal-links"]} />
+    <DeliveredScripts bodyClass="home-development-page" sources={["/legacy/assets/js/live-news.js?v=20261007-internal-links"]} />
   </>;
 }
 

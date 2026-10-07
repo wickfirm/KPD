@@ -27,7 +27,7 @@ export default async function LegacyPage() {
     <SiteShellHeader />
     <LegacyMain content={content} />
     <SiteShellFooter />
-    <DeliveredScripts />
+    <DeliveredScripts bodyClass="home-development-page legacy-design-page" />
   </>;
 }
 

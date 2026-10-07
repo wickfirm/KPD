@@ -33,7 +33,7 @@ export default async function AboutPage() {
     <SiteShellHeader />
     <AboutMain content={content} />
     <SiteShellFooter />
-    <DeliveredScripts />
+    <DeliveredScripts bodyClass="home-development-page about-design-page" />
   </>;
 }
 

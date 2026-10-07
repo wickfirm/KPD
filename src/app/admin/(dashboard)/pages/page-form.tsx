@@ -132,7 +132,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
     </div>
     <h2 className="cms-form-heading">Page introduction</h2>
     <p className="cms-muted">Fields show the delivered copy until you save your own — the public page works the same way.</p>
-    <label className="cms-field"><span>Heading</span><input name="heading" defaultValue={hero?.heading || heroPrefill?.heading || ""} /></label>
+    <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading || heroPrefill?.heading || ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text || heroPrefill?.text || ""} /></label>
     <div className="cms-grid">
       <label className="cms-field"><span>Feature image</span><AssetUrlField name="image" defaultValue={hero?.image || heroPrefill?.image || ""} placeholder="/legacy/assets/images/..." /></label>

@@ -56,7 +56,7 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
     <SiteShellHeader />
     <DevelopmentMain project={project} shell={shell} plannerHtml={renderPlannerHtml(true, project.slug)} />
     <SiteShellFooter />
-    <DeliveredScripts sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
+    <DeliveredScripts bodyClass="home-development-page single-project-page" sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
 }
 
