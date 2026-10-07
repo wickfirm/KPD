@@ -59,7 +59,10 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    // React nulls event.currentTarget after the handler yields — capture the
+    // form synchronously so it can be reset after the request resolves.
+    const form = event.currentTarget;
+    const data = new FormData(form);
     const get = (key: string) => String(data.get(key) || "").trim();
     const name = [get("Title"), get("First Name"), get("Last Name")].filter(Boolean).join(" ");
     const interestByPane: Record<PaneKey, string> = {
@@ -96,7 +99,7 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
       const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: `${label}: ${interestByPane[activePane]}`, sourcePage: "/contact", message: [messageByPane[activePane], details].filter(Boolean).join("\n\n") }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
-      event.currentTarget.reset();
+      form.reset();
       setCvName("Attach a PDF or DOC");
       window.sessionStorage.removeItem("kpdPlannerScenario");
       window.sessionStorage.removeItem("kpdPlannerProject");
