@@ -488,7 +488,9 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
   const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline } : null;
   const content = [
     ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
-    ...paragraphs.map((text) => ({ type: "paragraph", text })),
+    ...paragraphs.map((text) => text.startsWith("## ")
+      ? { type: "heading", heading: text.replace(/^##\s*/, "").trim() }
+      : { type: "paragraph", text }),
     ...(about ? [about] : []),
     ...(legacy ? [legacy] : []),
   ];
@@ -516,6 +518,7 @@ function revalidatePublicPage(slug: string) {
   if (slug === "legacy") revalidatePath("/legacy");
   if (slug === "invest-in-dubai") revalidatePath("/invest-in-dubai");
   if (slug === "contact") revalidatePath("/contact");
+  if (slug === "terms" || slug === "privacy-policy" || slug === "cookie-policy") revalidatePath(`/${slug}`);
 }
 
 export async function saveStaticPage(

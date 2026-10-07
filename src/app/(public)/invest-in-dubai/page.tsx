@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { InvestEnhancements } from "@/components/public/invest-enhancements";
@@ -70,9 +69,9 @@ export default async function InvestPage() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/css/flag-icons.min.css" />
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css" />
-    <div className="invest-dubai-page"><SiteShellHeader /><div className="invest-main page-reference-main" id="top">
+    <SiteShellHeader /><main className="invest-main page-reference-main" id="top">
       <section className="page-reference-hero invest-hero" aria-label="Invest in Dubai">
-        <Image src={hero?.image || "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg"} alt="Dubai skyline with Burj Khalifa" fill priority sizes="100vw" />
+        <img src={hero?.image || "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg"} alt="Dubai skyline with Burj Khalifa" />
         <div className="page-reference-hero-copy motion-reveal"><span>Invest in Dubai</span><h1>{hero?.heading || <>Long-horizon<br />value in Dubai</>}</h1><p>{hero?.text || "A focused investment pathway for buyers seeking regulated ownership, composed residential assets, and advisory clarity across Dubai's next chapter."}</p></div>
         <div className="invest-hero-metrics motion-reveal" style={delay("120ms")} aria-label="Investment highlights"><div><strong>Global</strong><span>Capital access</span></div><div><strong>Dubai</strong><span>Freehold market</span></div><div><strong>KPD</strong><span>Disciplined delivery</span></div></div>
       </section>
@@ -93,7 +92,7 @@ export default async function InvestPage() {
           <div className="invest-yield-head"><span>City / Market</span><span>Rental Gross Yield</span><span>Capital Appreciation</span></div>
           {yields.map(([flag, code, city, yieldLabel, yieldBar, trend, gainLabel, gainBar]) => (
             <div className="invest-yield-row" key={city} style={{ "--yield": yieldBar, "--gain": gainBar } as React.CSSProperties} data-trend={trend}>
-              <strong><span className="market-flag"><span className={`fi ${flag}`} aria-hidden="true"></span><em>{code}</em></span> {city}</strong>
+              <strong><span className="market-flag"><span className={`fi ${flag}`} aria-hidden="true"></span><em>{code}</em></span>{` ${city}`}</strong>
               <div className="invest-yield-meter"><span></span><em>{yieldLabel}</em></div>
               <b><i className={`fi fi-tr-arrow-trend-${trend}`} aria-hidden="true"></i>{gainLabel}</b>
             </div>
@@ -183,7 +182,7 @@ export default async function InvestPage() {
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>Featured developments</h2><div className="single-project-section-copy"><p>Review KPD&apos;s current residential pages, then continue into a private advisory conversation for availability, floor plans, pricing, and payment terms.</p></div></div>
         <div className="pdf-development-cards invest-development-cards">
           <Link className="pdf-dev-card motion-reveal" href="/developments/seven-x-seven"><img src="/legacy/assets/images/project-media/sxs/facade%20right%202.png" alt="Seven X Seven exterior" /><div className="pdf-dev-card-body"><h3>Seven X Seven</h3><p>A Meydan Horizon residence shaped by city access, quiet amenity, and measured daily living.</p><span>Explore</span></div></Link>
-          <Link className="pdf-dev-card motion-reveal" style={delay("80ms")} href="/developments/emerald-villa"><img src="/legacy/assets/images/project-media/Emerald%20Villa/13_2.jpg" alt="Emerald Villa exterior" /><div className="pdf-dev-card-body"><h3>Emerald Villa</h3><p>A composed villa address built around privacy, calm materials, and family-scaled living.</p><span>Explore</span></div></Link>
+          <Link className="pdf-dev-card motion-reveal" style={delay("80ms")} href="/developments/emerald-villa"><img src="/legacy/assets/images/project-media/Emerald%20Villa/37.jpg" alt="Emerald Villa exterior" /><div className="pdf-dev-card-body"><h3>Emerald Villa</h3><p>A private villa composition shaped around garden arrival, privacy, and family-scaled living.</p><span>Explore</span></div></Link>
           <Link className="pdf-dev-card motion-reveal" style={delay("160ms")} href="/developments/dubai-hills-mansion"><img src="/legacy/assets/images/project-media/Dubai%20Hills%20Mansion/6_plex_front_rev_final_1.jpg" alt="Dubai Hills Mansion exterior" /><div className="pdf-dev-card-body"><h3>Dubai Hills Mansion</h3><p>A mansion-scale residence organized around private wellness, gardens, and long-horizon family use.</p><span>Explore</span></div></Link>
         </div>
       </section>
@@ -214,8 +213,8 @@ export default async function InvestPage() {
           </div>
         </div>
       </section>
-    </div><SiteShellFooter /></div>
+    </main><SiteShellFooter />
     <InvestEnhancements />
-    <DeliveredScripts sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
+    <DeliveredScripts bodyClass="home-development-page invest-dubai-page" sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
 }
