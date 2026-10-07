@@ -9,7 +9,10 @@ function routeLinks(html: string) {
     "index.html#top": "/#top", "index.html#development-cards": "/#development-cards", "single-project.html": "/developments/seven-x-seven", "emerald-villa.html": "/developments/emerald-villa", "dubai-hills-mansion.html": "/developments/dubai-hills-mansion", "about-us.html": "/about", "legacy.html": "/legacy", "news.html": "/news", "invest-in-dubai.html": "/invest-in-dubai", "contact.html": "/contact", "terms.html": "/terms", "privacy-policy.html": "/privacy-policy", "cookie-policy.html": "/cookie-policy",
   };
   for (const [from, to] of Object.entries(routes)) html = html.replaceAll(`href="${from}`, `href="${to}`);
-  return html;
+  /// Delivered article links (blog/news panel cards) carry ?article=<slug> and
+  /// only resolve their assets under /legacy/ — route them to the internal
+  /// article pages, which the seed populates with the same slugs.
+  return html.replace(/(?:blog|news)-article\.html\?article=([a-z0-9-]+)/gi, "/news/$1");
 }
 
 function pageBody(path: string) {
