@@ -122,7 +122,10 @@ async function main() {
     });
   }
 
-  console.log("Seeding developments…");
+  /// Projects are created without modules — the full delivered module set is
+  /// bootstrapped from src/lib/legacy-project-templates.ts via the admin
+  /// "Import delivered template" action (or scripts/refresh-legacy-modules.ts),
+  /// so the abbreviated seeds never diverge from the delivered pages.
   const projects = [
     {
       slug: "seven-x-seven",
@@ -131,14 +134,7 @@ async function main() {
       location: "Dubai",
       heroImage: "/legacy/assets/images/project-media/sxs/facade%20front%202.png",
       sortOrder: 1,
-      modules: [
-        {
-          slug: "gallery",
-          title: "Facade Gallery",
-          kind: "GALLERY" as const,
-          content: { images: ["/legacy/assets/images/project-media/sxs/facade%20left%202.png"] },
-        },
-      ],
+      modules: [],
     },
     {
       slug: "emerald-villa",
@@ -147,14 +143,7 @@ async function main() {
       location: "Dubai",
       heroImage: "/legacy/assets/images/project-media/Emerald%20Villa/13_2.jpg",
       sortOrder: 2,
-      modules: [
-        {
-          slug: "gallery",
-          title: "Arrival & Interiors",
-          kind: "GALLERY" as const,
-          content: { images: ["/legacy/assets/images/project-media/Emerald%20Villa/12_2.jpg"] },
-        },
-      ],
+      modules: [],
     },
     {
       slug: "dubai-hills-mansion",

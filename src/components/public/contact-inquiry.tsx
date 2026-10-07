@@ -96,9 +96,20 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
     ].filter(Boolean).join("\n");
     const label = panes.find((pane) => pane.key === activePane)!.label;
     setPending(true);
-    setStatus("Sending your enquiry…");
     try {
-      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: `${label}: ${interestByPane[activePane]}`, sourcePage: "/contact", message: [messageByPane[activePane], details].filter(Boolean).join("\n\n") }) });
+      let cvUrl = "";
+      const cvFile = data.get("CV");
+      if (activePane === "job" && cvFile instanceof File && cvFile.size > 0) {
+        setStatus("Uploading your CV…");
+        const uploadForm = new FormData();
+        uploadForm.append("file", cvFile);
+        const uploadResponse = await fetch("/api/contact/attachment", { method: "POST", body: uploadForm });
+        const uploadResult = await uploadResponse.json().catch(() => ({}));
+        if (!uploadResponse.ok) throw new Error(uploadResult.error || "The CV could not be uploaded. Please try again.");
+        cvUrl = uploadResult.url;
+      }
+      setStatus("Sending your enquiry…");
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: `${label}: ${interestByPane[activePane]}`, sourcePage: "/contact", message: [messageByPane[activePane], details, cvUrl ? `CV: ${cvUrl}` : ""].filter(Boolean).join("\n\n") }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();
