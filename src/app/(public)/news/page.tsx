@@ -13,7 +13,7 @@ export default async function NewsPage() {
     <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
     <div dangerouslySetInnerHTML={{ __html: shell.main }} />
     <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
-    <DeliveredScripts sources={[
+    <DeliveredScripts bodyClass="home-development-page news-design-page" sources={[
       "/legacy/assets/js/live-news.js?v=20261007-internal-links",
       "/legacy/assets/js/site.js?v=20260715-backend-start-1",
     ]} />
