@@ -152,7 +152,9 @@
       title: article.title || "",
       source: article.kind === "BLOG" ? "KPD Journal" : "KPD News",
       snippet: article.summary || "",
-      link: `${article.kind === "BLOG" ? "blog-article" : "news-article"}.html?article=${encodeURIComponent(article.slug)}`,
+      /// CMS articles always render on the internal /news/<slug> route — the
+      /// delivered *.html article pages only resolve their assets under /legacy/.
+      link: `/news/${encodeURIComponent(article.slug)}`,
       pubDate: article.publishedAt || "",
       timestamp: Date.parse(article.publishedAt || "") || 0,
       keyword: "Kasumigaseki",
@@ -387,7 +389,7 @@
     const card = document.createElement("a");
     card.className = "news-card-item kpd-news-card live-news-card";
     card.href = item.link;
-    card.target = "_blank";
+    if (!item.link.startsWith("/")) card.target = "_blank";
     card.rel = "noopener noreferrer";
 
     appendArticleImage(card, item);
@@ -407,7 +409,7 @@
 
     const button = document.createElement("span");
     button.className = "btn-pill";
-    button.textContent = "Read Original";
+    button.textContent = item.link.startsWith("/") ? "Read" : "Read Original";
 
     content.append(meta, title, text, button);
     card.appendChild(content);
@@ -418,7 +420,7 @@
     const card = document.createElement("a");
     card.className = "news-card news-card-link live-news-card";
     card.href = item.link;
-    card.target = "_blank";
+    if (!item.link.startsWith("/")) card.target = "_blank";
     card.rel = "noopener noreferrer";
 
     appendArticleImage(card, item);
@@ -446,7 +448,7 @@
     const card = document.createElement("a");
     card.className = "feature-card feature-card-link live-news-card";
     card.href = item.link;
-    card.target = "_blank";
+    if (!item.link.startsWith("/")) card.target = "_blank";
     card.rel = "noopener noreferrer";
 
     appendArticleImage(card, item);
@@ -526,9 +528,9 @@
     if (secondary) secondary.hidden = true;
     if (link) {
       link.href = item.link;
-      link.target = "_blank";
+      if (!item.link.startsWith("/")) link.target = "_blank";
       link.rel = "noopener noreferrer";
-      link.textContent = "Read Original";
+      link.textContent = item.link.startsWith("/") ? "Read" : "Read Original";
     }
     if (image) {
       image.onerror = () => {
