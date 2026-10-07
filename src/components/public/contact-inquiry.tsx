@@ -80,9 +80,11 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
       press: get("Press Message"),
     };
     const details = [
+      activePane === "sales" ? `Enquirer type: ${segment === "broker" ? "Broker" : "Client"}` : "",
       activePane === "sales" && get("Budget Range") ? `Budget range: ${get("Budget Range")}` : "",
       activePane === "sales" && get("Agency") ? `Agency: ${get("Agency")}` : "",
       activePane === "sales" && get("RERA / ORN") ? `RERA/ORN: ${get("RERA / ORN")}` : "",
+      activePane === "customer" && get("Customer Inquiry Nature") ? `Inquiry nature: ${get("Customer Inquiry Nature")}` : "",
       activePane === "channel" && get("Partner RERA / ORN") ? `RERA/ORN: ${get("Partner RERA / ORN")}` : "",
       activePane === "channel" && get("Market / Country") ? `Market: ${get("Market / Country")}` : "",
       activePane === "channel" && get("Website") ? `Website: ${get("Website")}` : "",
