@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string };
 
@@ -43,5 +44,5 @@ export default async function ManagedLegalPage({ params }: { params: Promise<{ s
   const blocks = Array.isArray(page.content) ? page.content as Block[] : [];
   const hero = blocks.find((block) => block.type === "hero");
   const sections = blocks.filter((block) => block.type === "heading" || block.type === "paragraph");
-  return <><SiteShellHeader /><main id="top"><section className="page-hero pdf-hero"><img src={hero?.image || meta.heroImage} alt={meta.heroAlt} /><div className="page-hero-content"><h1>{hero?.heading || page.title}</h1></div></section><section className="kpd-legal-block">{sections.map((block, index) => block.type === "heading" ? <h2 key={index}>{block.heading}</h2> : <p key={index}>{block.text}</p>)}</section></main><SiteShellFooter /><DeliveredScripts bodyClass="home-development-page kpd-page" /></>;
+  return <><DeliveredBodyClass bodyClass="home-development-page kpd-page" /><SiteShellHeader /><main id="top"><section className="page-hero pdf-hero"><img src={hero?.image || meta.heroImage} alt={meta.heroAlt} /><div className="page-hero-content"><h1>{hero?.heading || page.title}</h1></div></section><section className="kpd-legal-block">{sections.map((block, index) => block.type === "heading" ? <h2 key={index}>{block.heading}</h2> : <p key={index}>{block.text}</p>)}</section></main><SiteShellFooter /><DeliveredScripts bodyClass="home-development-page kpd-page" /></>;
 }

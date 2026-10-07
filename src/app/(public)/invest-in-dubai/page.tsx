@@ -4,6 +4,7 @@ import { InvestEnhancements } from "@/components/public/invest-enhancements";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string };
 
@@ -66,6 +67,7 @@ export default async function InvestPage() {
   let hero: Block | undefined;
   try { const page = await db.staticPage.findUnique({ where: { slug: "invest-in-dubai" } }); if (Array.isArray(page?.content)) hero = (page.content as Block[]).find((block) => block.type === "hero"); } catch {}
   return <>
+    <DeliveredBodyClass bodyClass="home-development-page invest-dubai-page" />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/css/flag-icons.min.css" />
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css" />

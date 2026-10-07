@@ -3,6 +3,7 @@ import { AboutMain } from "@/components/public/about-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { db } from "@/lib/db";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; [key: string]: unknown };
@@ -30,6 +31,7 @@ export default async function AboutPage() {
     // The delivered client page stays available if the CMS database is unavailable.
   }
   return <>
+    <DeliveredBodyClass bodyClass="home-development-page about-design-page" />
     <SiteShellHeader />
     <AboutMain content={content} />
     <SiteShellFooter />

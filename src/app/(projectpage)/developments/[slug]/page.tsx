@@ -7,6 +7,7 @@ import { DevelopmentMain } from "@/components/public/development-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { renderPlannerHtml } from "@/lib/ownership-cost-planner";
 
 export const revalidate = 300;
@@ -53,6 +54,7 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   const shell = getProjectShell(project.slug);
   if (!shell) notFound();
   return <>
+    <DeliveredBodyClass bodyClass="home-development-page single-project-page" />
     <SiteShellHeader />
     <DevelopmentMain project={project} shell={shell} plannerHtml={renderPlannerHtml(true, project.slug)} />
     <SiteShellFooter />

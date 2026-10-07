@@ -4,6 +4,7 @@ import { LegacyMain } from "@/components/public/legacy-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; timeline?: LegacyMilestone[] };
 
@@ -24,6 +25,7 @@ export default async function LegacyPage() {
     // The delivered page stays available if the CMS cannot be read.
   }
   return <>
+    <DeliveredBodyClass bodyClass="home-development-page legacy-design-page" />
     <SiteShellHeader />
     <LegacyMain content={content} />
     <SiteShellFooter />

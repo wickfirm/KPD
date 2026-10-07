@@ -1,5 +1,6 @@
 ﻿import { getNewsPageShell } from "@/lib/news-shell";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 export const metadata = { title: "News and updates", description: "Announcements, market observations, and development commentary from KPD." };
 
@@ -10,6 +11,7 @@ export const metadata = { title: "News and updates", description: "Announcements
 export default async function NewsPage() {
   const shell = getNewsPageShell();
   return <>
+    <DeliveredBodyClass bodyClass="home-development-page news-design-page" />
     <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
     <div dangerouslySetInnerHTML={{ __html: shell.main }} />
     <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />

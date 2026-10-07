@@ -7,6 +7,7 @@ import { getArticleShell } from "@/lib/news-shell";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 export const revalidate = 300;
 
@@ -62,6 +63,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   };
   const shell = getArticleShell();
   return <>
+    <DeliveredBodyClass bodyClass="home-development-page news-design-page article-page" />
     <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
     <main className="article-main" id="top" data-article-page data-article-kind={article.kind === "BLOG" ? "blog" : "news"}>
       <article className="article-shell">
