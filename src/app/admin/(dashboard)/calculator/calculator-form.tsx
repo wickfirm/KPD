@@ -64,13 +64,13 @@ export default function CalculatorForm({ settings }: { settings: OwnershipCostPl
             <label className="cms-field"><span>Date</span><input name={`md-${projectIndex}-${rowIndex}`} type="date" value={row.date} onChange={(event) => updateRow(projectIndex, rowIndex, { date: event.target.value })} /></label>
             <button className="cms-milestone-row__remove" type="button" onClick={() => removeRow(projectIndex, rowIndex)}>Remove</button>
           </div>)}
-          <p className="cms-milestone-total">Running total: <strong>{Math.round(total(rows) * 100) / 100}%</strong> {Math.abs(total(rows) - 100) < 0.01 ? "✓" : "(must reach 100%)"}</p>
+          <p className={`cms-milestone-total${Math.abs(total(rows) - 100) < 0.01 ? "" : " is-off"}`}><span>Running total</span><strong>{Math.round(total(rows) * 100) / 100}% {Math.abs(total(rows) - 100) < 0.01 ? "✓" : "— must reach 100%"}</strong></p>
           <button className="cms-btn cms-btn--ghost" type="button" onClick={() => addRow(projectIndex)}>Add payment step</button>
         </fieldset>;
       })}</div>
     </section>
 
     <section className="cms-editor-section"><h2>Disclaimer</h2><label className="cms-field"><span>Public disclaimer</span><textarea name="disclaimer" rows={4} defaultValue={settings.disclaimer} /></label></section>
-    <button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save calculator settings"}</button>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save calculator settings"}</button></div>
   </form>;
 }

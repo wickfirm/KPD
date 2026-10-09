@@ -888,3 +888,65 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 .cms-btn:focus-visible { color: #fff; }
 .cms-btn[disabled] { color: #fff; }
 .cms-save-row .cms-btn { color: #fff; }
+
+/* -- Calculator editor: one field rhythm, aligned rows ----------------------------
+   Every field in the calculator shares the same label / control / gap rhythm
+   (grid gap only - no per-field margins), payment-step rows are a real grid so
+   the name, percentage, date and remove control line up on one baseline, and
+   the development cards stack full-width so rows have room to breathe. */
+
+.cms-calculator-form > h1 { font-size: 30px; line-height: 1.1; font-weight: 650; letter-spacing: -0.03em; margin: 8px 0 6px; }
+.cms-calculator-form .cms-editor-section { margin-top: 20px; }
+.cms-calculator-form .cms-editor-section > h2 { margin: 0 0 4px; font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
+.cms-calculator-form .cms-editor-section > .cms-muted { margin: 0 0 16px; max-width: 70ch; }
+.cms-calculator-form .cms-field { margin-bottom: 0; }
+.cms-calculator-form .cms-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding-bottom: 12px; }
+.cms-calculator-form .cms-field input,
+.cms-calculator-form .cms-field textarea { font-variant-numeric: tabular-nums; }
+.cms-calculator-form .cms-field input[type="number"] { text-align: right; }
+
+.cms-calculator-form .cms-management-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; margin: 0 0 12px; }
+.cms-calculator-form .cms-repeat-card { padding: 20px; }
+.cms-calculator-form .cms-repeat-card legend { font-size: 14px; padding: 0 8px; }
+.cms-calculator-form .cms-repeat-card > .cms-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-bottom: 0; }
+.cms-calculator-form .cms-repeat-card h4 {
+  margin: 22px 0 10px; padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+  font-size: 11.5px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.cms-calculator-form .cms-milestone-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px 170px auto;
+  align-items: end; justify-content: stretch;
+  gap: 12px 14px; padding: 0 0 12px; border: 0;
+}
+.cms-calculator-form .cms-milestone-row__remove {
+  min-height: 40px; padding: 0 14px;
+  font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--color-danger); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius-field);
+  cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+}
+.cms-calculator-form .cms-milestone-row__remove:hover { background: var(--color-danger-soft); border-color: #f2c9c6; }
+.cms-calculator-form .cms-milestone-row__remove:focus-visible { outline: 2px solid var(--color-danger); outline-offset: 2px; }
+
+.cms-calculator-form .cms-milestone-total {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  margin: 4px 0 14px; padding: 10px 14px;
+  background: var(--color-surface-soft); border: 1px solid var(--color-line); border-radius: var(--radius-field);
+  font-size: 13px; font-weight: 600; color: var(--color-ink-soft);
+}
+.cms-calculator-form .cms-milestone-total strong { font-variant-numeric: tabular-nums; color: var(--color-ok); font-weight: 700; }
+.cms-calculator-form .cms-milestone-total.is-off strong { color: var(--color-warn); }
+.cms-calculator-form .cms-btn { align-self: start; justify-self: start; }
+.cms-calculator-form .cms-repeat-card > .cms-btn { min-height: 38px; }
+.cms-calculator-form .cms-save-row { margin-top: 20px; }
+
+@media (max-width: 720px) {
+  .cms-calculator-form .cms-repeat-card > .cms-grid { grid-template-columns: minmax(0, 1fr); }
+  .cms-calculator-form .cms-milestone-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding-bottom: 16px; border-bottom: 1px dashed var(--color-line); margin-bottom: 14px; }
+  .cms-calculator-form .cms-milestone-row > .cms-field:first-child { grid-column: 1 / -1; }
+  .cms-calculator-form .cms-milestone-row__remove { grid-column: 1 / -1; justify-self: start; }
+}
