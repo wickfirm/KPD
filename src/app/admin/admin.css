@@ -953,6 +953,7 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 
 /* -- Structured list editors (home cards, investor guide, ...) ---------------------- */
 
+.cms-subheading { margin: 18px 0 8px; font-size: 11.5px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-ink-muted); }
 .cms-list-editor { display: grid; gap: 16px; margin: 6px 0 14px; }
 .cms-list-editor > .cms-repeat-card { margin: 0; min-width: 0; padding: 18px 20px; }
 .cms-list-editor .cms-grid { padding-bottom: 8px; }

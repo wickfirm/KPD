@@ -15,6 +15,7 @@ import {
 } from "@/lib/versions";
 import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
 import { ownershipCostPlannerDefaults, type OwnershipCostPlanner } from "@/lib/ownership-cost-planner";
+import { sanitizeInvestContent } from "@/lib/invest-defaults";
 
 function slugify(value: string) {
   return value
@@ -486,6 +487,15 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
     management,
   } : null;
   const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline } : null;
+  // The investor-guide editor sends its structured sections as JSON.
+  let invest: ({ type: "invest" } & ReturnType<typeof sanitizeInvestContent>) | null = null;
+  if (slug === "invest-in-dubai" && String(formData.get("investJson") || "").trim()) {
+    try {
+      invest = { type: "invest", ...sanitizeInvestContent(JSON.parse(String(formData.get("investJson")))) };
+    } catch {
+      return { error: "The investor guide sections could not be read. Please review them and save again." };
+    }
+  }
   const content = [
     ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
     ...paragraphs.map((text) => text.startsWith("## ")
@@ -493,6 +503,7 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
       : { type: "paragraph", text }),
     ...(about ? [about] : []),
     ...(legacy ? [legacy] : []),
+    ...(invest ? [invest] : []),
   ];
 
   try {
