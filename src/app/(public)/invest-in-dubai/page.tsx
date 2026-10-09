@@ -3,7 +3,7 @@ import { db } from "@/lib/db";
 import { InvestEnhancements } from "@/components/public/invest-enhancements";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string };
@@ -217,6 +217,7 @@ export default async function InvestPage() {
       </section>
     </main><SiteShellFooter />
     <InvestEnhancements />
+    <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page invest-dubai-page" sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
 }

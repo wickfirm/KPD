@@ -2,7 +2,7 @@ import { type AboutContent } from "@/lib/about-defaults";
 import { AboutMain } from "@/components/public/about-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { db } from "@/lib/db";
 
@@ -35,6 +35,7 @@ export default async function AboutPage() {
     <SiteShellHeader />
     <AboutMain content={content} />
     <SiteShellFooter />
+    <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page about-design-page" />
   </>;
 }

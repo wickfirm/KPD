@@ -1,5 +1,5 @@
 ﻿import { getNewsPageShell } from "@/lib/news-shell";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 export const metadata = { title: "News and updates", description: "Announcements, market observations, and development commentary from KPD." };
@@ -15,6 +15,7 @@ export default async function NewsPage() {
     <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
     <div dangerouslySetInnerHTML={{ __html: shell.main }} />
     <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
+    <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page" sources={[
       "/legacy/assets/js/live-news.js?v=20261007-internal-links",
       "/legacy/assets/js/site.js?v=20260715-backend-start-1",

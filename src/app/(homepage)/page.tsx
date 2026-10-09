@@ -1,7 +1,7 @@
 import { HomeMain } from "@/components/public/home-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { getHomeStaticTail } from "@/lib/legacy-home";
 import type { HomeSettings } from "@/lib/home-defaults";
@@ -25,6 +25,7 @@ export default async function HomePage() {
     <SiteShellHeader />
     <HomeMain settings={home} staticTail={getHomeStaticTail()} />
     <SiteShellFooter />
+    <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page" sources={["/legacy/assets/js/live-news.js?v=20261007-internal-links"]} />
   </>;
 }

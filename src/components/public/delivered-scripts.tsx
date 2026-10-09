@@ -57,12 +57,14 @@ export function DeliveredScripts({ sources = [], bodyClass }: { sources?: string
     delete w.__kpdEarly;
     if (!ranEarly) w.__kpdTrack?.release();
     const urls = ranEarly ? sources : [DELIVERED_SCRIPT, ...sources];
-    if (!ranEarly && w.__kpdTrack) w.__kpdTrack.on = true;
+    const track = w.__kpdTrack;
+    if (track && urls.length) track.on = true;
     const scripts = urls.map((src, index) => {
       const script = document.createElement("script");
       script.src = src;
       script.async = false;
-      if (!ranEarly && index === 0) script.addEventListener("load", () => { if (w.__kpdTrack) w.__kpdTrack.on = false; }, { once: true });
+      // Scripts execute in order, so the last one's load ends the tracked window.
+      if (track && index === urls.length - 1) script.addEventListener("load", () => { track.on = false; }, { once: true });
       document.body.appendChild(script);
       return script;
     });
