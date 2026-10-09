@@ -39,7 +39,8 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
                       <span>{milestone.summary ? multiline(milestone.summary) : ""}</span>
                     </span>
                   </summary>
-                  {milestone.body ? <div className="legacy-timeline-body"><p>{multiline(milestone.body)}</p></div> : null}
+                  {/* Always rendered, even without body copy: the delivered timeline script bails out of a card that has no .legacy-timeline-body, so the card would never expand and its image would stay hidden. */}
+                  <div className="legacy-timeline-body">{milestone.body ? <p>{multiline(milestone.body)}</p> : null}</div>
                 </details>
                 <figure className="legacy-timeline-media">
                   <img src={milestone.image ?? ""} alt={`Legacy milestone ${milestone.year ?? ""}`} />
