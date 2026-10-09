@@ -8,7 +8,12 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { legacyProjectTemplates } from "../src/lib/legacy-project-templates";
 
-const q = (value: string) => `'${value.replace(/'/g, "''")}'`;
+// Newlines are emitted as an escaped \n inside an E'' string so the file survives
+// Windows line-ending conversion (a raw newline in a literal would become CRLF).
+const q = (value: string) => {
+  const escaped = value.replace(/\\/g, "\\\\").replace(/'/g, "''");
+  return value.includes("\n") ? `E'${escaped.replace(/\n/g, "\\n")}'` : `'${escaped}'`;
+};
 const lines: string[] = [];
 
 lines.push(`-- KPD: reconcile the three delivered development pages with the delivered design.`);
