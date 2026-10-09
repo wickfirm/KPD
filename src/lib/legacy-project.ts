@@ -70,6 +70,36 @@ export type ProjectShell = {
   enquire: { label: string; image: string; alt: string; heading: string; text: string };
 };
 
+const escapeAttribute = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/// Page shell for a development that has no delivered template (any project an
+/// editor creates in the CMS). The hero shows the project image instead of a
+/// film, the overview figure is the same image, and the delivered-only
+/// decorations (directional figures, travel timeline) are simply absent; the
+/// project row and its modules supply everything else.
+export function genericProjectShell(project: { name: string; tagline?: string | null; description?: string | null; heroImage?: string | null }): ProjectShell {
+  const image = project.heroImage ?? "";
+  return {
+    beforeMain: "",
+    afterMain: "",
+    heroVideo: "",
+    heroPoster: image,
+    overviewHeading: project.tagline || project.name,
+    overviewText: project.description || "",
+    overviewFigure: image ? `<figure class="single-project-sketch single-project-intro-media" aria-label="${escapeAttribute(project.name)} exterior render"><img src="${escapeAttribute(image)}" alt="${escapeAttribute(project.name)}"></figure>` : "",
+    meydanFigure: "",
+    calmFigure: "",
+    locationShell: "",
+    enquire: {
+      label: "Arrange a private viewing",
+      image: "/legacy/assets/images/experience-center/hq/15.jpg",
+      alt: "Private viewing and advisory workspace",
+      heading: "Arrange a private\nviewing.",
+      text: "Floor plans, pricing, and availability are shared through a single appointment-led conversation.",
+    },
+  };
+}
+
 export function getProjectShell(slug: string): ProjectShell | null {
   const body = pageBody(slug);
   if (!body) return null;

@@ -42,3 +42,19 @@ describe("getProjectShell", () => {
     expect(getProjectShell("unknown-project")).toBeNull();
   });
 });
+
+describe("genericProjectShell", () => {
+  it("builds a usable shell for a CMS-created development", async () => {
+    const { genericProjectShell } = await import("./legacy-project");
+    const shell = genericProjectShell({ name: 'Palm "Vista"', tagline: null, description: "A new address.", heroImage: "/media/palm.jpg" });
+    expect(shell.heroVideo).toBe("");
+    expect(shell.heroPoster).toBe("/media/palm.jpg");
+    expect(shell.overviewHeading).toBe('Palm "Vista"');
+    expect(shell.overviewFigure).toContain('alt="Palm &quot;Vista&quot;"');
+    expect(shell.enquire.heading).toContain("viewing");
+  });
+  it("omits the overview figure when the project has no image", async () => {
+    const { genericProjectShell } = await import("./legacy-project");
+    expect(genericProjectShell({ name: "Bare" }).overviewFigure).toBe("");
+  });
+});

@@ -29,10 +29,12 @@ export function DevelopmentMain({ project, shell, plannerHtml }: { project: Deve
    
   return (
     <main className="single-project-main" id="top">
-      <section className="single-project-hero pdf-hero" aria-label={`${project.name} video introduction`}>
-        <video src={shell.heroVideo} poster={project.heroImage ?? shell.heroPoster} autoPlay muted playsInline preload="metadata" aria-label={`${project.name} project film`} />
+      <section className="single-project-hero pdf-hero" aria-label={shell.heroVideo ? `${project.name} video introduction` : `${project.name} introduction`}>
+        {shell.heroVideo
+          ? <video src={shell.heroVideo} poster={project.heroImage ?? shell.heroPoster} autoPlay muted playsInline preload="metadata" aria-label={`${project.name} project film`} />
+          : <img src={project.heroImage ?? shell.heroPoster} alt={project.name} />}
         <div className="page-hero-content"><h1>{project.name}</h1></div>
-        <button className="single-project-play" type="button" aria-label="Play project film" />
+        {shell.heroVideo ? <button className="single-project-play" type="button" aria-label="Play project film" /> : null}
       </section>
 
       <section className="single-project-intro kpd-section" id="overview">
@@ -58,9 +60,9 @@ export function DevelopmentMain({ project, shell, plannerHtml }: { project: Deve
         />
       ))}
 
-      <section className="kpd-section ownership-planner-section ownership-planner-section--project" aria-label="Ownership Cost Planner">
+      {plannerHtml ? <section className="kpd-section ownership-planner-section ownership-planner-section--project" aria-label="Ownership Cost Planner">
         <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} data-planner-prerendered="true" dangerouslySetInnerHTML={{ __html: plannerHtml }} />
-      </section>
+      </section> : null}
 
       <section className="projects-spec-contact single-project-enquire" aria-label={shell.enquire.label}>
         <img src={shell.enquire.image} alt={shell.enquire.alt} />
