@@ -2,7 +2,15 @@
 /// index.html). Single source of truth for the public page fallbacks and the
 /// admin homepage editor. Pure data â€” safe for client components.
 
+export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
+export type StatItem = { value: string; label: string };
+export type BannerSlide = { image: string; label: string };
+
 export type HomeSettings = {
+  introStats?: StatItem[];
+  statsNote?: string;
+  bannerSlides?: BannerSlide[];
+  developmentCards?: DevelopmentCard[];
   heroVideo?: string;
   introHeading?: string;
   introParagraphs?: string[];
@@ -15,6 +23,28 @@ export type HomeSettings = {
 export type GalleryPanel = { key: string; image: string; caption: string };
 
 export const homeDefaults = {
+  /// The delivered AUM stat strip.
+  introStats: [
+    { value: "$4.4B", label: "Global AUM" },
+    { value: "$320M", label: "Dubai Real Estate" },
+    { value: "$2.27B", label: "Logistics" },
+    { value: "$1.64B", label: "Hotels" },
+  ] as StatItem[],
+  statsNote: "(As of February, 2026)",
+  /// The delivered development banner slides (the first slide shows on load).
+  bannerSlides: [
+    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "Seven X Seven" },
+    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Emerald Villa" },
+    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Dubai Hills Mansion" },
+    { image: "/legacy/assets/images/library/modern-apartment-buildings-with-balconies-on-sunny-2026-03-19-09-29-37-utc.jpg", label: "Residential development" },
+    { image: "/legacy/assets/images/library/dubai-marina-skyline-with-modern-skyscrapers-and-w-2026-03-05-11-49-49-utc.jpg", label: "Dubai skyline" },
+  ] as BannerSlide[],
+  /// The delivered development cards.
+  developmentCards: [
+    { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", title: "Seven X Seven", copy: "A composed Meydan Horizon residence shaped by arrival, light, privacy, and efficient access to Dubai's core districts." },
+    { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", title: "Emerald Villa", copy: "A private villa composition shaped around garden arrival, layered privacy, and family-scaled living." },
+    { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/library/high-rise-apartment-buildings-in-downtown-vancouve-2026-03-20-04-35-07-utc.jpg", title: "Dubai Hills Mansion", copy: "A mansion-scale residence organized around garden arrival, private wellness, and long-horizon family living." },
+  ] as DevelopmentCard[],
   heroVideo: "/videos/hero-experience-center.mp4",
   introHeading: "Turning Challenge\nInto Value",
   introParagraphs: [

@@ -607,9 +607,27 @@ export async function saveGlobalSettings(
   redirect("/admin/settings?saved=1");
 }
 
+/// A list serialised as JSON by a repeater editor (hidden field). Malformed or
+/// non-list input yields an empty list, which the public page treats as "use
+/// the delivered defaults".
+function parseJsonList<T>(raw: FormDataEntryValue | null, map: (item: Record<string, unknown>) => T | null): T[] {
+  try {
+    const parsed: unknown = JSON.parse(String(raw || "[]"));
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item) => map((item && typeof item === "object" ? item : {}) as Record<string, unknown>)).filter((item): item is T => item !== null);
+  } catch {
+    return [];
+  }
+}
+const text = (value: unknown) => String(value ?? "").trim();
+
 /// Shared write path for the homepage content record.
 async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
   const home = {
+    introStats: parseJsonList(formData.get("introStatsJson"), (item) => (text(item.value) || text(item.label) ? { value: text(item.value), label: text(item.label) } : null)),
+    statsNote: String(formData.get("statsNote") ?? "").trim(),
+    bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development" } : null)),
+    developmentCards: parseJsonList(formData.get("developmentCardsJson"), (item) => (text(item.title) || text(item.image) ? { href: text(item.href), image: text(item.image), title: text(item.title), copy: text(item.copy) } : null)),
     heroVideo: String(formData.get("heroVideo") || "").trim(),
     introHeading: String(formData.get("introHeading") || "").trim(),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),

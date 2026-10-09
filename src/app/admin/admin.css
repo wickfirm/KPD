@@ -950,3 +950,12 @@ h1, h2, h3 { letter-spacing: -0.025em; }
   .cms-calculator-form .cms-milestone-row > .cms-field:first-child { grid-column: 1 / -1; }
   .cms-calculator-form .cms-milestone-row__remove { grid-column: 1 / -1; justify-self: start; }
 }
+
+/* -- Structured list editors (home cards, investor guide, ...) ---------------------- */
+
+.cms-list-editor { display: grid; gap: 16px; margin: 6px 0 14px; }
+.cms-list-editor > .cms-repeat-card { margin: 0; min-width: 0; padding: 18px 20px; }
+.cms-list-editor .cms-grid { padding-bottom: 8px; }
+.cms-list-editor .cms-field { margin-bottom: 0; }
+.cms-list-editor > .cms-btn { justify-self: start; }
+.cms-list-editor .cms-actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }

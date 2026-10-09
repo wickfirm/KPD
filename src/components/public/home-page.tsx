@@ -1,44 +1,11 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
-import { homeDefaults, type GalleryPanel, type HomeSettings } from "@/lib/home-defaults";
+import { homeDefaults, type BannerSlide, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
-
-/// The delivered development banner slides â€” static presentation media.
-const bannerSlides = [
-  "/legacy/assets/images/project-media/sxs/facade%20left%202.png",
-  "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg",
-  "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg",
-  "/legacy/assets/images/library/modern-apartment-buildings-with-balconies-on-sunny-2026-03-19-09-29-37-utc.jpg",
-  "/legacy/assets/images/library/dubai-marina-skyline-with-modern-skyscrapers-and-w-2026-03-05-11-49-49-utc.jpg",
-];
-
-const bannerDots = [
-  "Show Seven X Seven",
-  "Show Emerald Villa",
-  "Show Dubai Hills Mansion",
-  "Show residential development",
-  "Show Dubai skyline",
-];
-
-/// The delivered development cards (static marketing copy; projects are edited
-/// under Developments in the CMS).
-const developmentCards = [
-  { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", alt: "Seven X Seven", title: "Seven X Seven", copy: "A composed Meydan Horizon residence shaped by arrival, light, privacy, and efficient access to Dubai's core districts." },
-  { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", alt: "Emerald Villa exterior", title: "Emerald Villa", copy: "A private villa composition shaped around garden arrival, layered privacy, and family-scaled living." },
-  { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/library/high-rise-apartment-buildings-in-downtown-vancouve-2026-03-20-04-35-07-utc.jpg", alt: "Dubai Hills Mansion exterior", title: "Dubai Hills Mansion", copy: "A mansion-scale residence organized around garden arrival, private wellness, and long-horizon family living." },
-];
-
-/// The delivered AUM stat strip (static figures).
-const introStats = [
-  { value: "$4.4B", label: "Global AUM" },
-  { value: "$320M", label: "Dubai Real Estate" },
-  { value: "$2.27B", label: "Logistics" },
-  { value: "$1.64B", label: "Hotels" },
-];
 
 export function HomeHero({ video }: { video: string }) {
   return (
@@ -48,7 +15,7 @@ export function HomeHero({ video }: { video: string }) {
   );
 }
 
-export function HomeIntro({ heading, paragraphs }: { heading: string; paragraphs: string[] }) {
+export function HomeIntro({ heading, paragraphs, stats, statsNote }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string }) {
   return (
     <section className="pdf-section pdf-intro" id="about">
       <div className="pdf-intro-grid">
@@ -58,29 +25,29 @@ export function HomeIntro({ heading, paragraphs }: { heading: string; paragraphs
         </div>
       </div>
       <div className="pdf-stat-grid">
-        {introStats.map((stat) => (
-          <div className="pdf-stat" key={stat.label}><strong><Link href="/about">{stat.value}</Link></strong><span>{stat.label}</span></div>
+        {stats.map((stat, index) => (
+          <div className="pdf-stat" key={`${stat.label}-${index}`}><strong><Link href="/about">{stat.value}</Link></strong><span>{stat.label}</span></div>
         ))}
-        <p className="stats-as-of">(As of February, 2026)</p>
+        {statsNote ? <p className="stats-as-of">{statsNote}</p> : null}
       </div>
     </section>
   );
 }
 
-export function HomeDevelopmentBanner({ heading }: { heading: string }) {
+export function HomeDevelopmentBanner({ heading, slides }: { heading: string; slides: BannerSlide[] }) {
   return (
     <section className="pdf-section pdf-development-banner" id="developments" data-development-slider>
       <div className="pdf-development-slides" aria-hidden="true">
-        {bannerSlides.map((slide, index) => (
-          <div className={`pdf-development-slide${index === 0 ? " active" : ""}`} key={slide}><img src={slide} alt="" /></div>
+        {slides.map((slide, index) => (
+          <div className={`pdf-development-slide${index === 0 ? " active" : ""}`} key={`${slide.image}-${index}`}><img src={slide.image} alt="" /></div>
         ))}
       </div>
       <div className="pdf-development-content">
         <h2>{heading}</h2>
         <Link className="pdf-development-button btn-pill text-white" href="/#development-cards">Explore</Link>
         <div className="pdf-development-dots" aria-label="Development slides">
-          {bannerDots.map((label, index) => (
-            <button className={index === 0 ? "active" : undefined} type="button" data-development-dot={index} aria-label={label} key={label} />
+          {slides.map((slide, index) => (
+            <button className={index === 0 ? "active" : undefined} type="button" data-development-dot={index} aria-label={`Show ${slide.label}`} key={`${slide.label}-${index}`} />
           ))}
         </div>
       </div>
@@ -88,12 +55,12 @@ export function HomeDevelopmentBanner({ heading }: { heading: string }) {
   );
 }
 
-export function HomeDevelopmentCards() {
+export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
   return (
     <section className="pdf-section pdf-development-cards" id="development-cards" aria-label="Our developments">
-      {developmentCards.map((card) => (
-        <a className="pdf-dev-card" href={card.href} key={card.href}>
-          <img src={card.image} alt={card.alt} />
+      {cards.map((card, index) => (
+        <a className="pdf-dev-card" href={card.href} key={`${card.href}-${index}`}>
+          <img src={card.image} alt={card.title} />
           <div className="pdf-dev-card-body">
             <h3>{card.title}</h3>
             <p>{card.copy}</p>
@@ -144,9 +111,11 @@ export function HomeMain({ settings, staticTail }: { settings: HomeSettings; sta
       <HomeIntro
         heading={settings.introHeading || homeDefaults.introHeading}
         paragraphs={settings.introParagraphs?.filter(Boolean).length ? settings.introParagraphs.filter(Boolean) : homeDefaults.introParagraphs}
+        stats={settings.introStats?.length ? settings.introStats : homeDefaults.introStats}
+        statsNote={settings.statsNote ?? homeDefaults.statsNote}
       />
-      <HomeDevelopmentBanner heading={settings.developmentHeading || homeDefaults.developmentHeading} />
-      <HomeDevelopmentCards />
+      <HomeDevelopmentBanner heading={settings.developmentHeading || homeDefaults.developmentHeading} slides={settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides} />
+      <HomeDevelopmentCards cards={settings.developmentCards?.length ? settings.developmentCards : homeDefaults.developmentCards} />
       <HomeContactBlock
         heading={settings.contactHeading || homeDefaults.contactHeading}
         text={settings.contactText || homeDefaults.contactText}
