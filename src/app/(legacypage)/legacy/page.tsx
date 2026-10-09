@@ -3,7 +3,7 @@ import type { LegacyContent, LegacyMilestone } from "@/lib/legacy-defaults";
 import { LegacyMain } from "@/components/public/legacy-page";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 type Block = { type?: string; heading?: string; text?: string; image?: string; timeline?: LegacyMilestone[] };
@@ -29,6 +29,7 @@ export default async function LegacyPage() {
     <SiteShellHeader />
     <LegacyMain content={content} />
     <SiteShellFooter />
+    <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page legacy-design-page" />
   </>;
 }
