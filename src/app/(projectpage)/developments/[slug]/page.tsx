@@ -2,13 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { getProjectShell, genericProjectShell } from "@/lib/legacy-project";
-import { DevelopmentMain } from "@/components/public/development-page";
-import { SiteShellHeader } from "@/components/public/site-shell-header";
-import { SiteShellFooter } from "@/components/public/site-shell-footer";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
-import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
-import { ownershipCostPlannerDefaults, renderPlannerHtml } from "@/lib/ownership-cost-planner";
+import { DevelopmentView } from "@/components/public/development-view";
 
 export const revalidate = 300;
 
@@ -46,19 +40,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 /// Unified delivered shell + React content rendered from the project row and
-/// its CMS modules.
+/// its CMS modules (shared with the admin draft preview).
 export default async function DevelopmentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const project = await getPublishedProject(slug);
   if (!project) notFound();
-  // Developments created in the CMS have no delivered template: use the generic shell.
-  const shell = getProjectShell(project.slug) ?? genericProjectShell(project);
-  return <>
-    <DeliveredBodyClass bodyClass="home-development-page single-project-page" />
-    <SiteShellHeader />
-    <DevelopmentMain project={project} shell={shell} plannerHtml={ownershipCostPlannerDefaults.projects.some((entry) => entry.slug === project.slug) ? renderPlannerHtml(true, project.slug) : ""} />
-    <SiteShellFooter />
-    <DeliveredScripts bodyClass="home-development-page single-project-page" sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
-  </>;
+  return <DevelopmentView project={project} />;
 }
-

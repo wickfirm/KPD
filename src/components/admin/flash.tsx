@@ -14,6 +14,10 @@ export function SavedBanner({ params }: { params?: FlashParams }) {
   const synced = firstValue(params, "synced");
   const error = firstValue(params, "error");
   const denied = firstValue(params, "denied");
+  const notice = firstValue(params, "notice");
+  if (notice) {
+    return <p className="cms-ok" role="status">{notice}</p>;
+  }
   if (restored) {
     return <p className="cms-ok" role="status">Version restored — the content now matches that snapshot. Changed your mind? Pick a newer version in the history list below.</p>;
   }

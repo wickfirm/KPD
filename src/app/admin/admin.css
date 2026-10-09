@@ -1000,3 +1000,99 @@ h1, h2, h3 { letter-spacing: -0.025em; }
   .cms-submission > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; }
   .cms-submission__interest, .cms-submission__when { grid-column: 1 / -1; }
 }
+
+/* -- Developments: list, editor layout, section navigation ------------------------------- */
+
+.cms-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; margin: 0 0 20px; }
+.cms-toolbar .cms-filter-row { margin: 0; }
+.cms-search { display: flex; gap: 8px; align-items: center; }
+.cms-search input[type="search"] { min-height: 38px; width: min(320px, 70vw); padding: 8px 12px; font: inherit; font-size: 14px; background: var(--color-surface); border: 1px solid var(--color-line-strong); border-radius: var(--radius-field); }
+.cms-search input[type="search"]:focus-visible { outline: none; border-color: var(--color-brand); box-shadow: 0 0 0 3px var(--color-accent-ring); }
+
+.cms-dev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; align-items: start; }
+.cms-dev-card {
+  position: relative; display: grid; grid-template-rows: auto 1fr auto;
+  background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-card); overflow: visible;
+  box-shadow: 0 1px 2px rgba(16,26,22,0.04), 0 8px 24px rgba(16,26,22,0.03); transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.cms-dev-card:hover { border-color: var(--color-line-strong); box-shadow: 0 10px 30px rgba(16,26,22,0.08); }
+.cms-dev-card--ARCHIVED { opacity: 0.78; }
+.cms-dev-card__media { position: relative; display: block; aspect-ratio: 16 / 9; background: var(--color-surface-soft); border-radius: var(--radius-card) var(--radius-card) 0 0; overflow: hidden; }
+.cms-dev-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cms-dev-card__media .cms-badge { position: absolute; top: 12px; left: 12px; backdrop-filter: blur(6px); }
+.cms-dev-card__placeholder { display: grid; place-items: center; height: 100%; color: var(--color-ink-muted); font-size: 13px; }
+.cms-dev-card__body { padding: 16px 18px 6px; display: grid; gap: 4px; align-content: start; }
+.cms-dev-card__body h2 { margin: 0; font-size: 19px; font-weight: 650; letter-spacing: -0.02em; }
+.cms-dev-card__body h2 a { color: inherit; text-decoration: none; }
+.cms-dev-card__body h2 a:hover { text-decoration: underline; }
+.cms-dev-card__tagline { margin: 0; color: var(--color-ink-soft); font-size: 13.5px; }
+.cms-dev-card__body .cms-muted { margin: 4px 0 0; font-size: 12.5px; overflow-wrap: anywhere; }
+.cms-dev-card__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 18px 18px; }
+.cms-dev-card__order { position: absolute; top: 12px; right: 12px; display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 13px; background: rgba(255,255,255,0.92); color: var(--color-ink); font-size: 12px; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.18); pointer-events: none; }
+
+.cms-menu { position: relative; }
+.cms-menu > summary { list-style: none; cursor: pointer; }
+.cms-menu > summary::-webkit-details-marker { display: none; }
+.cms-menu__panel {
+  position: absolute; z-index: 20; right: 0; bottom: calc(100% + 6px); min-width: 210px; padding: 6px;
+  background: var(--color-surface); border: 1px solid var(--color-line-strong); border-radius: 12px; box-shadow: 0 14px 36px rgba(16,26,22,0.18);
+}
+.cms-menu__panel form { margin: 0; }
+.cms-menu__panel button { display: block; width: 100%; text-align: left; padding: 8px 10px; font: inherit; font-size: 13.5px; color: var(--color-ink); background: transparent; border: 0; border-radius: 8px; cursor: pointer; }
+.cms-menu__panel button:hover:not(:disabled) { background: var(--color-surface-soft); }
+.cms-menu__panel button:disabled { color: var(--color-ink-muted); cursor: not-allowed; opacity: 0.55; }
+
+.cms-editor-layout { display: grid; grid-template-columns: minmax(0, 1fr) 232px; gap: 28px; align-items: start; }
+.cms-editor-layout__main { min-width: 0; }
+.cms-editor .cms-page-heading h1 { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.cms-editor .cms-page-heading .cms-actions { flex-wrap: wrap; justify-content: flex-end; }
+.cms-editor .cms-page-heading .cms-actions form { margin: 0; }
+.cms-section-nav { position: sticky; top: 20px; display: grid; gap: 10px; padding: 16px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-card); max-height: calc(100vh - 40px); overflow: auto; }
+.cms-section-nav ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: nav; }
+.cms-section-nav li { margin: 0; }
+.cms-section-nav button { display: grid; width: 100%; text-align: left; padding: 8px 10px; font: inherit; font-size: 13.5px; color: var(--color-ink-soft); background: transparent; border: 0; border-left: 2px solid transparent; border-radius: 0 8px 8px 0; cursor: pointer; }
+.cms-section-nav button small { color: var(--color-ink-muted); font-size: 11.5px; }
+.cms-section-nav button:hover { background: var(--color-surface-soft); }
+.cms-section-nav button.is-active { color: var(--color-ink); font-weight: 650; background: var(--color-brand-tint); border-left-color: var(--color-brand); }
+@media (max-width: 1100px) { .cms-editor-layout { grid-template-columns: minmax(0, 1fr); } .cms-section-nav { display: none; } }
+
+.cms-module-toolbar__actions { display: flex; gap: 8px; }
+.cms-check { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; margin: 0 0 14px; background: var(--color-surface-soft); border: 1px solid var(--color-line); border-radius: var(--radius-field); cursor: pointer; }
+.cms-check input { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--color-brand); }
+.cms-check strong { display: block; font-weight: 650; }
+.cms-check small { display: block; color: var(--color-ink-muted); font-size: 12.5px; margin-top: 2px; }
+.cms-card .cms-advanced-input { margin: 4px 0 14px; }
+.cms-card .cms-advanced-input .cms-grid { margin-top: 12px; }
+
+.cms-unsaved {
+  position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 30; display: grid; gap: 2px; max-width: min(560px, 92vw);
+  padding: 12px 18px; background: #fff7e0; border: 1px solid #f0e2bd; border-radius: 12px; box-shadow: 0 12px 32px rgba(16,26,22,0.18); color: #6b4a07; font-size: 13px;
+}
+.cms-unsaved small { color: #8a6a1f; }
+
+/* -- Secondary buttons keep their own look ------------------------------------------------
+   The primary-button depth/colour rules further up share the .cms-btn selector and come
+   later in the file, so they overrode the ghost / outline / danger variants (every
+   secondary button rendered as a solid dark primary). Compound selectors restore them. */
+
+.cms-btn.cms-btn--ghost { background: var(--color-surface); color: var(--color-ink); border-color: var(--color-line-strong); box-shadow: none; }
+.cms-btn.cms-btn--ghost:hover { background: var(--color-surface-soft); color: var(--color-ink); border-color: #b6bdb7; box-shadow: none; }
+.cms-btn.cms-btn--ghost:focus-visible { color: var(--color-ink); }
+.cms-btn.cms-btn--ghost[disabled] { color: var(--color-ink-muted); background: var(--color-surface-soft); }
+.cms-btn.cms-btn--outline { background: transparent; color: var(--color-ink); border-color: transparent; box-shadow: none; }
+.cms-btn.cms-btn--outline:hover { background: rgba(16,26,22,0.05); color: var(--color-ink); box-shadow: none; }
+.cms-btn.cms-btn--danger { background: var(--color-danger); color: #fff; }
+.cms-btn.cms-btn--danger:hover { background: #99201a; color: #fff; box-shadow: 0 4px 14px rgba(179,38,30,0.25); }
+
+/* -- Development section cards: body, toolbar, history ----------------------------------- */
+
+.cms-module-body { padding: 4px 24px 24px; }
+.cms-module-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 14px 0 16px; margin: 0 0 18px; border-bottom: 1px solid var(--color-line); }
+.cms-module-toolbar > p { margin: 0; flex: 1 1 220px; color: var(--color-ink-muted); font-size: 13px; }
+.cms-module-toolbar > form { margin: 0; }
+.cms-module-body .cms-advanced-input { margin: 2px 0 18px; }
+.cms-module-body .cms-advanced-input .cms-grid { margin-top: 12px; }
+.cms-module-history { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--color-line); font-size: 13px; }
+.cms-module-history summary { cursor: pointer; font-weight: 650; color: var(--color-ink-soft); }
+.cms-module-history ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.cms-module-history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }

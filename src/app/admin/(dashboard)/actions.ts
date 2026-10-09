@@ -17,6 +17,7 @@ import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
 import { ownershipCostPlannerDefaults, type OwnershipCostPlanner } from "@/lib/ownership-cost-planner";
 import { sanitizeInvestContent } from "@/lib/invest-defaults";
 import { findEditablePage } from "@/lib/editable-pages";
+import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter";
 
 function slugify(value: string) {
   return value
@@ -314,6 +315,12 @@ export async function saveProject(
   const result = await applyProject(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
 
+  // A new development can start with the standard sections already in place.
+  const startedWithSections = !id && formData.get("starter") === "on";
+  if (startedWithSections) {
+    await db.projectModule.createMany({ data: starterModules.map((module) => ({ projectId: result.id as string, slug: module.slug, title: module.title, kind: module.kind, profile: "FULL" as const, content: module.content as never, sortOrder: module.sortOrder })), skipDuplicates: true });
+  }
+
   const publicSlug = slugify(String(formData.get("slug") || "") || String(formData.get("name") || ""));
   revalidatePath("/admin/projects");
   revalidatePath(`/admin/projects/${result.id}`);
@@ -328,7 +335,7 @@ export async function saveProject(
     authorEmail: session.email,
   });
   await logActivity({ action: "content.save", session, entityType: "PROJECT", entityId: result.id, summary: `Saved development “${result.label}”` });
-  redirect(`/admin/projects/${result.id}?saved=1`);
+  redirect(startedWithSections ? `/admin/projects/${result.id}?notice=${encodeURIComponent("Development created with the standard sections. Fill them in, then publish when you are ready.")}` : `/admin/projects/${result.id}?saved=1`);
 }
 
 /// Shared module write path (editor form + version restore). Restoring a
@@ -340,6 +347,12 @@ async function applyProjectModule(id: string, formData: FormData): Promise<Apply
   if (!projectId || !title || !slug) return { error: "Module title is required." };
 
   const kind = moduleKind(formData.get("kind"));
+  // Order is managed with the up/down buttons; a brand-new section goes to the end.
+  let sortOrder = Math.max(0, Number(formData.get("sortOrder") || 0) || 0);
+  if (!id && !sortOrder) {
+    const last = await db.projectModule.findFirst({ where: { projectId }, orderBy: { sortOrder: "desc" }, select: { sortOrder: true } });
+    sortOrder = (last?.sortOrder ?? 0) + 10;
+  }
   const content = moduleContentFromForm(formData);
 
   const data = {
@@ -348,7 +361,7 @@ async function applyProjectModule(id: string, formData: FormData): Promise<Apply
     kind,
     profile: projectProfile(formData.get("profile")),
     content: content as never,
-    sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
+    sortOrder,
   };
 
   try {
@@ -844,4 +857,90 @@ export async function restoreVersion(formData: FormData) {
   revalidatePath(returnPath);
   revalidatePublicContent();
   redirect(`${returnPath}?restored=1`);
+}
+
+/// Only ever send an editor back to the development screens.
+function projectsReturnPath(value: FormDataEntryValue | null, fallback = "/admin/projects") {
+  const path = String(value || "");
+  return path.startsWith("/admin/projects") && !path.includes("//") ? path : fallback;
+}
+
+/// Quick status change from the Developments list or editor. Archiving (and
+/// returning to Draft) removes the page from the public site immediately.
+export async function setProjectStatus(formData: FormData) {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const status = projectStatus(formData.get("status"));
+  const returnTo = projectsReturnPath(formData.get("returnTo"));
+  const existing = id ? await db.project.findUnique({ where: { id }, select: { id: true, slug: true, name: true, status: true, publishedAt: true } }) : null;
+  if (!existing) redirect(`/admin/projects?error=${encodeURIComponent("That development no longer exists.")}`);
+
+  const publishedAt = status === "PUBLISHED" ? (existing.status === "PUBLISHED" && existing.publishedAt ? existing.publishedAt : new Date()) : null;
+  await db.project.update({ where: { id }, data: { status, publishedAt } });
+  revalidatePath(`/developments/${existing.slug}`);
+  revalidatePath("/admin/projects");
+  revalidatePublicContent();
+
+  const verb = status === "PUBLISHED" ? "Published" : status === "ARCHIVED" ? "Archived" : "Moved to draft";
+  await logActivity({ action: "content.save", session, entityType: "PROJECT", entityId: id, summary: `${verb} development \u201c${existing.name}\u201d` });
+  const notice = status === "PUBLISHED" ? `\u201c${existing.name}\u201d is now published.`
+    : status === "ARCHIVED" ? `\u201c${existing.name}\u201d was archived and removed from the public site. Use Restore to bring it back as a draft.`
+    : `\u201c${existing.name}\u201d is a draft again and no longer public.`;
+  redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}notice=${encodeURIComponent(notice)}`);
+}
+
+/// Copies a development (and all its sections) as a new draft.
+export async function duplicateProject(formData: FormData) {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const source = id ? await db.project.findUnique({ where: { id }, include: { modules: true } }) : null;
+  if (!source) redirect(`/admin/projects?error=${encodeURIComponent("That development no longer exists.")}`);
+
+  const slugs = (await db.project.findMany({ select: { slug: true } })).map((row) => row.slug);
+  const created = await db.project.create({
+    data: {
+      slug: nextCopySlug(source.slug, slugs),
+      name: `${source.name} (copy)`,
+      tagline: source.tagline,
+      description: source.description,
+      profile: source.profile,
+      status: "DRAFT",
+      heroImage: source.heroImage,
+      location: source.location,
+      sortOrder: source.sortOrder + 1,
+      modules: { create: source.modules.map((module) => ({ slug: module.slug, title: module.title, kind: module.kind, profile: module.profile, content: module.content as never, sortOrder: module.sortOrder })) },
+    },
+  });
+  revalidatePath("/admin/projects");
+  await logActivity({ action: "content.save", session, entityType: "PROJECT", entityId: created.id, summary: `Duplicated development \u201c${source.name}\u201d` });
+  redirect(`/admin/projects/${created.id}?notice=${encodeURIComponent("Copied as a draft. Rename it and change the page URL before publishing.")}`);
+}
+
+/// Moves a development one place up or down the order used on the site.
+export async function moveProject(formData: FormData) {
+  await requireUser();
+  const id = String(formData.get("id") || "");
+  const direction = formData.get("direction") === "up" ? -1 : 1;
+  const rows = await db.project.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true } });
+  const order = reorderIds(rows.map((row) => row.id), id, direction);
+  await db.$transaction(order.map((projectId, index) => db.project.update({ where: { id: projectId }, data: { sortOrder: index } })));
+  revalidatePath("/admin/projects");
+  revalidatePublicContent();
+  redirect("/admin/projects");
+}
+
+/// Moves a content section one place up or down on its development page.
+export async function moveProjectModule(formData: FormData) {
+  await requireUser();
+  const id = String(formData.get("id") || "");
+  const projectId = String(formData.get("projectId") || "");
+  const direction = formData.get("direction") === "up" ? -1 : 1;
+  const rows = await db.projectModule.findMany({ where: { projectId }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: { id: true } });
+  const order = reorderIds(rows.map((row) => row.id), id, direction);
+  await db.$transaction(order.map((moduleId, index) => db.projectModule.update({ where: { id: moduleId }, data: { sortOrder: (index + 1) * 10 } })));
+  const project = await db.project.findUnique({ where: { id: projectId }, select: { slug: true } });
+  if (project) revalidatePath(`/developments/${project.slug}`);
+  revalidatePath(`/admin/projects/${projectId}`);
+  revalidatePublicContent();
+  redirect(`/admin/projects/${projectId}#section-${id}`);
 }
