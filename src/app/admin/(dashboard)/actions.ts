@@ -944,3 +944,54 @@ export async function moveProjectModule(formData: FormData) {
   revalidatePublicContent();
   redirect(`/admin/projects/${projectId}#section-${id}`);
 }
+
+/// Quick status change for an article from the News & Blog list. Publishing
+/// stamps the publish date once; unpublishing/archiving removes it from the
+/// public News page immediately.
+export async function setArticleStatus(formData: FormData) {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const requested = String(formData.get("status") || "");
+  const status = (["DRAFT", "PUBLISHED", "ARCHIVED"].includes(requested) ? requested : "DRAFT") as "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  const article = id ? await db.article.findUnique({ where: { id }, select: { id: true, title: true, status: true, publishedAt: true } }) : null;
+  if (!article) redirect(`/admin/articles?error=${encodeURIComponent("That article no longer exists.")}`);
+
+  const publishedAt = status === "PUBLISHED" ? (article.status === "PUBLISHED" && article.publishedAt ? article.publishedAt : new Date()) : null;
+  await db.article.update({ where: { id }, data: { status, publishedAt } });
+  revalidatePath("/");
+  revalidatePath("/news");
+  revalidatePath("/admin/articles");
+  revalidatePublicContent();
+  const verb = status === "PUBLISHED" ? "Published" : status === "ARCHIVED" ? "Archived" : "Moved to draft";
+  await logActivity({ action: "content.save", session, entityType: "ARTICLE", entityId: id, summary: `${verb} article \u201c${article.title}\u201d` });
+  const notice = status === "PUBLISHED" ? `\u201c${article.title}\u201d is now published.`
+    : status === "ARCHIVED" ? `\u201c${article.title}\u201d was archived and removed from the News page.`
+    : `\u201c${article.title}\u201d is a draft again and no longer public.`;
+  redirect(`/admin/articles?notice=${encodeURIComponent(notice)}`);
+}
+
+/// Copies an article as a new draft (new slug, same content and cover).
+export async function duplicateArticle(formData: FormData) {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const source = id ? await db.article.findUnique({ where: { id } }) : null;
+  if (!source) redirect(`/admin/articles?error=${encodeURIComponent("That article no longer exists.")}`);
+
+  const slugs = (await db.article.findMany({ select: { slug: true } })).map((row) => row.slug);
+  const created = await db.article.create({
+    data: {
+      slug: nextCopySlug(source.slug, slugs),
+      kind: source.kind,
+      title: `${source.title} (copy)`,
+      summary: source.summary,
+      body: source.body as never,
+      coverImage: source.coverImage,
+      coverImageAlt: source.coverImageAlt,
+      status: "DRAFT",
+      publishedAt: null,
+    },
+  });
+  revalidatePath("/admin/articles");
+  await logActivity({ action: "content.save", session, entityType: "ARTICLE", entityId: created.id, summary: `Duplicated article \u201c${source.title}\u201d` });
+  redirect(`/admin/articles/${created.id}?notice=${encodeURIComponent("Copied as a draft. Edit the title and publish when it is ready.")}`);
+}

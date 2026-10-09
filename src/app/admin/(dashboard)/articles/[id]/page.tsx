@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import ArticleForm from "../article-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ export default async function EditArticlePage({
         <span className={`cms-badge cms-badge--${article.status}`}>{article.status}</span>
       </div>
       <SavedBanner params={flash} />
+      <EditorShell>
       <div className="cms-card">
         <ArticleForm
           defaults={{
@@ -44,6 +46,7 @@ export default async function EditArticlePage({
         />
       </div>
       <VersionHistory entityType="ARTICLE" entityId={article.id} entityLabel={article.title} />
+      </EditorShell>
     </>
   );
 }

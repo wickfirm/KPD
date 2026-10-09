@@ -52,21 +52,24 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         <div><span className="cms-eyebrow">{users.length} account{users.length === 1 ? "" : "s"}</span><h2>Current team</h2></div>
       </div>
 
-      <table className="cms-table cms-users-table">
-        <thead>
-          <tr><th>Person</th><th>Access</th><th>Status</th><th>Last signed in</th><th>Account actions</th></tr>
-        </thead>
-        <tbody>
-          {users.map((u) => {
-            const isSelf = u.id === me.id;
-            const isLastActiveAdmin = u.role === "ADMIN" && u.isActive && activeAdmins <= 1;
-            return (
-              <tr key={u.id} className={u.isActive ? undefined : "is-inactive"}>
-                <td>
-                  <strong>{u.name}</strong>{isSelf ? <span className="cms-badge">you</span> : null}
+      <div className="cms-user-list">
+        {users.map((u) => {
+          const isSelf = u.id === me.id;
+          const isLastActiveAdmin = u.role === "ADMIN" && u.isActive && activeAdmins <= 1;
+          const initials = u.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "?";
+          return (
+            <article key={u.id} className={`cms-user-card${u.isActive ? "" : " is-inactive"}`}>
+              <header className="cms-user-card__head">
+                <span className="cms-avatar" aria-hidden="true">{initials}</span>
+                <div className="cms-user-card__who">
+                  <strong>{u.name}{isSelf ? <span className="cms-badge">you</span> : null}</strong>
                   <small>{u.email}</small>
-                </td>
-                <td>
+                </div>
+                <span className={`cms-badge ${u.isActive ? "cms-badge--PUBLISHED" : "cms-badge--REJECTED"}`}>{u.isActive ? "Active" : "Deactivated"}</span>
+              </header>
+              <div className="cms-user-card__grid">
+                <div>
+                  <span className="cms-user-card__label">Access level</span>
                   <form action={updateUserRole} className="cms-inline-form">
                     <input type="hidden" name="userId" value={u.id} />
                     <select name="role" defaultValue={u.role} aria-label={`Access level for ${u.name}`}>
@@ -76,29 +79,32 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                     <button className="cms-btn cms-btn--ghost cms-btn--small" type="submit">Save</button>
                   </form>
                   {isLastActiveAdmin ? <small className="cms-muted">Only active administrator</small> : null}
-                </td>
-                <td>
-                  <span className={`cms-badge ${u.isActive ? "cms-badge--PUBLISHED" : "cms-badge--REJECTED"}`}>{u.isActive ? "Active" : "Deactivated"}</span>
-                  <form action={toggleUserActive} className="cms-inline-form">
-                    <input type="hidden" name="userId" value={u.id} />
-                    <button className="cms-text-button" type="submit">{u.isActive ? "Deactivate" : "Reactivate"}</button>
-                  </form>
-                </td>
-                <td>{u.lastLoginAt ? u.lastLoginAt.toLocaleString("en-GB") : <span className="cms-muted">never</span>}</td>
-                <td>
+                </div>
+                <div>
+                  <span className="cms-user-card__label">Last signed in</span>
+                  <span>{u.lastLoginAt ? u.lastLoginAt.toLocaleString("en-GB") : <span className="cms-muted">never</span>}</span>
+                </div>
+                <div>
+                  <span className="cms-user-card__label">Password</span>
                   <UserPasswordForm userId={u.id} name={u.name} />
-                  {!isSelf && !isLastActiveAdmin ? (
-                    <form action={deleteUser} className="cms-inline-form">
-                      <input type="hidden" name="userId" value={u.id} />
-                      <ConfirmButton className="cms-text-button cms-text-button--danger" message={`Delete ${u.name}'s account permanently? This cannot be undone.`}>Delete account</ConfirmButton>
-                    </form>
-                  ) : null}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                </div>
+              </div>
+              <footer className="cms-user-card__foot">
+                <form action={toggleUserActive} className="cms-inline-form">
+                  <input type="hidden" name="userId" value={u.id} />
+                  <button className="cms-btn cms-btn--ghost cms-btn--small" type="submit">{u.isActive ? "Deactivate" : "Reactivate"}</button>
+                </form>
+                {!isSelf && !isLastActiveAdmin ? (
+                  <form action={deleteUser} className="cms-inline-form">
+                    <input type="hidden" name="userId" value={u.id} />
+                    <ConfirmButton className="cms-text-button cms-text-button--danger" message={`Delete ${u.name}'s account permanently? This cannot be undone.`}>Delete account</ConfirmButton>
+                  </form>
+                ) : null}
+              </footer>
+            </article>
+          );
+        })}
+      </div>
     </>
   );
 }

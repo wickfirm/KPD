@@ -4,6 +4,7 @@ import { requireUser } from "@/lib/auth";
 import StaticPageForm from "../pages/page-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,9 @@ export default async function AdminAboutPage({ searchParams }: { searchParams: P
       <Link className="cms-btn cms-btn--ghost" href="/about" target="_blank">View page</Link>
     </div>
     <SavedBanner params={flash} />
-    <div className="cms-card"><StaticPageForm defaults={defaults} lockedSlug /></div>
-    {page ? <VersionHistory entityType="STATIC_PAGE" entityId={page.id} entityLabel="About us" /> : null}
+    <EditorShell>
+      <div className="cms-card"><StaticPageForm defaults={defaults} lockedSlug /></div>
+      {page ? <VersionHistory entityType="STATIC_PAGE" entityId={page.id} entityLabel="About us" /> : null}
+    </EditorShell>
   </>;
 }

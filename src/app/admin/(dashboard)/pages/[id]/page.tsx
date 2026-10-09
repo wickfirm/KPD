@@ -8,6 +8,7 @@ import InvestForm from "../invest-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -60,12 +61,14 @@ export default async function EditPage({
         </div>
       </div>
       <SavedBanner params={flash} />
+      <EditorShell>
       <div className="cms-card">
         {page.slug === "invest-in-dubai"
           ? <InvestForm defaults={{ id: page.id, slug: page.slug, title: page.title, content: page.content as ContentBlock[] }} />
           : <StaticPageForm defaults={{ ...page, content: page.content as ContentBlock[] }} lockedSlug={Boolean(entry)} />}
       </div>
       <VersionHistory entityType="STATIC_PAGE" entityId={page.id} entityLabel={page.title} />
+      </EditorShell>
     </>
   );
 }

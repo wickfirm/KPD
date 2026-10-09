@@ -1,4 +1,5 @@
 import ArticleForm from "../article-form";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -12,9 +13,11 @@ export default function NewArticlePage() {
           <p>Give it a title and a one-line summary, paste your paragraphs, and save. Choose “Draft” to keep it private, or “Published” to put it on the site straight away.</p>
         </div>
       </div>
-      <div className="cms-card">
-        <ArticleForm />
-      </div>
+      <EditorShell>
+        <div className="cms-card">
+          <ArticleForm />
+        </div>
+      </EditorShell>
     </>
   );
 }

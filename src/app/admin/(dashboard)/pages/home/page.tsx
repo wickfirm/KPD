@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import HomeForm, { type HomeSettings } from "./home-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,9 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
       <Link className="cms-btn cms-btn--ghost" href="/" target="_blank">View page</Link>
     </div>
     <SavedBanner params={flash} />
-    <div className="cms-card"><HomeForm settings={home} projectLinks={projectLinks} /></div>
-    <VersionHistory entityType="HOME_SETTINGS" entityId="home" entityLabel="the homepage" />
+    <EditorShell>
+      <div className="cms-card"><HomeForm settings={home} projectLinks={projectLinks} /></div>
+      <VersionHistory entityType="HOME_SETTINGS" entityId="home" entityLabel="the homepage" />
+    </EditorShell>
   </>;
 }

@@ -12,7 +12,7 @@ export function UnsavedGuard({ scope = ".cms-editor" }: { scope?: string }) {
   useEffect(() => {
     const touched = new Map<HTMLFormElement, string>();
     const sync = () => setDirty([...new Set(touched.values())]);
-    const labelFor = (form: HTMLFormElement) => form.closest("details")?.querySelector("h3")?.textContent?.trim() || form.closest("[data-unsaved-label]")?.getAttribute("data-unsaved-label") || "This form";
+    const labelFor = (form: HTMLFormElement) => form.closest("details")?.querySelector("h3")?.textContent?.trim() || form.closest("[data-unsaved-label]")?.getAttribute("data-unsaved-label") || "This page";
     const mark = (event: Event) => {
       const target = event.target as HTMLElement | null;
       const form = target?.closest("form");
@@ -39,5 +39,6 @@ export function UnsavedGuard({ scope = ".cms-editor" }: { scope?: string }) {
   }, [scope]);
 
   if (!dirty.length) return null;
-  return <div className="cms-unsaved" role="status" aria-live="polite"><strong>Unsaved changes</strong><span>{dirty.join(" · ")}</span><small>Use that section&apos;s Save button before leaving.</small></div>;
+  const wholePage = dirty.length === 1 && dirty[0] === "This page";
+  return <div className="cms-unsaved" role="status" aria-live="polite"><strong>Unsaved changes</strong>{wholePage ? null : <span>{dirty.join(" · ")}</span>}<small>{wholePage ? "Save the page before leaving." : "Use that section’s Save button before leaving."}</small></div>;
 }

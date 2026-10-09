@@ -1096,3 +1096,59 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 .cms-module-history summary { cursor: pointer; font-weight: 650; color: var(--color-ink-soft); }
 .cms-module-history ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 .cms-module-history li { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* -- Row cards (News & Blog, and other media + text lists) ------------------------------- */
+
+.cms-row-list { display: grid; gap: 12px; }
+.cms-row-card {
+  display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; gap: 18px; align-items: center; padding: 14px 18px 14px 14px;
+  background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-card);
+  box-shadow: 0 1px 2px rgba(16,26,22,0.04); transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.cms-row-card:hover { border-color: var(--color-line-strong); box-shadow: 0 8px 24px rgba(16,26,22,0.06); }
+.cms-row-card__thumb { display: block; width: 132px; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden; background: var(--color-surface-soft); }
+.cms-row-card__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cms-row-card__thumb span { display: grid; place-items: center; height: 100%; color: var(--color-ink-muted); font-size: 12px; }
+.cms-row-card__main { min-width: 0; display: grid; gap: 4px; }
+.cms-row-card__meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.cms-row-card__main h2 { margin: 2px 0 0; font-size: 17.5px; font-weight: 650; letter-spacing: -0.02em; }
+.cms-row-card__main h2 a { color: inherit; text-decoration: none; }
+.cms-row-card__main h2 a:hover { text-decoration: underline; }
+.cms-row-card__summary { margin: 0; color: var(--color-ink-soft); font-size: 13.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.cms-row-card__main .cms-muted { margin: 2px 0 0; font-size: 12.5px; overflow-wrap: anywhere; }
+.cms-row-card__actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.cms-menu__panel .cms-menu__danger { color: var(--color-danger); }
+.cms-menu__panel .cms-menu__danger:hover { background: var(--color-danger-soft); }
+.cms-row-card .cms-menu__panel { bottom: auto; top: calc(100% + 6px); }
+@media (max-width: 860px) {
+  .cms-row-card { grid-template-columns: 96px minmax(0, 1fr); }
+  .cms-row-card__thumb { width: 96px; }
+  .cms-row-card__actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+/* -- Team: one card per account ------------------------------------------------------------ */
+
+.cms-dev-grid--text { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.cms-dev-grid--text .cms-dev-card { grid-template-rows: 1fr auto; }
+.cms-dev-grid--text .cms-dev-card__body { padding-top: 18px; }
+.cms-user-list { display: grid; gap: 12px; }
+.cms-user-card { background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-card); padding: 18px 20px; display: grid; gap: 16px; box-shadow: 0 1px 2px rgba(16,26,22,0.04); }
+.cms-user-card.is-inactive { opacity: 0.7; }
+.cms-user-card__head { display: flex; align-items: center; gap: 14px; }
+.cms-user-card__who { display: grid; min-width: 0; flex: 1; }
+.cms-user-card__who strong { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+.cms-user-card__who small { color: var(--color-ink-muted); overflow: hidden; text-overflow: ellipsis; }
+.cms-user-card__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 24px; padding-top: 16px; border-top: 1px solid var(--color-line); }
+.cms-user-card__grid > div { display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cms-user-card__label { font-size: 11px; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-muted); }
+.cms-user-card__foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--color-line); }
+.cms-user-card__foot form { margin: 0; }
+
+/* -- News inbox review cards ------------------------------------------------------------------- */
+
+.cms-review-card { display: grid; gap: 8px; padding: 18px 20px; background: var(--color-surface); border: 1px solid var(--color-line); border-radius: var(--radius-card); box-shadow: 0 1px 2px rgba(16,26,22,0.04); }
+.cms-review-card h2 { margin: 0; font-size: 17.5px; font-weight: 650; letter-spacing: -0.02em; }
+.cms-review-card h2 a { color: inherit; text-decoration: none; }
+.cms-review-card h2 a:hover { text-decoration: underline; }
+.cms-review-card .cms-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.cms-review-card .cms-actions form { margin: 0; }

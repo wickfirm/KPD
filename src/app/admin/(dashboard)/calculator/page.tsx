@@ -4,6 +4,7 @@ import { ownershipCostPlannerDefaults, plannerValue } from "@/lib/ownership-cost
 import CalculatorForm from "./calculator-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,9 @@ export default async function CalculatorPage({ searchParams }: { searchParams: P
   ]);
   return <>
     <SavedBanner params={flash} />
-    <CalculatorForm settings={setting ? plannerValue(setting.value) : ownershipCostPlannerDefaults} />
-    <VersionHistory entityType="CALCULATOR" entityId="ownership_cost_planner" entityLabel="calculator settings" />
+    <EditorShell>
+      <CalculatorForm settings={setting ? plannerValue(setting.value) : ownershipCostPlannerDefaults} />
+      <VersionHistory entityType="CALCULATOR" entityId="ownership_cost_planner" entityLabel="calculator settings" />
+    </EditorShell>
   </>;
 }

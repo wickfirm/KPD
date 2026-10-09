@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import SettingsForm, { type Settings } from "./settings-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
+import { EditorShell } from "@/components/admin/editor-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,9 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       </div>
     </div>
     <SavedBanner params={flash} />
-    <div className="cms-card"><SettingsForm settings={settings} /></div>
-    <VersionHistory entityType="GLOBAL_SETTINGS" entityId="global" entityLabel="site settings" />
+    <EditorShell>
+      <div className="cms-card"><SettingsForm settings={settings} /></div>
+      <VersionHistory entityType="GLOBAL_SETTINGS" entityId="global" entityLabel="site settings" />
+    </EditorShell>
   </>;
 }
