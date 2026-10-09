@@ -20,6 +20,9 @@ async function main() {
       continue;
     }
 
+    // The project row carries the line-broken overview heading and copy.
+    await db.project.update({ where: { id: project.id }, data: { tagline: template.tagline, description: template.description } });
+
     const blueprintSlugs = new Set(template.modules.map((module) => module.slug));
     let updated = 0;
     let created = 0;

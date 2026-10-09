@@ -1,5 +1,6 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
+import { RawFigure } from "./raw-figure";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
 type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; mapUrl?: string; presentation?: string };
@@ -44,10 +45,10 @@ export function DevelopmentModule({ module, projectName, shell }: { module: { sl
     const figureHtml = shell?.calmFigure
       ? data.images?.[0] ? shell.calmFigure.replace(/(<img\s+src=")[^"]+/, `$1${data.images[0]}`) : shell.calmFigure
       : images[0] ? `<figure class="single-project-calm-media"><img src="${images[0]}" alt="${projectName} — ${module.title}"></figure>` : "";
-    return <section className="single-project-calm kpd-section" id={id} aria-label={module.title}><div className="single-project-calm-grid"><div className="single-project-calm-copy"><h2>{multiline(module.title)}</h2>{data.text ? <p>{data.text}</p> : null}{data.url ? <Link className="btn-pill" href={data.url}>Brochure</Link> : null}</div>{figureHtml ? <div dangerouslySetInnerHTML={{ __html: figureHtml }} /> : null}</div></section>;
+    return <section className="single-project-calm kpd-section" id={id} aria-label={module.title}><div className="single-project-calm-grid"><div className="single-project-calm-copy"><h2>{multiline(module.title)}</h2>{data.text ? <p>{data.text}</p> : null}{data.url ? <Link className="btn-pill" href={data.url}>Brochure</Link> : null}</div>{figureHtml ? <RawFigure html={figureHtml} /> : null}</div></section>;
   }
 
   if (module.slug === "payment-plan") return <section className="single-project-payment kpd-section" id={id} aria-label={module.title}><div className="single-project-section-head"><h2>{module.title}</h2><div className="single-project-section-copy">{data.text ? <p>{data.text}</p> : null}{data.url ? <a className="btn-pill" href={data.url}>Download Payment Plan</a> : null}</div></div><div className="single-project-payment-grid">{items.map((item, index) => <article key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span>{item.text && item.label ? <p>{item.text}</p> : null}</article>)}</div></section>;
 
-  return <section className="single-project-meydan kpd-section" id={id} aria-label={module.title}><div className="single-project-meydan-grid"><div className="single-project-meydan-copy"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}{items.length ? <div className="single-project-meydan-stats" aria-label={`${module.title} travel highlights`}>{items.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></div>)}</div> : null}{data.url ? <a className="btn-pill" href={data.url}>Explore</a> : null}</div>{shell?.meydanFigure ? <div dangerouslySetInnerHTML={{ __html: shell.meydanFigure }} /> : images[0] ? <figure className="single-project-meydan-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null}</div></section>;
+  return <section className="single-project-meydan kpd-section" id={id} aria-label={module.title}><div className="single-project-meydan-grid"><div className="single-project-meydan-copy"><h2>{module.title}</h2>{data.text ? <p>{data.text}</p> : null}{items.length ? <div className="single-project-meydan-stats" aria-label={`${module.title} travel highlights`}>{items.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></div>)}</div> : null}{data.url ? <a className="btn-pill" href={data.url}>Explore</a> : null}</div>{shell?.meydanFigure ? <RawFigure html={shell.meydanFigure} /> : images[0] ? <figure className="single-project-meydan-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null}</div></section>;
 }

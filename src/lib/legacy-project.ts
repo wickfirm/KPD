@@ -65,6 +65,9 @@ export type ProjectShell = {
   /// The delivered travel-timeline + map block inside the location section —
   /// not CMS-managed, so it rides through verbatim.
   locationShell: string;
+  /// The delivered per-project enquire band (each page has its own image,
+  /// alt text and heading, e.g. "Arrange a private villa viewing.").
+  enquire: { label: string; image: string; alt: string; heading: string; text: string };
 };
 
 export function getProjectShell(slug: string): ProjectShell | null {
@@ -77,6 +80,7 @@ export function getProjectShell(slug: string): ProjectShell | null {
 
   const hero = sliceBetween(main, '<section class="single-project-hero', "</section>");
   const overview = sliceBetween(main, '<section class="single-project-intro', "</section>");
+  const enquire = sliceBetween(main, '<section class="projects-spec-contact single-project-enquire', "</section>");
 
   return {
     beforeMain: body.slice(0, mainStart),
@@ -89,5 +93,12 @@ export function getProjectShell(slug: string): ProjectShell | null {
     meydanFigure: sliceBetween(main, '<figure class="single-project-meydan-media', "</figure>"),
     calmFigure: sliceBetween(main, '<figure class="single-project-calm-media', "</figure>"),
     locationShell: sliceBetween(main, '<div class="villa23-travel-shell"', "</section>", false),
+    enquire: {
+      label: enquire.match(/aria-label="([^"]*)"/)?.[1] ?? "Arrange a private viewing",
+      image: enquire.match(/<img[^>]*\ssrc="([^"]+)"/)?.[1] ?? "/legacy/assets/images/experience-center/hq/15.jpg",
+      alt: enquire.match(/<img[^>]*\salt="([^"]*)"/)?.[1] ?? "Private viewing and advisory workspace",
+      heading: textOf(enquire.match(/<h2>([\s\S]*?)<\/h2>/)?.[1] ?? "Arrange a private<br>viewing."),
+      text: textOf(enquire.match(/<p>([\s\S]*?)<\/p>/)?.[1] ?? "Floor plans, pricing, and availability are shared through a single appointment-led conversation."),
+    },
   };
 }

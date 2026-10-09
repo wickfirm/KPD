@@ -1,5 +1,6 @@
 ﻿// site-cms.js — copy of the delivered site.js with two documented KPD CMS
-// patches (timed-popup session guard, instant nav reveal on revisits).
+// patches (timed-popup session guard, instant nav reveal on revisits, menu
+// background image base path).
 // The delivered original stays untouched at site.js for /legacy/*.html.
 (function () {
   const header = document.querySelector(".site-header");
@@ -316,7 +317,10 @@
     card.insertAdjacentHTML("beforeend", bookingLeadFormMarkup);
   }
 
-  const getMenuImageUrl = (src) => new URL(src, window.location.href).href;
+  // KPD CMS patch: the menu background paths are relative to the delivered
+  // /legacy/ folder. Resolved against the page URL they 404 on CMS routes such
+  // as /developments/<slug> or /about (the full-screen menu lost its imagery).
+  const getMenuImageUrl = (src) => new URL(src, `${window.location.origin}/legacy/`).href;
 
   function initMenuImageSwaps() {
     if (!menu) return;

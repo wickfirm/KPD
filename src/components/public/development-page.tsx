@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ProjectShell } from "@/lib/legacy-project";
 import { renderPlannerHtml } from "@/lib/ownership-cost-planner";
 import { DevelopmentModule } from "./development-template";
+import { RawFigure } from "./raw-figure";
 
 export type DevelopmentProject = {
   id: string;
@@ -36,7 +37,7 @@ export function DevelopmentMain({ project, shell, plannerHtml }: { project: Deve
 
       <section className="single-project-intro kpd-section" id="overview">
         <div className="single-project-intro-grid single-project-intro-grid--pdf">
-          {shell.overviewFigure ? <div dangerouslySetInnerHTML={{ __html: shell.overviewFigure }} /> : null}
+          {shell.overviewFigure ? <RawFigure html={shell.overviewFigure} /> : null}
           <div className="single-project-intro-copy">
             <h1>{multiline(project.tagline || shell.overviewHeading)}</h1>
             <p>{project.description || shell.overviewText}</p>
@@ -61,12 +62,12 @@ export function DevelopmentMain({ project, shell, plannerHtml }: { project: Deve
         <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} data-planner-prerendered="true" dangerouslySetInnerHTML={{ __html: plannerHtml }} />
       </section>
 
-      <section className="projects-spec-contact single-project-enquire" aria-label="Arrange a private viewing">
-        <img src="/legacy/assets/images/experience-center/hq/15.jpg" alt="Private viewing and advisory workspace" />
+      <section className="projects-spec-contact single-project-enquire" aria-label={shell.enquire.label}>
+        <img src={shell.enquire.image} alt={shell.enquire.alt} />
         <div className="projects-spec-contact-copy motion-reveal">
           <span>Enquire</span>
-          <h2>Arrange a private<br />viewing.</h2>
-          <p>Floor plans, pricing, and availability are shared through a single appointment-led conversation.</p>
+          <h2>{multiline(shell.enquire.heading)}</h2>
+          <p>{shell.enquire.text}</p>
           <div className="projects-spec-contact-actions">
             <button type="button" data-booking-open>Book a viewing</button>
             <Link href="/contact">Register interest</Link>
