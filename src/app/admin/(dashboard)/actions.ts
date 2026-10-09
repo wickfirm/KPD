@@ -16,6 +16,7 @@ import {
 import { legacyProjectTemplates } from "@/lib/legacy-project-templates";
 import { ownershipCostPlannerDefaults, type OwnershipCostPlanner } from "@/lib/ownership-cost-planner";
 import { sanitizeInvestContent } from "@/lib/invest-defaults";
+import { findEditablePage } from "@/lib/editable-pages";
 
 function slugify(value: string) {
   return value
@@ -422,7 +423,14 @@ export async function deleteProjectModule(formData: FormData) {
 /// hard-deleted rows are re-created on restore.
 async function applyStaticPage(id: string, formData: FormData): Promise<ApplyResult> {
   const title = String(formData.get("title") || "").trim();
-  const slug = slugify(String(formData.get("slug") || "") || title);
+  let slug = slugify(String(formData.get("slug") || "") || title);
+  if (id) {
+    // The public URL of a fixed page (About, Legacy, Contact, Investor guide, the legal
+    // pages) is defined by the site's routes: renaming its slug would orphan the row so
+    // neither the editor nor the public page could find it again. Those pages keep their slug.
+    const current = await db.staticPage.findUnique({ where: { id }, select: { slug: true } });
+    if (current && findEditablePage(current.slug)) slug = current.slug;
+  }
   const status = projectStatus(formData.get("status"));
   if (!title || !slug) return { error: "Page title is required." };
 
