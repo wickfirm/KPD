@@ -11,3 +11,15 @@
   display: none;
 }
 
+
+/* Hero titles on the development and legal pages sat at the very top of the
+   hero, hidden behind the fixed header. The delivered stylesheet's final hero
+   rule (site.css ~line 15114) anchors the title block with
+   "bottom: clamp(54px, 7vh, 96px); height: auto", but an earlier rule left
+   "inset: 0" behind, so top: 0 stays in force and the block stretches the full
+   hero height with the title at its top edge. Releasing the top edge lets the
+   bottom anchor take effect, as the delivered rule intends. */
+.home-development-page .page-hero .page-hero-content,
+.single-project-page .single-project-hero .page-hero-content {
+  top: auto;
+}
