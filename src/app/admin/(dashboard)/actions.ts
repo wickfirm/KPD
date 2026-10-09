@@ -570,6 +570,10 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     phone: String(formData.get("phone") || "").trim(),
     whatsapp: String(formData.get("whatsapp") || "").trim(),
     newsletterNote: String(formData.get("newsletterNote") || "").trim(),
+    facebook: String(formData.get("facebook") || "").trim(),
+    x: String(formData.get("x") || "").trim(),
+    instagram: String(formData.get("instagram") || "").trim(),
+    youtube: String(formData.get("youtube") || "").trim(),
   };
   try {
     await db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } });
