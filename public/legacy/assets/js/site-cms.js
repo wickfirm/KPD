@@ -210,7 +210,7 @@
   if (!floorModal) {
     floorModal = document.createElement("div");
     floorModal.className = "floor-modal";
-    floorModal.innerHTML = "<div class=\"modal-backdrop\" data-floor-close></div><div class=\"floor-card\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"floor-title\"><button class=\"modal-close\" type=\"button\" data-floor-close aria-label=\"Close floor plan modal\"></button><h2 id=\"floor-title\">Request <span data-floor-project>KPD</span> Floor Plans</h2><form class=\"form-grid\" action=\"mailto:info@kpd.com\" method=\"post\" enctype=\"text/plain\"><input type=\"hidden\" name=\"project\" value=\"KPD\"><input class=\"field\" type=\"text\" name=\"name\" placeholder=\"Name\"><input class=\"field\" type=\"email\" name=\"email\" placeholder=\"Email\"><input class=\"field\" type=\"tel\" name=\"phone\" placeholder=\"Phone\"><select class=\"field\" name=\"interest\"><option>Investment Interest</option><option>End User</option><option>Broker Inquiry</option></select><button class=\"btn-pill text-black\" type=\"submit\">Submit Request</button></form></div>";
+    floorModal.innerHTML = "<div class=\"modal-backdrop\" data-floor-close></div><div class=\"floor-card\" role=\"dialog\" aria-modal=\"true\" aria-labelledby=\"floor-title\"><button class=\"modal-close\" type=\"button\" data-floor-close aria-label=\"Close floor plan modal\"></button><h2 id=\"floor-title\">Request <span data-floor-project>KPD</span> Floor Plans</h2><form class=\"form-grid\" action=\"mailto:" + kpdContact.email + "\" method=\"post\" enctype=\"text/plain\"><input type=\"hidden\" name=\"project\" value=\"KPD\"><input class=\"field\" type=\"text\" name=\"name\" placeholder=\"Name\"><input class=\"field\" type=\"email\" name=\"email\" placeholder=\"Email\"><input class=\"field\" type=\"tel\" name=\"phone\" placeholder=\"Phone\"><select class=\"field\" name=\"interest\"><option>Investment Interest</option><option>End User</option><option>Broker Inquiry</option></select><button class=\"btn-pill text-black\" type=\"submit\">Submit Request</button></form></div>";
     document.body.appendChild(floorModal);
   }
 
@@ -1573,7 +1573,20 @@
       || (form.id === "footer-email-form" ? "Newsletter signup." : "Website enquiry.");
     const plannerScenario = window.sessionStorage.getItem("kpdPlannerScenario");
     const plannerProject = window.sessionStorage.getItem("kpdPlannerProject");
-    const enrichedMessage = plannerScenario ? `${message}\n\nOwnership Cost Planner scenario: ${plannerScenario}` : message;
+    // KPD CMS patch: send every filled-in field as structured details (shown on the Messages
+    // screen) instead of folding the planner scenario into the message text.
+    const detailSkip = new Set(["First Name", "Last Name", "Name", "name", "Email", "email", "Phone", "phone", "Sales Message", "Customer Message", "Partner Message", "Message", "message"]);
+    const details = [];
+    for (const [key, value] of formData.entries()) {
+      if (typeof value === "string" && value.trim() && !detailSkip.has(key)) {
+        details.push({ label: key.replace(/[_-]+/g, " ").replace(/^./, (character) => character.toUpperCase()), value: value.trim() });
+      }
+    }
+    if (plannerScenario) details.push({ label: "Ownership Cost Planner scenario", value: plannerScenario });
+    const inquiryType = form.id === "footer-email-form" ? "Newsletter signup"
+      : form.classList.contains("booking-lead-form") ? "Booking request"
+      : form.querySelector("[name='project']") ? "Floor plan request"
+      : "Website enquiry";
     const name = [firstName, lastName].filter(Boolean).join(" ") || "Website visitor";
     const submit = form.querySelector("button[type='submit'], input[type='submit']");
 
@@ -1588,7 +1601,7 @@
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message: enrichedMessage, interest: plannerProject || interest, sourcePage: window.location.pathname })
+        body: JSON.stringify({ name, email, phone, message, interest: plannerProject || interest, inquiryType, details, sourcePage: window.location.pathname })
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");

@@ -221,6 +221,8 @@ model ContactSubmission {
   message      String
   interest     String? // e.g. development or unit of interest
   sourcePage   String? // page the form was submitted from
+  inquiryType  String? // which form/pane: "Sales Inquiry", "Job Inquiry", "Newsletter signup"...
+  details      Json? // ordered [{ label, value }] - every field the visitor filled in (see src/lib/submissions.ts)
   status       SubmissionStatus @default(NEW)
   salesforceId String?
   syncError    String?

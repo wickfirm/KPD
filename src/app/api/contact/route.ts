@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { pushLeadToSalesforce } from "@/lib/salesforce";
+import { leadDescription, sanitizeDetails } from "@/lib/submissions";
 
 /// Public contact / booking form endpoint (Salesforce dual-write, Clause 2).
 /// Always persists locally; then mirrors to Salesforce as a Lead.
@@ -18,6 +19,9 @@ export async function POST(req: NextRequest) {
   const message = String(payload.message || "").trim();
   const interest = String(payload.interest || "").trim() || null;
   const sourcePage = String(payload.sourcePage || "").trim() || null;
+  const inquiryType = String(payload.inquiryType || "").trim().slice(0, 80) || null;
+  // Every field the visitor filled in, as ordered { label, value } pairs.
+  const details = sanitizeDetails(payload.details);
 
   if (!name || !email || !message) {
     return NextResponse.json(
@@ -32,19 +36,28 @@ export async function POST(req: NextRequest) {
   let submission;
   try {
     submission = await db.contactSubmission.create({
-      data: { name, email, phone, message, interest, sourcePage },
+      data: { name, email, phone, message, interest, sourcePage, inquiryType, details: details.length ? details : undefined },
     });
   } catch (err) {
-    console.error("[api/contact] database error:", err);
-    return NextResponse.json(
-      { error: "We could not save your enquiry right now. Please try again shortly." },
-      { status: 503 },
-    );
+    // If the inquiryType/details columns are not in the database yet (migration
+    // pending), keep the enquiry anyway: details are folded into the message.
+    console.error("[api/contact] structured insert failed, retrying without the new columns:", err);
+    try {
+      submission = await db.contactSubmission.create({
+        data: { name, email, phone, message: leadDescription(message, details), interest, sourcePage },
+      });
+    } catch (fallbackError) {
+      console.error("[api/contact] database error:", fallbackError);
+      return NextResponse.json(
+        { error: "We could not save your enquiry right now. Please try again shortly." },
+        { status: 503 },
+      );
+    }
   }
 
   // Dual-write: mirror to Salesforce, recording the outcome.
   try {
-    const salesforceId = await pushLeadToSalesforce({ name, email, phone, message, interest, sourcePage });
+    const salesforceId = await pushLeadToSalesforce({ name, email, phone, message: leadDescription(message, details), interest, sourcePage });
     await db.contactSubmission.update({
       where: { id: submission.id },
       data: { status: "SYNCED", salesforceId, syncedAt: new Date(), syncError: null },

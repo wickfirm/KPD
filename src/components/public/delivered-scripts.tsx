@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const DELIVERED_SCRIPT = "/legacy/assets/js/site-cms.js?v=20261009-site-contact";
+const DELIVERED_SCRIPT = "/legacy/assets/js/site-cms.js?v=20261009-structured-enquiries";
 
 /// The delivered script binds scroll/resize listeners on window and document.
 /// Re-executing it on every soft navigation would stack a new generation of

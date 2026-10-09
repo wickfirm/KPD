@@ -72,6 +72,13 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
       job: get("Role / Department") || "Job Inquiry",
       press: get("Publication / Outlet") || "Press Inquiry",
     };
+    const byPane: Record<PaneKey, [string, string][]> = {
+      sales: [["Enquirer type", segment === "broker" ? "Broker" : "Client"], ["Project of interest", get("Project of Interest") || plannerProject], ["Budget range", get("Budget Range")], ["Agency", get("Agency")], ["RERA / ORN", get("RERA / ORN")]],
+      customer: [["Related project", get("Related Project")], ["Inquiry nature", get("Customer Inquiry Nature")]],
+      channel: [["Company / agency", get("Company / Agency")], ["RERA / ORN", get("Partner RERA / ORN")], ["Market / country", get("Market / Country")], ["Website", get("Website")]],
+      job: [["Role / department", get("Role / Department")], ["LinkedIn / portfolio", get("LinkedIn / Portfolio")]],
+      press: [["Publication / outlet", get("Publication / Outlet")], ["Deadline", get("Deadline")]],
+    };
     const messageByPane: Record<PaneKey, string> = {
       sales: get("Sales Message"),
       customer: get("Customer Message"),
@@ -79,21 +86,6 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
       job: get("Job Message"),
       press: get("Press Message"),
     };
-    const details = [
-      activePane === "sales" ? `Enquirer type: ${segment === "broker" ? "Broker" : "Client"}` : "",
-      activePane === "sales" && get("Budget Range") ? `Budget range: ${get("Budget Range")}` : "",
-      activePane === "sales" && get("Agency") ? `Agency: ${get("Agency")}` : "",
-      activePane === "sales" && get("RERA / ORN") ? `RERA/ORN: ${get("RERA / ORN")}` : "",
-      activePane === "customer" && get("Customer Inquiry Nature") ? `Inquiry nature: ${get("Customer Inquiry Nature")}` : "",
-      activePane === "channel" && get("Partner RERA / ORN") ? `RERA/ORN: ${get("Partner RERA / ORN")}` : "",
-      activePane === "channel" && get("Market / Country") ? `Market: ${get("Market / Country")}` : "",
-      activePane === "channel" && get("Website") ? `Website: ${get("Website")}` : "",
-      activePane === "job" && get("LinkedIn / Portfolio") ? `LinkedIn/portfolio: ${get("LinkedIn / Portfolio")}` : "",
-      activePane === "job" && cvName !== "Attach a PDF or DOC" ? `CV attached: ${cvName}` : "",
-      activePane === "press" && get("Deadline") ? `Deadline: ${get("Deadline")}` : "",
-      data.get("Marketing") === "on" ? "Marketing consent: yes" : "",
-      plannerScenario ? `Ownership Cost Planner scenario: ${plannerScenario}` : "",
-    ].filter(Boolean).join("\n");
     const label = panes.find((pane) => pane.key === activePane)!.label;
     setPending(true);
     try {
@@ -109,7 +101,17 @@ export function ContactInquiry({ email, phone, website }: { email: string; phone
         cvUrl = uploadResult.url;
       }
       setStatus("Sending your enquiry…");
-      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: `${label}: ${interestByPane[activePane]}`, sourcePage: "/contact", message: [messageByPane[activePane], details, cvUrl ? `CV: ${cvUrl}` : ""].filter(Boolean).join("\n\n") }) });
+      // Every field the visitor filled in for the active inquiry, in form order, so the
+      // Messages screen shows the form's own fields rather than one flattened note.
+      const answers: [string, string][] = [
+        ...byPane[activePane],
+        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF or DOC" ? cvName : "")] as [string, string]] : []),
+        ["Marketing consent", data.get("Marketing") === "on" ? "Yes" : "No"],
+        ["Terms accepted", data.get("Terms") === "on" ? "Yes" : ""],
+        ["Ownership Cost Planner scenario", plannerScenario],
+      ];
+      const details = answers.filter(([, value]) => value).map(([label, value]) => ({ label, value }));
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: interestByPane[activePane], inquiryType: label, sourcePage: "/contact", message: messageByPane[activePane], details }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();

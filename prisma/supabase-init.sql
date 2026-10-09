@@ -121,6 +121,8 @@ CREATE TABLE IF NOT EXISTS "contact_submissions" (
     "message" TEXT NOT NULL,
     "interest" TEXT,
     "sourcePage" TEXT,
+    "inquiryType" TEXT,
+    "details" JSONB,
     "status" "SubmissionStatus" NOT NULL DEFAULT 'NEW',
     "salesforceId" TEXT,
     "syncError" TEXT,
@@ -167,6 +169,9 @@ CREATE UNIQUE INDEX IF NOT EXISTS "project_modules_projectId_slug_key" ON "proje
 CREATE UNIQUE INDEX IF NOT EXISTS "project_translations_projectId_locale_key" ON "project_translations"("projectId", "locale");
 CREATE UNIQUE INDEX IF NOT EXISTS "rss_items_url_key" ON "rss_items"("url");
 CREATE INDEX IF NOT EXISTS "rss_items_status_publishedAt_idx" ON "rss_items"("status", "publishedAt");
+-- Columns added after the first release (no-ops on a fresh install).
+ALTER TABLE "contact_submissions" ADD COLUMN IF NOT EXISTS "inquiryType" TEXT;
+ALTER TABLE "contact_submissions" ADD COLUMN IF NOT EXISTS "details" JSONB;
 CREATE INDEX IF NOT EXISTS "contact_submissions_status_idx" ON "contact_submissions"("status");
 CREATE UNIQUE INDEX IF NOT EXISTS "static_pages_slug_key" ON "static_pages"("slug");
 CREATE UNIQUE INDEX IF NOT EXISTS "page_translations_pageId_locale_key" ON "page_translations"("pageId", "locale");

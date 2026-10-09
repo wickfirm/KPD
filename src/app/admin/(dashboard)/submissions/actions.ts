@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 import { pushLeadToSalesforce } from "@/lib/salesforce";
+import { leadDescription, readDetails } from "@/lib/submissions";
 
 /// Re-attempt the Salesforce mirror for one stored enquiry (NEW or FAILED).
 /// Enquiries are always persisted locally first, so nothing is lost while
@@ -30,7 +31,7 @@ export async function retrySubmissionSync(formData: FormData) {
       name: submission.name,
       email: submission.email,
       phone: submission.phone,
-      message: submission.message,
+      message: leadDescription(submission.message, readDetails((submission as { details?: unknown }).details)),
       interest: submission.interest,
       sourcePage: submission.sourcePage,
     });
