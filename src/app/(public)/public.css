@@ -23,3 +23,21 @@
 .single-project-page .single-project-hero .page-hero-content {
   top: auto;
 }
+
+/* Developments created in the CMS: preview image shown when their link is hovered (mirrors the delivered three). */
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-1:hover) .mega-preview-extra-1,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-1:focus) .mega-preview-extra-1,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-2:hover) .mega-preview-extra-2,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-2:focus) .mega-preview-extra-2,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-3:hover) .mega-preview-extra-3,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-3:focus) .mega-preview-extra-3,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-4:hover) .mega-preview-extra-4,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-4:focus) .mega-preview-extra-4,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-5:hover) .mega-preview-extra-5,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-5:focus) .mega-preview-extra-5,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-6:hover) .mega-preview-extra-6,
+.header-mega-menu.header-mega-menu:has(.mega-project-extra-6:focus) .mega-preview-extra-6
+{
+  opacity: 1;
+  transform: scale(1);
+}

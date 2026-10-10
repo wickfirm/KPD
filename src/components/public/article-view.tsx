@@ -1,5 +1,6 @@
 import { absoluteUrl } from "@/lib/site";
 import { getArticleShell } from "@/lib/news-shell";
+import { getNavDevelopments, injectNavDevelopments } from "@/lib/nav-developments";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
@@ -19,7 +20,7 @@ export type ArticleViewData = {
 /// The article detail page (delivered news-article.html structure). Shared by
 /// the public route and the admin draft preview so the preview is exactly what
 /// visitors will see once the article is published.
-export function ArticleView({ article, previewNote }: { article: ArticleViewData; previewNote?: string }) {
+export async function ArticleView({ article, previewNote }: { article: ArticleViewData; previewNote?: string }) {
   const body = Array.isArray(article.body) ? article.body.map(String) : [];
   const typeLabel = article.kind === "BLOG" ? "Blog" : "News";
   const dateLabel = article.publishedAt
@@ -38,10 +39,11 @@ export function ArticleView({ article, previewNote }: { article: ArticleViewData
     mainEntityOfPage: absoluteUrl(`/news/${article.slug}`),
   };
   const shell = getArticleShell();
+  const extras = await getNavDevelopments();
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page news-design-page article-page" />
-    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <div dangerouslySetInnerHTML={{ __html: injectNavDevelopments(shell.beforeMain, extras) }} />
     <main className="article-main" id="top" data-article-page data-article-kind={article.kind === "BLOG" ? "blog" : "news"}>
       <article className="article-shell">
         <header className="article-hero">
@@ -59,7 +61,7 @@ export function ArticleView({ article, previewNote }: { article: ArticleViewData
         </nav>
       </article>
     </main>
-    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
+    <div dangerouslySetInnerHTML={{ __html: injectNavDevelopments(shell.afterMain, extras) }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page article-page" />

@@ -1,11 +1,13 @@
 ﻿import Link from "next/link";
 import { getGlobalSettings } from "@/lib/site-contact";
+import { getNavDevelopments } from "@/lib/nav-developments";
 
 /// Delivered footer â€” 1:1 port of the delivered markup (link columns,
 /// newsletter signup, legal row and social icons). The newsletter posts via
 /// mailto exactly as delivered.
 export async function SiteShellFooter() {
   const contact = await getGlobalSettings();
+  const extras = await getNavDevelopments();
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.
   const contactScript = `window.__KPD_CONTACT=${JSON.stringify({ email: contact.email, phone: contact.phone, whatsapp: contact.whatsapp }).replace(/</g, "\u003c")};`;
@@ -24,6 +26,7 @@ export async function SiteShellFooter() {
               <li className="footer_links_item"><Link href="/developments/seven-x-seven" className="footer_link text-size-footer">Seven X Seven Residences</Link></li>
               <li className="footer_links_item"><Link href="/developments/emerald-villa" className="footer_link text-size-footer">Emerald Villa</Link></li>
               <li className="footer_links_item"><Link href="/developments/dubai-hills-mansion" className="footer_link text-size-footer">Dubai Hills Mansion</Link></li>
+              {extras.map((project) => <li className="footer_links_item" key={project.slug}><Link href={`/developments/${project.slug}`} className="footer_link text-size-footer">{project.name}</Link></li>)}
             </ul>
           </div>
           <div className="footer_links_col">

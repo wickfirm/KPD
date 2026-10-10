@@ -1,4 +1,5 @@
 ﻿import Link from "next/link";
+import { getNavDevelopments } from "@/lib/nav-developments";
 
 /// Delivered site chrome â€” a 1:1 port of the header, mega menu, media
 /// dropdown and mobile menu panel from the delivered templates. Markup and
@@ -18,7 +19,9 @@ const megaPreviews = [
   { className: "mega-preview-image mega-preview-hills", src: "/legacy/assets/images/project-media/Dubai%20Hills%20Mansion/6_plex_front_rev_final_1.jpg" },
 ];
 
-export function SiteShellHeader() {
+export async function SiteShellHeader() {
+  /// Developments created in the CMS are appended after the delivered three.
+  const extras = await getNavDevelopments();
   return <>
     <header className="site-header development-site-header is-delayed-nav">
       <div className="header-wrap">
@@ -31,10 +34,12 @@ export function SiteShellHeader() {
               <div className="header-mega-copy">
                 <div className="header-mega-list">
                   {developments.map((project) => <Link key={project.href} className={project.className} href={project.href} role="menuitem">{project.label}</Link>)}
+                  {extras.map((project, index) => <Link key={project.slug} className={`mega-project-link mega-project-extra mega-project-extra-${index + 1}`} href={`/developments/${project.slug}`} role="menuitem">{project.name}</Link>)}
                 </div>
               </div>
               <div className="header-mega-preview" aria-hidden="true">
                 {megaPreviews.map((preview) => <img key={preview.src} className={preview.className} src={preview.src} alt="" />)}
+                {extras.map((project, index) => project.heroImage ? <img key={project.slug} className={`mega-preview-image mega-preview-extra-${index + 1}`} src={project.heroImage} alt="" /> : null)}
               </div>
             </div>
           </div>
@@ -69,6 +74,7 @@ export function SiteShellHeader() {
             <li><Link href="/developments/seven-x-seven">Seven X Seven</Link></li>
             <li><Link href="/developments/emerald-villa">Emerald Villa</Link></li>
             <li><Link href="/developments/dubai-hills-mansion">Dubai Hills Mansion</Link></li>
+            {extras.map((project) => <li key={project.slug}><Link href={`/developments/${project.slug}`}>{project.name}</Link></li>)}
           </ul>
         </li>
         <li className="menu-item menu-item-main has-sub"><Link href="/about">About</Link>

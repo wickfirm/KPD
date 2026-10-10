@@ -1,4 +1,5 @@
 ﻿import { getNewsPageShell } from "@/lib/news-shell";
+import { getNavDevelopments, injectNavDevelopments } from "@/lib/nav-developments";
 import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
@@ -10,11 +11,12 @@ export const metadata = { title: "News and updates", description: "Announcements
 /// source links, original card design, original styling.
 export default async function NewsPage() {
   const shell = getNewsPageShell();
+  const extras = await getNavDevelopments();
   return <>
     <DeliveredBodyClass bodyClass="home-development-page news-design-page" />
-    <div dangerouslySetInnerHTML={{ __html: shell.beforeMain }} />
+    <div dangerouslySetInnerHTML={{ __html: injectNavDevelopments(shell.beforeMain, extras) }} />
     <div dangerouslySetInnerHTML={{ __html: shell.main }} />
-    <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
+    <div dangerouslySetInnerHTML={{ __html: injectNavDevelopments(shell.afterMain, extras) }} />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page" sources={[
       "/legacy/assets/js/live-news.js?v=20261007-internal-links",
