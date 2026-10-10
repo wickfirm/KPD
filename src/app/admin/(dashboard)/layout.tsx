@@ -26,6 +26,7 @@ const icons = {
   sliders: "M4 8h10M18 8h2M4 16h4M12 16h8M15 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM8 13.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z",
   user: "M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5",
   rss: "M5 19a1 1 0 1 0 0-.01M5 12a7 7 0 0 1 7 7M5 5a14 14 0 0 1 14 14",
+  book: "M5 4h10a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h10M9 8h5",
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -94,6 +95,10 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     {
       title: "Library",
       links: [{ href: "/admin/media", label: "Media", hint: "Photos, videos and documents — upload and copy links", icon: icons.image }],
+    },
+    {
+      title: "Help",
+      links: [{ href: "/admin/guide", label: "CMS guide", hint: "How the CMS works: publishing, previews, roles and troubleshooting", icon: icons.book }],
     },
     ...(isAdmin
       ? [{

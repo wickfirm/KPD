@@ -1161,3 +1161,29 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 [data-reorder-card][data-drop-target="after"] { box-shadow: 0 3px 0 0 var(--color-accent, #1f7a5a); }
 .cms-repeat-card__head .cms-actions { display: flex; gap: 10px; align-items: center; }
 .cms-text-button:disabled { opacity: 0.4; cursor: default; }
+
+/* ── CMS guide (/admin/guide) ─────────────────────────────────────────────── */
+.cms-guide { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 28px; align-items: start; }
+.cms-guide__toc { position: sticky; top: 24px; display: grid; gap: 2px; padding: 4px 0; font-size: 14px; }
+.cms-guide__toc-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted, #6b7a73); padding: 0 10px 8px; }
+.cms-guide__toc a { padding: 7px 10px; border-radius: 8px; color: var(--color-ink); text-decoration: none; line-height: 1.35; }
+.cms-guide__toc a:hover, .cms-guide__toc a:focus-visible { background: rgba(31, 122, 90, 0.08); }
+.cms-guide__content { min-width: 0; }
+.cms-guide__section { scroll-margin-top: 24px; }
+.cms-guide__section h2 { margin: 0 0 4px; font-size: 22px; }
+.cms-guide__section h3 { margin: 22px 0 6px; font-size: 16px; }
+.cms-guide__summary { margin: 0 0 16px; }
+.cms-guide__section p, .cms-guide__section li { line-height: 1.65; max-width: 74ch; }
+.cms-guide__section ul, .cms-guide__section ol { padding-left: 22px; display: grid; gap: 6px; margin: 10px 0 14px; }
+.cms-guide__section code { background: rgba(16, 26, 22, 0.06); padding: 1px 6px; border-radius: 5px; font-size: 0.92em; }
+.cms-guide__note { background: rgba(31, 122, 90, 0.07); border-left: 3px solid var(--color-accent, #1f7a5a); padding: 10px 14px; border-radius: 0 8px 8px 0; }
+.cms-guide__table { border: 1px solid var(--color-line); border-radius: 10px; overflow: hidden; margin: 12px 0 16px; }
+.cms-guide__row { display: grid; grid-template-columns: minmax(180px, 0.9fr) 1.6fr; gap: 16px; padding: 12px 16px; border-top: 1px solid var(--color-line); font-size: 14.5px; line-height: 1.5; }
+.cms-guide__row:first-child { border-top: 0; }
+.cms-guide__row--head { background: rgba(16, 26, 22, 0.04); font-weight: 700; font-size: 12.5px; letter-spacing: 0.04em; text-transform: uppercase; }
+@media (max-width: 960px) {
+  .cms-guide { grid-template-columns: minmax(0, 1fr); }
+  .cms-guide__toc { position: static; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .cms-guide__toc-title { grid-column: 1 / -1; }
+  .cms-guide__row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
