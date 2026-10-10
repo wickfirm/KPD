@@ -1,4 +1,5 @@
 import { parseFigure } from "./raw-figure-parse";
+import { htmlLf } from "@/lib/html-lf";
 
 /// Renders a delivered `<figure ...>...</figure>` fragment as a real <figure>
 /// element. `dangerouslySetInnerHTML` needs a host element, and the previous
@@ -8,6 +9,6 @@ import { parseFigure } from "./raw-figure-parse";
 /// is the direct child of its grid exactly as delivered.
 export function RawFigure({ html }: { html: string }) {
   const figure = parseFigure(html);
-  if (!figure) return <div dangerouslySetInnerHTML={{ __html: html }} />;
-  return <figure {...figure.props} dangerouslySetInnerHTML={{ __html: figure.inner }} />;
+  if (!figure) return <div dangerouslySetInnerHTML={{ __html: htmlLf(html) }} />;
+  return <figure {...figure.props} dangerouslySetInnerHTML={{ __html: htmlLf(figure.inner) }} />;
 }

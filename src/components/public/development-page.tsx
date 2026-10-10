@@ -4,6 +4,7 @@ import type { ProjectShell } from "@/lib/legacy-project";
 import { renderPlannerHtml } from "@/lib/ownership-cost-planner";
 import { DevelopmentModule } from "./development-template";
 import { RawFigure } from "./raw-figure";
+import { htmlLf } from "@/lib/html-lf";
 
 export type DevelopmentProject = {
   id: string;
@@ -61,7 +62,7 @@ export function DevelopmentMain({ project, shell, plannerHtml }: { project: Deve
       ))}
 
       {plannerHtml ? <section className="kpd-section ownership-planner-section ownership-planner-section--project" aria-label="Ownership Cost Planner">
-        <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} data-planner-prerendered="true" dangerouslySetInnerHTML={{ __html: plannerHtml }} />
+        <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} data-planner-prerendered="true" dangerouslySetInnerHTML={{ __html: htmlLf(plannerHtml) }} />
       </section> : null}
 
       <section className="projects-spec-contact single-project-enquire" aria-label={shell.enquire.label}>

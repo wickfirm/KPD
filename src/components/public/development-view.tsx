@@ -1,7 +1,7 @@
 import { DevelopmentMain, type DevelopmentProject } from "./development-page";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
-import { DeliveredScripts } from "./delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
 import { DeliveredBodyClass } from "./delivered-body-class";
 import { genericProjectShell, getProjectShell } from "@/lib/legacy-project";
 import { ownershipCostPlannerDefaults, renderPlannerHtml } from "@/lib/ownership-cost-planner";
@@ -19,6 +19,7 @@ export function DevelopmentView({ project, previewNote }: { project: Development
     <SiteShellHeader />
     <DevelopmentMain project={project} shell={shell} plannerHtml={hasPlanner ? renderPlannerHtml(true, project.slug) : ""} />
     <SiteShellFooter />
+    <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page single-project-page" sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
   </>;
 }

@@ -20,6 +20,8 @@ describe("getProjectShell", () => {
     expect(shell.locationShell).toContain("villa23-travel-shell");
     // the location slice must stop before the React section's own closing tag
     expect(shell.locationShell).not.toContain("</section>");
+    // balanced, so the streamed HTML and React's own re-parse agree
+    expect((shell.locationShell.match(/<div\b/g) ?? []).length).toBe((shell.locationShell.match(/<\/div>/g) ?? []).length);
   });
 
   it("rewrites delivered asset paths and routes legacy links", () => {

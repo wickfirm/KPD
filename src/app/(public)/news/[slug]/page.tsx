@@ -6,7 +6,7 @@ import { absoluteUrl } from "@/lib/site";
 import { getArticleShell } from "@/lib/news-shell";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
-import { DeliveredScripts } from "@/components/public/delivered-scripts";
+import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 
 export const revalidate = 300;
@@ -84,6 +84,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     </main>
     <div dangerouslySetInnerHTML={{ __html: shell.afterMain }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-    <DeliveredScripts bodyClass="home-development-page news-design-page article-page" sources={["/legacy/assets/js/site.js?v=20260715-backend-start-1"]} />
+    <DeliveredEarlyScripts />
+    <DeliveredScripts bodyClass="home-development-page news-design-page article-page" />
   </>;
 }

@@ -46,6 +46,19 @@ function sliceBetween(html: string, startMarker: string, endMarker: string, incl
   return includeEnd ? html.slice(start, end + endMarker.length) : html.slice(start, end);
 }
 
+/// Drop surplus trailing `</div>`s. A slice that ends at the host section's
+/// closing tag also carries the closers of containers React renders itself;
+/// inside `dangerouslySetInnerHTML` those stray tags end the wrapper early in the
+/// streamed HTML but are ignored when React re-parses the string, which is a
+/// hydration mismatch (#418). Balancing the slice makes both parses agree.
+export function trimSurplusDivClosers(html: string) {
+  const opens = (html.match(/<div\b/gi) ?? []).length;
+  const closes = (html.match(/<\/div\s*>/gi) ?? []).length;
+  let out = html;
+  for (let surplus = closes - opens; surplus > 0; surplus--) out = out.replace(/\s*<\/div\s*>\s*$/i, "");
+  return out;
+}
+
 /// Tag-stripped text with <br> preserved as newlines — editor-friendly
 /// fallback copy extracted from the delivered files.
 function textOf(html: string) {
@@ -122,7 +135,7 @@ export function getProjectShell(slug: string): ProjectShell | null {
     overviewFigure: sliceBetween(main, '<figure class="single-project-sketch', "</figure>"),
     meydanFigure: sliceBetween(main, '<figure class="single-project-meydan-media', "</figure>"),
     calmFigure: sliceBetween(main, '<figure class="single-project-calm-media', "</figure>"),
-    locationShell: sliceBetween(main, '<div class="villa23-travel-shell"', "</section>", false),
+    locationShell: trimSurplusDivClosers(sliceBetween(main, '<div class="villa23-travel-shell"', "</section>", false)),
     enquire: {
       label: enquire.match(/aria-label="([^"]*)"/)?.[1] ?? "Arrange a private viewing",
       image: enquire.match(/<img[^>]*\ssrc="([^"]+)"/)?.[1] ?? "/legacy/assets/images/experience-center/hq/15.jpg",

@@ -1,5 +1,6 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
+import { htmlLf } from "@/lib/html-lf";
 import { homeDefaults, type BannerSlide, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -121,7 +122,7 @@ export function HomeMain({ settings, staticTail }: { settings: HomeSettings; sta
         text={settings.contactText || homeDefaults.contactText}
       />
       <HomeExperienceGallery images={(settings.experienceImages ?? []).filter(Boolean)} />
-      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: staticTail }} />
+      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(staticTail) }} />
     </main>
   );
 }
