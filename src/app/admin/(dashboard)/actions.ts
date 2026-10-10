@@ -22,6 +22,7 @@ import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
 import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
+import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 
 function slugify(value: string) {
@@ -731,8 +732,10 @@ function parseJsonList<T>(raw: FormDataEntryValue | null, map: (item: Record<str
 const text = (value: unknown) => String(value ?? "").trim();
 
 /// Shared write path for the homepage content record.
-async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
-  const home = {
+/// The homepage settings as the editor currently has them. Shared by the real
+/// save and the unsaved-changes preview so the two can never disagree.
+function homeSettingsFromForm(formData: FormData) {
+  return {
     introStats: parseJsonList(formData.get("introStatsJson"), (item) => (text(item.value) || text(item.label) ? { value: text(item.value), label: text(item.label) } : null)),
     statsNote: String(formData.get("statsNote") ?? "").trim(),
     bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development" } : null)),
@@ -745,12 +748,43 @@ async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
     contactText: String(formData.get("contactText") || "").trim(),
     experienceImages: nonEmptyLines(formData.get("experienceImages")),
   };
+}
+
+async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
+  const home = homeSettingsFromForm(formData);
   try {
     await db.siteSetting.upsert({ where: { key: "home" }, update: { value: home }, create: { key: "home", value: home } });
     return { label: "Homepage" };
   } catch {
     return { error: "Unable to save the homepage." };
   }
+}
+
+/// "Preview with unsaved changes" for the homepage: keeps it exactly as it
+/// currently looks in the editor in a throw-away draft row (see
+/// site-preview.ts). Nothing public changes and nothing is saved.
+export async function previewHomeDraft(formData: FormData): Promise<{ error?: string }> {
+  const { session } = await requireUser();
+  const key = siteDraftKey("home", session.email);
+  const value = newSiteDraft(homeSettingsFromForm(formData));
+  await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });
+  return {};
+}
+
+/// Same for the investor guide: the hero block and the structured sections as
+/// the editor currently has them (validated the way a real save validates them).
+export async function previewInvestDraft(formData: FormData): Promise<{ error?: string }> {
+  const { session } = await requireUser();
+  let invest: ReturnType<typeof sanitizeInvestContent> | undefined;
+  const raw = String(formData.get("investJson") || "").trim();
+  if (raw) {
+    try { invest = sanitizeInvestContent(JSON.parse(raw)); } catch { return { error: "The investor guide sections could not be read. Please review them and try again." }; }
+  }
+  const hero = { type: "hero", heading: String(formData.get("heading") || "").trim(), text: String(formData.get("intro") || "").trim(), image: String(formData.get("image") || "").trim() };
+  const key = siteDraftKey("invest", session.email);
+  const value = newSiteDraft({ hero, saved: invest ? { type: "invest", ...invest } : undefined });
+  await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });
+  return {};
 }
 
 /// Homepage content is stored in the "home" settings record and edited from

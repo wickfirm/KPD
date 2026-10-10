@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { saveHomeSettings, type SiteSettingsFormState } from "../../actions";
+import { useActionState, useRef, useState } from "react";
+import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { homeDefaults, type BannerSlide, type DevelopmentCard, type HomeSettings, type StatItem } from "@/lib/home-defaults";
@@ -15,11 +15,31 @@ const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 /// like the public page does.
 export default function HomeForm({ settings, projectLinks = [] }: { settings: HomeSettings; projectLinks?: { href: string; name: string }[] }) {
   const [state, formAction, pending] = useActionState(saveHomeSettings, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  /// Opens the admin preview with the page exactly as it currently looks here,
+  /// saved or not. The tab opens straight away (a click-triggered open is never
+  /// blocked) and is pointed at the preview once the draft is stored.
+  async function previewUnsaved() {
+    if (!formRef.current) return;
+    setPreviewing(true); setPreviewError("");
+    const tab = window.open("about:blank", "_blank");
+    try {
+      const result = await previewHomeDraft(new FormData(formRef.current));
+      if (result.error) throw new Error(result.error);
+      const target = "/admin/preview/home?draft=1";
+      if (tab) tab.location.href = target; else window.location.assign(target);
+    } catch (error) {
+      tab?.close();
+      setPreviewError(error instanceof Error ? error.message : "Unable to build the preview.");
+    } finally { setPreviewing(false); }
+  }
   const [experienceImages, setExperienceImages] = useState(settings.experienceImages ?? []);
   const [stats, setStats] = useState<StatItem[]>(() => (settings.introStats?.length ? settings.introStats : homeDefaults.introStats));
   const [slides, setSlides] = useState<BannerSlide[]>(() => (settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides));
   const [cards, setCards] = useState<DevelopmentCard[]>(() => (settings.developmentCards?.length ? settings.developmentCards : homeDefaults.developmentCards));
-  return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
+  return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <datalist id="home-project-links">{projectLinks.map((link) => <option key={link.href} value={link.href}>{link.name}</option>)}</datalist>
     <h2 className="cms-form-heading">Hero video</h2>
     <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4" placeholder="https://…" fileLabel="hero video" />
@@ -78,6 +98,6 @@ export default function HomeForm({ settings, projectLinks = [] }: { settings: Ho
       </div>)}
       <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setExperienceImages((images) => [...images, ""])} disabled={experienceImages.length >= 5}>Add gallery image</button>
     </section>
-    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button></div>
+    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

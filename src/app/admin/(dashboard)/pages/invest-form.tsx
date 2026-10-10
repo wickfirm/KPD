@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { saveStaticPage, type StaticPageFormState } from "../actions";
+import { previewInvestDraft, saveStaticPage, type StaticPageFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { investIcons, mergeInvestContent, type FaqItem, type FeaturedCard, type IconCard, type InvestContent, type Metric, type PanelSection, type YieldRow } from "@/lib/invest-defaults";
@@ -63,11 +63,31 @@ function PanelEditor({ value, onChange }: { value: PanelSection; onChange: (chan
 /// show the delivered content until you save your own, like the public page.
 export default function InvestForm({ defaults }: { defaults: InvestPageDefaults }) {
   const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  /// Opens the admin preview with the page exactly as it currently looks here,
+  /// saved or not. The tab opens straight away (a click-triggered open is never
+  /// blocked) and is pointed at the preview once the draft is stored.
+  async function previewUnsaved() {
+    if (!formRef.current) return;
+    setPreviewing(true); setPreviewError("");
+    const tab = window.open("about:blank", "_blank");
+    try {
+      const result = await previewInvestDraft(new FormData(formRef.current));
+      if (result.error) throw new Error(result.error);
+      const target = "/admin/preview/invest-in-dubai?draft=1";
+      if (tab) tab.location.href = target; else window.location.assign(target);
+    } catch (error) {
+      tab?.close();
+      setPreviewError(error instanceof Error ? error.message : "Unable to build the preview.");
+    } finally { setPreviewing(false); }
+  }
   const hero = (defaults.content ?? []).find((block) => block.type === "hero");
   const [content, setContent] = useState<InvestContent>(() => mergeInvestContent((defaults.content ?? []).find((block) => block.type === "invest")));
   const patch = <K extends keyof InvestContent>(key: K, changes: Partial<InvestContent[K]>) => setContent((current) => ({ ...current, [key]: { ...(current[key] as object), ...changes } as InvestContent[K] }));
 
-  return <form action={formAction}>
+  return <form ref={formRef} action={formAction}>
     {defaults.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
     <input type="hidden" name="title" value={defaults.title ?? "Investor guide"} />
     <input type="hidden" name="slug" value="invest-in-dubai" />
@@ -155,6 +175,6 @@ export default function InvestForm({ defaults }: { defaults: InvestPageDefaults 
     <Area label="Text" value={content.contact.text} onChange={(text) => patch("contact", { text })} />
     <Picture label="Background image" value={content.contact.image} onChange={(image) => patch("contact", { image })} />
 
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save investor guide"}</button></div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save investor guide"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }
