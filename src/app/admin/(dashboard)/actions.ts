@@ -483,23 +483,10 @@ export async function deleteProjectModule(formData: FormData) {
   revalidatePublicContent();
 }
 
-/// Save a conventional editorial page. Page templates render these named
-/// blocks; editors never need to hand-author the JSON representation.
-/// Shared page write path (editor form + version restore). Registry pages and
-/// hard-deleted rows are re-created on restore.
-async function applyStaticPage(id: string, formData: FormData): Promise<ApplyResult> {
-  const title = String(formData.get("title") || "").trim();
-  let slug = slugify(String(formData.get("slug") || "") || title);
-  if (id) {
-    // The public URL of a fixed page (About, Legacy, Contact, Investor guide, the legal
-    // pages) is defined by the site's routes: renaming its slug would orphan the row so
-    // neither the editor nor the public page could find it again. Those pages keep their slug.
-    const current = await db.staticPage.findUnique({ where: { id }, select: { slug: true } });
-    if (current && findEditablePage(current.slug)) slug = current.slug;
-  }
-  const status = projectStatus(formData.get("status"));
-  if (!title || !slug) return { error: "Page title is required." };
-
+/// The stored content blocks for a managed page, built from the editor form.
+/// Shared by the real save and the unsaved-changes preview so the two can
+/// never disagree.
+function buildStaticPageContent(slug: string, formData: FormData): { content: Record<string, unknown>[] } | { error: string } {
   const heading = String(formData.get("heading") || "").trim();
   const intro = String(formData.get("intro") || "").trim();
   const image = String(formData.get("image") || "").trim();
@@ -578,6 +565,30 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
     ...(invest ? [invest] : []),
   ];
 
+  return { content };
+}
+
+/// Save a conventional editorial page. Page templates render these named
+/// blocks; editors never need to hand-author the JSON representation.
+/// Shared page write path (editor form + version restore). Registry pages and
+/// hard-deleted rows are re-created on restore.
+async function applyStaticPage(id: string, formData: FormData): Promise<ApplyResult> {
+  const title = String(formData.get("title") || "").trim();
+  let slug = slugify(String(formData.get("slug") || "") || title);
+  if (id) {
+    // The public URL of a fixed page (About, Legacy, Contact, Investor guide, the legal
+    // pages) is defined by the site's routes: renaming its slug would orphan the row so
+    // neither the editor nor the public page could find it again. Those pages keep their slug.
+    const current = await db.staticPage.findUnique({ where: { id }, select: { slug: true } });
+    if (current && findEditablePage(current.slug)) slug = current.slug;
+  }
+  const status = projectStatus(formData.get("status"));
+  if (!title || !slug) return { error: "Page title is required." };
+
+  const built = buildStaticPageContent(slug, formData);
+  if ("error" in built) return { error: built.error };
+  const content = built.content as never; // JSON column: blocks are built from sanitised form values
+
   try {
     if (id) {
       const existing = await db.staticPage.findUnique({ where: { id }, select: { id: true } });
@@ -596,28 +607,21 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
   }
 }
 
-const previewablePageSlugs = ["terms", "privacy-policy", "cookie-policy"];
+const previewablePageSlugs = ["terms", "privacy-policy", "cookie-policy", "about", "legacy", "contact"];
 
-/// "Preview with unsaved changes" for a legal page: keeps the page exactly as
+/// "Preview with unsaved changes" for a managed page (legal pages, About, Legacy,
+/// Contact): keeps the page exactly as
 /// it currently looks in the editor in a throw-away draft row (see
 /// page-preview.ts). Nothing public changes and the page is not saved.
 export async function previewPageDraft(formData: FormData): Promise<{ error?: string; slug?: string }> {
   await requireUser();
   const slug = slugify(String(formData.get("slug") || ""));
-  if (!previewablePageSlugs.includes(slug)) return { error: "Only the legal pages can be previewed this way." };
+  if (!previewablePageSlugs.includes(slug)) return { error: "This page cannot be previewed this way." };
   const title = String(formData.get("title") || "").trim();
   if (!title) return { error: "Give the page a title to preview it." };
-  const heading = String(formData.get("heading") || "").trim();
-  const intro = String(formData.get("intro") || "").trim();
-  const image = String(formData.get("image") || "").trim();
-  const draft: PageDraft = {
-    title,
-    content: [
-      ...(heading || intro || image ? [{ type: "hero", heading, text: intro, image }] : []),
-      ...paragraphBlocks(nonEmptyLines(formData.get("paragraphs"))),
-    ],
-    savedAt: Date.now(),
-  };
+  const built = buildStaticPageContent(slug, formData);
+  if ("error" in built) return { error: built.error };
+  const draft: PageDraft = { title, content: built.content, savedAt: Date.now() };
   const key = pageDraftKey(slug);
   await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
   return { slug };

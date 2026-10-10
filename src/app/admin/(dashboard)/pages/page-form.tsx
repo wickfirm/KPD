@@ -89,7 +89,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
   const formRef = useRef<HTMLFormElement>(null);
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
-  /// Legal pages only: opens the admin preview with the page exactly as it
+  /// Legal pages, About, Legacy and Contact: opens the admin preview with the page exactly as it
   /// currently looks here, saved or not. The tab opens straight away (a
   /// click-triggered open is never blocked) and is pointed at the preview once
   /// the draft is stored.
@@ -172,6 +172,6 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image ?? ""} onChange={(image) => update({ image })} accept="image/*" placeholder="/legacy/assets/images/…" fileLabel={`milestone ${index + 1} image`} /></div>
         </>} />
     </section> : null}
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>{isLegal ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>{isLegal || isAbout || isLegacy || defaults?.slug === "contact" ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }
