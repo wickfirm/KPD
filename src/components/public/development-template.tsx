@@ -1,6 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { RawFigure } from "./raw-figure";
+import { moduleSectionId } from "@/lib/module-section-id";
 import { htmlLf } from "@/lib/html-lf";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
@@ -20,11 +21,7 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
-/// The section id the delivered template uses for this module ("tour" lives
-/// in the showcase section; everything else uses its own slug).
-export function moduleSectionId(slug: string) {
-  return slug === "tour" ? "showcase" : slug;
-}
+export { moduleSectionId };
 
 export function DevelopmentModule({ module, projectName, shell }: { module: { slug: string; title: string; kind: string; content: unknown }; projectName: string; shell?: ModuleShell }) {
   const data = content(module.content);

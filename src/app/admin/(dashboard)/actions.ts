@@ -19,6 +19,8 @@ import { sanitizeInvestContent } from "@/lib/invest-defaults";
 import { findEditablePage } from "@/lib/editable-pages";
 import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter";
 import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
+import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
+import { moduleSectionId } from "@/lib/module-section-id";
 
 function slugify(value: string) {
   return value
@@ -411,6 +413,31 @@ export async function saveProjectModule(
   });
   await logActivity({ action: "content.save", session, entityType: "PROJECT_MODULE", entityId: result.id, summary: `Saved section “${result.label}”` });
   redirect(`/admin/projects/${ownerProjectId}?saved=1`);
+}
+
+/// "Preview with unsaved changes": keeps the section exactly as it currently
+/// looks in the editor in a throw-away draft row (see section-preview.ts) and
+/// tells the editor where to open the admin preview. Nothing public changes
+/// and nothing is saved to the section itself.
+export async function previewSectionDraft(formData: FormData): Promise<{ error?: string; slug?: string; anchor?: string }> {
+  await requireUser();
+  const projectId = String(formData.get("projectId") || "");
+  const title = String(formData.get("title") || "").trim();
+  const slug = slugify(String(formData.get("slug") || "") || title);
+  if (!projectId || !title || !slug) return { error: "Give the section a title to preview it." };
+  const project = await db.project.findUnique({ where: { id: projectId }, select: { slug: true } });
+  if (!project) return { error: "This development no longer exists." };
+  const draft: SectionDraft = {
+    id: String(formData.get("id") || ""),
+    title,
+    slug,
+    kind: moduleKind(formData.get("kind")),
+    content: moduleContentFromForm(formData),
+    savedAt: Date.now(),
+  };
+  const key = sectionDraftKey(projectId);
+  await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
+  return { slug: project.slug, anchor: moduleSectionId(slug) };
 }
 
 export async function deleteProjectModule(formData: FormData) {

@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { saveProjectModule, type ProjectModuleFormState } from "../../actions";
+import { useActionState, useRef, useState } from "react";
+import { previewSectionDraft, saveProjectModule, type ProjectModuleFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reorder";
 import { moduleKindLabels } from "@/lib/project-starter";
@@ -14,6 +14,27 @@ const initialState: ProjectModuleFormState = {};
 export default function ModuleForm({ projectId, defaults }: { projectId: string; defaults?: Defaults }) {
   const [state, formAction, pending] = useActionState(saveProjectModule, initialState);
   const [kind, setKind] = useState(defaults?.kind ?? "CUSTOM");
+  const formRef = useRef<HTMLFormElement>(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  /// Opens the admin preview of this development with the section exactly as it
+  /// currently looks here, saved or not. The tab is opened straight away (a
+  /// click-triggered open is never blocked) and pointed at the preview once the
+  /// draft has been stored.
+  async function previewUnsaved() {
+    if (!formRef.current) return;
+    setPreviewing(true); setPreviewError("");
+    const tab = window.open("about:blank", "_blank");
+    try {
+      const result = await previewSectionDraft(new FormData(formRef.current));
+      if (result.error || !result.slug) throw new Error(result.error || "Unable to build the preview.");
+      const target = `/admin/preview/developments/${result.slug}?draft=1#${result.anchor ?? ""}`;
+      if (tab) tab.location.href = target; else window.location.assign(target);
+    } catch (error) {
+      tab?.close();
+      setPreviewError(error instanceof Error ? error.message : "Unable to build the preview.");
+    } finally { setPreviewing(false); }
+  }
   const [images, setImages] = useState(defaults?.content?.images ?? []);
   const [items, setItems] = useState<ModuleItem[]>(defaults?.content?.items ?? []);
   const itemLabel = kind === "LOCATION" ? "Location / journey" : kind === "FLOOR_PLAN" ? "Floor-plan card" : kind === "GALLERY" ? "Gallery caption" : kind === "SPECIFICATIONS" ? "Specification" : "Content card";
@@ -36,7 +57,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
   }
   const imageDrag = useDragReorder(images, setImages, moveImage);
   function updateItem(index: number, patch: Partial<ModuleItem>) { setItems((current) => padded(current, index + 1).map((item, i) => i === index ? { ...item, ...patch } : item)); }
-  return <form action={formAction} style={{ marginTop: 16 }}>
+  return <form ref={formRef} action={formAction} style={{ marginTop: 16 }}>
     <input type="hidden" name="projectId" value={projectId} />{defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <div className="cms-grid">
@@ -67,6 +88,6 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
       <label className="cms-field"><span>Layout</span><select name="presentation" defaultValue={defaults?.content?.presentation ?? "standard"}><option value="standard">Standard</option><option value="calm">Split panel (text beside a large image)</option></select></label>
       {kind === "LOCATION" ? <label className="cms-field"><span>Map embed link</span><input name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} placeholder="https://www.google.com/maps/embed?..." /><small>Used on developments created in the CMS. The three original developments keep their built-in travel map.</small></label> : <input type="hidden" name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} />}
     </div>
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : defaults?.id ? "Save section" : "Add section"}</button></div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : defaults?.id ? "Save section" : "Add section"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }
