@@ -81,6 +81,7 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
                 </div>
                 <div className="cms-row-card__actions">
                   <Link className="cms-btn cms-btn--small" href={`/admin/articles/${article.id}`}>Edit</Link>
+                  <Link className="cms-btn cms-btn--outline cms-btn--small" href={`/admin/preview/articles/${article.id}`} target="_blank">Preview ↗</Link>
                   {article.status === "PUBLISHED" ? <Link className="cms-btn cms-btn--outline cms-btn--small" href={`/news/${article.slug}`} target="_blank">View live ↗</Link> : null}
                   <details className="cms-menu">
                     <summary className="cms-btn cms-btn--ghost cms-btn--small" aria-label={`More actions for ${article.title}`}>More</summary>

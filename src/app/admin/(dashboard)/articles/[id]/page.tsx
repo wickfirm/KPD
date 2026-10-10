@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import ArticleForm from "../article-form";
@@ -26,7 +27,10 @@ export default async function EditArticlePage({
           <h1>{article.title || "Edit article"}</h1>
           <p>Update the words and pictures, then save. Use “Draft” while you work — visitors only see “Published” articles.</p>
         </div>
-        <span className={`cms-badge cms-badge--${article.status}`}>{article.status}</span>
+        <div className="cms-actions">
+          <Link className="cms-btn cms-btn--outline" href={`/admin/preview/articles/${article.id}`} target="_blank">Preview saved version ↗</Link>
+          <span className={`cms-badge cms-badge--${article.status}`}>{article.status}</span>
+        </div>
       </div>
       <SavedBanner params={flash} />
       <EditorShell>

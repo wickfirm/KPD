@@ -51,6 +51,7 @@ export default async function EditPage({
         </div>
         <div className="cms-actions">
           <Link className="cms-btn cms-btn--ghost" href="/admin/pages">Back</Link>
+          {entry && ["terms", "privacy-policy", "cookie-policy"].includes(entry.key) ? <Link className="cms-btn cms-btn--ghost" href={`/admin/preview/pages/${entry.key}`} target="_blank">Preview saved text</Link> : null}
           <Link className="cms-btn cms-btn--ghost" href={publicHref} target="_blank">View page</Link>
           {!entry ? (
             <form action={deleteStaticPage}>

@@ -33,6 +33,7 @@ export default async function PagesPage() {
 
   const card = (entry: EditablePage) => {
     const info = state(entry);
+    const page = bySlug.get(entry.key);
     return <article className="cms-dev-card" key={entry.key}>
       <div className="cms-dev-card__body">
         <div className="cms-row-card__meta"><span className="cms-eyebrow">{entry.publicHref}</span><span className={`cms-badge cms-badge--${info.badge}`}>{info.label}</span></div>
@@ -42,6 +43,7 @@ export default async function PagesPage() {
       </div>
       <div className="cms-dev-card__actions">
         <Link className="cms-btn cms-btn--small" href={entry.href}>Edit</Link>
+        {legalKeys.has(entry.key) && page ? <Link className="cms-btn cms-btn--outline cms-btn--small" href={`/admin/preview/pages/${entry.key}`} target="_blank">Preview saved text ↗</Link> : null}
         <Link className="cms-btn cms-btn--outline cms-btn--small" href={entry.publicHref} target="_blank">View page ↗</Link>
       </div>
     </article>;
