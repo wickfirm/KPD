@@ -1233,3 +1233,20 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 .cms-sidenav__link, .cms-sidenav__link.is-active { border-radius: 0; }
 .cms-sidenav__link.is-active { box-shadow: inset 2px 0 0 #fff; }
 .cms-sidebar, .cms-sidenav { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.25) transparent; }
+
+/* Step 2 - editors. */
+.cms-save-row { box-shadow: none; background: #fff; border: 1px solid var(--color-ink); backdrop-filter: none; }
+
+/* Gallery image cards: thumbnail beside the caption instead of stacked, so a long
+   gallery does not become a very long page. */
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) { display: grid; grid-template-columns: minmax(200px, 270px) minmax(0, 1fr); column-gap: 22px; align-items: start; }
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > .cms-repeat-card__head { grid-column: 1 / -1; }
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > .cms-media-picker { grid-column: 1; grid-row: 2 / span 2; }
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > .cms-advanced-input { grid-column: 2; grid-row: 2; margin: 0; }
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > .cms-field { grid-column: 2; grid-row: 3; }
+@media (max-width: 760px) {
+  .cms-editor-section .cms-repeat-card:has(> .cms-media-picker) { grid-template-columns: minmax(0, 1fr); }
+  .cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > * { grid-column: 1; grid-row: auto; }
+}
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > .cms-media-picker { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; padding: 10px; }
+.cms-editor-section .cms-repeat-card:has(> .cms-media-picker) > .cms-media-picker .cms-asset-preview { width: 100%; height: 130px; max-width: none; object-fit: cover; }
