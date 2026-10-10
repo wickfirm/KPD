@@ -17,8 +17,25 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
   const [images, setImages] = useState(defaults?.content?.images ?? []);
   const [items, setItems] = useState<ModuleItem[]>(defaults?.content?.items ?? []);
   const itemLabel = kind === "LOCATION" ? "Location / journey" : kind === "FLOOR_PLAN" ? "Floor-plan card" : kind === "GALLERY" ? "Gallery caption" : kind === "SPECIFICATIONS" ? "Specification" : "Content card";
-  const imageDrag = useDragReorder(images, setImages);
-  function updateItem(index: number, patch: Partial<ModuleItem>) { setItems((current) => current.map((item, i) => i === index ? { ...item, ...patch } : item)); }
+  // A gallery caption belongs to the image at the same position (the public page
+  // reads items[i].label as the caption of images[i]), so for galleries the two
+  // lists are always moved, added and removed together.
+  const paired = kind === "GALLERY";
+  const padded = (list: ModuleItem[], length: number) => Array.from({ length: Math.max(list.length, length) }, (_, i) => list[i] ?? {});
+  function moveImage(from: number, to: number) {
+    setImages((current) => reorder(current, from, to));
+    if (paired) setItems((current) => reorder(padded(current, images.length), from, to));
+  }
+  function removeImage(index: number) {
+    setImages((current) => current.filter((_, i) => i !== index));
+    if (paired) setItems((current) => padded(current, images.length).filter((_, i) => i !== index));
+  }
+  function addImage() {
+    setImages((current) => [...current, ""]);
+    if (paired) setItems((current) => [...padded(current, images.length), {}]);
+  }
+  const imageDrag = useDragReorder(images, setImages, moveImage);
+  function updateItem(index: number, patch: Partial<ModuleItem>) { setItems((current) => padded(current, index + 1).map((item, i) => i === index ? { ...item, ...patch } : item)); }
   return <form action={formAction} style={{ marginTop: 16 }}>
     <input type="hidden" name="projectId" value={projectId} />{defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
     {state.error ? <p className="cms-error">{state.error}</p> : null}
@@ -38,13 +55,13 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
     <input type="hidden" name="images" value={images.join("\n")} />
     <input type="hidden" name="items" value={items.map((item) => [item.label ?? "", item.value ?? "", item.image ?? "", item.url ?? ""].join(" | ")).join("\n")} />
     <section className="cms-editor-section" aria-labelledby={`media-${defaults?.id ?? "new"}`}><div><h3 id={`media-${defaults?.id ?? "new"}`}>Media</h3><p className="cms-muted">Upload images directly, then drag the handle (or use Move up / Move down) to set the order they appear in. Existing images stay until you replace or remove them.</p></div>
-      {images.map((image, index) => <div className="cms-repeat-card" key={index} {...imageDrag.dropProps(index)}><div className="cms-repeat-card__head"><strong>{images.length > 1 ? <DragHandle {...imageDrag.handleProps(index)} /> : null}Image {index + 1}</strong><span className="cms-actions"><button className="cms-text-button" type="button" onClick={() => setImages((current) => reorder(current, index, index - 1))} disabled={index === 0}>Move up</button><button className="cms-text-button" type="button" onClick={() => setImages((current) => reorder(current, index, index + 1))} disabled={index === images.length - 1}>Move down</button><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => setImages((current) => current.filter((_, i) => i !== index))}>Remove</button></span></div><AssetUrlField value={image} onChange={(next) => setImages((current) => current.map((value, i) => i === index ? next : value))} placeholder="Upload an image" /></div>)}
-      <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setImages((current) => [...current, ""])}>Add image</button>
+      {images.map((image, index) => <div className="cms-repeat-card" key={index} {...imageDrag.dropProps(index)}><div className="cms-repeat-card__head"><strong>{images.length > 1 ? <DragHandle {...imageDrag.handleProps(index)} /> : null}Image {index + 1}</strong><span className="cms-actions"><button className="cms-text-button" type="button" onClick={() => moveImage(index, index - 1)} disabled={index === 0}>Move up</button><button className="cms-text-button" type="button" onClick={() => moveImage(index, index + 1)} disabled={index === images.length - 1}>Move down</button><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => removeImage(index)}>Remove</button></span></div><AssetUrlField value={image} onChange={(next) => setImages((current) => current.map((value, i) => i === index ? next : value))} placeholder="Upload an image" />{paired ? <label className="cms-field"><span>Caption</span><input value={items[index]?.label ?? ""} onChange={(event) => updateItem(index, { label: event.target.value })} placeholder={"Shown on the image and in the full-screen view"} /><small>Leave empty to use the section title.</small></label> : null}</div>)}
+      <button className="cms-btn cms-btn--ghost" type="button" onClick={addImage}>Add image</button>
     </section>
-    <section className="cms-editor-section" aria-labelledby={`items-${defaults?.id ?? "new"}`}><div><h3 id={`items-${defaults?.id ?? "new"}`}>{itemLabel}s</h3><p className="cms-muted">Add cards one at a time—no formatting codes or pipe-separated rows required.</p></div>
+    {paired ? null : <section className="cms-editor-section" aria-labelledby={`items-${defaults?.id ?? "new"}`}><div><h3 id={`items-${defaults?.id ?? "new"}`}>{itemLabel}s</h3><p className="cms-muted">Add cards one at a time—no formatting codes or pipe-separated rows required.</p></div>
       {items.map((item, index) => <div className="cms-repeat-card" key={index}><div className="cms-repeat-card__head"><strong>{itemLabel} {index + 1}</strong><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => setItems((current) => current.filter((_, i) => i !== index))}>Remove</button></div><div className="cms-grid"><label className="cms-field"><span>Label</span><input value={item.label ?? ""} onChange={(event) => updateItem(index, { label: event.target.value })} placeholder="e.g. Downtown Dubai" /></label><label className="cms-field"><span>Detail</span><input value={item.value ?? ""} onChange={(event) => updateItem(index, { value: event.target.value })} placeholder="e.g. 12 min" /></label></div>{kind !== "GALLERY" ? <label className="cms-field"><span>Card image, plan, or document</span><AssetUrlField value={item.image ?? ""} onChange={(next) => updateItem(index, { image: next })} accept="image/*,application/pdf" placeholder="Upload a file" /></label> : null}<label className="cms-field"><span>Optional link</span><input value={item.url ?? ""} onChange={(event) => updateItem(index, { url: event.target.value })} placeholder="https://…" /></label></div>)}
       <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setItems((current) => [...current, {}])}>Add {itemLabel.toLowerCase()}</button>
-    </section>
+    </section>}
     <div className="cms-grid">
       <label className="cms-field"><span>Button link (optional)</span><input name="url" defaultValue={defaults?.content?.url ?? ""} placeholder="/contact?project=..." /><small>Where the section's button goes, if it has one.</small></label>
       <label className="cms-field"><span>Layout</span><select name="presentation" defaultValue={defaults?.content?.presentation ?? "standard"}><option value="standard">Standard</option><option value="calm">Split panel (text beside a large image)</option></select></label>

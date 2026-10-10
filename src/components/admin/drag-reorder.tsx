@@ -9,7 +9,7 @@ export { reorder };
 /// card and render `<DragHandle {...handleProps(i)} />` inside it; the handle is
 /// the only draggable part so text inputs keep normal selection behaviour.
 /// Keyboard users keep the Move up / Move down buttons next to every list.
-export function useDragReorder<T>(items: T[], onChange: (items: T[]) => void) {
+export function useDragReorder<T>(items: T[], onChange: (items: T[]) => void, onMove?: (from: number, to: number) => void) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
   const end = () => { setDragIndex(null); setOverIndex(null); };
@@ -40,7 +40,7 @@ export function useDragReorder<T>(items: T[], onChange: (items: T[]) => void) {
       onDrop: (event: DragEvent<HTMLElement>) => {
         if (dragIndex === null) return;
         event.preventDefault();
-        onChange(reorder(items, dragIndex, index));
+        if (onMove) onMove(dragIndex, index); else onChange(reorder(items, dragIndex, index));
         end();
       },
     }),

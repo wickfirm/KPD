@@ -18,6 +18,7 @@ import { ownershipCostPlannerDefaults, type OwnershipCostPlanner } from "@/lib/o
 import { sanitizeInvestContent } from "@/lib/invest-defaults";
 import { findEditablePage } from "@/lib/editable-pages";
 import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter";
+import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 
 function slugify(value: string) {
   return value
@@ -239,13 +240,10 @@ function nonEmptyLines(value: FormDataEntryValue | null) {
 /// Converts editor-friendly rows into the stable JSON structure consumed by
 /// the public development renderer. Rows use: Label | Value | Image URL | Link.
 function moduleContentFromForm(formData: FormData) {
-  const images = nonEmptyLines(formData.get("images"));
-  const items = nonEmptyLines(formData.get("items")).map((line) => {
-    const [label = "", value = "", image = "", url = ""] = line.split("|").map((part) => part.trim());
-    // Keep every field the editor collects — renderers read what they need.
-    // (Floor plans previously lost their "Detail" text here.)
-    return { label, value, ...(image ? { image } : {}), ...(url ? { url } : {}) };
-  }).filter((item) => Object.values(item).some(Boolean));
+  // Galleries pair each caption with its image by position (see gallery-content.ts).
+  const paired = formData.get("kind") === "GALLERY" ? pairedGalleryContent(String(formData.get("images") || ""), String(formData.get("items") || "")) : null;
+  const images = paired ? paired.images : nonEmptyLines(formData.get("images"));
+  const items = paired ? paired.items : nonEmptyLines(formData.get("items")).map(parseItemRow).filter((item) => Object.values(item).some(Boolean));
 
   const text = String(formData.get("text") || "").trim();
   const url = String(formData.get("url") || "").trim();
