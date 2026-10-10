@@ -20,6 +20,7 @@ import { findEditablePage } from "@/lib/editable-pages";
 import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter";
 import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
+import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 
 function slugify(value: string) {
@@ -153,6 +154,31 @@ export async function saveArticle(
   });
   await logActivity({ action: "content.save", session, entityType: "ARTICLE", entityId: result.id, summary: `Saved article “${result.label}”` });
   redirect(`/admin/articles/${result.id}?saved=1`);
+}
+
+/// "Preview with unsaved changes" for an article: keeps it exactly as it
+/// currently looks in the editor in a throw-away draft row (see
+/// article-preview.ts). Nothing public changes and the article is not saved.
+export async function previewArticleDraft(formData: FormData): Promise<{ error?: string; id?: string }> {
+  const { session } = await requireUser();
+  const id = String(formData.get("id") || "");
+  const title = String(formData.get("title") || "").trim();
+  if (!title) return { error: "Give the article a title to preview it." };
+  let body: string[];
+  try { body = parseBody(String(formData.get("body") || "")); } catch (err) { return { error: (err as Error).message }; }
+  const draft: ArticleDraft = {
+    kind: formData.get("kind") === "BLOG" ? "BLOG" : "NEWS",
+    slug: slugify(String(formData.get("slug") || "") || title),
+    title,
+    summary: String(formData.get("summary") || "").trim(),
+    body,
+    coverImage: String(formData.get("coverImage") || "").trim() || null,
+    coverImageAlt: String(formData.get("coverImageAlt") || "").trim() || null,
+    savedAt: Date.now(),
+  };
+  const key = articleDraftKey(id, session.email);
+  await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
+  return { id: id || "new" };
 }
 
 export async function deleteArticle(formData: FormData) {
