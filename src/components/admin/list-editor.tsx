@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { DragHandle, useDragReorder } from "./drag-reorder";
 
 /// Repeatable-card editor shared by the structured page editors: one card per
 /// item with move up / move down / remove, and an add button. Items are plain
@@ -23,9 +24,10 @@ export function ListEditor<T extends object>({ items, onChange, newItem, itemLab
     [next[index], next[target]] = [next[target], next[index]];
     onChange(next);
   };
+  const drag = useDragReorder(items, onChange);
   return <div className="cms-list-editor">
-    {items.map((item, index) => <fieldset className="cms-repeat-card" key={index}>
-      <legend>{itemLabel(item, index)}</legend>
+    {items.map((item, index) => <fieldset className="cms-repeat-card" key={index} {...drag.dropProps(index)}>
+      <legend>{items.length > 1 ? <DragHandle {...drag.handleProps(index)} /> : null}{itemLabel(item, index)}</legend>
       {renderItem(item, (changes) => update(index, changes), index)}
       <div className="cms-actions">
         <button className="cms-btn cms-btn--ghost cms-btn--small" type="button" onClick={() => move(index, -1)} disabled={index === 0}>Move up</button>

@@ -1152,3 +1152,12 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 .cms-review-card h2 a:hover { text-decoration: underline; }
 .cms-review-card .cms-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 .cms-review-card .cms-actions form { margin: 0; }
+
+/* ── Drag-and-drop reordering (drag-reorder.tsx) ─────────────────────────── */
+.cms-drag-handle { display: inline-block; cursor: grab; user-select: none; padding: 0 8px 0 2px; font-size: 16px; line-height: 1; color: var(--color-muted, #6b7a73); }
+.cms-drag-handle:active { cursor: grabbing; }
+[data-reorder-card][data-dragging="true"] { opacity: 0.45; }
+[data-reorder-card][data-drop-target="before"] { box-shadow: 0 -3px 0 0 var(--color-accent, #1f7a5a); }
+[data-reorder-card][data-drop-target="after"] { box-shadow: 0 3px 0 0 var(--color-accent, #1f7a5a); }
+.cms-repeat-card__head .cms-actions { display: flex; gap: 10px; align-items: center; }
+.cms-text-button:disabled { opacity: 0.4; cursor: default; }

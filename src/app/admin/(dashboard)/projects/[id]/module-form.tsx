@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { saveProjectModule, type ProjectModuleFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
+import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reorder";
 import { moduleKindLabels } from "@/lib/project-starter";
 
 type ModuleItem = { label?: string; value?: string; image?: string; url?: string };
@@ -16,6 +17,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
   const [images, setImages] = useState(defaults?.content?.images ?? []);
   const [items, setItems] = useState<ModuleItem[]>(defaults?.content?.items ?? []);
   const itemLabel = kind === "LOCATION" ? "Location / journey" : kind === "FLOOR_PLAN" ? "Floor-plan card" : kind === "GALLERY" ? "Gallery caption" : kind === "SPECIFICATIONS" ? "Specification" : "Content card";
+  const imageDrag = useDragReorder(images, setImages);
   function updateItem(index: number, patch: Partial<ModuleItem>) { setItems((current) => current.map((item, i) => i === index ? { ...item, ...patch } : item)); }
   return <form action={formAction} style={{ marginTop: 16 }}>
     <input type="hidden" name="projectId" value={projectId} />{defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
@@ -35,8 +37,8 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
     <label className="cms-field"><span>Text</span><textarea name="text" rows={5} defaultValue={defaults?.content?.text ?? ""} placeholder="The editorial copy shown in this section." /></label>
     <input type="hidden" name="images" value={images.join("\n")} />
     <input type="hidden" name="items" value={items.map((item) => [item.label ?? "", item.value ?? "", item.image ?? "", item.url ?? ""].join(" | ")).join("\n")} />
-    <section className="cms-editor-section" aria-labelledby={`media-${defaults?.id ?? "new"}`}><div><h3 id={`media-${defaults?.id ?? "new"}`}>Media</h3><p className="cms-muted">Upload images directly. Existing images stay until you replace or remove them.</p></div>
-      {images.map((image, index) => <div className="cms-repeat-card" key={`${image}-${index}`}><div className="cms-repeat-card__head"><strong>Image {index + 1}</strong><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => setImages((current) => current.filter((_, i) => i !== index))}>Remove</button></div><AssetUrlField value={image} onChange={(next) => setImages((current) => current.map((value, i) => i === index ? next : value))} placeholder="Upload an image" /></div>)}
+    <section className="cms-editor-section" aria-labelledby={`media-${defaults?.id ?? "new"}`}><div><h3 id={`media-${defaults?.id ?? "new"}`}>Media</h3><p className="cms-muted">Upload images directly, then drag the handle (or use Move up / Move down) to set the order they appear in. Existing images stay until you replace or remove them.</p></div>
+      {images.map((image, index) => <div className="cms-repeat-card" key={index} {...imageDrag.dropProps(index)}><div className="cms-repeat-card__head"><strong>{images.length > 1 ? <DragHandle {...imageDrag.handleProps(index)} /> : null}Image {index + 1}</strong><span className="cms-actions"><button className="cms-text-button" type="button" onClick={() => setImages((current) => reorder(current, index, index - 1))} disabled={index === 0}>Move up</button><button className="cms-text-button" type="button" onClick={() => setImages((current) => reorder(current, index, index + 1))} disabled={index === images.length - 1}>Move down</button><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => setImages((current) => current.filter((_, i) => i !== index))}>Remove</button></span></div><AssetUrlField value={image} onChange={(next) => setImages((current) => current.map((value, i) => i === index ? next : value))} placeholder="Upload an image" /></div>)}
       <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setImages((current) => [...current, ""])}>Add image</button>
     </section>
     <section className="cms-editor-section" aria-labelledby={`items-${defaults?.id ?? "new"}`}><div><h3 id={`items-${defaults?.id ?? "new"}`}>{itemLabel}s</h3><p className="cms-muted">Add cards one at a time—no formatting codes or pipe-separated rows required.</p></div>
