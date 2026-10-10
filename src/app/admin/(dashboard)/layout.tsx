@@ -6,6 +6,7 @@ import { logActivity } from "@/lib/activity";
 import { db } from "@/lib/db";
 import { editablePages } from "@/lib/editable-pages";
 import SidebarNav, { type NavGroup } from "@/components/admin/sidebar-nav";
+import { cmsFont } from "../font";
 import "../admin.css";
 
 export const metadata: Metadata = { title: "KPD CMS", robots: { index: false } };
@@ -121,12 +122,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .toUpperCase();
 
   return (
-    <div className="cms">
+    <div className={`cms ${cmsFont.className}`}>
       <a className="cms-skip" href="#cms-content">Skip to content</a>
       <aside className="cms-sidebar">
         <div className="cms-sidebar__brand">
-          <span className="cms-brand-mark" aria-hidden="true">KPD</span>
-          <span className="cms-brand-name">KPD CMS<small>Kasumigaseki Properties</small></span>
+          <img className="cms-brand-logo" src="/legacy/assets/images/brand/kasumigaseki-logo-horizontal-all-white.svg" alt="Kasumigaseki Properties Development" />
+          <span className="cms-brand-tag">Content management</span>
         </div>
         <SidebarNav groups={groups} />
         <div className="cms-sidebar__foot">
