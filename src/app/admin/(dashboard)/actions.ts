@@ -21,6 +21,7 @@ import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter"
 import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
 import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
+import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 
 function slugify(value: string) {
@@ -570,9 +571,7 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
   }
   const content = [
     ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
-    ...paragraphs.map((text) => text.startsWith("## ")
-      ? { type: "heading", heading: text.replace(/^##\s*/, "").trim() }
-      : { type: "paragraph", text }),
+    ...paragraphBlocks(paragraphs),
     ...(about ? [about] : []),
     ...(legacy ? [legacy] : []),
     ...(invest ? [invest] : []),
@@ -594,6 +593,33 @@ async function applyStaticPage(id: string, formData: FormData): Promise<ApplyRes
     const msg = (err as Error).message;
     return { error: msg.includes("Unique") ? "A page with this slug already exists." : "Unable to save this page." };
   }
+}
+
+const previewablePageSlugs = ["terms", "privacy-policy", "cookie-policy"];
+
+/// "Preview with unsaved changes" for a legal page: keeps the page exactly as
+/// it currently looks in the editor in a throw-away draft row (see
+/// page-preview.ts). Nothing public changes and the page is not saved.
+export async function previewPageDraft(formData: FormData): Promise<{ error?: string; slug?: string }> {
+  await requireUser();
+  const slug = slugify(String(formData.get("slug") || ""));
+  if (!previewablePageSlugs.includes(slug)) return { error: "Only the legal pages can be previewed this way." };
+  const title = String(formData.get("title") || "").trim();
+  if (!title) return { error: "Give the page a title to preview it." };
+  const heading = String(formData.get("heading") || "").trim();
+  const intro = String(formData.get("intro") || "").trim();
+  const image = String(formData.get("image") || "").trim();
+  const draft: PageDraft = {
+    title,
+    content: [
+      ...(heading || intro || image ? [{ type: "hero", heading, text: intro, image }] : []),
+      ...paragraphBlocks(nonEmptyLines(formData.get("paragraphs"))),
+    ],
+    savedAt: Date.now(),
+  };
+  const key = pageDraftKey(slug);
+  await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
+  return { slug };
 }
 
 function revalidatePublicPage(slug: string) {

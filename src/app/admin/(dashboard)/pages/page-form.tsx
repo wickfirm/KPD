@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { saveStaticPage, type StaticPageFormState } from "../actions";
+import { useActionState, useRef, useState } from "react";
+import { previewPageDraft, saveStaticPage, type StaticPageFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { legacyDefaults, type LegacyMilestone } from "@/lib/legacy-defaults";
@@ -86,6 +86,27 @@ const pageHeroDefaults: Record<string, { heading?: string; text?: string; image?
 
 export default function StaticPageForm({ defaults, lockedSlug = false }: { defaults?: StaticPageDefaults; lockedSlug?: boolean }) {
   const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [previewing, setPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState("");
+  /// Legal pages only: opens the admin preview with the page exactly as it
+  /// currently looks here, saved or not. The tab opens straight away (a
+  /// click-triggered open is never blocked) and is pointed at the preview once
+  /// the draft is stored.
+  async function previewUnsaved() {
+    if (!formRef.current) return;
+    setPreviewing(true); setPreviewError("");
+    const tab = window.open("about:blank", "_blank");
+    try {
+      const result = await previewPageDraft(new FormData(formRef.current));
+      if (result.error || !result.slug) throw new Error(result.error || "Unable to build the preview.");
+      const target = `/admin/preview/pages/${result.slug}?draft=1`;
+      if (tab) tab.location.href = target; else window.location.assign(target);
+    } catch (error) {
+      tab?.close();
+      setPreviewError(error instanceof Error ? error.message : "Unable to build the preview.");
+    } finally { setPreviewing(false); }
+  }
   const hero = firstBlock(defaults?.content, "hero");
   const heroPrefill = defaults?.slug ? pageHeroDefaults[defaults.slug] : undefined;
   const about = firstBlock(defaults?.content, "about");
@@ -116,7 +137,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
     });
   }
 
-  return <form action={formAction}>
+  return <form ref={formRef} action={formAction}>
     {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <div className="cms-grid">
@@ -151,6 +172,6 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image ?? ""} onChange={(image) => update({ image })} accept="image/*" placeholder="/legacy/assets/images/…" fileLabel={`milestone ${index + 1} image`} /></div>
         </>} />
     </section> : null}
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button></div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>{isLegal ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }
