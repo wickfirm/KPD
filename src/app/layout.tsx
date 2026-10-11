@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_URL, organizationJsonLd } from "@/lib/site";
+import { ORGANIZATION_ID, SITE_URL, WEBSITE_ID, organizationJsonLd } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,8 +22,11 @@ export const metadata: Metadata = {
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": WEBSITE_ID,
   name: "Kasumigaseki Properties Development",
   url: SITE_URL,
+  inLanguage: "en",
+  publisher: { "@id": ORGANIZATION_ID },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

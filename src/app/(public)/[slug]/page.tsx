@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { legalSeo, pageMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { LegalPageView, legalPages } from "@/components/public/legal-page-view";
@@ -13,7 +14,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  return { title: legalPages[slug]?.title ?? "Legal" };
+  const seo = legalSeo[slug as keyof typeof legalSeo];
+  return seo ? pageMetadata({ ...seo, path: `/${slug}` }) : { title: legalPages[slug]?.title ?? "Legal" };
 }
 
 /// Managed legal pages render the delivered legal-page structure verbatim

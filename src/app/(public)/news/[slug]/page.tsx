@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/public/json-ld";
+import { breadcrumbJsonLd, pageMetadata, withBrand } from "@/lib/seo";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { db } from "@/lib/db";
@@ -21,11 +23,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const article = await getPublishedArticle(slug).catch(() => null);
   if (!article) return { title: "Article not found" };
-  return {
-    title: article.title,
-    description: article.summary || undefined,
-    openGraph: { images: article.coverImage ? [{ url: article.coverImage }] : undefined },
-  };
+  return pageMetadata({
+    title: withBrand(article.title),
+    description: article.summary || article.title,
+    path: `/news/${article.slug}`,
+    image: article.coverImage,
+    type: "article",
+    publishedTime: article.publishedAt?.toISOString(),
+    modifiedTime: article.updatedAt.toISOString(),
+  });
 }
 
 /// The article detail page serves the delivered news-article.html structure
@@ -36,5 +42,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const { slug } = await params;
   const article = await getPublishedArticle(slug);
   if (!article) notFound();
-  return <ArticleView article={article} />;
+  return <>
+    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "News", path: "/news" }, { name: article.title, path: `/news/${article.slug}` }])} />
+    <ArticleView article={article} />
+  </>;
 }

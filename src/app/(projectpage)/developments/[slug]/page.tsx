@@ -1,4 +1,6 @@
 import { cache } from "react";
+import { JsonLd } from "@/components/public/json-ld";
+import { breadcrumbJsonLd, developmentDescription, developmentTitle, pageMetadata, residenceJsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
@@ -32,11 +34,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const project = await getPublishedProject(slug).catch(() => null);
   if (!project) return { title: "Development not found" };
-  return {
-    title: project.name,
-    description: project.tagline || project.description || undefined,
-    openGraph: { images: project.heroImage ? [{ url: project.heroImage }] : undefined },
-  };
+  return pageMetadata({
+    title: developmentTitle(project.name, project.location),
+    description: developmentDescription(project),
+    path: `/developments/${project.slug}`,
+    image: project.heroImage,
+  });
 }
 
 /// Unified delivered shell + React content rendered from the project row and
@@ -45,5 +48,9 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const project = await getPublishedProject(slug);
   if (!project) notFound();
-  return <DevelopmentView project={project} />;
+  return <>
+    <JsonLd data={residenceJsonLd(project)} />
+    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: project.name, path: `/developments/${project.slug}` }])} />
+    <DevelopmentView project={project} />
+  </>;
 }

@@ -25,6 +25,13 @@ const nextConfig = {
         source: "/legacy/assets/:path*",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
+      /// The delivered article templates and legal copies are served as files.
+      /// They are not pages to rank (the real pages live at /news/<slug> and
+      /// /terms etc.), so ask search engines not to index them.
+      ...["blog-article", "news-article", "terms", "privacy-policy", "cookie-policy"].map((file) => ({
+        source: `/legacy/${file}.html`,
+        headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }],
+      })),
     ];
   },
   /// Canonical public routes are the clean Next.js URLs. Keep the delivered
