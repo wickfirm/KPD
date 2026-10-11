@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireUser } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 import { pushLeadToSalesforce } from "@/lib/salesforce";
 import { leadDescription, readDetails } from "@/lib/submissions";
@@ -13,7 +13,7 @@ import { leadDescription, readDetails } from "@/lib/submissions";
 /// Salesforce credentials are pending — once access is provided, any admin
 /// can replay the backlog row by row from the Messages screen.
 export async function retrySubmissionSync(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("messages.manage");
   const id = String(formData.get("id") || "");
 
   const submission = await db.contactSubmission.findUnique({ where: { id } });

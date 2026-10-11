@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { editablePages } from "@/lib/editable-pages";
 import SidebarNav, { type NavGroup } from "@/components/admin/sidebar-nav";
 import { cmsFont } from "../font";
+import { can, canViewPath, normaliseRole, roleLabel } from "@/lib/permissions";
 import "../admin.css";
 
 export const metadata: Metadata = { title: "KPD CMS", robots: { index: false } };
@@ -112,6 +113,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       : []),
   ];
 
+  // Show each role only the screens it may open (rules: src/lib/permissions.ts).
+  const role = normaliseRole(user.user.role);
+  const visibleGroups = groups
+    .map((group) => ({ ...group, links: group.links.filter((link) => canViewPath(role, link.href)) }))
+    .filter((group) => group.links.length > 0);
+  // Controls the role cannot use are marked data-requires="publish|delete" and hidden by these classes.
+  const capabilityClasses = [!can(role, "content.publish") && "cms--no-publish", !can(role, "content.delete") && "cms--no-delete", role === "VIEWER" && "cms--readonly"].filter(Boolean).join(" ");
+
   const initials = user.user.name
     .split(/\s+/)
     .map((part) => part[0])
@@ -121,20 +130,20 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .toUpperCase();
 
   return (
-    <div className={`cms ${cmsFont.className}`}>
+    <div className={`cms ${cmsFont.className} ${capabilityClasses}`}>
       <a className="cms-skip" href="#cms-content">Skip to content</a>
       <aside className="cms-sidebar">
         <div className="cms-sidebar__brand">
           <img className="cms-brand-logo" src="/legacy/assets/images/brand/kasumigaseki-logo-horizontal-all-white.svg" alt="Kasumigaseki Properties Development" />
           <span className="cms-brand-tag">Content management</span>
         </div>
-        <SidebarNav groups={groups} />
+        <SidebarNav groups={visibleGroups} />
         <div className="cms-sidebar__foot">
           <div className="cms-usercard">
             <span className="cms-avatar" aria-hidden="true">{initials || "K"}</span>
             <span className="cms-usercard__meta">
               <strong>{user.user.name}</strong>
-              <span className={`cms-role cms-role--${user.user.role}`}>{isAdmin ? "Administrator" : "Editor"}</span>
+              <span className={`cms-role cms-role--${user.user.role}`}>{roleLabel(role)}</span>
             </span>
           </div>
           <div className="cms-sidebar__foot-actions">
@@ -145,7 +154,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </div>
       </aside>
-      <main id="cms-content" className="cms-main">{children}</main>
+      <main id="cms-content" className="cms-main">
+        {role === "VIEWER" ? <p className="cms-access-note" role="note"><strong>View-only access.</strong> You can look around, but nothing you change here will be saved.</p> : null}
+        {role === "CONTRIBUTOR" ? <p className="cms-access-note" role="note"><strong>Contributor access.</strong> You can write drafts of articles and developments. An Editor reviews and publishes them.</p> : null}
+        {children}
+      </main>
     </div>
   );
 }

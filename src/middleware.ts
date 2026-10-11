@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken, SESSION_COOKIE } from "@/lib/session";
+import { canViewPath } from "@/lib/permissions";
 
 /// Protects the CMS admin area. The token itself is only fully verified here
 /// (edge-safe) and re-verified in server components/actions via requireSession().
-/// Admin-only sections are also fast-rejected here by role as defense in depth
-/// — the pages and server actions remain the authoritative guards.
-const adminOnlySections = ["/admin/users", "/admin/settings", "/admin/activity"];
+/// Screens a role may not open are also fast-rejected here as defense in depth
+/// (rules: src/lib/permissions.ts). The cookie carries the role from sign-in, so
+/// this can lag a role change until the next sign-in; server actions re-read the
+/// role from the database and remain the authoritative guard for every change.
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -20,7 +22,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (session.role !== "ADMIN" && adminOnlySections.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
+  if (!canViewPath(session.role, pathname)) {
     return NextResponse.redirect(new URL("/admin?denied=1", req.url));
   }
 

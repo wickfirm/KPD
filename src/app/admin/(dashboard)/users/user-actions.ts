@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireRole, hashPassword } from "@/lib/auth";
+import { requirePermission, hashPassword } from "@/lib/auth";
+import { isRole, roleLabel, type Role } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
 import { passwordProblem } from "@/lib/password-rules";
 
@@ -15,6 +16,12 @@ import { passwordProblem } from "@/lib/password-rules";
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type UserFormState = { error?: string; ok?: string };
+
+/// A role posted from a form. Anything unrecognised becomes the least-privileged
+/// role rather than silently granting access.
+function parseRole(value: FormDataEntryValue | null): Role {
+  return isRole(value) ? value : "VIEWER";
+}
 
 async function activeAdminCount() {
   return db.user.count({ where: { role: "ADMIN", isActive: true } });
@@ -29,12 +36,12 @@ export async function createUser(
   _prev: UserFormState,
   formData: FormData,
 ): Promise<UserFormState> {
-  const { session } = await requireRole(["ADMIN"]);
+  const { session } = await requirePermission("team.manage");
 
   const name = String(formData.get("name") || "").trim();
   const email = String(formData.get("email") || "").trim().toLowerCase();
   const password = String(formData.get("password") || "");
-  const role = formData.get("role") === "ADMIN" ? "ADMIN" : "EDITOR";
+  const role = parseRole(formData.get("role"));
 
   if (!name) return { error: "Enter the person's name." };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { error: "Enter a valid email address — it is the sign-in name." };
@@ -50,31 +57,31 @@ export async function createUser(
     return { error: msg.includes("Unique") ? "That email already has an account." : "Could not create the account." };
   }
 
-  await logActivity({ action: "user.create", session, entityType: "USER", entityId: email, summary: `Created ${role === "ADMIN" ? "administrator" : "editor"} account for ${name} (${email})` });
+  await logActivity({ action: "user.create", session, entityType: "USER", entityId: email, summary: `Created ${roleLabel(role)} account for ${name} (${email})` });
   revalidatePath("/admin/users");
   redirect(`/admin/users?created=${encodeURIComponent(name)}`);
 }
 
 export async function updateUserRole(formData: FormData) {
-  const { session } = await requireRole(["ADMIN"]);
+  const { session } = await requirePermission("team.manage");
   const userId = String(formData.get("userId") || "");
-  const role = formData.get("role") === "ADMIN" ? "ADMIN" : "EDITOR";
+  const role = parseRole(formData.get("role"));
   if (!userId) return;
 
   const target = await db.user.findUnique({ where: { id: userId } });
   if (!target) return;
-  if (target.role === "ADMIN" && role === "EDITOR" && target.isActive && (await activeAdminCount()) <= 1) {
+  if (target.role === "ADMIN" && role !== "ADMIN" && target.isActive && (await activeAdminCount()) <= 1) {
     backToUsers({ error: "You need at least one active administrator. Promote someone else first." });
   }
 
   await db.user.update({ where: { id: userId }, data: { role } });
-  await logActivity({ action: "user.update", session, entityType: "USER", entityId: target.email, summary: `Changed ${target.name}'s role to ${role === "ADMIN" ? "Administrator" : "Editor"}` });
+  await logActivity({ action: "user.update", session, entityType: "USER", entityId: target.email, summary: `Changed ${target.name}'s role to ${roleLabel(role)}` });
   revalidatePath("/admin/users");
-  backToUsers({ msg: `${target.name} is now ${role === "ADMIN" ? "an administrator" : "an editor"}.` });
+  backToUsers({ msg: `${target.name} is now ${roleLabel(role)}. Their new access applies to anything they do from now on; the menu updates the next time they sign in.` });
 }
 
 export async function toggleUserActive(formData: FormData) {
-  const { session, user } = await requireRole(["ADMIN"]);
+  const { session, user } = await requirePermission("team.manage");
   const userId = String(formData.get("userId") || "");
   if (!userId) return;
 
@@ -105,7 +112,7 @@ export async function resetUserPassword(
   _prev: UserFormState,
   formData: FormData,
 ): Promise<UserFormState> {
-  const { session } = await requireRole(["ADMIN"]);
+  const { session } = await requirePermission("team.manage");
   const userId = String(formData.get("userId") || "");
   const password = String(formData.get("password") || "");
   const confirm = String(formData.get("confirm") || "");
@@ -125,7 +132,7 @@ export async function resetUserPassword(
 }
 
 export async function deleteUser(formData: FormData) {
-  const { session, user } = await requireRole(["ADMIN"]);
+  const { session, user } = await requirePermission("team.manage");
   const userId = String(formData.get("userId") || "");
   if (!userId) return;
 

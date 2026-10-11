@@ -1,5 +1,6 @@
 // Edge-safe session utilities (no Node-only deps) — imported by middleware.
 import { SignJWT, jwtVerify } from "jose";
+import { normaliseRole, type Role } from "./permissions";
 
 export const SESSION_COOKIE = "kpd_session";
 export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
@@ -8,7 +9,7 @@ export type SessionPayload = {
   userId: string;
   email: string;
   name: string;
-  role: "ADMIN" | "EDITOR";
+  role: Role;
 };
 
 function secretKey() {
@@ -35,7 +36,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
       userId: String(payload.userId),
       email: String(payload.email),
       name: String(payload.name ?? ""),
-      role: payload.role === "ADMIN" ? "ADMIN" : "EDITOR",
+      role: normaliseRole(payload.role),
     };
   } catch {
     return null;

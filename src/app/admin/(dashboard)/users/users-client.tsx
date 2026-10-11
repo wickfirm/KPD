@@ -1,5 +1,6 @@
 "use client";
 
+import { roleLabels, roles } from "@/lib/permissions";
 import { useActionState } from "react";
 import { createUser, resetUserPassword, type UserFormState } from "./user-actions";
 
@@ -17,9 +18,8 @@ export function UserCreateForm() {
         <label className="cms-field"><span>Email <small>(this becomes their sign-in name)</small></span><input name="email" type="email" required placeholder="name@kpd.ae" /></label>
         <label className="cms-field"><span>Temporary password</span><input name="password" type="password" required minLength={10} placeholder="At least 10 characters" /></label>
         <label className="cms-field"><span>Access level</span>
-          <select name="role" defaultValue="EDITOR">
-            <option value="EDITOR">Editor — writes and publishes content</option>
-            <option value="ADMIN">Administrator — full control, including the team</option>
+          <select name="role" defaultValue="CONTRIBUTOR">
+            {roles.map((role) => <option key={role} value={role}>{roleLabels[role]}</option>)}
           </select>
         </label>
       </div>

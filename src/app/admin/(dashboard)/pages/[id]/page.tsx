@@ -54,7 +54,7 @@ export default async function EditPage({
           {entry && ["terms", "privacy-policy", "cookie-policy"].includes(entry.key) ? <Link className="cms-btn cms-btn--ghost" href={`/admin/preview/pages/${entry.key}`} target="_blank">Preview saved text</Link> : null}
           <Link className="cms-btn cms-btn--ghost" href={publicHref} target="_blank">View page</Link>
           {!entry ? (
-            <form action={deleteStaticPage}>
+            <form data-requires="delete" action={deleteStaticPage}>
               <input type="hidden" name="id" value={page.id} />
               <ConfirmButton className="cms-btn cms-btn--danger" message={`Delete the page “${page.title}” permanently?`}>Delete</ConfirmButton>
             </form>

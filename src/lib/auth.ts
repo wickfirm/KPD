@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { can, type Permission, type Role } from "./permissions";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
@@ -45,18 +46,32 @@ export async function requireUser() {
   return { session, user };
 }
 
-export type AdminRole = "ADMIN" | "EDITOR";
+export type AdminRole = Role;
 
 /// Role guard built on requireUser: redirects non-privileged users back to the
 /// dashboard with ?denied=1 (pages and actions both render the explanation).
-/// Permission model (work order 2026-10):
-///   ADMIN  — everything: content, media, settings, users, activity log.
-///   EDITOR — content + media uploads + submissions/RSS review; no settings,
-///            no user management, no activity log, no media deletion.
 export async function requireRole(roles: AdminRole[]) {
   const { session, user } = await requireUser();
   if (!roles.includes(user.role)) redirect("/admin?denied=1");
   return { session, user };
+}
+
+/// Permission guard: the one every server action starts with. The rules live in
+/// src/lib/permissions.ts (Admin, Editor, Contributor, Viewer). The role is read
+/// from the database on every call, so a role change takes effect immediately
+/// even though the signed-in cookie still carries the old one.
+export async function requirePermission(permission: Permission) {
+  const { session, user } = await requireUser();
+  if (!can(user.role, permission)) redirect("/admin?denied=1");
+  return { session, user };
+}
+
+/// Non-redirecting variant for API routes: the active account, or null.
+export async function getActor() {
+  const session = await getSession();
+  if (!session) return null;
+  const user = await loadUser(session.userId);
+  return user && user.isActive ? { session, user } : null;
 }
 
 export async function setSessionCookie(payload: SessionPayload) {

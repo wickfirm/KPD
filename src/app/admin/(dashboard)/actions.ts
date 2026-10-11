@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireUser, requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
+import { allowedStatus, mayEditContent } from "@/lib/permissions";
 import { logActivity } from "@/lib/activity";
 import { revalidatePublicContent } from "@/lib/revalidate";
 import {
@@ -44,6 +45,13 @@ function parseBody(raw: string): string[] {
   }
   if (!Array.isArray(parsed)) throw new Error("Body must be a JSON array of paragraphs.");
   return parsed.map(String);
+}
+
+/// The status of the development a section belongs to (looked up through the
+/// section when it already exists). Used to keep Contributors to drafts.
+async function owningProjectStatus(projectId: string, moduleId?: string) {
+  const owner = moduleId ? (await db.projectModule.findUnique({ where: { id: moduleId }, select: { projectId: true } }))?.projectId ?? projectId : projectId;
+  return (await db.project.findUnique({ where: { id: owner }, select: { status: true } }))?.status ?? null;
 }
 
 export type ArticleFormState = { error?: string };
@@ -135,9 +143,13 @@ export async function saveArticle(
   _prev: ArticleFormState,
   formData: FormData
 ): Promise<ArticleFormState> {
-  const { session } = await requireUser();
+  const { session, user } = await requirePermission("content.write");
 
   const id = String(formData.get("id") || "");
+  // Contributors only work on drafts: they cannot edit what is live and cannot publish.
+  const current = id ? await db.article.findUnique({ where: { id }, select: { status: true } }) : null;
+  if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change an article once it is published or archived." };
+  formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
   const result = await applyArticle(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this article." };
 
@@ -162,7 +174,7 @@ export async function saveArticle(
 /// currently looks in the editor in a throw-away draft row (see
 /// article-preview.ts). Nothing public changes and the article is not saved.
 export async function previewArticleDraft(formData: FormData): Promise<{ error?: string; id?: string }> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
   const title = String(formData.get("title") || "").trim();
   if (!title) return { error: "Give the article a title to preview it." };
@@ -184,7 +196,7 @@ export async function previewArticleDraft(formData: FormData): Promise<{ error?:
 }
 
 export async function deleteArticle(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.delete");
   const id = String(formData.get("id") || "");
   if (!id) return;
   const article = await db.article.delete({ where: { id } }).catch(() => null);
@@ -199,7 +211,7 @@ export async function deleteArticle(formData: FormData) {
 }
 
 export async function reviewRssItem(formData: FormData) {
-  const session = (await requireUser()).session;
+  const session = (await requirePermission("rss.review")).session;
   const id = String(formData.get("id") || "");
   const decision = String(formData.get("decision") || "");
 
@@ -337,8 +349,11 @@ export async function saveProject(
   _prev: ProjectFormState,
   formData: FormData,
 ): Promise<ProjectFormState> {
-  const { session } = await requireUser();
+  const { session, user } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
+  const current = id ? await db.project.findUnique({ where: { id }, select: { status: true } }) : null;
+  if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change a development once it is published or archived." };
+  formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
 
   const result = await applyProject(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
@@ -419,9 +434,10 @@ export async function saveProjectModule(
   _prev: ProjectModuleFormState,
   formData: FormData,
 ): Promise<ProjectModuleFormState> {
-  const { session } = await requireUser();
+  const { session, user } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
   const projectId = String(formData.get("projectId") || "");
+  if (!mayEditContent(user.role, await owningProjectStatus(projectId, id))) return { error: "Only an Editor can change a development once it is published or archived." };
 
   const result = await applyProjectModule(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this module." };
@@ -448,7 +464,7 @@ export async function saveProjectModule(
 /// tells the editor where to open the admin preview. Nothing public changes
 /// and nothing is saved to the section itself.
 export async function previewSectionDraft(formData: FormData): Promise<{ error?: string; slug?: string; anchor?: string }> {
-  await requireUser();
+  await requirePermission("content.write");
   const projectId = String(formData.get("projectId") || "");
   const title = String(formData.get("title") || "").trim();
   const slug = slugify(String(formData.get("slug") || "") || title);
@@ -469,10 +485,11 @@ export async function previewSectionDraft(formData: FormData): Promise<{ error?:
 }
 
 export async function deleteProjectModule(formData: FormData) {
-  const { session } = await requireUser();
+  const { session, user } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
   const projectId = String(formData.get("projectId") || "");
   if (!id || !projectId) return;
+  if (!mayEditContent(user.role, await owningProjectStatus(projectId, id))) redirect("/admin?denied=1");
   const module = await db.projectModule.delete({ where: { id }, select: { project: { select: { slug: true } }, title: true } }).catch(() => null);
   if (module) {
     await db.contentVersion.deleteMany({ where: { entityType: "PROJECT_MODULE", entityId: id } });
@@ -614,7 +631,7 @@ const previewablePageSlugs = ["terms", "privacy-policy", "cookie-policy", "about
 /// it currently looks in the editor in a throw-away draft row (see
 /// page-preview.ts). Nothing public changes and the page is not saved.
 export async function previewPageDraft(formData: FormData): Promise<{ error?: string; slug?: string }> {
-  await requireUser();
+  await requirePermission("content.editLive");
   const slug = slugify(String(formData.get("slug") || ""));
   if (!previewablePageSlugs.includes(slug)) return { error: "This page cannot be previewed this way." };
   const title = String(formData.get("title") || "").trim();
@@ -639,7 +656,7 @@ export async function saveStaticPage(
   _prev: StaticPageFormState,
   formData: FormData,
 ): Promise<StaticPageFormState> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.editLive");
   const id = String(formData.get("id") || "");
   const slug = slugify(String(formData.get("slug") || "") || String(formData.get("title") || ""));
 
@@ -663,7 +680,7 @@ export async function saveStaticPage(
 }
 
 export async function deleteStaticPage(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.delete");
   const id = String(formData.get("id") || "");
   if (!id) return;
   const page = await db.staticPage.delete({ where: { id } }).catch(() => null);
@@ -703,7 +720,7 @@ export async function saveGlobalSettings(
   _prev: SiteSettingsFormState,
   formData: FormData,
 ): Promise<SiteSettingsFormState> {
-  const { session } = await requireRole(["ADMIN"]);
+  const { session } = await requirePermission("settings.manage");
   const result = await applyGlobalSettings(formData);
   if (result.error) return { error: result.error };
   revalidatePath("/");
@@ -768,7 +785,7 @@ async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
 /// currently looks in the editor in a throw-away draft row (see
 /// site-preview.ts). Nothing public changes and nothing is saved.
 export async function previewHomeDraft(formData: FormData): Promise<{ error?: string }> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.editLive");
   const key = siteDraftKey("home", session.email);
   const value = newSiteDraft(homeSettingsFromForm(formData));
   await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });
@@ -778,7 +795,7 @@ export async function previewHomeDraft(formData: FormData): Promise<{ error?: st
 /// Same for the investor guide: the hero block and the structured sections as
 /// the editor currently has them (validated the way a real save validates them).
 export async function previewInvestDraft(formData: FormData): Promise<{ error?: string }> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.editLive");
   let invest: ReturnType<typeof sanitizeInvestContent> | undefined;
   const raw = String(formData.get("investJson") || "").trim();
   if (raw) {
@@ -797,7 +814,7 @@ export async function saveHomeSettings(
   _prev: SiteSettingsFormState,
   formData: FormData,
 ): Promise<SiteSettingsFormState> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.editLive");
   const result = await applyHomeSettings(formData);
   if (result.error) return { error: result.error };
   revalidatePath("/");
@@ -871,7 +888,7 @@ export async function saveOwnershipCostPlanner(
   _prev: OwnershipCostPlannerFormState,
   formData: FormData,
 ): Promise<OwnershipCostPlannerFormState> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.editLive");
   const result = await applyCalculator(formData);
   if (result.error) return { error: result.error };
   revalidatePath("/admin/calculator");
@@ -895,7 +912,7 @@ function numberFrom(value: FormDataEntryValue | undefined, fallback: number) {
 
 /// One-time bridge from the delivered static development pages into editable CMS modules.
 export async function importLegacyProjectTemplate(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.editLive");
   const projectId = String(formData.get("projectId") || "");
   const slug = String(formData.get("slug") || "");
   const template = legacyProjectTemplates[slug];
@@ -928,7 +945,7 @@ export async function importLegacyProjectTemplate(formData: FormData) {
 // restore itself is recorded as a new version, which makes it undoable.
 
 export async function restoreVersion(formData: FormData) {
-  const { session, user } = await requireUser();
+  const { session, user } = await requirePermission("content.editLive");
   const versionId = String(formData.get("versionId") || "");
   const version = await db.contentVersion.findUnique({ where: { id: versionId } });
   if (!version) redirect("/admin");
@@ -983,7 +1000,7 @@ function projectsReturnPath(value: FormDataEntryValue | null, fallback = "/admin
 /// Quick status change from the Developments list or editor. Archiving (and
 /// returning to Draft) removes the page from the public site immediately.
 export async function setProjectStatus(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.publish");
   const id = String(formData.get("id") || "");
   const status = projectStatus(formData.get("status"));
   const returnTo = projectsReturnPath(formData.get("returnTo"));
@@ -1006,7 +1023,7 @@ export async function setProjectStatus(formData: FormData) {
 
 /// Copies a development (and all its sections) as a new draft.
 export async function duplicateProject(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
   const source = id ? await db.project.findUnique({ where: { id }, include: { modules: true } }) : null;
   if (!source) redirect(`/admin/projects?error=${encodeURIComponent("That development no longer exists.")}`);
@@ -1033,7 +1050,7 @@ export async function duplicateProject(formData: FormData) {
 
 /// Moves a development one place up or down the order used on the site.
 export async function moveProject(formData: FormData) {
-  await requireUser();
+  await requirePermission("content.publish");
   const id = String(formData.get("id") || "");
   const direction = formData.get("direction") === "up" ? -1 : 1;
   const rows = await db.project.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true } });
@@ -1046,9 +1063,10 @@ export async function moveProject(formData: FormData) {
 
 /// Moves a content section one place up or down on its development page.
 export async function moveProjectModule(formData: FormData) {
-  await requireUser();
+  const { user } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
   const projectId = String(formData.get("projectId") || "");
+  if (!mayEditContent(user.role, await owningProjectStatus(projectId, id))) redirect("/admin?denied=1");
   const direction = formData.get("direction") === "up" ? -1 : 1;
   const rows = await db.projectModule.findMany({ where: { projectId }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: { id: true } });
   const order = reorderIds(rows.map((row) => row.id), id, direction);
@@ -1064,7 +1082,7 @@ export async function moveProjectModule(formData: FormData) {
 /// stamps the publish date once; unpublishing/archiving removes it from the
 /// public News page immediately.
 export async function setArticleStatus(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.publish");
   const id = String(formData.get("id") || "");
   const requested = String(formData.get("status") || "");
   const status = (["DRAFT", "PUBLISHED", "ARCHIVED"].includes(requested) ? requested : "DRAFT") as "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -1087,7 +1105,7 @@ export async function setArticleStatus(formData: FormData) {
 
 /// Copies an article as a new draft (new slug, same content and cover).
 export async function duplicateArticle(formData: FormData) {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
   const source = id ? await db.article.findUnique({ where: { id } }) : null;
   if (!source) redirect(`/admin/articles?error=${encodeURIComponent("That article no longer exists.")}`);

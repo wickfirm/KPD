@@ -1,3 +1,4 @@
+import { normaliseRole, roleLabel, roleSummaries } from "@/lib/permissions";
 import { requireUser } from "@/lib/auth";
 import { ProfileNameForm, PasswordForm } from "./profile-client";
 
@@ -21,7 +22,7 @@ export default async function ProfilePage() {
         <h2>Signed in as</h2>
         <dl className="cms-detail-list">
           <div><dt>Email (sign-in name)</dt><dd>{user.email}</dd></div>
-          <div><dt>Access level</dt><dd>{user.role === "ADMIN" ? "Administrator — full control of the CMS" : "Editor — content, media and messages"}</dd></div>
+          <div><dt>Access level</dt><dd>{roleLabel(user.role)} — {roleSummaries[normaliseRole(user.role)]}</dd></div>
           <div><dt>Last signed in</dt><dd>{user.lastLoginAt ? user.lastLoginAt.toLocaleString("en-GB") : "This is your first sign-in"}</dd></div>
           <div><dt>Password last changed</dt><dd>{user.passwordChangedAt ? user.passwordChangedAt.toLocaleDateString("en-GB") : "Never (still the original password)"}</dd></div>
         </dl>

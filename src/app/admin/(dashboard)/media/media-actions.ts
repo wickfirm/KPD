@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { requireUser, requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 import { r2Upload, r2Delete, r2List, r2PublicUrl, buildCmsKey, contentTypeFromKey } from "@/lib/r2";
 
@@ -22,7 +22,7 @@ export async function uploadMedia(
   _prev: MediaFormState,
   formData: FormData,
 ): Promise<MediaFormState> {
-  const { session } = await requireUser();
+  const { session } = await requirePermission("media.upload");
   const files = formData.getAll("files").filter((entry): entry is File => entry instanceof File && entry.size > 0);
   if (!files.length) return { error: "Choose one or more files to upload." };
 
@@ -57,7 +57,7 @@ export async function uploadMedia(
 }
 
 export async function deleteMedia(formData: FormData) {
-  const { session } = await requireRole(["ADMIN"]);
+  const { session } = await requirePermission("media.delete");
   const id = String(formData.get("id") || "");
   if (!id) return;
 
@@ -82,7 +82,7 @@ export async function deleteMedia(formData: FormData) {
 /// Backfill: register files that already live in the R2 bucket (uploaded before
 /// the media library existed). Safe to run repeatedly — existing keys are kept.
 export async function importExistingMedia(formData: FormData) {
-  const { session } = await requireRole(["ADMIN"]);
+  const { session } = await requirePermission("media.delete");
   void formData;
   try {
     const objects = await r2List("", 2000);

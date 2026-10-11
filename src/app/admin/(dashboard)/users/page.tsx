@@ -1,3 +1,4 @@
+import { roleLabels, roleSummaries, roles } from "@/lib/permissions";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { SavedBanner } from "@/components/admin/flash";
@@ -35,11 +36,19 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
         <div>
           <span className="cms-eyebrow">Administration</span>
           <h1>Team</h1>
-          <p>Who can sign in to the CMS, and what they can do there. Editors write and publish content; administrators also manage settings, the team, and the activity log.</p>
+          <p>Who can sign in to the CMS, and what they can do there. There are four access levels, listed below.</p>
         </div>
       </div>
       <SavedBanner params={params} />
       {flash.map((text) => <p className="cms-ok" role="status" key={text}>{text}</p>)}
+
+      <div className="cms-card">
+        <span className="cms-eyebrow">Access levels</span>
+        <h2>What each role can do</h2>
+        <dl className="cms-detail-list cms-roles-list">
+          {roles.map((role) => <div key={role}><dt>{roleLabels[role]}</dt><dd>{roleSummaries[role]}</dd></div>)}
+        </dl>
+      </div>
 
       <div className="cms-card">
         <span className="cms-eyebrow">New account</span>
@@ -73,8 +82,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                   <form action={updateUserRole} className="cms-inline-form">
                     <input type="hidden" name="userId" value={u.id} />
                     <select name="role" defaultValue={u.role} aria-label={`Access level for ${u.name}`}>
-                      <option value="EDITOR">Editor</option>
-                      <option value="ADMIN">Administrator</option>
+                      {roles.map((role) => <option key={role} value={role}>{roleLabels[role]}</option>)}
                     </select>
                     <button className="cms-btn cms-btn--ghost cms-btn--small" type="submit">Save</button>
                   </form>

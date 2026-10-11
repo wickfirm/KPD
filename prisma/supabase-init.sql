@@ -10,7 +10,9 @@ CREATE SCHEMA IF NOT EXISTS "public";
 -- ── Enums ────────────────────────────────────────────────────────────────────
 -- PostgreSQL does not support CREATE TYPE IF NOT EXISTS. These guarded blocks
 -- keep this bootstrap safe to re-run after a partially completed setup.
-DO $$ BEGIN CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'EDITOR'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN CREATE TYPE "UserRole" AS ENUM ('ADMIN', 'EDITOR', 'CONTRIBUTOR', 'VIEWER'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'CONTRIBUTOR';
+ALTER TYPE "UserRole" ADD VALUE IF NOT EXISTS 'VIEWER';
 DO $$ BEGIN CREATE TYPE "ArticleKind" AS ENUM ('NEWS', 'BLOG'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN CREATE TYPE "ContentStatus" AS ENUM ('DRAFT', 'PUBLISHED', 'ARCHIVED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN CREATE TYPE "ProjectProfile" AS ENUM ('FULL', 'RESTRICTED'); EXCEPTION WHEN duplicate_object THEN NULL; END $$;

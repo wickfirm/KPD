@@ -18,7 +18,7 @@ export default function ProjectForm({ defaults }: { defaults?: ProjectDefaults }
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <div className="cms-grid">
       <label className="cms-field"><span>Development name</span><input name="name" defaultValue={defaults?.name} required /></label>
-      <label className="cms-field"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft — not public</option><option value="PUBLISHED">Published — live on the site</option><option value="ARCHIVED">Archived — removed from the site</option></select><small>Publishing, drafting and archiving take effect immediately.</small></label>
+      <label className="cms-field" data-requires="publish"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft — not public</option><option value="PUBLISHED">Published — live on the site</option><option value="ARCHIVED">Archived — removed from the site</option></select><small>Publishing, drafting and archiving take effect immediately.</small></label>
     </div>
     <label className="cms-field"><span>Headline</span><input name="tagline" defaultValue={defaults?.tagline ?? ""} placeholder="A short line under the name" /><small>Shown as the main heading of the introduction.</small></label>
     <label className="cms-field"><span>Introduction</span><textarea name="description" rows={5} defaultValue={defaults?.description ?? ""} /></label>

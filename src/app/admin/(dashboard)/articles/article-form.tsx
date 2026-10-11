@@ -78,7 +78,7 @@ export default function ArticleForm({ defaults }: { defaults?: ArticleDefaults }
         </select>
       </label>
 
-      <label className="cms-field">
+      <label className="cms-field" data-requires="publish">
         <span>Status</span>
         <select name="status" defaultValue={defaults?.status ?? "DRAFT"}>
           <option value="DRAFT">Draft</option>

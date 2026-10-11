@@ -30,12 +30,16 @@ const sections: Section[] = [
     summary: "Accounts, roles and passwords.",
     body: <>
       <p>Sign in at <code>/admin/login</code> with your own account. You stay signed in for up to 7 days on the same browser, so sign out on shared computers.</p>
-      <p>There are two kinds of account:</p>
-      <ul>
-        <li><strong>Editor:</strong> can create and change content (pages, developments, articles, calculator, media uploads) and read Messages.</li>
-        <li><strong>Admin:</strong> everything an Editor can do, plus <strong>Site settings</strong>, <strong>Team</strong> (accounts and roles), the <strong>Activity log</strong>, and deleting files from the Media library.</li>
-      </ul>
-      <p>Passwords need at least 10 characters with both letters and numbers. Admins can add people, change roles and reset passwords under <Link href="/admin/users">Team</Link>.</p>
+      <p>There are four kinds of account. Each person gets the least access they need:</p>
+      <div className="cms-guide__table" role="table" aria-label="What each role can do">
+        <div role="row" className="cms-guide__row cms-guide__row--head"><span role="columnheader">Role</span><span role="columnheader">What they can do</span></div>
+        <div role="row" className="cms-guide__row"><span role="cell"><strong>Administrator</strong></span><span role="cell">Everything: content, publishing, <strong>deleting</strong>, media, Site settings, Team and the Activity log.</span></div>
+        <div role="row" className="cms-guide__row"><span role="cell"><strong>Editor</strong></span><span role="cell">Writes and <strong>publishes</strong> content, edits the live pages, uploads media, reads Messages and reviews the News inbox. <strong>Cannot</strong> delete developments, articles or pages permanently, change Site settings or manage the team.</span></div>
+        <div role="row" className="cms-guide__row"><span role="cell"><strong>Contributor</strong></span><span role="cell">Writes <strong>drafts</strong> of articles and developments and uploads media. <strong>Cannot</strong> publish, unpublish, archive or delete, cannot change anything that is already live, and cannot see Messages, the News inbox, the live pages or the Calculator. An Editor reviews and publishes their work.</span></div>
+        <div role="row" className="cms-guide__row"><span role="cell"><strong>Viewer</strong></span><span role="cell">Read-only. Can look at the content, Messages and News inbox, but nothing they change is saved.</span></div>
+      </div>
+      <p>The menu only shows the screens your role can open, and anything you are not allowed to do is refused even if you reach it another way. Changing someone’s role takes effect on their next action; their menu updates when they next sign in.</p>
+      <p>Passwords need at least 10 characters with both letters and numbers. Administrators add people, choose their role and reset passwords under <Link href="/admin/users">Team</Link>. Every account keeps at least one active Administrator.</p>
     </>,
   },
   {
@@ -202,7 +206,7 @@ const sections: Section[] = [
         <li><strong>“A page/module with this slug already exists.”</strong> Another item already uses that web address. Change the title or the address slightly.</li>
         <li><strong>A new development isn’t in the menu.</strong> It must be <strong>Published</strong>, and only the first 6 additional developments are shown.</li>
         <li><strong>I lost my edits.</strong> Use Version history to restore an earlier save. Unsaved text can’t be recovered.</li>
-        <li><strong>I can’t see Site settings or Team.</strong> Those are for Admin accounts only. Ask an Admin.</li>
+        <li><strong>I can’t see a screen or button I expected.</strong> Your role decides what you see: Site settings and Team are for Administrators, and publishing needs an Editor. Ask an Administrator to change your role if you need more.</li>
       </ul>
       <p>For anything the CMS can’t do (new page designs, new kinds of section, new features), contact the development team.</p>
     </>,
