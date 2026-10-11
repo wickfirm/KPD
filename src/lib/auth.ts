@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { db } from "./db";
@@ -30,9 +31,13 @@ export async function requireSession(): Promise<SessionPayload> {
 /// Session + live-user verification. The signed cookie alone cannot tell
 /// whether the account was deleted or deactivated after sign-in, so every
 /// server component / action re-checks the users table through this guard.
+/// The layout and the page both call requireUser(); cache() makes them share one
+/// users query per request (it is still re-checked on every request).
+const loadUser = cache((id: string) => db.user.findUnique({ where: { id } }));
+
 export async function requireUser() {
   const session = await requireSession();
-  const user = await db.user.findUnique({ where: { id: session.userId } });
+  const user = await loadUser(session.userId);
   if (!user || !user.isActive) {
     await clearSessionCookie();
     redirect("/admin/login");

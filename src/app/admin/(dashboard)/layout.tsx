@@ -31,6 +31,8 @@ const icons = {
 };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // The sign-in check and the sidebar's page list are independent: run them together.
+  const extraPagesQuery = db.staticPage.findMany({ select: { id: true, slug: true, title: true } }).catch(() => null);
   const user = await requireUser();
   const isAdmin = user.user.role === "ADMIN";
 
@@ -47,12 +49,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // StaticPage rows so nothing hides behind the All-pages overview.
   const registeredSlugs = new Set(editablePages.map((page) => page.key));
   let extraPages: { id: string; slug: string; title: string }[] = [];
-  try {
-    const rows = await db.staticPage.findMany({ select: { id: true, slug: true, title: true } });
-    extraPages = rows.filter((row) => !registeredSlugs.has(row.slug));
-  } catch {
-    // If the database is unreachable the sidebar still lists the fixed pages.
-  }
+  // If the database is unreachable the sidebar still lists the fixed pages.
+  const rows = await extraPagesQuery;
+  if (rows) extraPages = rows.filter((row) => !registeredSlugs.has(row.slug));
   const pageLinks: NavGroup["links"] = [
     ...editablePages.map((entry) => ({
       href: entry.href,

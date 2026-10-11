@@ -24,7 +24,9 @@ export function SectionNav({ items, title = "On this page" }: { items: SectionNa
     const target = document.getElementById(id);
     if (!target) return;
     if (target instanceof HTMLDetailsElement) target.open = true;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    // A long smooth scroll reads as a pause before anything moves: animate short hops, jump long ones.
+    const distance = Math.abs(target.getBoundingClientRect().top);
+    target.scrollIntoView({ behavior: distance > 1200 ? "auto" : "smooth", block: "start" });
     setActive(id);
   }
 
