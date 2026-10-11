@@ -21,6 +21,8 @@ const sections: Section[] = [
         <li><strong>Messages</strong> are the enquiries visitors send through the website forms.</li>
         <li><strong>Media</strong> is the library of photos, videos and documents.</li>
       </ul>
+      <p>What you see in the menu, and which buttons appear, depends on your <strong>role</strong>. If something you expect is missing, see “Signing in and who can do what”.</p>
+      <p className="cms-guide__note">A thin black bar across the top of the screen, with grey placeholder blocks, means the next page is loading. Give it a moment: it appears the instant you click.</p>
       <p className="cms-guide__note">After you save, the live website normally updates straight away. If you ever don’t see a change, wait a minute or two and refresh (the site keeps a copy of each page for up to 5 minutes).</p>
     </>,
   },
@@ -55,8 +57,32 @@ const sections: Section[] = [
         <div role="row" className="cms-guide__row"><span role="cell">Developments</span><span role="cell">Only when <strong>Published</strong>. Draft and Archived developments are hidden.</span></div>
         <div role="row" className="cms-guide__row"><span role="cell">News &amp; Blog articles</span><span role="cell">Only when <strong>Published</strong>. Drafts stay private.</span></div>
         <div role="row" className="cms-guide__row"><span role="cell">Site settings, Calculator</span><span role="cell">As soon as you save.</span></div>
+        <div role="row" className="cms-guide__row"><span role="cell">Anything a Contributor saves</span><span role="cell"><strong>Never live on its own.</strong> It is always saved as a Draft until an Editor or Administrator publishes it.</span></div>
       </div>
       <p><strong>Draft</strong> = private work in progress. <strong>Published</strong> = visible. <strong>Archived</strong> = taken off the site but kept, so you can bring it back later. Archiving and unpublishing a development takes it off the site <strong>immediately</strong>.</p>
+      <p>Only <strong>Editors and Administrators</strong> can publish, unpublish, archive or restore. Only <strong>Administrators</strong> can delete developments, articles or pages permanently, so an Editor’s safest way to remove something is to Archive it.</p>
+    </>,
+  },
+  {
+    id: "contributors",
+    title: "Working as a Contributor: draft, review, publish",
+    summary: "How drafts move from writer to the live site.",
+    body: <>
+      <p>Contributors write; Editors and Administrators publish. This keeps unfinished work off the site while still letting more people write.</p>
+      <h3>If you are a Contributor</h3>
+      <ol>
+        <li>Open <Link href="/admin/articles">News &amp; Blog</Link> or <Link href="/admin/projects">Developments</Link> and create or open an item. There is no status picker for you: everything you save is a <strong>Draft</strong>.</li>
+        <li>Use <strong>Preview with unsaved changes ↗</strong> to see how it will look, and keep editing as often as you like while it is a draft.</li>
+        <li>Tell an Editor it is ready. They review and publish it.</li>
+        <li>Once it is published or archived you can no longer change it. Ask an Editor to make further edits.</li>
+      </ol>
+      <p>You can also upload photos, videos and documents to the Media library. You cannot see Messages, the News inbox, the live pages or the Calculator, and you cannot publish or delete.</p>
+      <h3>If you are an Editor or Administrator</h3>
+      <ol>
+        <li>In News &amp; Blog or Developments, filter by <strong>Drafts</strong> to find work waiting for review.</li>
+        <li>Open it and check it with <em>Preview</em> (the saved version) or the page itself.</li>
+        <li>Make any changes yourself, or ask the writer. When it is ready, set the status to <strong>Published</strong> (or use <strong>Publish</strong> in the More menu).</li>
+      </ol>
     </>,
   },
   {
@@ -81,6 +107,7 @@ const sections: Section[] = [
         <li><strong>Legal pages:</strong> <em>Preview saved text ↗</em> shows your saved text even if the page is not published yet.</li>
       </ul>
       <p className="cms-guide__note">Not every screen has a preview: Site settings, Team and the Calculator are not pages, so there is nothing to preview. For those, save and check the live site.</p>
+      <p>Contributors can preview their articles and developments. They can’t open the live pages (Homepage, About and so on) or preview them, because those are the screens that go live on save.</p>
     </>,
   },
   {
@@ -106,7 +133,13 @@ const sections: Section[] = [
         <li>Click <strong>Save section</strong> to keep the order. Nothing is saved until you do.</li>
       </ul>
       <h3>Other actions</h3>
-      <p>In the <strong>More</strong> menu on a development: Publish, Unpublish, Archive, Restore, Duplicate (copies a development as a new draft) and Move (changes its order in the list).</p>
+      <p>In the <strong>More</strong> menu on a development: Publish, Unpublish, Archive, Restore, Duplicate (copies a development as a new draft) and Move (changes its order in the list). Publishing, archiving and moving are for Editors and Administrators.</p>
+      <h3>Removing things</h3>
+      <ul>
+        <li><strong>A whole development</strong> can’t be deleted from the CMS. <strong>Archive</strong> takes it off the site and keeps it, so it can be restored.</li>
+        <li><strong>A section</strong> can be deleted from the development’s editor. This is permanent and its history goes with it, so be sure. Contributors can do this only while the development is still a draft.</li>
+      </ul>
+      <p className="cms-guide__note">Contributors can edit a development only while it is a <strong>Draft</strong>. Once it is published or archived, only Editors and Administrators can change it.</p>
     </>,
   },
   {
@@ -119,11 +152,12 @@ const sections: Section[] = [
         <li>Enter the title, summary, kind (News or Blog), cover image and body. Separate paragraphs with a blank line.</li>
         <li>Leave the slug empty to create the web address from the title.</li>
         <li>Keep the status on <strong>Draft</strong> while you work. Use <em>Preview with unsaved changes</em> to see how it will look.</li>
-        <li>Set it to <strong>Published</strong> and save to put it on the site.</li>
+        <li>Set it to <strong>Published</strong> and save to put it on the site. (Contributors can’t: an Editor publishes their drafts. See “Working as a Contributor”.)</li>
       </ol>
+      <p>In the article list, the <strong>More</strong> menu offers Publish, Unpublish, Archive and Duplicate. <strong>Delete permanently</strong> is for Administrators only and also removes the article’s history. Editors should Archive instead.</p>
       <p className="cms-guide__note">Good to know: saving an article that is already Published sets its publication date to today. Avoid re-saving published articles unless you need to, if the original date matters.</p>
       <h3>News inbox</h3>
-      <p><Link href="/admin/rss">News inbox</Link> collects press mentions found automatically about KPD. Nothing appears on the site until you <strong>approve</strong> an item, which turns it into a published article. <strong>Reject</strong> removes it from the inbox. New items arrive every 30 minutes.</p>
+      <p><Link href="/admin/rss">News inbox</Link> collects press mentions found automatically about KPD. Nothing appears on the site until you <strong>approve</strong> an item, which turns it into a published article. <strong>Reject</strong> removes it from the inbox. New items arrive every 30 minutes. Editors and Administrators can approve and reject; Viewers can look but not change; Contributors don’t see it.</p>
     </>,
   },
   {
@@ -138,7 +172,7 @@ const sections: Section[] = [
         <li><strong>Investor guide:</strong> every section of the Invest in Dubai page.</li>
         <li><strong>Terms, Privacy, Cookie policy:</strong> heading, intro and body. Start a line with <code>## </code> to make it a section heading.</li>
       </ul>
-      <p>The address (URL) of a fixed page can’t be changed. New page types need the development team.</p>
+      <p>The address (URL) of a fixed page can’t be changed. New page types need the development team. Editors and Administrators edit these pages; Contributors don’t see them, because saving here puts the change live. Only Administrators can delete an additional page.</p>
       <h3>Lists and cards</h3>
       <p>Where a page has a list (slides, figures, timeline, FAQs), each item is a card. Use <strong>Add</strong> to create one, <strong>Remove</strong> to delete it, and <strong>drag the ⠿ handle</strong> or Move up / Move down to reorder.</p>
     </>,
@@ -152,7 +186,8 @@ const sections: Section[] = [
       <ul>
         <li><strong>Accepted files:</strong> JPG, PNG, WebP, GIF, SVG, MP4 and PDF.</li>
         <li><strong>Size limit:</strong> 25 MB per file. Compress large photos and videos first.</li>
-        <li>Only <strong>Admins</strong> can delete files, because a deleted file disappears from every page using it.</li>
+        <li>Administrators, Editors and Contributors can upload. Viewers can’t.</li>
+        <li>Only <strong>Administrators</strong> can delete files, because a deleted file disappears from every page using it.</li>
       </ul>
     </>,
   },
@@ -163,6 +198,7 @@ const sections: Section[] = [
     body: <>
       <p><Link href="/admin/submissions">Messages</Link> shows every enquiry sent through the contact form, the booking form, floor-plan requests and the newsletter sign-up. Each card lists what the visitor filled in. Filter by type or status to find what you need.</p>
       <p>Every enquiry is saved here first and then sent on to Salesforce. If sending fails, the message is marked <strong>Failed</strong> but is never lost. Once Salesforce is working, use <strong>Retry sync</strong> on the message to send it again.</p>
+      <p>Enquiries contain visitors’ personal details, so access is limited: Administrators, Editors and Viewers can read Messages, only Administrators and Editors can retry a sync, and Contributors don’t see Messages at all.</p>
     </>,
   },
   {
@@ -180,8 +216,8 @@ const sections: Section[] = [
     body: <>
       <ul>
         <li><strong>Site settings:</strong> the email, phone, WhatsApp and social links used across the site (footer, floating buttons and booking form).</li>
-        <li><strong>Team:</strong> add people, set their role, deactivate accounts and reset passwords.</li>
-        <li><strong>Activity log:</strong> who changed what and when, useful when you need to find out how something was edited.</li>
+        <li><strong>Team:</strong> add people, choose one of the four roles (Administrator, Editor, Contributor, Viewer), change it later, deactivate accounts and reset passwords. A role change applies to the person’s next action; their menu updates when they next sign in. You can’t remove or demote the last active Administrator.</li>
+        <li><strong>Activity log:</strong> who changed what and when, including role changes, useful when you need to find out how something was edited.</li>
       </ul>
     </>,
   },
@@ -191,7 +227,7 @@ const sections: Section[] = [
     summary: "Go back if something goes wrong.",
     body: <>
       <p>Most editors keep a <strong>Version history</strong> at the bottom of the page. Each time you save, the previous state is kept. The last 5 versions of each item are stored.</p>
-      <p>To go back, open the item, find the version you want and click <strong>Restore this version</strong>. Restoring saves that older content as the current one, so you can still change your mind afterwards.</p>
+      <p>To go back, open the item, find the version you want and click <strong>Restore this version</strong> (Editors and Administrators). Restoring saves that older content as the current one, so you can still change your mind afterwards.</p>
       <p>When you leave an editor with changes you haven’t saved, the CMS warns you first.</p>
     </>,
   },
@@ -206,7 +242,10 @@ const sections: Section[] = [
         <li><strong>“A page/module with this slug already exists.”</strong> Another item already uses that web address. Change the title or the address slightly.</li>
         <li><strong>A new development isn’t in the menu.</strong> It must be <strong>Published</strong>, and only the first 6 additional developments are shown.</li>
         <li><strong>I lost my edits.</strong> Use Version history to restore an earlier save. Unsaved text can’t be recovered.</li>
-        <li><strong>I can’t see a screen or button I expected.</strong> Your role decides what you see: Site settings and Team are for Administrators, and publishing needs an Editor. Ask an Administrator to change your role if you need more.</li>
+        <li><strong>“Only an Editor can change an article/development once it is published or archived.”</strong> You are a Contributor and the item is no longer a draft. Ask an Editor to make the change.</li>
+        <li><strong>There is no Publish button, or no Save button.</strong> No Publish button means you are a Contributor (an Editor publishes your drafts). No Save button, with a “view-only” notice at the top, means you are a Viewer.</li>
+        <li><strong>I can’t see a screen or button I expected.</strong> Your role decides what you see: Site settings and Team are for Administrators, publishing needs an Editor, and Contributors don’t see the live pages or Messages. Ask an Administrator to change your role if you need more.</li>
+        <li><strong>The screen seems to do nothing after I click.</strong> Watch for the thin black bar at the very top: it means the next page is loading. If it stays a long time, refresh the page and try again.</li>
       </ul>
       <p>For anything the CMS can’t do (new page designs, new kinds of section, new features), contact the development team.</p>
     </>,
