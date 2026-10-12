@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { DevelopmentView } from "@/components/public/development-view";
+import { loadSeoOverride } from "@/lib/seo-store";
+import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 
 export const revalidate = 300;
 
@@ -34,9 +36,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const project = await getPublishedProject(slug).catch(() => null);
   if (!project) return { title: "Development not found" };
+  const seo = applySeoOverride({ title: developmentTitle(project.name, project.location), description: developmentDescription(project) }, await loadSeoOverride(seoKey("project", project.id)));
   return pageMetadata({
-    title: developmentTitle(project.name, project.location),
-    description: developmentDescription(project),
+    ...seo,
     path: `/developments/${project.slug}`,
     image: project.heroImage,
   });

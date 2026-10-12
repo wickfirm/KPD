@@ -25,6 +25,8 @@ import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
+import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
+import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
 
 function slugify(value: string) {
   return value
@@ -81,6 +83,26 @@ function editorPathFor(entityType: string, entityId: string): string {
     case "GLOBAL_SETTINGS": return "/admin/settings";
     case "CALCULATOR": return "/admin/calculator";
     default: return "/admin";
+  }
+}
+
+/// Stores the "Search appearance" boxes of an editor form (see seo-overrides.ts)
+/// for the item just saved. Only items with a public page of their own have one.
+async function saveSeoFor(entityType: string, entityId: string, formData: FormData): Promise<{ error?: string }> {
+  let key: string | null = null;
+  if (entityType === "ARTICLE") key = seoKey("article", entityId);
+  else if (entityType === "PROJECT") key = seoKey("project", entityId);
+  else if (entityType === "HOME_SETTINGS") key = seoKey("page", "home");
+  else if (entityType === "STATIC_PAGE") {
+    const slug = (await db.staticPage.findUnique({ where: { id: entityId }, select: { slug: true } }))?.slug;
+    if (slug && fixedPageSeoDefaults(slug)) key = seoKey("page", slug);
+  }
+  if (!key) return {};
+  try {
+    await saveSeoOverride(key, seoOverrideFromForm(formData));
+    return {};
+  } catch {
+    return { error: "The content was saved, but the search title and description could not be stored. Please save again." };
   }
 }
 
@@ -152,6 +174,7 @@ export async function saveArticle(
   formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
   const result = await applyArticle(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this article." };
+  const seo = await saveSeoFor("ARTICLE", result.id, formData);
 
   revalidatePath("/");
   revalidatePath("/news");
@@ -167,6 +190,7 @@ export async function saveArticle(
     authorEmail: session.email,
   });
   await logActivity({ action: "content.save", session, entityType: "ARTICLE", entityId: result.id, summary: `Saved article “${result.label}”` });
+  if (seo.error) return seo;
   redirect(`/admin/articles/${result.id}?saved=1`);
 }
 
@@ -202,6 +226,7 @@ export async function deleteArticle(formData: FormData) {
   const article = await db.article.delete({ where: { id } }).catch(() => null);
   if (article) {
     await db.contentVersion.deleteMany({ where: { entityType: "ARTICLE", entityId: id } });
+    await deleteSeoOverride(seoKey("article", id));
     await logActivity({ action: "content.delete", session, entityType: "ARTICLE", entityId: id, summary: `Deleted article “${article.title}”` });
   }
   revalidatePath("/");
@@ -357,6 +382,7 @@ export async function saveProject(
 
   const result = await applyProject(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
+  const seo = await saveSeoFor("PROJECT", result.id, formData);
 
   // A new development can start with the standard sections already in place.
   const startedWithSections = !id && formData.get("starter") === "on";
@@ -378,6 +404,7 @@ export async function saveProject(
     authorEmail: session.email,
   });
   await logActivity({ action: "content.save", session, entityType: "PROJECT", entityId: result.id, summary: `Saved development “${result.label}”` });
+  if (seo.error) return seo;
   redirect(startedWithSections ? `/admin/projects/${result.id}?notice=${encodeURIComponent("Development created with the standard sections. Fill them in, then publish when you are ready.")}` : `/admin/projects/${result.id}?saved=1`);
 }
 
@@ -662,6 +689,7 @@ export async function saveStaticPage(
 
   const result = await applyStaticPage(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this page." };
+  const seo = await saveSeoFor("STATIC_PAGE", result.id, formData);
 
   revalidatePath("/admin/pages");
   revalidatePath(`/admin/pages/${result.id}`);
@@ -676,6 +704,7 @@ export async function saveStaticPage(
     authorEmail: session.email,
   });
   await logActivity({ action: "content.save", session, entityType: "STATIC_PAGE", entityId: result.id, summary: `Saved page “${result.label}”` });
+  if (seo.error) return seo;
   redirect(`/admin/pages/${result.id}?saved=1`);
 }
 
@@ -817,6 +846,7 @@ export async function saveHomeSettings(
   const { session } = await requirePermission("content.editLive");
   const result = await applyHomeSettings(formData);
   if (result.error) return { error: result.error };
+  const seo = await saveSeoFor("HOME_SETTINGS", "home", formData);
   revalidatePath("/");
   revalidatePath("/admin/pages/home");
   revalidatePublicContent();
@@ -829,6 +859,7 @@ export async function saveHomeSettings(
     authorEmail: session.email,
   });
   await logActivity({ action: "content.save", session, entityType: "HOME_SETTINGS", entityId: "home", summary: "Saved homepage content" });
+  if (seo.error) return seo;
   redirect("/admin/pages/home?saved=1");
 }
 
@@ -974,6 +1005,7 @@ export async function restoreVersion(formData: FormData) {
   if (result.error) redirect(`${returnPath}?error=${encodeURIComponent(result.error)}`);
 
   const entityId = result.id ?? version.entityId;
+  await saveSeoFor(version.entityType, entityId, payload);
   await recordVersion({
     entityType: version.entityType as ContentVersionEntity,
     entityId,

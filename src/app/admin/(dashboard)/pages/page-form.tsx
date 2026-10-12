@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { previewPageDraft, saveStaticPage, type StaticPageFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
+import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { legacyDefaults, type LegacyMilestone } from "@/lib/legacy-defaults";
 import { aboutDefaults } from "@/lib/about-defaults";
 
@@ -84,7 +85,7 @@ const pageHeroDefaults: Record<string, { heading?: string; text?: string; image?
   },
 };
 
-export default function StaticPageForm({ defaults, lockedSlug = false }: { defaults?: StaticPageDefaults; lockedSlug?: boolean }) {
+export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { defaults?: StaticPageDefaults; lockedSlug?: boolean; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -172,6 +173,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false }: { defau
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image ?? ""} onChange={(image) => update({ image })} accept="image/*" placeholder="/legacy/assets/images/…" fileLabel={`milestone ${index + 1} image`} /></div>
         </>} />
     </section> : null}
+    {seo ? <SeoFields defaults={seo} /> : null}
     <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>{isLegal || isAbout || isLegacy || defaults?.slug === "contact" ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
+import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { homeDefaults, type BannerSlide, type DevelopmentCard, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 
 export type { HomeSettings };
@@ -13,7 +14,7 @@ const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 /// Homepage editor: every section of the public homepage that is managed from
 /// the CMS. Lists show the delivered content until you save your own, exactly
 /// like the public page does.
-export default function HomeForm({ settings, projectLinks = [] }: { settings: HomeSettings; projectLinks?: { href: string; name: string }[] }) {
+export default function HomeForm({ settings, projectLinks = [], seo }: { settings: HomeSettings; projectLinks?: { href: string; name: string }[]; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveHomeSettings, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -98,6 +99,7 @@ export default function HomeForm({ settings, projectLinks = [] }: { settings: Ho
       </div>)}
       <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setExperienceImages((images) => [...images, ""])} disabled={experienceImages.length >= 5}>Add gallery image</button>
     </section>
+    <SeoFields defaults={seo} />
     <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

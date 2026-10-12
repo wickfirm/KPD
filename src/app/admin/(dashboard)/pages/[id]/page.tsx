@@ -9,6 +9,8 @@ import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { editorSeoDefaults } from "@/lib/seo-store";
+import { fixedPageSeoDefaults, seoKey } from "@/lib/seo-overrides";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +40,8 @@ export default async function EditPage({
     page = await db.staticPage.create({ data: { slug: entry.key, title: entry.title, status: legal ? "DRAFT" : "PUBLISHED", content: [] } });
   }
   if (!page) notFound();
+  const autoSeo = fixedPageSeoDefaults(page.slug);
+  const seo = autoSeo ? await editorSeoDefaults(seoKey("page", page.slug), autoSeo) : undefined;
 
   const title = entry ? `Edit ${entry.title}` : "Edit page";
   const publicHref = entry?.publicHref ?? `/${page.slug}`;
@@ -65,8 +69,8 @@ export default async function EditPage({
       <EditorShell>
       <div className="cms-card">
         {page.slug === "invest-in-dubai"
-          ? <InvestForm defaults={{ id: page.id, slug: page.slug, title: page.title, content: page.content as ContentBlock[] }} />
-          : <StaticPageForm defaults={{ ...page, content: page.content as ContentBlock[] }} lockedSlug={Boolean(entry)} />}
+          ? <InvestForm defaults={{ id: page.id, slug: page.slug, title: page.title, content: page.content as ContentBlock[] }} seo={seo} />
+          : <StaticPageForm defaults={{ ...page, content: page.content as ContentBlock[] }} lockedSlug={Boolean(entry)} seo={seo} />}
       </div>
       <VersionHistory entityType="STATIC_PAGE" entityId={page.id} entityLabel={page.title} />
       </EditorShell>

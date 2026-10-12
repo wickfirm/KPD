@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { cache } from "react";
 import { db } from "@/lib/db";
 import { ArticleView } from "@/components/public/article-view";
+import { loadSeoOverride } from "@/lib/seo-store";
+import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 
 export const revalidate = 300;
 
@@ -23,9 +25,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const article = await getPublishedArticle(slug).catch(() => null);
   if (!article) return { title: "Article not found" };
+  const seo = applySeoOverride({ title: withBrand(article.title), description: article.summary || article.title }, await loadSeoOverride(seoKey("article", article.id)));
   return pageMetadata({
-    title: withBrand(article.title),
-    description: article.summary || article.title,
+    ...seo,
     path: `/news/${article.slug}`,
     image: article.coverImage,
     type: "article",

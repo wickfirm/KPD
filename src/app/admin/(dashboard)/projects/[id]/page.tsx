@@ -12,6 +12,9 @@ import ModuleForm from "./module-form";
 import { SavedBanner } from "@/components/admin/flash";
 import VersionHistory from "@/components/admin/version-history";
 import { ConfirmButton } from "@/components/admin/confirm-button";
+import { editorSeoDefaults } from "@/lib/seo-store";
+import { seoKey } from "@/lib/seo-overrides";
+import { developmentDescription, developmentTitle } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +31,7 @@ export default async function ProjectEditorPage({
     include: { modules: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] } },
   });
   if (!project) notFound();
+  const seo = await editorSeoDefaults(seoKey("project", project.id), { title: developmentTitle(project.name, project.location), description: developmentDescription(project) });
   const clientTemplate = legacyProjectTemplates[project.slug];
   const hasClientSections = clientTemplate?.modules.every((template) => project.modules.some((module) => module.slug === template.slug));
 
@@ -62,7 +66,7 @@ export default async function ProjectEditorPage({
     <div className="cms-editor-layout">
     <div className="cms-editor-layout__main">
     {clientTemplate && !hasClientSections ? <div className="cms-card cms-card--settings"><div className="cms-card-intro"><span className="cms-eyebrow">Client page setup</span><h2>Make this page editable</h2><p>Load the delivered project sections once. You will then edit copy, galleries, plans, and images with clear CMS cards below.</p></div><form action={importLegacyProjectTemplate}><input type="hidden" name="projectId" value={project.id} /><input type="hidden" name="slug" value={project.slug} /><button className="cms-btn" type="submit">Load delivered page content</button></form></div> : null}
-    <div className="cms-card cms-card--settings" id="details" data-unsaved-label="Development details"><div className="cms-card-intro"><span className="cms-eyebrow">Page settings</span><h2>Development details</h2><p>The name, introduction and hero image shown on the page and in listings. Save them with the button below; each content section further down saves on its own.</p></div><ProjectForm defaults={project} /></div>
+    <div className="cms-card cms-card--settings" id="details" data-unsaved-label="Development details"><div className="cms-card-intro"><span className="cms-eyebrow">Page settings</span><h2>Development details</h2><p>The name, introduction and hero image shown on the page and in listings. Save them with the button below; each content section further down saves on its own.</p></div><ProjectForm defaults={project} seo={seo} /></div>
     <div className="cms-section-heading"><div><span className="cms-eyebrow">Page builder</span><h2>Content sections</h2><p>These sections appear on the page in the order below. Open a section, make your changes, then use that section&apos;s own Save button. Use Move up / Move down to change the order.</p></div><span className="cms-section-count">{project.modules.length} sections</span></div>
     {project.modules.map((module, index) => {
       const versions = versionsByModule.get(module.id) ?? [];

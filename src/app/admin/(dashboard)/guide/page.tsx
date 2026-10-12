@@ -192,6 +192,21 @@ const sections: Section[] = [
     </>,
   },
   {
+    id: "search",
+    title: "Search appearance (SEO)",
+    summary: "The title and description Google shows for a page.",
+    body: <>
+      <p>Every page, development and article already gets a search title and description automatically. To write your own, open its editor and expand <strong>Search appearance (SEO)</strong> near the Save button.</p>
+      <ul>
+        <li><strong>Search title</strong> is the blue headline in Google results and the title when the page is shared. Keep it under 60 characters.</li>
+        <li><strong>Search description</strong> is the short text under it. Keep it under 160 characters, and make it answer what the page is about.</li>
+        <li>The grey text in an empty box is what the page uses now. Leave a box empty to keep using it.</li>
+        <li>The preview under the boxes shows roughly how the result will look. The counters turn amber when Google would cut the text off.</li>
+      </ul>
+      <p>It is saved with the rest of the page when you press Save, and appears on the live page straight away. Search engines pick up the change the next time they visit, which can take days.</p>
+    </>,
+  },
+  {
     id: "messages",
     title: "Messages",
     summary: "Enquiries from the website forms.",

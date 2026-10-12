@@ -1,8 +1,11 @@
 import { ContactView } from "@/components/public/page-views";
 import { JsonLd } from "@/components/public/json-ld";
-import { breadcrumbJsonLd, pageMetadata, pageSeo, webPageJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
+import { loadFixedPageSeo } from "@/lib/seo-store";
 import { loadContactDetails, loadStaticBlocks } from "@/lib/static-blocks";
-export const metadata = pageMetadata(pageSeo.contact);
+export async function generateMetadata() {
+  return pageMetadata(await loadFixedPageSeo("contact"));
+}
 export const revalidate = 300;
 
 /// Unified delivered shell + React content, ported 1:1 from the delivered
@@ -15,9 +18,10 @@ export const revalidate = 300;
 export default async function ContactPage() {
   // The two CMS reads are independent — run them in parallel.
   const [contact, blocks] = await Promise.all([loadContactDetails(), loadStaticBlocks("contact")]);
+  const seo = await loadFixedPageSeo("contact");
   return <>
-    <JsonLd data={webPageJsonLd({ kind: "ContactPage", name: pageSeo.contact.title, description: pageSeo.contact.description, path: pageSeo.contact.path })} />
-    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Contact", path: pageSeo.contact.path }])} />
+    <JsonLd data={webPageJsonLd({ kind: "ContactPage", name: seo.title, description: seo.description, path: seo.path })} />
+    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Contact", path: seo.path }])} />
     <ContactView blocks={blocks} contact={contact} />
   </>;
 }

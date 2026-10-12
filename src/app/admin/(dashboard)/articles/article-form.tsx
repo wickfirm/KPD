@@ -3,6 +3,7 @@
 import { useActionState, useRef, useState } from "react";
 import { previewArticleDraft, saveArticle, type ArticleFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
+import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 
 export type ArticleDefaults = {
   id?: string;
@@ -32,7 +33,7 @@ function bodyToText(raw?: string) {
   return raw;
 }
 
-export default function ArticleForm({ defaults }: { defaults?: ArticleDefaults }) {
+export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefaults; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveArticle, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -111,6 +112,7 @@ export default function ArticleForm({ defaults }: { defaults?: ArticleDefaults }
         />
       </label>
 
+      <SeoFields defaults={seo} />
       <div className="cms-actions">
         <button className="cms-btn" type="submit" disabled={pending}>
           {pending ? "Saving…" : "Save article"}

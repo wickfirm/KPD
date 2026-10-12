@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { saveProject, type ProjectFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
+import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 
 export type ProjectDefaults = {
   id?: string; slug?: string; name?: string; tagline?: string | null; description?: string | null;
@@ -11,7 +12,7 @@ export type ProjectDefaults = {
 
 const initialState: ProjectFormState = {};
 
-export default function ProjectForm({ defaults }: { defaults?: ProjectDefaults }) {
+export default function ProjectForm({ defaults, seo }: { defaults?: ProjectDefaults; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveProject, initialState);
   return <form action={formAction}>
     {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
@@ -33,6 +34,7 @@ export default function ProjectForm({ defaults }: { defaults?: ProjectDefaults }
         <label className="cms-field"><span>Position in listings</span><input name="sortOrder" type="number" min="0" defaultValue={defaults?.sortOrder ?? 0} /><small>Easier: use Move earlier / Move later on the Developments list.</small></label>
       </div>
     </details>
+    <SeoFields defaults={seo} />
     <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save development"}</button></div>
   </form>;
 }

@@ -1,17 +1,21 @@
 import { AboutView } from "@/components/public/page-views";
 import { JsonLd } from "@/components/public/json-ld";
-import { breadcrumbJsonLd, pageMetadata, pageSeo, webPageJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
+import { loadFixedPageSeo } from "@/lib/seo-store";
 import { loadStaticBlocks } from "@/lib/static-blocks";
 
-export const metadata = pageMetadata(pageSeo.about);
+export async function generateMetadata() {
+  return pageMetadata(await loadFixedPageSeo("about"));
+}
 export const revalidate = 300;
 
 /// Unified delivered shell + React content; the delivered design is the
 /// fallback for every field.
 export default async function AboutPage() {
+  const seo = await loadFixedPageSeo("about");
   return <>
-    <JsonLd data={webPageJsonLd({ kind: "AboutPage", name: pageSeo.about.title, description: pageSeo.about.description, path: pageSeo.about.path })} />
-    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: pageSeo.about.path }])} />
+    <JsonLd data={webPageJsonLd({ kind: "AboutPage", name: seo.title, description: seo.description, path: seo.path })} />
+    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "About", path: seo.path }])} />
     <AboutView blocks={await loadStaticBlocks("about")} />
   </>;
 }

@@ -4,6 +4,9 @@ import HomeForm, { type HomeSettings } from "./home-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { editorSeoDefaults } from "@/lib/seo-store";
+import { seoKey } from "@/lib/seo-overrides";
+import { pageSeo } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +22,7 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
     const setting = await db.siteSetting.findUnique({ where: { key: "home" } });
     if (setting?.value && typeof setting.value === "object" && !Array.isArray(setting.value)) home = setting.value as HomeSettings;
   } catch {}
+  const seo = await editorSeoDefaults(seoKey("page", "home"), pageSeo.home);
   return <>
     <div className="cms-page-heading">
       <div>
@@ -30,7 +34,7 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
     </div>
     <SavedBanner params={flash} />
     <EditorShell>
-      <div className="cms-card"><HomeForm settings={home} projectLinks={projectLinks} /></div>
+      <div className="cms-card"><HomeForm settings={home} projectLinks={projectLinks} seo={seo} /></div>
       <VersionHistory entityType="HOME_SETTINGS" entityId="home" entityLabel="the homepage" />
     </EditorShell>
   </>;

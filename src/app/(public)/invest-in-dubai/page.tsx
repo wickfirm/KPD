@@ -1,9 +1,12 @@
 import { InvestView } from "@/components/public/invest-view";
 import { JsonLd } from "@/components/public/json-ld";
-import { breadcrumbJsonLd, pageMetadata, pageSeo, webPageJsonLd } from "@/lib/seo";
+import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
+import { loadFixedPageSeo } from "@/lib/seo-store";
 import { loadInvestPage } from "@/lib/invest-page";
 
-export const metadata = pageMetadata(pageSeo.invest);
+export async function generateMetadata() {
+  return pageMetadata(await loadFixedPageSeo("invest-in-dubai"));
+}
 export const revalidate = 300;
 
 /// The page renders the delivered design (public/legacy/invest-in-dubai.html);
@@ -12,9 +15,10 @@ export const revalidate = 300;
 /// content as the fallback (src/lib/invest-defaults.ts).
 export default async function InvestPage() {
   const { hero, saved } = await loadInvestPage();
+  const seo = await loadFixedPageSeo("invest-in-dubai");
   return <>
-    <JsonLd data={webPageJsonLd({ name: pageSeo.invest.title, description: pageSeo.invest.description, path: pageSeo.invest.path })} />
-    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Investor guide", path: pageSeo.invest.path }])} />
+    <JsonLd data={webPageJsonLd({ name: seo.title, description: seo.description, path: seo.path })} />
+    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Investor guide", path: seo.path }])} />
     <InvestView hero={hero} saved={saved} />
   </>;
 }

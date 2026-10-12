@@ -5,6 +5,9 @@ import ArticleForm from "../article-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { editorSeoDefaults } from "@/lib/seo-store";
+import { seoKey } from "@/lib/seo-overrides";
+import { withBrand } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +21,7 @@ export default async function EditArticlePage({
   const [{ id }, flash] = await Promise.all([params, searchParams]);
   const article = await db.article.findUnique({ where: { id } });
   if (!article) notFound();
+  const seo = await editorSeoDefaults(seoKey("article", article.id), { title: withBrand(article.title), description: article.summary || article.title });
 
   return (
     <>
@@ -36,6 +40,7 @@ export default async function EditArticlePage({
       <EditorShell>
       <div className="cms-card">
         <ArticleForm
+          seo={seo}
           defaults={{
             id: article.id,
             kind: article.kind,
