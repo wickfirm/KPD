@@ -1,6 +1,11 @@
 /* The supplied client stylesheet remains the visual source of truth during
    migration. New routes consume it once through the shared public layout. */
+/* Calculator styles added for the CMS live in their own files so the delivered
+   site.css stays byte-for-byte as supplied. Their original cascade positions are
+   kept: -top sat near the start of site.css, -end after its last rule. */
+@import url("/legacy/assets/css/ownership-planner-top.css");
 @import url("/legacy/assets/css/site.css");
+@import url("/legacy/assets/css/ownership-planner-end.css");
 
 /* The homepage main renders its CMS sections as React; the delivered static
    tail rides in a wrapper div (.pdf-static-tail). Keep the delivered rule
