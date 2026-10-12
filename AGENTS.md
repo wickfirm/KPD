@@ -17,7 +17,7 @@ npm run db:studio      # Prisma Studio
 ```
 
 - `npm run lint` uses `eslint-config-next@^15.5.0` — **do not bump it to v16** (flat-only; crashes under FlatCompat). 3 rules with pre-existing debt are set to `warn` (documented in `eslint.config.mjs`).
-- Verification = `npm run build` + `tsc --noEmit` + `npm test` + looking at the real page. When refactoring rendered markup, compare the rendered `<main>` of local and production; for SEO, read each page's head. `compare-render.mjs` diffs old-vs-new rendered DOM for pixel-fidelity regressions (captures in %TEMP%).
+- Verification = `npm run build` + `tsc --noEmit` + `npm test` + looking at the real page. When refactoring rendered markup, compare the rendered `<main>` of local and production; for SEO, read each page's head. `compare-render.mjs` diffs old-vs-new rendered DOM for pixel-fidelity regressions (captures in %TEMP%). `node markup-parity.mjs <base-url>` compares the client's delivered HTML in `public/legacy` with a running site (elements, class names, stylesheets, body classes); run it after any change to public markup.
 
 ## Environment & DB gotchas
 
