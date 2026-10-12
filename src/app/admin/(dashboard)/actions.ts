@@ -25,6 +25,7 @@ import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
+import { normalizeLineBreaks } from "@/lib/line-breaks";
 import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
 import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
 
@@ -337,7 +338,7 @@ async function applyProject(id: string, formData: FormData): Promise<ApplyResult
   const data = {
     slug,
     name,
-    tagline: String(formData.get("tagline") || "").trim() || null,
+    tagline: normalizeLineBreaks(formData.get("tagline") as string | null) || null,
     description: String(formData.get("description") || "").trim() || null,
     profile: projectProfile(formData.get("profile")),
     status,
@@ -412,7 +413,7 @@ export async function saveProject(
 /// module that was meanwhile deleted re-creates it inside its development.
 async function applyProjectModule(id: string, formData: FormData): Promise<ApplyResult> {
   const projectId = String(formData.get("projectId") || "");
-  const title = String(formData.get("title") || "").trim();
+  const title = normalizeLineBreaks(formData.get("title") as string | null);
   const slug = slugify(String(formData.get("slug") || "") || title);
   if (!projectId || !title || !slug) return { error: "Module title is required." };
 
@@ -493,7 +494,7 @@ export async function saveProjectModule(
 export async function previewSectionDraft(formData: FormData): Promise<{ error?: string; slug?: string; anchor?: string }> {
   await requirePermission("content.write");
   const projectId = String(formData.get("projectId") || "");
-  const title = String(formData.get("title") || "").trim();
+  const title = normalizeLineBreaks(formData.get("title") as string | null);
   const slug = slugify(String(formData.get("slug") || "") || title);
   if (!projectId || !title || !slug) return { error: "Give the section a title to preview it." };
   const project = await db.project.findUnique({ where: { id: projectId }, select: { slug: true } });
@@ -531,7 +532,7 @@ export async function deleteProjectModule(formData: FormData) {
 /// Shared by the real save and the unsaved-changes preview so the two can
 /// never disagree.
 function buildStaticPageContent(slug: string, formData: FormData): { content: Record<string, unknown>[] } | { error: string } {
-  const heading = String(formData.get("heading") || "").trim();
+  const heading = normalizeLineBreaks(formData.get("heading") as string | null);
   const intro = String(formData.get("intro") || "").trim();
   const image = String(formData.get("image") || "").trim();
   const ctaLabel = String(formData.get("ctaLabel") || "").trim();
@@ -791,10 +792,10 @@ function homeSettingsFromForm(formData: FormData) {
     bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development" } : null)),
     developmentCards: parseJsonList(formData.get("developmentCardsJson"), (item) => (text(item.title) || text(item.image) ? { href: text(item.href), image: text(item.image), title: text(item.title), copy: text(item.copy) } : null)),
     heroVideo: String(formData.get("heroVideo") || "").trim(),
-    introHeading: String(formData.get("introHeading") || "").trim(),
+    introHeading: normalizeLineBreaks(formData.get("introHeading") as string | null),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
-    developmentHeading: String(formData.get("developmentHeading") || "").trim(),
-    contactHeading: String(formData.get("contactHeading") || "").trim(),
+    developmentHeading: normalizeLineBreaks(formData.get("developmentHeading") as string | null),
+    contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
     contactText: String(formData.get("contactText") || "").trim(),
     experienceImages: nonEmptyLines(formData.get("experienceImages")),
   };

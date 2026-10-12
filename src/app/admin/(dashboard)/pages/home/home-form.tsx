@@ -45,7 +45,7 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     <h2 className="cms-form-heading">Hero video</h2>
     <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4" placeholder="https://…" fileLabel="hero video" />
     <h2 className="cms-form-heading">Introduction</h2>
-    <label className="cms-field"><span>Introduction heading</span><input name="introHeading" defaultValue={settings.introHeading ?? ""} /></label>
+    <label className="cms-field"><span>Introduction heading</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <label className="cms-field"><span>Introduction paragraphs</span><textarea name="introParagraphs" rows={6} defaultValue={(settings.introParagraphs ?? []).join("\n\n")} /><small>Separate paragraphs with a blank line.</small></label>
     <section className="cms-editor-section">
       <h3>Key figures</h3>
@@ -59,7 +59,7 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
       <label className="cms-field"><span>Note under the figures</span><input name="statsNote" defaultValue={settings.statsNote ?? homeDefaults.statsNote} /><small>For example the “as of” date. Leave empty to hide it.</small></label>
     </section>
     <h2 className="cms-form-heading">Developments section</h2>
-    <label className="cms-field"><span>Developments heading</span><input name="developmentHeading" defaultValue={settings.developmentHeading ?? ""} /></label>
+    <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <section className="cms-editor-section">
       <h3>Banner slides</h3>
       <p className="cms-muted">The full-width image slider above the cards. The first slide shows on load.</p>
@@ -86,7 +86,7 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     </section>
     <h2 className="cms-form-heading">Contact strip</h2>
     <div className="cms-grid">
-      <label className="cms-field"><span>Contact heading</span><input name="contactHeading" defaultValue={settings.contactHeading ?? ""} /></label>
+      <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
       <label className="cms-field"><span>Contact copy</span><textarea name="contactText" rows={3} defaultValue={settings.contactText ?? ""} /></label>
     </div>
     <section className="cms-editor-section">

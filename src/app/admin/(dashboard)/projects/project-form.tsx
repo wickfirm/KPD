@@ -21,7 +21,7 @@ export default function ProjectForm({ defaults, seo }: { defaults?: ProjectDefau
       <label className="cms-field"><span>Development name</span><input name="name" defaultValue={defaults?.name} required /></label>
       <label className="cms-field" data-requires="publish"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft — not public</option><option value="PUBLISHED">Published — live on the site</option><option value="ARCHIVED">Archived — removed from the site</option></select><small>Publishing, drafting and archiving take effect immediately.</small></label>
     </div>
-    <label className="cms-field"><span>Headline</span><input name="tagline" defaultValue={defaults?.tagline ?? ""} placeholder="A short line under the name" /><small>Shown as the main heading of the introduction.</small></label>
+    <label className="cms-field"><span>Headline</span><textarea name="tagline" rows={2} defaultValue={defaults?.tagline ?? ""} placeholder="A short line under the name" /><small>Shown as the main heading of the introduction. Line breaks render on the page exactly as typed.</small></label>
     <label className="cms-field"><span>Introduction</span><textarea name="description" rows={5} defaultValue={defaults?.description ?? ""} /></label>
     <div className="cms-field"><span>Hero image</span><AssetUrlField name="heroImage" defaultValue={defaults?.heroImage ?? ""} placeholder="/legacy/assets/images/..." /></div>
     {!defaults?.id ? <label className="cms-check"><input type="checkbox" name="starter" defaultChecked /> <span><strong>Start with the standard sections</strong><small>Adds overview, location, tour, amenities, floor plans and payment plan, ready to fill in.</small></span></label> : null}

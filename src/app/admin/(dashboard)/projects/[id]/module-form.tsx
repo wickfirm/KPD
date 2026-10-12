@@ -61,7 +61,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
     <input type="hidden" name="projectId" value={projectId} />{defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <div className="cms-grid">
-      <label className="cms-field"><span>Section title</span><input name="title" required defaultValue={defaults?.title} /></label>
+      <label className="cms-field"><span>Section title</span><textarea name="title" rows={2} required defaultValue={defaults?.title} /><small>Line breaks render in the section heading exactly as typed.</small></label>
       <label className="cms-field"><span>Section type</span><select name="kind" value={kind} onChange={(event) => setKind(event.target.value)}>{Object.entries(moduleKindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
     </div>
     <input type="hidden" name="sortOrder" value={defaults?.sortOrder ?? 0} />

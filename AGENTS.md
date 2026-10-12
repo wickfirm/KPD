@@ -69,6 +69,7 @@ npm run db:studio      # Prisma Studio
 - `publishedAt` is set to `new Date()` whenever an article is saved with status PUBLISHED (even a re-save of an already-published article rewrites the date).
 - Slug collisions surface as raw Prisma "Unique" errors — map them to friendly messages (existing pattern in `saveArticle`).
 - Article body accepts blank-line-separated plain text OR a JSON array of strings (`parseBody` in admin actions).
+- Headings that his HTML breaks over two lines (homepage intro/developments/contact headings, a development's Headline, a section title, page hero headings) are `<textarea>`s: a line break becomes `<br>` on the page (`multiline()` in the views). Never make such a field a single-line `<input>` (browsers drop the newline from its value). `normalizeLineBreaks()` (`src/lib/line-breaks.ts`) tidies the text on save.
 - RSS slugs are generated as `rss-<timestamp>-...` — safe from collision for RSS-created articles.
 - Google News/GDELT parsing is regex/string based and will break silently on feed format changes; wrap new sources in the same Promise.allSettled pattern in `ingestFeeds`.
 - The seed uses `upsert(... update: {} ...)` — safe to re-run, but existing rows (incl. `publishedAt`) are never touched.
