@@ -1,6 +1,6 @@
 # AGENTS.md
 
-KPD (Kasumigaseki Properties Development) — Next.js 15 website + ground-up custom CMS. This is a **Phase 1 scaffold**: the CMS is functional, but the public-facing design is still the delivered static site (`public/legacy`). See README.md for the contract-scope map and delivery phases.
+KPD (Kasumigaseki Properties Development) — Next.js 15 website + ground-up custom CMS. The CMS is feature-complete and in client acceptance testing; the public design is the delivered static site (`public/legacy`) ported to React. **Read `HANDOVER.md` for the current state, working setup, decisions and open items.** See README.md for the contract-scope map.
 
 ## Commands
 
@@ -17,7 +17,7 @@ npm run db:studio      # Prisma Studio
 ```
 
 - `npm run lint` uses `eslint-config-next@^15.5.0` — **do not bump it to v16** (flat-only; crashes under FlatCompat). 3 rules with pre-existing debt are set to `warn` (documented in `eslint.config.mjs`).
-- Verification = `npm run build` + `tsc --noEmit` + `npm test` + manual checks. `compare-render.mjs` diffs old-vs-new rendered DOM for pixel-fidelity regressions (captures in %TEMP%).
+- Verification = `npm run build` + `tsc --noEmit` + `npm test` + looking at the real page. When refactoring rendered markup, compare the rendered `<main>` of local and production; for SEO, read each page's head. `compare-render.mjs` diffs old-vs-new rendered DOM for pixel-fidelity regressions (captures in %TEMP%).
 
 ## Environment & DB gotchas
 
@@ -37,6 +37,9 @@ npm run db:studio      # Prisma Studio
   - `src/middleware.ts` guards everything under `/admin` (except `/admin/login`) using the edge-safe JWT cookie `kpd_session` (jose HS256, 7-day TTL). The middleware does NOT check the user still exists in the DB; server components/actions re-verify via `requireSession()` (`src/lib/auth.ts`), which redirects to login.
   - Authenticated area is a route group `src/app/admin/(dashboard)/` with a shared layout that renders nav, shows the session user, and defines an inline `logout` server action.
   - **Roles and permissions** (`src/lib/permissions.ts`, single source of truth): ADMIN, EDITOR, CONTRIBUTOR, VIEWER. Every server action starts with `requirePermission("<permission>")` (`src/lib/auth.ts`), which re-reads the user's role from the database, so a role change applies immediately; the middleware only fast-rejects screens by the role in the cookie (`canViewPath`). Contributors are limited to drafts (`mayEditContent`/`allowedStatus`). When adding an action, pick its permission there; do not use bare `requireUser()` for a write. New roles need `prisma/add-roles.sql` run once in Supabase.
+  - **Unsaved-changes previews**: editors post their form to a `preview*Draft` server action, which stores a throw-away `site_settings` row (`preview:*`, 2 h expiry) read only by the session-guarded `/admin/preview/*` routes. Page markup lives in shared view components (`HomeView`, `InvestView`, `page-views.tsx`, `ArticleView`, `LegalPageView`, `DevelopmentView`) so the public page and its preview are the same code; the form-to-content builders are shared with the real saves so they cannot drift.
+  - **Admin navigation feel**: `(dashboard)/loading.tsx` shows a bar and skeleton instantly; `requireUser()` is `cache()`d per request.
+- **SEO / AEO**: all page metadata goes through `pageMetadata()` in `src/lib/seo.ts` (titles <= 60, descriptions <= 160, canonical, Open Graph/Twitter with a default card); fixed-page copy is in `pageSeo` / `legalSeo`; JSON-LD helpers and `<JsonLd/>` live beside it. `/llms.txt` is built from the same data. Never set a bare `openGraph` in a page: it replaces the root one.
 - **Server Actions are the mutation layer**: colocated `actions.ts` files under each route group, marked `"use server"`. Pattern: client component forms (`"use client"`) use `useActionState`; actions read `FormData`, return `{ error?: string }` state, then `revalidatePath(...)` + `redirect(...)` on success. Destructive actions (delete) use plain `<form action={action}>` with hidden `id` inputs. Follow this pattern for new CRUD.
 - **Plumbing**:
   - `src/lib/db.ts` — global singleton PrismaClient (dev hot-reload safe).
@@ -56,7 +59,7 @@ npm run db:studio      # Prisma Studio
 
 ## Conventions & style
 
-- **No Tailwind** (despite `postcss.config.mjs`): it is intentionally empty to stop Next from picking up a parent-folder Tailwind config, and `next.config.mjs` pins `outputFileTracingRoot` for the same reason. Styling is plain CSS: `src/app/globals.css` (public) and `src/app/admin/admin.css` with a `cms-*` class prefix. Match that for the admin; use globals.css classes for the future public pages.
+- **Styling is hand-written CSS.** Public pages: `src/app/globals.css` and the delivered `public/legacy/assets/css/site.css` (+ `src/app/(public)/public.css`). Admin: `src/app/admin/admin.css`, which declares its design tokens in a Tailwind v4 `@theme` block but is styled with `cms-*` classes; append new rules in labelled blocks at the end. `postcss.config.mjs` is intentionally empty and `next.config.mjs` pins `outputFileTracingRoot` so Next does not pick up a parent-folder Tailwind config. The admin palette is deliberately neutral (black / white / off-white) to match the front-end; keep status colours semantic only.
 - Path alias `@/*` → `./src/*`.
 - Codebase conventions to match: `///` doc comments, box-drawing `──` section dividers in lib files, `export type XxxFormState = { error?: string }` for action state, local `slugify()` helper (defined per-file in `actions.ts`, not shared).
 - `package.json` uses a nonstandard `allowScripts` map (npm allow-scripts tooling) — keep it in sync when dependency versions bump.
