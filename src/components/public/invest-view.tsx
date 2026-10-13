@@ -5,6 +5,7 @@ import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
+import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 import { mergeInvestContent, type IconCard } from "@/lib/invest-defaults";
 
 export type InvestHero = { type?: string; heading?: string; text?: string; image?: string };
@@ -67,6 +68,9 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         </div>
       </section>
 
+      {/* The client's mortgage calculator, verbatim (src/lib/mortgage-calculator-html.ts); driven by his mortgage-calculator.js. */}
+      <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+
       <section className="invest-payment-plan kpd-section" aria-label="Flexible payment plans" hidden>
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>Flexible Payment Plans.</h2><div className="single-project-section-copy"><p>Investment structure should be clear before commitment. KPD reviews booking, construction, handover, and post-handover obligations as one complete cash-flow path.</p></div></div>
         <div className="invest-payment-layout">
@@ -79,8 +83,6 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
           </div>
         </div>
       </section>
-
-      <section className="kpd-section ownership-planner-section" aria-label="Ownership Cost Planner"><div data-kpd-planner="" /></section>
 
       <section className="invest-residency kpd-section" aria-label="Residency through property investment">
         <div className="invest-residency-panel motion-reveal">
@@ -174,6 +176,6 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
     </main><SiteShellFooter />
     <InvestEnhancements />
     <DeliveredEarlyScripts />
-    <DeliveredScripts bodyClass="home-development-page invest-dubai-page" sources={["/legacy/assets/js/ownership-cost-planner.js?v=20260929"]} />
+    <DeliveredScripts bodyClass="home-development-page invest-dubai-page" sources={["/legacy/assets/js/mortgage-calculator.js?v=20261005-2"]} />
   </>;
 }

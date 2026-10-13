@@ -1575,7 +1575,7 @@
     const plannerProject = window.sessionStorage.getItem("kpdPlannerProject");
     // KPD CMS patch: send every filled-in field as structured details (shown on the Messages
     // screen) instead of folding the planner scenario into the message text.
-    const detailSkip = new Set(["First Name", "Last Name", "Name", "name", "Email", "email", "Phone", "phone", "Sales Message", "Customer Message", "Partner Message", "Message", "message"]);
+    const detailSkip = new Set(["Inquiry Type", "First Name", "Last Name", "Name", "name", "Email", "email", "Phone", "phone", "Sales Message", "Customer Message", "Partner Message", "Message", "message"]);
     const details = [];
     for (const [key, value] of formData.entries()) {
       if (typeof value === "string" && value.trim() && !detailSkip.has(key)) {
@@ -1586,7 +1586,8 @@
     const inquiryType = form.id === "footer-email-form" ? "Newsletter signup"
       : form.classList.contains("booking-lead-form") ? "Booking request"
       : form.querySelector("[name='project']") ? "Floor plan request"
-      : "Website enquiry";
+      // [KPD CMS patch] forms that name their own type (the mortgage calculator's eligibility form).
+      : valueFrom(formData, ["Inquiry Type"]) || "Website enquiry";
     const name = [firstName, lastName].filter(Boolean).join(" ") || "Website visitor";
     const submit = form.querySelector("button[type='submit'], input[type='submit']");
 
