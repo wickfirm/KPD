@@ -8,9 +8,9 @@ import { getNavDevelopments } from "@/lib/nav-developments";
 /// site-cms.js, which binds these elements when it executes per page view.
 
 const developments = [
-  { label: "Seven X Seven", href: "/developments/seven-x-seven", className: "mega-project-link mega-project-sxs" },
-  { label: "Emerald Villa", href: "/developments/emerald-villa", className: "mega-project-link mega-project-emerald" },
-  { label: "Dubai Hills Mansion", href: "/developments/dubai-hills-mansion", className: "mega-project-link mega-project-hills" },
+  { label: "seven x seven", href: "/developments/seven-x-seven", className: "mega-project-link mega-project-sxs" },
+  { label: "Villa 174", href: "/developments/emerald-villa", className: "mega-project-link mega-project-emerald" },
+  { label: "Villa 24", href: "/developments/dubai-hills-mansion", className: "mega-project-link mega-project-hills" },
 ];
 
 const megaPreviews = [
@@ -71,9 +71,9 @@ export async function SiteShellHeader() {
         <li className="menu-item menu-item-main"><Link href="/#top">Home</Link></li>
         <li className="menu-item menu-item-main has-sub"><Link href="/developments/seven-x-seven">Developments</Link>
           <ul className="menu-sublist">
-            <li><Link href="/developments/seven-x-seven">Seven X Seven</Link></li>
-            <li><Link href="/developments/emerald-villa">Emerald Villa</Link></li>
-            <li><Link href="/developments/dubai-hills-mansion">Dubai Hills Mansion</Link></li>
+            <li><Link href="/developments/seven-x-seven">seven x seven</Link></li>
+            <li><Link href="/developments/emerald-villa">Villa 174</Link></li>
+            <li><Link href="/developments/dubai-hills-mansion">Villa 24</Link></li>
             {extras.map((project) => <li key={project.slug}><Link href={`/developments/${project.slug}`}>{project.name}</Link></li>)}
           </ul>
         </li>
