@@ -46,12 +46,12 @@ export async function SiteShellFooter() {
           </div>
         </div>
         <div className="footer_links_newsletter">
-          <h3 className="footer_links_title text-size-footer">Stay in the know</h3>
+          <h3 className="footer_links_title text-size-footer">Stay informed</h3>
           <div className="footer_form_block">
             <form id="footer-email-form" name="footer-email-form" method="post" action={`mailto:${contact.email}?subject=KPD%20Newsletter%20Signup`} encType="text/plain" className="footer_form" aria-label="Email Form">
               <label htmlFor="footerEmail" className="form-label hide">Email Address</label>
               <input className="input-text text-size-footer" maxLength={256} name="Email" placeholder="Email Address" type="email" id="footerEmail" required />
-              <input type="submit" className="button_submit" value="Submit" />
+              <input type="submit" className="button_submit" value="Subscribe" />
             </form>
           </div>
           <div className="footer_newsletter_terms text-size-small">{contact.newsletterNote} <Link href="/privacy-policy" className="link">privacy policy.</Link></div>

@@ -45,7 +45,7 @@ export function HomeDevelopmentBanner({ heading, slides }: { heading: string; sl
       </div>
       <div className="pdf-development-content">
         <h2>{heading}</h2>
-        <Link className="pdf-development-button btn-pill text-white" href="/#development-cards">Explore</Link>
+        <Link className="pdf-development-button btn-pill text-white" href="/#development-cards">View all developments</Link>
         <div className="pdf-development-dots" aria-label="Development slides">
           {slides.map((slide, index) => (
             <button className={index === 0 ? "active" : undefined} type="button" data-development-dot={index} aria-label={`Show ${slide.label}`} key={`${slide.label}-${index}`} />
@@ -79,7 +79,7 @@ export function HomeContactBlock({ heading, text }: { heading: string; text: str
       <div><h2>{multiline(heading)}</h2></div>
       <div className="pdf-contact-copy">
         <p>{multiline(text)}</p>
-        <Link href="/contact#experience-center">Plan Visit</Link>
+        <Link href="/contact#experience-center">Book a visit</Link>
       </div>
     </section>
   );

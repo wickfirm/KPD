@@ -61,7 +61,7 @@ export async function SiteShellHeader() {
             </div>
             <Link href="/contact">Contact</Link>
           </nav>
-          <button className="btn-pill header-book-call" type="button" data-booking-open>Book online call</button>
+          <button className="btn-pill header-book-call" type="button" data-booking-open>Enquire now</button>
         </div>
       </div>
     </header>
