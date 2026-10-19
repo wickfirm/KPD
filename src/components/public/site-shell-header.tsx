@@ -51,7 +51,7 @@ export async function SiteShellHeader() {
         </Link>
         <div className="header-right-cluster">
           <nav className="header-nav header-nav-right" aria-label="Primary navigation right">
-            <Link href="/legacy">Legacy</Link>
+            <Link href="/legacy">History</Link>
             <div className="header-nav-dropdown header-nav-dropdown--media">
               <button className="header-nav-trigger" type="button" aria-haspopup="true">Media</button>
               <div className="header-nav-menu header-media-menu" role="menu" aria-label="Media">
@@ -78,7 +78,7 @@ export async function SiteShellHeader() {
           </ul>
         </li>
         <li className="menu-item menu-item-main has-sub"><Link href="/about">About</Link>
-          <ul className="menu-sublist"><li><Link href="/legacy">Our Legacy</Link></li></ul>
+          <ul className="menu-sublist"><li><Link href="/legacy">History</Link></li></ul>
         </li>
         <li className="menu-item menu-item-main has-sub"><Link href="/news">Media</Link>
           <ul className="menu-sublist">

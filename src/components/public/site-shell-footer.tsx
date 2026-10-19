@@ -33,7 +33,7 @@ export async function SiteShellFooter() {
             <h3 className="footer_links_title text-size-footer">Company</h3>
             <ul role="list" className="footer_links_list">
               <li className="footer_links_item"><Link href="/about" className="footer_link text-size-footer">About Us</Link></li>
-              <li className="footer_links_item"><Link href="/legacy" className="footer_link text-size-footer">Legacy</Link></li>
+              <li className="footer_links_item"><Link href="/legacy" className="footer_link text-size-footer">History</Link></li>
               <li className="footer_links_item"><Link href="/invest-in-dubai" className="footer_link text-size-footer">Investor Guide</Link></li>
             </ul>
           </div>
