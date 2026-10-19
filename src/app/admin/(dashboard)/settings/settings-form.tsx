@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
 
-export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; facebook?: string; x?: string; instagram?: string; youtube?: string }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] } };
+export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
@@ -25,6 +25,7 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
       <label className="cms-field"><span>Facebook</span><input type="url" name="facebook" defaultValue={global.facebook ?? ""} placeholder="https://www.facebook.com/…" /></label>
       <label className="cms-field"><span>X (Twitter)</span><input type="url" name="x" defaultValue={global.x ?? ""} placeholder="https://x.com/…" /></label>
       <label className="cms-field"><span>Instagram</span><input type="url" name="instagram" defaultValue={global.instagram ?? ""} placeholder="https://www.instagram.com/…" /></label>
+      <label className="cms-field"><span>LinkedIn</span><input type="url" name="linkedin" defaultValue={global.linkedin ?? ""} placeholder="https://www.linkedin.com/company/…" /></label>
       <label className="cms-field"><span>YouTube</span><input type="url" name="youtube" defaultValue={global.youtube ?? ""} placeholder="https://www.youtube.com/…" /></label>
     </div>
     <div className="cms-actions"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save settings"}</button></div>

@@ -734,6 +734,7 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     facebook: String(formData.get("facebook") || "").trim(),
     x: String(formData.get("x") || "").trim(),
     instagram: String(formData.get("instagram") || "").trim(),
+    linkedin: String(formData.get("linkedin") || "").trim(),
     youtube: String(formData.get("youtube") || "").trim(),
   };
   try {

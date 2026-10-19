@@ -13,6 +13,7 @@ export type GlobalSettings = {
   x: string;
   instagram: string;
   youtube: string;
+  linkedin: string;
 };
 
 export const globalDefaults: GlobalSettings = {
@@ -24,6 +25,7 @@ export const globalDefaults: GlobalSettings = {
   x: "https://x.com/",
   instagram: "https://www.instagram.com/",
   youtube: "https://www.youtube.com/",
+  linkedin: "https://www.linkedin.com/company/kasumigasekimiddleeast",
 };
 
 /// Non-empty saved values over the delivered defaults.

@@ -16,7 +16,8 @@ VALUES (
     "facebook": "https://www.facebook.com/",
     "x": "https://x.com/",
     "instagram": "https://www.instagram.com/",
-    "youtube": "https://www.youtube.com/"
+    "youtube": "https://www.youtube.com/",
+    "linkedin": "https://www.linkedin.com/company/kasumigasekimiddleeast"
   }$json$::jsonb,
   NOW()
 )
