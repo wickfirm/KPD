@@ -20,7 +20,7 @@ const panes = [
 
 type PaneKey = (typeof panes)[number]["key"];
 
-const projectOptions = ["Seven X Seven Residences", "Emerald Villa", "Dubai Hills Mansion"];
+const projectOptions = ["seven x seven Meydan Horizon Residences", "Villa 174", "Villa 24"];
 
 export function ContactInquiry({ email, phone, website }: { email: string; phone: string; website: string }) {
   const [activePane, setActivePane] = useState<PaneKey>("sales");

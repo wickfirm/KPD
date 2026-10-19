@@ -21,11 +21,11 @@ export async function SiteShellFooter() {
       <div className="footer_links">
         <div className="footer_links_col_container">
           <div className="footer_links_col">
-            <h3 className="footer_links_title text-size-footer">Development</h3>
+            <h3 className="footer_links_title text-size-footer">Developments</h3>
             <ul role="list" className="footer_links_list">
-              <li className="footer_links_item"><Link href="/developments/seven-x-seven" className="footer_link text-size-footer">Seven X Seven Residences</Link></li>
-              <li className="footer_links_item"><Link href="/developments/emerald-villa" className="footer_link text-size-footer">Emerald Villa</Link></li>
-              <li className="footer_links_item"><Link href="/developments/dubai-hills-mansion" className="footer_link text-size-footer">Dubai Hills Mansion</Link></li>
+              <li className="footer_links_item"><Link href="/developments/seven-x-seven" className="footer_link text-size-footer">seven x seven Meydan Horizon Residences</Link></li>
+              <li className="footer_links_item"><Link href="/developments/emerald-villa" className="footer_link text-size-footer">Villa 174</Link></li>
+              <li className="footer_links_item"><Link href="/developments/dubai-hills-mansion" className="footer_link text-size-footer">Villa 24</Link></li>
               {extras.map((project) => <li className="footer_links_item" key={project.slug}><Link href={`/developments/${project.slug}`} className="footer_link text-size-footer">{project.name}</Link></li>)}
             </ul>
           </div>

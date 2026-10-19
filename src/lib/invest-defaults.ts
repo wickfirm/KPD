@@ -110,9 +110,9 @@ export const investDefaults: InvestContent = {
     heading: "Featured developments",
     text: "Review KPD's current residential pages, then continue into a private advisory conversation for availability, floor plans, pricing, and payment terms.",
     cards: [
-      { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", title: "Seven X Seven", copy: "A Meydan Horizon residence shaped by city access, quiet amenity, and measured daily living." },
-      { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", title: "Emerald Villa", copy: "A private villa composition shaped around garden arrival, privacy, and family-scaled living." },
-      { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/project-media/Dubai%20Hills%20Mansion/6_plex_front_rev_final_1.jpg", title: "Dubai Hills Mansion", copy: "A mansion-scale residence organized around private wellness, gardens, and long-horizon family use." },
+      { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", title: "seven x seven Meydan Horizon Residences", copy: "A residence shaped around balance: city and sanctuary, privacy and connection, stillness and play." },
+      { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", title: "Villa 174", copy: "A private villa shaped around garden arrival, layered privacy and family-scaled living." },
+      { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/project-media/Dubai%20Hills%20Mansion/6_plex_front_rev_final_1.jpg", title: "Villa 24", copy: "A mansion-scale home organised around garden, wellness and long-term family life." },
     ],
   },
   faq: {

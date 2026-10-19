@@ -33,27 +33,27 @@ export const homeDefaults = {
   statsNote: "(As of February, 2026)",
   /// The delivered development banner slides (the first slide shows on load).
   bannerSlides: [
-    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "Seven X Seven" },
-    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Emerald Villa" },
-    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Dubai Hills Mansion" },
+    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "seven x seven Meydan Horizon Residences" },
+    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Villa 174" },
+    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Villa 24" },
     { image: "/legacy/assets/images/library/modern-apartment-buildings-with-balconies-on-sunny-2026-03-19-09-29-37-utc.jpg", label: "Residential development" },
     { image: "/legacy/assets/images/library/dubai-marina-skyline-with-modern-skyscrapers-and-w-2026-03-05-11-49-49-utc.jpg", label: "Dubai skyline" },
   ] as BannerSlide[],
   /// The delivered development cards.
   developmentCards: [
-    { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", title: "Seven X Seven", copy: "A composed Meydan Horizon residence shaped by arrival, light, privacy, and efficient access to Dubai's core districts." },
-    { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", title: "Emerald Villa", copy: "A private villa composition shaped around garden arrival, layered privacy, and family-scaled living." },
-    { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/library/high-rise-apartment-buildings-in-downtown-vancouve-2026-03-20-04-35-07-utc.jpg", title: "Dubai Hills Mansion", copy: "A mansion-scale residence organized around garden arrival, private wellness, and long-horizon family living." },
+    { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", title: "seven x seven Meydan Horizon Residences", copy: "A composed Meydan Horizon residence where arrival, light and privacy meet measured access to Dubai's core districts." },
+    { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", title: "Villa 174", copy: "A private family villa organised around planted arrival, layered privacy and room for daily life to unfold." },
+    { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/library/high-rise-apartment-buildings-in-downtown-vancouve-2026-03-20-04-35-07-utc.jpg", title: "Villa 24", copy: "A mansion-scale residence where garden arrival, private wellness and long-horizon family living are composed as one." },
   ] as DevelopmentCard[],
   heroVideo: "/videos/hero-experience-center.mp4",
   introHeading: "Turning Challenge\nInto Value",
   introParagraphs: [
-    "KPD extends Kasumigaseki Capital's development, investment, and asset-management discipline into Dubai, pairing long-term capital with a carefully curated residential pipeline.",
-    "Established to extend that legacy into one of the world's most dynamic property markets, KPD brings institutional discipline, long-term capital, and a decades-deep development track record to the UAE - delivering projects built not just for today's market, but for generations ahead.",
+    "As the first Japanese developer in the UAE, Kasumigaseki Properties Development is the development arm of Kasumigaseki Capital, a public Tokyo-listed company. It introduces a distinctive approach to real estate: a promise of a higher standard of life. Driven by a commitment to superior quality, we believe meaningful developments begin with a deep respect for their environment, context, and community.",
+    "From refined craftsmanship and forward-thinking innovation to thoughtful guardianship, we uphold rigorous standards at every stage, creating spaces that stand the test of time.",
   ],
-  developmentHeading: "Our Developments",
-  contactHeading: "A first point of contact",
-  contactText: "The Experience Center is designed for focused project previews, private advisory conversations, model walkthroughs, and material review in one calm appointment-led setting.",
+  developmentHeading: "Different places. One standard.",
+  contactHeading: "Visit the Experience Centre",
+  contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",
   galleryPanels: [
     { key: "arrival", image: "/legacy/assets/images/experience-center/hq/1.jpg", caption: "Experience Center arrival" },
     { key: "materials", image: "/legacy/assets/images/experience-center/hq/4.jpg", caption: "Material corridor" },
