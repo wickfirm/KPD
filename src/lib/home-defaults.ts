@@ -23,6 +23,7 @@ export type HomeSettings = {
   contactHeading?: string;
   contactText?: string;
   experienceImages?: string[];
+  experienceCaptions?: string[];
 };
 
 export type GalleryPanel = { key: string; image: string; caption: string };

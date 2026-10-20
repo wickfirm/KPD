@@ -804,6 +804,8 @@ function homeSettingsFromForm(formData: FormData) {
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
     contactText: String(formData.get("contactText") || "").trim(),
     experienceImages: nonEmptyLines(formData.get("experienceImages")),
+    /// Keep empty positions so captions stay paired with their image.
+    experienceCaptions: String(formData.get("experienceCaptions") ?? "").split(/\r?\n/).map((caption) => caption.trim()),
   };
 }
 

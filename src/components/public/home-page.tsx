@@ -1,7 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
-import { homeDefaults, type BannerSlide, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { type BannerSlide, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -15,10 +15,14 @@ function escapeHtml(value: string) {
 /// Replaces the one CMS-managed band inside the otherwise delivered static
 /// homepage tail. Values are escaped before the tail is rendered as HTML.
 function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
-  const heading = settings.newsHeading || homeDefaults.newsHeading;
-  const text = settings.newsText || homeDefaults.newsText;
-  const cta = settings.newsCta || homeDefaults.newsCta;
-  const section = `<section class="pdf-section pdf-events-head" id="events"><h2>${escapeHtml(heading)}</h2><div><p>${escapeHtml(text).replaceAll("\n", "<br>")}</p><a href="#news">${escapeHtml(cta)}</a></div></section>`;
+  const heading = settings.newsHeading?.trim() ?? "";
+  const text = settings.newsText?.trim() ?? "";
+  const cta = settings.newsCta?.trim() ?? "";
+  /// Replace delivered editable text even when the CMS value is blank, so old
+  /// copy can never reappear as a fallback.
+  const section = heading || text || cta
+    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2>${escapeHtml(heading)}</h2>` : ""}<div>${text ? `<p>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="#news">${escapeHtml(cta)}</a>` : ""}</div></section>`
+    : "";
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
 
@@ -106,10 +110,11 @@ export function HomeContactBlock({ heading, text }: { heading: string; text: str
 
 /// The delivered gallery uses exactly five panels; the CMS editor enforces the
 /// same count, so CMS images replace all five together.
-export function HomeExperienceGallery({ images }: { images?: string[] }) {
+export function HomeExperienceGallery({ images, captions }: { images?: string[]; captions?: string[] }) {
   const panels: GalleryPanel[] = images?.length === 5
-    ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: homeDefaults.galleryPanels[index].caption }))
-    : homeDefaults.galleryPanels;
+    ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: captions?.[index]?.trim() ?? "" }))
+    : [];
+  if (!panels.length) return null;
   return (
     <section className="pdf-section pdf-vertical-gallery pdf-gallery-flex" id="experience-center" aria-label="Experience Center gallery" data-gallery-flex>
       {panels.map((panel) => (
@@ -121,30 +126,24 @@ export function HomeExperienceGallery({ images }: { images?: string[] }) {
   );
 }
 
-/// The homepage <main>: CMS-managed sections render as React; the delivered
-/// static tail (events, sunset band, live news, and the hidden legacy bands)
-/// rides through unchanged inside a wrapper div.
+/// The homepage <main>: CMS content is authoritative. The delivered static
+/// tail only supplies structural markup; editable text is replaced above.
 export function HomeMain({ settings, staticTail }: { settings: HomeSettings; staticTail: string }) {
-  /// An empty array is an explicit CMS choice to remove every card. Fall back
-  /// only when the setting has never been saved, not when it was saved empty.
-  const developmentCards = Array.isArray(settings.developmentCards) ? settings.developmentCards : homeDefaults.developmentCards;
+  const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
+  const introStats = settings.introStats ?? [];
+  const bannerSlides = settings.bannerSlides ?? [];
+  const developmentCards = settings.developmentCards ?? [];
+  const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || introStats.length || settings.statsNote?.trim());
+  const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
   return (
     <main className="development-pdf-home" id="top">
-      <HomeHero video={settings.heroVideo || homeDefaults.heroVideo} />
-      <HomeIntro
-        heading={settings.introHeading || homeDefaults.introHeading}
-        paragraphs={settings.introParagraphs?.filter(Boolean).length ? settings.introParagraphs.filter(Boolean) : homeDefaults.introParagraphs}
-        stats={settings.introStats?.length ? settings.introStats : homeDefaults.introStats}
-        statsNote={settings.statsNote ?? homeDefaults.statsNote}
-      />
-      <HomeDevelopmentBanner heading={settings.developmentHeading || homeDefaults.developmentHeading} slides={settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides} />
-      {(settings.developmentTextVisible ?? homeDefaults.developmentTextVisible) && (settings.developmentText || homeDefaults.developmentText) ? <HomeDevelopmentText text={settings.developmentText || homeDefaults.developmentText} /> : null}
+      {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
+      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} /> : null}
+      {bannerSlides.length ? <HomeDevelopmentBanner heading={settings.developmentHeading ?? ""} slides={bannerSlides} /> : null}
+      {settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} /> : null}
       <HomeDevelopmentCards cards={developmentCards} />
-      <HomeContactBlock
-        heading={settings.contactHeading || homeDefaults.contactHeading}
-        text={settings.contactText || homeDefaults.contactText}
-      />
-      <HomeExperienceGallery images={(settings.experienceImages ?? []).filter(Boolean)} />
+      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} /> : null}
+      <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} />
       <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
     </main>
   );

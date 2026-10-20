@@ -5,15 +5,14 @@ import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
-import { homeDefaults, type BannerSlide, type DevelopmentCard, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { type BannerSlide, type DevelopmentCard, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 
 export type { HomeSettings };
 const initialState: SiteSettingsFormState = {};
 const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 
-/// Homepage editor: every section of the public homepage that is managed from
-/// the CMS. Lists show the delivered content until you save your own, exactly
-/// like the public page does.
+/// Homepage editor: the values below are the only source of editable homepage
+/// content. Blank and empty lists deliberately remain blank when saved.
 export default function HomeForm({ settings, projectLinks = [], seo }: { settings: HomeSettings; projectLinks?: { href: string; name: string }[]; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveHomeSettings, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -37,11 +36,10 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     } finally { setPreviewing(false); }
   }
   const [experienceImages, setExperienceImages] = useState(settings.experienceImages ?? []);
-  const [stats, setStats] = useState<StatItem[]>(() => (settings.introStats?.length ? settings.introStats : homeDefaults.introStats));
-  const [slides, setSlides] = useState<BannerSlide[]>(() => (settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides));
-  /// An empty saved list means “show no cards”; only an absent setting uses
-  /// the delivered defaults.
-  const [cards, setCards] = useState<DevelopmentCard[]>(() => (Array.isArray(settings.developmentCards) ? settings.developmentCards : homeDefaults.developmentCards));
+  const [experienceCaptions, setExperienceCaptions] = useState(settings.experienceCaptions ?? []);
+  const [stats, setStats] = useState<StatItem[]>(() => settings.introStats ?? []);
+  const [slides, setSlides] = useState<BannerSlide[]>(() => settings.bannerSlides ?? []);
+  const [cards, setCards] = useState<DevelopmentCard[]>(() => settings.developmentCards ?? []);
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <datalist id="home-project-links">{projectLinks.map((link) => <option key={link.href} value={link.href}>{link.name}</option>)}</datalist>
     <h2 className="cms-form-heading">Hero video</h2>
@@ -58,12 +56,12 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
           <label className="cms-field"><span>Value</span><input value={item.value} onChange={(event) => update({ value: event.target.value })} placeholder="$4.4B" /></label>
           <label className="cms-field"><span>Label</span><input value={item.label} onChange={(event) => update({ label: event.target.value })} placeholder="Global AUM" /></label>
         </div>} />
-      <label className="cms-field"><span>Note under the figures</span><input name="statsNote" defaultValue={settings.statsNote ?? homeDefaults.statsNote} /><small>For example the “as of” date. Leave empty to hide it.</small></label>
+      <label className="cms-field"><span>Note under the figures</span><input name="statsNote" defaultValue={settings.statsNote ?? ""} /><small>For example the “as of” date. Leave empty to hide it.</small></label>
     </section>
     <h2 className="cms-form-heading">Developments section</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
-    <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={settings.developmentTextVisible ?? homeDefaults.developmentTextVisible} /> <span><strong>Show the development standard text</strong><small>Shows the text block immediately below the large developments image slider.</small></span></label>
-    <label className="cms-field"><span>Development standard text</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? homeDefaults.developmentText} /><small>Leave this editable for future changes; untick the option above to hide the block.</small></label>
+    <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={Boolean(settings.developmentTextVisible)} /> <span><strong>Show the development standard text</strong><small>Shows the text block immediately below the large developments image slider.</small></span></label>
+    <label className="cms-field"><span>Development standard text</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? ""} /><small>Leave this editable for future changes; untick the option above to hide the block.</small></label>
     <section className="cms-editor-section">
       <h3>Banner slides</h3>
       <p className="cms-muted">The full-width image slider above the cards. The first slide shows on load.</p>
@@ -89,9 +87,9 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
         </>} />
     </section>
     <h2 className="cms-form-heading">News & insights</h2>
-    <label className="cms-field"><span>Heading</span><textarea name="newsHeading" rows={2} defaultValue={settings.newsHeading ?? homeDefaults.newsHeading} /><small>Line breaks render on the public page exactly as typed.</small></label>
-    <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? homeDefaults.newsText} /></label>
-    <label className="cms-field"><span>Button label</span><input name="newsCta" defaultValue={settings.newsCta ?? homeDefaults.newsCta} /><small>Links visitors to the homepage news feed.</small></label>
+    <label className="cms-field"><span>Heading</span><textarea name="newsHeading" rows={2} defaultValue={settings.newsHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? ""} /></label>
+    <label className="cms-field"><span>Button label</span><input name="newsCta" defaultValue={settings.newsCta ?? ""} /><small>Links visitors to the homepage news feed.</small></label>
     <h2 className="cms-form-heading">Contact strip</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
@@ -99,13 +97,15 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     </div>
     <section className="cms-editor-section">
       <h3>Experience Center gallery</h3>
-      <p className="cms-muted">The delivered design uses exactly five panels. Add or arrange all five images here to replace them.</p>
+      <p className="cms-muted">The gallery appears only when it has exactly five CMS images. Captions are editable per image.</p>
       <input type="hidden" name="experienceImages" value={experienceImages.join("\n")} />
+      <input type="hidden" name="experienceCaptions" value={experienceCaptions.join("\n")} />
       {experienceImages.map((image, index) => <div className="cms-repeat-card" key={`${image}-${index}`}>
-        <div className="cms-repeat-card__head"><strong>Gallery image {index + 1}</strong><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => setExperienceImages((images) => images.filter((_, i) => i !== index))}>Remove</button></div>
+        <div className="cms-repeat-card__head"><strong>Gallery image {index + 1}</strong><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => { setExperienceImages((images) => images.filter((_, i) => i !== index)); setExperienceCaptions((captions) => captions.filter((_, i) => i !== index)); }}>Remove</button></div>
         <AssetUrlField value={image} onChange={(next) => setExperienceImages((images) => images.map((value, i) => (i === index ? next : value)))} accept={IMAGES} placeholder="https://…" fileLabel={`gallery image ${index + 1}`} />
+        <label className="cms-field"><span>Caption</span><input value={experienceCaptions[index] ?? ""} onChange={(event) => setExperienceCaptions((captions) => { const next = [...captions]; next[index] = event.target.value; return next; })} /></label>
       </div>)}
-      <button className="cms-btn cms-btn--ghost" type="button" onClick={() => setExperienceImages((images) => [...images, ""])} disabled={experienceImages.length >= 5}>Add gallery image</button>
+      <button className="cms-btn cms-btn--ghost" type="button" onClick={() => { setExperienceImages((images) => [...images, ""]); setExperienceCaptions((captions) => [...captions, ""]); }} disabled={experienceImages.length >= 5}>Add gallery image</button>
     </section>
     <SeoFields defaults={seo} />
     <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
