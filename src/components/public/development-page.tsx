@@ -1,7 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import type { ProjectShell } from "@/lib/legacy-project";
 import { DevelopmentModule } from "./development-template";
-import { htmlLf } from "@/lib/html-lf";
+import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 
 export type DevelopmentProject = {
   id: string;
@@ -23,7 +23,7 @@ function multiline(value: string): ReactNode[] {
 /// The development page <main>: hero and overview render from the project row,
 /// then each CMS module renders through DevelopmentModule. Content fields have
 /// no delivered fallback: deleting them in the CMS deletes them from the page.
-export function DevelopmentMain({ project, shell, plannerHtml }: { project: DevelopmentProject; shell: ProjectShell; plannerHtml: string }) {
+export function DevelopmentMain({ project, shell }: { project: DevelopmentProject; shell: ProjectShell }) {
   return (
     <main className="single-project-main" id="top">
       <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>
@@ -53,9 +53,8 @@ export function DevelopmentMain({ project, shell, plannerHtml }: { project: Deve
         />
       ))}
 
-      {plannerHtml ? <section className="kpd-section ownership-planner-section ownership-planner-section--project" aria-label="Ownership Cost Planner">
-        <div data-kpd-planner data-planner-compact="true" data-planner-project={project.slug} data-planner-prerendered="true" dangerouslySetInnerHTML={{ __html: htmlLf(plannerHtml) }} />
-      </section> : null}
+      {/* The Investor Guide calculator is deliberately shared by every project page. */}
+      <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
 
     </main>
   );
