@@ -13,7 +13,7 @@ export type PanelSection = { eyebrow: string; heading: string; text: string; but
 export type InvestContent = {
   metrics: Metric[];
   benefits: { heading: string; text: string; items: IconCard[] };
-  market: { heading: string; text: string; rows: YieldRow[] };
+  market: { heading: string; text: string; source: string; rows: YieldRow[] };
   residency: PanelSection;
   pathway: { heading: string; text: string; button: string; steps: IconCard[] };
   trust: PanelSection;
@@ -50,6 +50,7 @@ export const investDefaults: InvestContent = {
   market: {
     heading: "Rental Yield at a Glance",
     text: "A first-pass comparison of gross rental yield and capital appreciation across major global hubs.",
+    source: "Source: Comparative market data compiled from the Savills World Cities Prime Residential Index and Knight Frank Global Research. Figures represent gross market averages and historical cyclical performance.",
     rows: [
       { code: "AE", city: "Dubai", yieldLabel: "7.5%", yieldBar: "100%", trend: "up", gainLabel: "+41.6%", gainBar: "100%" },
       { code: "US", city: "San Francisco", yieldLabel: "6.6%", yieldBar: "88%", trend: "up", gainLabel: "+33.2%", gainBar: "80%" },

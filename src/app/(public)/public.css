@@ -32,6 +32,20 @@
   line-height: 24px;
 }
 
+.invest-yield-source {
+  max-width: 62ch;
+  margin: 18px 0 0 auto;
+  color: rgba(0, 0, 0, 0.58);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: right;
+}
+
+@media (max-width: 767px) {
+  .invest-yield-source { margin-top: 14px; font-size: 11px; text-align: left; }
+}
+
 .pdf-development-content h2 {
   max-inline-size: min(90vw, 34ch);
   text-wrap: balance;

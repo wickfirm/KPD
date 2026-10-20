@@ -108,6 +108,7 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <h2 className="cms-form-heading">Yield comparison</h2>
     <div className="cms-grid"><Text label="Heading" value={content.market.heading} onChange={(heading) => patch("market", { heading })} /></div>
     <Area label="Intro" value={content.market.text} onChange={(text) => patch("market", { text })} />
+    <Area label="Source note" value={content.market.source} onChange={(source) => patch("market", { source })} rows={3} help="Shown beneath the table, aligned to the right." />
     <ListEditor items={content.market.rows} onChange={(rows: YieldRow[]) => patch("market", { rows })} newItem={() => ({ code: "", city: "", yieldLabel: "", yieldBar: "50%", trend: "up" as const, gainLabel: "", gainBar: "50%" })} addLabel="Add city" itemLabel={(item, index) => `${index + 1}. ${item.city || "New city"}`}
       renderItem={(item, update) => <>
         <div className="cms-grid">

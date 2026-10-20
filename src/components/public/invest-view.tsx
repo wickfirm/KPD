@@ -66,6 +66,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
             </div>
           ))}
         </div>
+        {c.market.source ? <p className="invest-yield-source">{c.market.source}</p> : null}
       </section>
 
       {/* The client's mortgage calculator, verbatim (src/lib/mortgage-calculator-html.ts); driven by his mortgage-calculator.js. */}
