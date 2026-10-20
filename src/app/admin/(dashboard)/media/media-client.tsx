@@ -19,7 +19,7 @@ export function MediaUploadForm() {
       const signed = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "presign", fileName: file.name, contentType: file.type, size: file.size }) });
       const signature = await signed.json().catch(() => ({}));
       if (!signed.ok || !signature.uploadUrl || !signature.key) throw new Error(signature.error || "Could not prepare the R2 upload.");
-      const uploaded = await fetch(signature.uploadUrl, { method: "PUT", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file });
+      const uploaded = await fetch(signature.uploadUrl, { method: "PUT", headers: { "Content-Type": file.type || "application/octet-stream", "x-amz-content-sha256": "UNSIGNED-PAYLOAD" }, body: file });
       if (!uploaded.ok) throw new Error("R2 rejected the file upload. Check the bucket CORS settings for this website.");
       const registered = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "register", key: signature.key, fileName: file.name, contentType: file.type, size: file.size }) });
       const result = await registered.json().catch(() => ({}));

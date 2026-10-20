@@ -2,7 +2,7 @@
   {
     "AllowedOrigins": ["https://kpd.ae", "https://kpd-eight.vercel.app"],
     "AllowedMethods": ["PUT"],
-    "AllowedHeaders": ["content-type"],
+    "AllowedHeaders": ["content-type", "x-amz-content-sha256"],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 3600
   }

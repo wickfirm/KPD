@@ -6,14 +6,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3";
 import { SignatureV4 } from "@smithy/signature-v4";
-import { createHash, createHmac } from "node:crypto";
-
-class R2Sha256 {
-  private hash: ReturnType<typeof createHash> | ReturnType<typeof createHmac>;
-  constructor(secret?: string | Uint8Array) { this.hash = secret ? createHmac("sha256", secret) : createHash("sha256"); }
-  update(value: Uint8Array | string) { this.hash.update(value); }
-  async digest() { return this.hash.digest(); }
-}
+import { Sha256 } from "@smithy/core/checksum";
 
 function s3() {
   const accountId = process.env.R2_ACCOUNT_ID;
@@ -65,18 +58,18 @@ export async function r2PresignedUpload(key: string): Promise<string> {
   const bucket = process.env.R2_BUCKET;
   if (!accountId || !accessKeyId || !secretAccessKey || !bucket) throw new Error("R2 is not configured.");
   const hostname = `${accountId}.r2.cloudflarestorage.com`;
-  const signer = new SignatureV4({ credentials: { accessKeyId, secretAccessKey }, region: "auto", service: "s3", sha256: R2Sha256 as never });
+  const signer = new SignatureV4({ credentials: { accessKeyId, secretAccessKey }, region: "auto", service: "s3", sha256: Sha256 });
   const signed = await signer.presign({
     method: "PUT",
     protocol: "https:",
     hostname,
     path: `/${bucket}/${key}`,
-    // Only sign the host. Browser MIME detection is not completely uniform,
-    // and R2 permits Content-Type as an unsigned request header. This keeps
-    // the signature stable while the CMS still sends the correct MIME type.
-    headers: { host: hostname },
+    // Browser uploads stream their body, so R2 evaluates it as an unsigned
+    // payload. Keep that marker in the signed header set; Content-Type stays
+    // unsigned because browser MIME detection is not completely uniform.
+    headers: { host: hostname, "x-amz-content-sha256": "UNSIGNED-PAYLOAD" },
     query: {},
-  }, { expiresIn: 300 });
+  }, { expiresIn: 300, unhoistableHeaders: new Set(["x-amz-content-sha256"]) });
   const query = new URLSearchParams(Object.entries(signed.query ?? {}).flatMap(([name, value]) => Array.isArray(value) ? value.map((item) => [name, item]) : [[name, value ?? ""]])).toString();
   return `https://${hostname}${signed.path}${query ? `?${query}` : ""}`;
 }
