@@ -13,28 +13,17 @@ export function MediaUploadForm() {
   const [pending, setPending] = useState(false);
 
   async function uploadFile(file: File) {
-    // Vercel rejects request bodies over 4.5 MB. Large files are relayed in
-    // small chunks; R2 assembles the final object and remains the only store.
+    // Vercel rejects request bodies over 4.5 MB. Send larger files directly to
+    // R2 with a five-minute CMS signature; Vercel never receives file bytes.
     if (file.size > 4 * 1024 * 1024) {
-      const start = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "start", fileName: file.name, contentType: file.type, size: file.size }) });
-      const session = await start.json().catch(() => ({}));
-      if (!start.ok || !session.key || !session.uploadId) throw new Error(session.error || "Could not prepare the R2 upload.");
-      const chunkSize = 3 * 1024 * 1024;
-      const parts: { partNumber: number; eTag: string }[] = [];
-      for (let offset = 0, partNumber = 1; offset < file.size; offset += chunkSize, partNumber += 1) {
-        const chunk = file.slice(offset, Math.min(offset + chunkSize, file.size));
-        const response = await fetch("/api/admin/assets", {
-          method: "PUT",
-          headers: { "x-kpd-upload-key": session.key, "x-kpd-upload-id": session.uploadId, "x-kpd-part-number": String(partNumber) },
-          body: chunk,
-        });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok || !result.eTag) throw new Error(result.error || `Could not upload part ${partNumber}.`);
-        parts.push({ partNumber, eTag: result.eTag });
-      }
-      const complete = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "complete", key: session.key, uploadId: session.uploadId, fileName: file.name, contentType: file.type, size: file.size, parts }) });
-      const result = await complete.json().catch(() => ({}));
-      if (!complete.ok) throw new Error(result.error || "The R2 upload could not be completed.");
+      const signed = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "presign", fileName: file.name, contentType: file.type, size: file.size }) });
+      const signature = await signed.json().catch(() => ({}));
+      if (!signed.ok || !signature.uploadUrl || !signature.key) throw new Error(signature.error || "Could not prepare the R2 upload.");
+      const uploaded = await fetch(signature.uploadUrl, { method: "PUT", headers: { "Content-Type": file.type || "application/octet-stream" }, body: file });
+      if (!uploaded.ok) throw new Error("R2 rejected the file upload. Check the bucket CORS settings for this website.");
+      const registered = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "register", key: signature.key, fileName: file.name, contentType: file.type, size: file.size }) });
+      const result = await registered.json().catch(() => ({}));
+      if (!registered.ok) throw new Error(result.error || "The R2 file uploaded, but could not be added to the media library.");
       return;
     }
     const body = new FormData();

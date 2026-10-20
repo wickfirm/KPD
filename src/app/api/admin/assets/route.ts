@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       if (body.action === "presign") {
         if (!validUpload(String(body.fileName || ""), String(body.contentType || ""), Number(body.size))) return NextResponse.json({ error: "Use a supported file type up to 25 MB." }, { status: 400 });
         const key = buildCmsKey(String(body.fileName));
-        return NextResponse.json({ key, uploadUrl: await r2PresignedUpload(key, String(body.contentType)) });
+        return NextResponse.json({ key, uploadUrl: await r2PresignedUpload(key) });
       }
       if (body.action === "register") {
         const key = String(body.key || "");

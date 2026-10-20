@@ -58,7 +58,7 @@ export async function r2Upload(
 
 /// Short-lived browser-to-R2 PUT URL. Large files never pass through Vercel;
 /// the CMS only issues the signature and subsequently registers the R2 URL.
-export async function r2PresignedUpload(key: string, contentType: string): Promise<string> {
+export async function r2PresignedUpload(key: string): Promise<string> {
   const accountId = process.env.R2_ACCOUNT_ID;
   const accessKeyId = process.env.R2_ACCESS_KEY_ID;
   const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
@@ -71,7 +71,10 @@ export async function r2PresignedUpload(key: string, contentType: string): Promi
     protocol: "https:",
     hostname,
     path: `/${bucket}/${key}`,
-    headers: { "content-type": contentType, host: hostname },
+    // Only sign the host. Browser MIME detection is not completely uniform,
+    // and R2 permits Content-Type as an unsigned request header. This keeps
+    // the signature stable while the CMS still sends the correct MIME type.
+    headers: { host: hostname },
     query: {},
   }, { expiresIn: 300 });
   const query = new URLSearchParams(Object.entries(signed.query ?? {}).flatMap(([name, value]) => Array.isArray(value) ? value.map((item) => [name, item]) : [[name, value ?? ""]])).toString();
