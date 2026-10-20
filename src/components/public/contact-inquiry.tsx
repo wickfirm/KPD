@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 
 /// The delivered contact inquiry (public/legacy/contact.html): one adaptive
 /// form with five inquiry panes switched by tabs, a Client/Broker segment on
@@ -10,22 +11,20 @@ import { FormEvent, useEffect, useState } from "react";
 /// dual-write) instead of the delivered mailto action, and pane/disabled state
 /// is React state instead of the delivered inline script.
 
-const panes = [
-  { key: "sales", label: "Sales Inquiry", id: "sales" },
-  { key: "customer", label: "Customer Inquiry", id: "customer" },
-  { key: "channel", label: "Channel Partner", id: "channel" },
-  { key: "job", label: "Job Inquiry", id: "job" },
-  { key: "press", label: "Press Inquiry", id: "press" },
-] as const;
+type PaneKey = "sales" | "customer" | "channel" | "job" | "press";
 
-type PaneKey = (typeof panes)[number]["key"];
-
-const projectOptions = ["seven x seven Meydan Horizon Residences", "Villa 174", "Villa 24"];
-
-export function ContactInquiry({ email = "", phone = "", website = "" }: { email?: string; phone?: string; website?: string }) {
+export function ContactInquiry({ email = "", phone = "", website = "", content }: { email?: string; phone?: string; website?: string; content?: unknown }) {
+  const c = mergeContactInquiryContent(content);
+  const panes = [
+    { key: "sales" as const, label: c.salesLabel, id: "sales" },
+    { key: "customer" as const, label: c.customerLabel, id: "customer" },
+    { key: "channel" as const, label: c.channelLabel, id: "channel" },
+    { key: "job" as const, label: c.jobLabel, id: "job" },
+    { key: "press" as const, label: c.pressLabel, id: "press" },
+  ];
   const [activePane, setActivePane] = useState<PaneKey>("sales");
   const [segment, setSegment] = useState<"client" | "broker">("client");
-  const [cvName, setCvName] = useState("Attach a PDF or DOC");
+  const [cvName, setCvName] = useState("Attach a PDF, DOC or DOCX");
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
   const [plannerScenario, setPlannerScenario] = useState("");
@@ -73,7 +72,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
       press: get("Publication / Outlet") || "Press Inquiry",
     };
     const byPane: Record<PaneKey, [string, string][]> = {
-      sales: [["Enquirer type", segment === "broker" ? "Broker" : "Client"], ["Project of interest", get("Project of Interest") || plannerProject], ["Budget range", get("Budget Range")], ["Agency", get("Agency")], ["RERA / ORN", get("RERA / ORN")]],
+      sales: [["Enquirer type", segment === "broker" ? "Broker" : "Client"], ["Project of interest", get("Project of Interest") || plannerProject], ["Agency", get("Agency")], ["RERA / ORN", get("RERA / ORN")]],
       customer: [["Related project", get("Related Project")], ["Inquiry nature", get("Customer Inquiry Nature")]],
       channel: [["Company / agency", get("Company / Agency")], ["RERA / ORN", get("Partner RERA / ORN")], ["Market / country", get("Market / Country")], ["Website", get("Website")]],
       job: [["Role / department", get("Role / Department")], ["LinkedIn / portfolio", get("LinkedIn / Portfolio")]],
@@ -105,7 +104,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
       // Messages screen shows the form's own fields rather than one flattened note.
       const answers: [string, string][] = [
         ...byPane[activePane],
-        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF or DOC" ? cvName : "")] as [string, string]] : []),
+        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF, DOC or DOCX" ? cvName : "")] as [string, string]] : []),
         ["Marketing consent", data.get("Marketing") === "on" ? "Yes" : "No"],
         ["Terms accepted", data.get("Terms") === "on" ? "Yes" : ""],
         ["Ownership Cost Planner scenario", plannerScenario],
@@ -115,7 +114,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();
-      setCvName("Attach a PDF or DOC");
+      setCvName("Attach a PDF, DOC or DOCX");
       window.sessionStorage.removeItem("kpdPlannerScenario");
       window.sessionStorage.removeItem("kpdPlannerProject");
       setPlannerScenario("");
@@ -196,18 +195,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
               <label className="contact-adaptive-field">
                 <span>Project of interest</span>
                 <select name="Project of Interest" value={plannerProject || undefined} onChange={(event) => setPlannerProject(event.target.value)}>
-                  {projectOptions.map((option) => <option key={option}>{option}</option>)}
-                  <option>General enquiry</option>
-                </select>
-              </label>
-              <label className="contact-adaptive-field">
-                <span>Budget range</span>
-                <select name="Budget Range">
-                  <option>Under AED 5M</option>
-                  <option>AED 5-10M</option>
-                  <option>AED 10-20M</option>
-                  <option>AED 20M+</option>
-                  <option>Prefer not to say</option>
+                  {c.salesProjects.map((option) => <option key={option}>{option}</option>)}
                 </select>
               </label>
             </div>
@@ -223,7 +211,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
             </div>
             <label className="contact-adaptive-field contact-adaptive-field-wide">
               <span>Message</span>
-              <textarea name="Sales Message" placeholder="Tell us what you're looking for - bedrooms, timing, anything specific."></textarea>
+              <textarea name="Sales Message" placeholder={c.salesMessagePrompt}></textarea>
             </label>
           </div>
 
@@ -233,24 +221,19 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
               <label className="contact-adaptive-field">
                 <span>Related project</span>
                 <select name="Related Project">
-                  {projectOptions.map((option) => <option key={option}>{option}</option>)}
-                  <option>Other</option>
+                  {c.customerProjects.map((option) => <option key={option}>{option}</option>)}
                 </select>
               </label>
               <label className="contact-adaptive-field">
                 <span>Nature of inquiry</span>
                 <select name="Customer Inquiry Nature">
-                  <option>Handover</option>
-                  <option>Documentation</option>
-                  <option>Payment</option>
-                  <option>Maintenance</option>
-                  <option>Other</option>
+                  {c.customerNatures.map((option) => <option key={option}>{option}</option>)}
                 </select>
               </label>
             </div>
             <label className="contact-adaptive-field contact-adaptive-field-wide">
               <span>Message</span>
-              <textarea name="Customer Message" placeholder="Describe your request and include any reference or unit number."></textarea>
+              <textarea name="Customer Message" placeholder={c.customerMessagePrompt}></textarea>
             </label>
           </div>
 
@@ -278,7 +261,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
             </div>
             <label className="contact-adaptive-field contact-adaptive-field-wide">
               <span>Message</span>
-              <textarea name="Partner Message" placeholder="Tell us about your agency and the markets you cover."></textarea>
+              <textarea name="Partner Message" placeholder={c.channelMessagePrompt}></textarea>
             </label>
           </div>
 
@@ -298,11 +281,11 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
               <span className="contact-file-label">Upload CV</span>
               <span id="contactCvName">{cvName}</span>
               <b>Choose file</b>
-              <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF or DOC")} />
+              <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF, DOC or DOCX")} />
             </label>
             <label className="contact-adaptive-field contact-adaptive-field-wide">
               <span>Message</span>
-              <textarea name="Job Message" placeholder="A short note on why you'd like to join KPD."></textarea>
+              <textarea name="Job Message" placeholder={c.jobMessagePrompt}></textarea>
             </label>
           </div>
 
@@ -320,7 +303,7 @@ export function ContactInquiry({ email = "", phone = "", website = "" }: { email
             </div>
             <label className="contact-adaptive-field contact-adaptive-field-wide">
               <span>Message</span>
-              <textarea name="Press Message" placeholder="Outline your request and what you need from us."></textarea>
+              <textarea name="Press Message" placeholder={c.pressMessagePrompt}></textarea>
             </label>
           </div>
 

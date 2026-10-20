@@ -6,9 +6,10 @@ import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import type { LegacyMilestone } from "@/lib/legacy-defaults";
+import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 
 type ManagementPerson = { name?: string; role?: string; bio?: string; image?: string };
-type Block = { type?: string; heading?: string; text?: string; image?: string; eyebrow?: string; ctaLabel?: string; ctaUrl?: string; sectionHeading?: string; mission?: string; vision?: string; chairmanText?: string; chairmanName?: string; chairmanRole?: string; chairmanImage?: string; management?: ManagementPerson[]; timeline?: LegacyMilestone[] };
+type Block = { type?: string; heading?: string; text?: string; image?: string; eyebrow?: string; ctaLabel?: string; ctaUrl?: string; sectionHeading?: string; mission?: string; vision?: string; chairmanText?: string; chairmanName?: string; chairmanRole?: string; chairmanImage?: string; management?: ManagementPerson[]; timeline?: LegacyMilestone[]; [key: string]: unknown };
 export type StaticPageDefaults = { id?: string; slug?: string; title?: string; status?: string; content?: Block[] };
 const initialState: StaticPageFormState = {};
 
@@ -42,6 +43,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
   const hero = firstBlock(defaults?.content, "hero");
   const about = firstBlock(defaults?.content, "about");
   const legacy = firstBlock(defaults?.content, "legacy");
+  const contactForm = mergeContactInquiryContent(firstBlock(defaults?.content, "contact-form"));
   const savedParagraphs = (defaults?.content ?? []).flatMap((block) => block.type === "paragraph" && block.text ? [block.text] : block.type === "heading" && block.heading ? [`## ${block.heading}`] : []);
   const paragraphs = savedParagraphs.join("\n\n");
   const isAbout = defaults?.slug === "about";
@@ -103,6 +105,29 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
           <label className="cms-field"><span>Full text (shown when expanded)</span><textarea rows={5} value={item.body ?? ""} onChange={(event) => update({ body: event.target.value })} /></label>
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image ?? ""} onChange={(image) => update({ image })} accept="image/*" placeholder="/legacy/assets/images/…" fileLabel={`milestone ${index + 1} image`} /></div>
         </>} />
+    </section> : null}
+    {defaults?.slug === "contact" ? <section className="cms-editor-section">
+      <h2 className="cms-form-heading">Inquiry form</h2>
+      <p className="cms-muted">These labels, choices and message prompts control the form on the Contact page. Put one choice on each line.</p>
+      <div className="cms-grid">
+        <label className="cms-field"><span>Sales tab</span><input name="contactSalesLabel" defaultValue={contactForm.salesLabel} /></label>
+        <label className="cms-field"><span>Customer tab</span><input name="contactCustomerLabel" defaultValue={contactForm.customerLabel} /></label>
+        <label className="cms-field"><span>Channel partner tab</span><input name="contactChannelLabel" defaultValue={contactForm.channelLabel} /></label>
+        <label className="cms-field"><span>Job tab</span><input name="contactJobLabel" defaultValue={contactForm.jobLabel} /></label>
+        <label className="cms-field"><span>Press tab</span><input name="contactPressLabel" defaultValue={contactForm.pressLabel} /></label>
+      </div>
+      <div className="cms-grid">
+        <label className="cms-field"><span>Sales projects</span><textarea name="contactSalesProjects" rows={5} defaultValue={contactForm.salesProjects.join("\n")} /></label>
+        <label className="cms-field"><span>Customer projects</span><textarea name="contactCustomerProjects" rows={5} defaultValue={contactForm.customerProjects.join("\n")} /></label>
+        <label className="cms-field"><span>Customer inquiry types</span><textarea name="contactCustomerNatures" rows={5} defaultValue={contactForm.customerNatures.join("\n")} /></label>
+      </div>
+      <div className="cms-grid">
+        <label className="cms-field"><span>Sales message prompt</span><textarea name="contactSalesMessagePrompt" rows={3} defaultValue={contactForm.salesMessagePrompt} /></label>
+        <label className="cms-field"><span>Customer message prompt</span><textarea name="contactCustomerMessagePrompt" rows={3} defaultValue={contactForm.customerMessagePrompt} /></label>
+        <label className="cms-field"><span>Channel partner message prompt</span><textarea name="contactChannelMessagePrompt" rows={3} defaultValue={contactForm.channelMessagePrompt} /></label>
+        <label className="cms-field"><span>Job message prompt</span><textarea name="contactJobMessagePrompt" rows={3} defaultValue={contactForm.jobMessagePrompt} /></label>
+        <label className="cms-field"><span>Press message prompt</span><textarea name="contactPressMessagePrompt" rows={3} defaultValue={contactForm.pressMessagePrompt} /></label>
+      </div>
     </section> : null}
     {seo ? <SeoFields defaults={seo} /> : null}
     <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>{isLegal || isAbout || isLegacy || defaults?.slug === "contact" ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>

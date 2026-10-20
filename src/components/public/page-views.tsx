@@ -52,11 +52,12 @@ export function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; pre
 
 export function ContactView({ blocks, contact, previewNote }: { blocks: StaticBlock[]; contact: ContactDetails; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero") ?? {};
+  const inquiryForm = blocks.find((block) => block.type === "contact-form");
   return <>
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page kpd-page contact-page" />
     <SiteShellHeader />
-<main id="top" className="contact-main page-reference-main"><section className="page-reference-hero" aria-label="Contact">{hero.image ? <img src={hero.image as string} alt="KPD Experience Center reception lounge" /> : null}<div className="page-reference-hero-copy motion-reveal">{hero.eyebrow ? <span>{hero.eyebrow as string}</span> : null}<h1>{hero.heading as string ?? ""}</h1><p>{hero.text as string ?? ""}</p></div></section><section className="contact-inquiry" id="experience-center" aria-label="Contact inquiry"><div className="contact-inquiry-shell"><ContactInquiry email={contact.email} phone={contact.phone} website={contact.website} /></div></section></main>
+<main id="top" className="contact-main page-reference-main"><section className="page-reference-hero" aria-label="Contact">{hero.image ? <img src={hero.image as string} alt="KPD Experience Center reception lounge" /> : null}<div className="page-reference-hero-copy motion-reveal">{hero.eyebrow ? <span>{hero.eyebrow as string}</span> : null}<h1>{hero.heading as string ?? ""}</h1><p>{hero.text as string ?? ""}</p></div></section><section className="contact-inquiry" id="experience-center" aria-label="Contact inquiry"><div className="contact-inquiry-shell"><ContactInquiry email={contact.email} phone={contact.phone} website={contact.website} content={inquiryForm} /></div></section></main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page kpd-page contact-page" />

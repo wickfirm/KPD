@@ -28,6 +28,7 @@ import { moduleSectionId } from "@/lib/module-section-id";
 import { normalizeLineBreaks } from "@/lib/line-breaks";
 import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
 import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
+import { contactInquiryDefaults } from "@/lib/contact-inquiry-content";
 
 function slugify(value: string) {
   return value
@@ -595,6 +596,22 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     management,
   } : null;
   const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline } : null;
+  const contactForm = slug === "contact" ? {
+    type: "contact-form",
+    salesLabel: String(formData.get("contactSalesLabel") || "").trim() || contactInquiryDefaults.salesLabel,
+    customerLabel: String(formData.get("contactCustomerLabel") || "").trim() || contactInquiryDefaults.customerLabel,
+    channelLabel: String(formData.get("contactChannelLabel") || "").trim() || contactInquiryDefaults.channelLabel,
+    jobLabel: String(formData.get("contactJobLabel") || "").trim() || contactInquiryDefaults.jobLabel,
+    pressLabel: String(formData.get("contactPressLabel") || "").trim() || contactInquiryDefaults.pressLabel,
+    salesProjects: nonEmptyLines(formData.get("contactSalesProjects")).length ? nonEmptyLines(formData.get("contactSalesProjects")) : contactInquiryDefaults.salesProjects,
+    customerProjects: nonEmptyLines(formData.get("contactCustomerProjects")).length ? nonEmptyLines(formData.get("contactCustomerProjects")) : contactInquiryDefaults.customerProjects,
+    customerNatures: nonEmptyLines(formData.get("contactCustomerNatures")).length ? nonEmptyLines(formData.get("contactCustomerNatures")) : contactInquiryDefaults.customerNatures,
+    salesMessagePrompt: String(formData.get("contactSalesMessagePrompt") || "").trim() || contactInquiryDefaults.salesMessagePrompt,
+    customerMessagePrompt: String(formData.get("contactCustomerMessagePrompt") || "").trim() || contactInquiryDefaults.customerMessagePrompt,
+    channelMessagePrompt: String(formData.get("contactChannelMessagePrompt") || "").trim() || contactInquiryDefaults.channelMessagePrompt,
+    jobMessagePrompt: String(formData.get("contactJobMessagePrompt") || "").trim() || contactInquiryDefaults.jobMessagePrompt,
+    pressMessagePrompt: String(formData.get("contactPressMessagePrompt") || "").trim() || contactInquiryDefaults.pressMessagePrompt,
+  } : null;
   // The investor-guide editor sends its structured sections as JSON.
   let invest: ({ type: "invest" } & ReturnType<typeof sanitizeInvestContent>) | null = null;
   if (slug === "invest-in-dubai" && String(formData.get("investJson") || "").trim()) {
@@ -609,6 +626,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     ...paragraphBlocks(paragraphs),
     ...(about ? [about] : []),
     ...(legacy ? [legacy] : []),
+    ...(contactForm ? [contactForm] : []),
     ...(invest ? [invest] : []),
   ];
 
