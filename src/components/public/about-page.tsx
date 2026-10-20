@@ -1,5 +1,5 @@
 ﻿import type { ReactNode } from "react";
-import { aboutDefaults, type AboutContent } from "@/lib/about-defaults";
+import type { AboutContent } from "@/lib/about-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -11,21 +11,21 @@ function multiline(value: string): ReactNode[] {
 /// from the delivered file is intentionally omitted (client-confirmed), and
 /// any number of management cards is supported.
 export function AboutMain({ content }: { content: AboutContent }) {
-  const heading = content.heading || aboutDefaults.heading;
-  const heroText = content.heroText || aboutDefaults.heroText;
-  const heroImage = content.heroImage || aboutDefaults.heroImage;
-  const story = content.story?.filter(Boolean).length ? content.story.filter(Boolean) : aboutDefaults.story;
-  const mission = content.mission || aboutDefaults.mission;
-  const vision = content.vision || aboutDefaults.vision;
-  const chairmanText = content.chairmanText || aboutDefaults.chairmanText;
-  const chairmanName = content.chairmanName || aboutDefaults.chairmanName;
-  const chairmanRole = content.chairmanRole || aboutDefaults.chairmanRole;
-  const chairmanImage = content.chairmanImage || aboutDefaults.chairmanImage;
-  const management = content.management?.length ? content.management : aboutDefaults.management;
+  const heading = content.heading ?? "";
+  const heroText = content.heroText ?? "";
+  const heroImage = content.heroImage ?? "";
+  const story = content.story?.filter(Boolean) ?? [];
+  const mission = content.mission ?? "";
+  const vision = content.vision ?? "";
+  const chairmanText = content.chairmanText ?? "";
+  const chairmanName = content.chairmanName ?? "";
+  const chairmanRole = content.chairmanRole ?? "";
+  const chairmanImage = content.chairmanImage ?? "";
+  const management = content.management ?? [];
   return (
     <main className="about-main page-reference-main" id="top">
       <section className="page-reference-hero" aria-label="About Kasumigaseki Properties Development">
-        <img src={heroImage} alt="Real estate advisory model presentation" />
+        {heroImage ? <img src={heroImage} alt="Real estate advisory model presentation" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
           <span>About</span>
           <h1>{multiline(heading)}</h1>
@@ -39,7 +39,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
             {story.map((paragraph, index) => <p key={index}>{multiline(paragraph)}</p>)}
           </div>
           <div className="about-story-media">
-            <img src="/legacy/assets/images/about/pdf/about-pdf-1-2.jpg" alt="KPD office workspace" />
+            {heroImage ? <img src={heroImage} alt="KPD office workspace" /> : null}
           </div>
         </div>
       </section>
@@ -48,7 +48,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
         <article className="about-mission-card"><h2>Our Vision</h2><p>{multiline(vision)}</p></article>
       </section>
       <section className="about-chairman" id="chairman">
-        <div className="about-chairman-media"><img src={chairmanImage} alt="Chairman portrait" /></div>
+        <div className="about-chairman-media">{chairmanImage ? <img src={chairmanImage} alt="Chairman portrait" /> : null}</div>
         <div className="about-chairman-copy">
           <p>{multiline(chairmanText)}</p>
           <div className="about-chairman-signature"><strong>{chairmanName}</strong><span>{chairmanRole}</span></div>

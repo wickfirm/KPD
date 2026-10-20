@@ -39,8 +39,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css" />
     <SiteShellHeader /><main className="invest-main page-reference-main" id="top">
       <section className="page-reference-hero invest-hero" aria-label="Invest in Dubai">
-        <img src={hero?.image || "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg"} alt="Dubai skyline with Burj Khalifa" />
-        <div className="page-reference-hero-copy motion-reveal"><span>Invest in Dubai</span><h1>{hero?.heading ? multiline(hero.heading) : <>Long-horizon<br />value in Dubai</>}</h1><p>{hero?.text || "A focused investment pathway for buyers seeking regulated ownership, composed residential assets, and advisory clarity across Dubai's next chapter."}</p></div>
+        {hero?.image ? <img src={hero.image} alt="Dubai skyline with Burj Khalifa" /> : null}
+        <div className="page-reference-hero-copy motion-reveal"><span>Invest in Dubai</span><h1>{multiline(hero?.heading ?? "")}</h1><p>{hero?.text ?? ""}</p></div>
         <div className="invest-hero-metrics motion-reveal" style={delay("120ms")} aria-label="Investment highlights">{c.metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>
       </section>
 

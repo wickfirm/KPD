@@ -35,21 +35,21 @@ export const investDefaults: InvestContent = {
   ],
   benefits: {
     heading: "Why Dubai remains investable",
-    text: "Quick answers to the core motivations behind Dubai investment: regulated ownership, business mobility, rental demand, and a city that continues to attract global residents and capital.",
+    text: "A regulated ownership framework. International demand. Business mobility. Multiple entry routes. A city built to keep attracting people, capital and enterprise. These are the fundamentals to examine first.",
     items: [
-      { icon: "fi-tr-shield-check", title: "Government-backed market", text: "Clear title registration, regulated escrow, and defined transaction steps give international buyers a visible framework for decision-making." },
-      { icon: "fi-tr-chart-line-up", title: "Capital growth", text: "Prime Dubai districts continue to benefit from population growth, infrastructure investment, and sustained end-user demand." },
-      { icon: "fi-tr-user-shield", title: "World-class safety", text: "Governance, security, infrastructure, and daily quality of life support Dubai's appeal for families, entrepreneurs, and global residents." },
-      { icon: "fi-tr-home", title: "Rental yield depth", text: "Leasing demand is supported by business relocation, international mobility, tourism, schools, and a growing base of long-term residents." },
-      { icon: "fi-tr-contract", title: "Transparent process", text: "Buyers can evaluate fees, documents, ownership route, payment milestones, and handover obligations before committing." },
-      { icon: "fi-tr-wallet-money", title: "Flexible entry options", text: "Off-plan and ready homes create different routes for investors reviewing cash flow, handover timing, and portfolio balance." },
-      { icon: "fi-tr-world", title: "Global mobility", text: "Residency pathways, aviation connectivity, and a pro-business environment make Dubai a practical base as well as an investment market." },
-      { icon: "fi-tr-route", title: "Exit planning", text: "Resale, leasing readiness, and holding strategy can be planned from the beginning so the purchase is evaluated beyond acquisition day." },
+      { icon: "fi-tr-shield-check", title: "A government-backed market", text: "Title registration, regulated escrow and defined transaction steps give international buyers a clear process to review before commitment." },
+      { icon: "fi-tr-chart-line-up", title: "Capital growth", text: "Population growth, infrastructure investment and end-user demand continue to shape the case for well-located residential property." },
+      { icon: "fi-tr-user-shield", title: "World-class safety", text: "Security, infrastructure and everyday quality of life support Dubai's appeal to families, entrepreneurs and international residents." },
+      { icon: "fi-tr-home", title: "Rental yield depth", text: "Business relocation, global mobility, tourism, schools and a growing base of long-term residents all contribute to leasing demand." },
+      { icon: "fi-tr-contract", title: "Transparent process", text: "The process can be seen before it is signed. Fees, documents, ownership route, payment milestones and handover obligations can be reviewed in advance." },
+      { icon: "fi-tr-wallet-money", title: "Flexible entry options", text: "Off-plan and ready homes create different routes for buyers balancing cash flow, handover timing and portfolio strategy." },
+      { icon: "fi-tr-world", title: "A connected hub", text: "Residency pathways, global aviation links and a pro-business environment make Dubai both a practical base and an investment market." },
+      { icon: "fi-tr-route", title: "Exit planning", text: "Plan the exit before the entry. Resale, leasing readiness and holding strategy belong in the first conversation, not the last." },
     ],
   },
   market: {
-    heading: "Dubai vs Global Hubs: Rental Yield at a Glance",
-    text: "A compact comparison of rental yield and capital appreciation signals across major global hubs, presented as a decision board for first-pass market review.",
+    heading: "Rental Yield at a Glance",
+    text: "A first-pass comparison of gross rental yield and capital appreciation across major global hubs.",
     rows: [
       { code: "AE", city: "Dubai", yieldLabel: "7.5%", yieldBar: "100%", trend: "up", gainLabel: "+41.6%", gainBar: "100%" },
       { code: "US", city: "San Francisco", yieldLabel: "6.6%", yieldBar: "88%", trend: "up", gainLabel: "+33.2%", gainBar: "80%" },
@@ -62,53 +62,53 @@ export const investDefaults: InvestContent = {
   residency: {
     eyebrow: "Golden Visa Through Property Investment",
     heading: "Residency planning, reviewed with the purchase.",
-    text: "For many buyers, Dubai real estate is part investment and part long-term personal infrastructure. KPD frames the conversation around ownership use, qualifying asset value, documentation route, and family planning before a commitment is made.",
+    text: "Residency is part of the ownership conversation. For some buyers, Dubai property is both an asset and part of a longer-term personal plan. We frame the discussion around qualifying asset value, ownership structure, documentation route and family intentions before commitment.",
     button: "Discuss eligibility",
     image: "/legacy/assets/images/library/panorama-of-dubai-skyscrapers-skyline-2026-01-07-06-12-48-utc.jpg",
     cards: [
-      { icon: "fi-tr-badge-check", title: "Eligibility review", text: "Asset value, ownership route, and current residency conditions are reviewed with appointed advisors." },
-      { icon: "fi-tr-folder-open", title: "Document clarity", text: "Buyer information, transaction documents, and handover steps are organized as one advisory path." },
-      { icon: "fi-tr-users-alt", title: "Family planning", text: "End use, leasing, schooling, mobility, and longer-term living intentions are considered together." },
+      { icon: "fi-tr-badge-check", title: "Eligibility review", text: "Review asset value, ownership route and current residency requirements with appointed advisers and official sources." },
+      { icon: "fi-tr-folder-open", title: "Document clarity", text: "Keep buyer information, transaction documents and handover requirements in one visible path." },
+      { icon: "fi-tr-users-alt", title: "Family planning", text: "End use, leasing, schooling, mobility and longer-term living intentions should be considered together." },
     ],
   },
   pathway: {
     heading: "Investment pathway",
-    text: "The process is kept simple: understand the brief, select the asset, review payment terms, document eligibility routes, and plan the ownership phase before handover.",
-    button: "Begin inquiry",
+    text: "Understand the brief. Select the residence. Confirm the documents. Register the plan. Prepare for handover.",
+    button: "Begin an enquiry",
     steps: [
-      { icon: "fi-tr-route", title: "Define the brief", text: "Budget, use case, timing, preferred address, and holding strategy are clarified first." },
-      { icon: "fi-tr-house-building", title: "Select the residence", text: "Available homes are reviewed against layout, view, location logic, payment terms, and daily livability." },
-      { icon: "fi-tr-contract", title: "Confirm documents", text: "Buyer details, reservation documents, payment schedule, and transaction requirements are prepared." },
-      { icon: "fi-tr-receipt", title: "Register the plan", text: "Payment milestones, ownership route, and handover obligations are tracked through one clear process." },
-      { icon: "fi-tr-key", title: "Plan handover", text: "Completion, inspection, leasing, furnishing, or end-use planning is discussed before possession." },
+      { icon: "fi-tr-route", title: "Define the brief", text: "Budget, use case, timing, preferred address and holding strategy come first." },
+      { icon: "fi-tr-house-building", title: "Select the residence", text: "Review available homes against layout, view, location, payment terms and everyday use." },
+      { icon: "fi-tr-contract", title: "Confirm the documents", text: "Prepare buyer details, reservation documents, payment schedule and transaction requirements." },
+      { icon: "fi-tr-receipt", title: "Register the plan", text: "Track payment milestones, ownership route and handover obligations through one clear process." },
+      { icon: "fi-tr-key", title: "Plan the handover", text: "Discuss completion, inspection, leasing, furnishing or end-use before possession." },
     ],
   },
   trust: {
     eyebrow: "Developer Trust & Delivery",
     heading: "Review the platform behind the address.",
-    text: "KPD extends Kasumigaseki Capital's discipline into Dubai through measured residential development, clear documentation, and a delivery culture shaped around long-horizon value.",
+    text: "Behind every address, a public-company standard. Kasumigaseki Properties Development is backed by Kasumigaseki Capital, listed on the Tokyo Stock Exchange Prime Market. That institutional framework informs how projects are studied, documented, built and carried beyond handover.",
     button: "Speak to advisory",
     image: "/legacy/assets/images/library/modern-financial-office-buildings-2026-03-18-04-41-23-utc.jpg",
     cards: [
-      { icon: "fi-tr-building", title: "Development discipline", text: "Each project is reviewed around site logic, specification, buildability, and buyer use." },
-      { icon: "fi-tr-bank", title: "Capital strength", text: "The platform is shaped by institutional investment thinking and careful project sequencing." },
-      { icon: "fi-tr-user-shield", title: "Buyer confidence", text: "Documentation, quality control, and advisory coordination are kept visible throughout." },
+      { icon: "fi-tr-building", title: "Development discipline", text: "Site logic, specification, buildability and buyer use are examined before the project moves forward." },
+      { icon: "fi-tr-bank", title: "Capital strength", text: "Institutional investment thinking and careful project sequencing sit behind the development platform." },
+      { icon: "fi-tr-user-shield", title: "Buyer confidence", text: "Documentation, quality control and advisory coordination stay visible throughout the ownership journey." },
     ],
   },
   liquidity: {
     heading: "Market Liquidity & Exit",
-    text: "Dubai's active ownership market allows investors to review entry and exit together: demand depth, resale timing, rental readiness, and buyer appetite are part of the same conversation.",
-    feature: { icon: "fi-tr-chart-mixed", title: "Liquidity is planned before purchase.", text: "Location, unit mix, handover date, price band, and future tenant profile are evaluated early so the asset has a clearer resale or leasing story later." },
+    text: "Think about the exit before you enter. Dubai's active ownership market allows entry and exit to be considered together: demand depth, resale timing, rental readiness and future buyer appetite belong in the same review.",
+    feature: { icon: "fi-tr-chart-mixed", title: "Liquidity is planned before purchase.", text: "Location, unit mix, handover date, price band and future tenant profile should be tested early so the asset has a clearer resale or leasing story later." },
     cards: [
-      { icon: "fi-tr-chart-histogram", title: "Active resale market", text: "Comparable transactions and buyer demand help frame potential exit timing." },
-      { icon: "fi-tr-handshake", title: "Tenant depth", text: "Business relocation, families, and global residents support leasing activity." },
-      { icon: "fi-tr-receipt", title: "Clear transfer route", text: "Fees, transfer steps, and documentation expectations are reviewed in advance." },
-      { icon: "fi-tr-arrow-trend-up", title: "Holding strategy", text: "Rental, resale, end-use, or hybrid ownership paths can be compared before commitment." },
+      { icon: "fi-tr-chart-histogram", title: "Active resale market", text: "Comparable transactions and buyer demand can help frame potential exit timing." },
+      { icon: "fi-tr-handshake", title: "Tenant depth", text: "Business relocation, families and international residents contribute to leasing activity." },
+      { icon: "fi-tr-receipt", title: "Clear transfer route", text: "Review fees, transfer steps and documentation expectations before they become deadlines." },
+      { icon: "fi-tr-arrow-trend-up", title: "Holding strategy", text: "Compare rental, resale, end-use and hybrid ownership paths before commitment." },
     ],
   },
   featured: {
     heading: "Featured developments",
-    text: "Review KPD's current residential pages, then continue into a private advisory conversation for availability, floor plans, pricing, and payment terms.",
+    text: "Current developments. Review the current residential collection, then move into a private conversation for availability, floor plans, pricing and payment terms.",
     cards: [
       { href: "/developments/seven-x-seven", image: "/legacy/assets/images/project-media/sxs/facade%20right%202.png", title: "seven x seven Meydan Horizon Residences", copy: "A residence shaped around balance: city and sanctuary, privacy and connection, stillness and play." },
       { href: "/developments/emerald-villa", image: "/legacy/assets/images/project-media/Emerald%20Villa/37.jpg", title: "Villa 174", copy: "A private villa shaped around garden arrival, layered privacy and family-scaled living." },
@@ -118,22 +118,22 @@ export const investDefaults: InvestContent = {
   faq: {
     eyebrow: "Frequently Asked Questions",
     heading: "Answers for the first investment conversation.",
-    text: "Use these questions as a starting point before a private review of availability, payment terms, ownership route, and documentation requirements.",
+    text: "The first questions worth asking. Use these as a starting point before a private review of availability, payment terms, ownership route and documentation requirements.",
     items: [
       { question: "Can international buyers purchase property in Dubai?", answer: "International buyers can purchase property in designated ownership areas, subject to the current transaction, registration, and documentation process for the selected asset." },
       { question: "Can property investment support residency planning?", answer: "Qualifying property investment may be reviewed as part of current residency eligibility routes. Requirements can change, so final advice should be checked against official channels and appointed advisors." },
-      { question: "How should I compare off-plan payment plans?", answer: "Compare the booking amount, construction-linked milestones, handover balance, post-handover terms, total cost, expected completion timing, and the strength of the location and product brief." },
+      { question: "How should I compare off-plan payment plans?", answer: "Review the booking amount, construction-linked milestones, handover balance, post-handover terms, total cost, expected completion timing and the strength of the location and product brief as one complete cash-flow path." },
       { question: "What should I review before resale or leasing?", answer: "Review comparable supply, expected handover timing, service charges, tenant demand, view, layout, payment history, and the clarity of the ownership documentation." },
-      { question: "What happens after I select a residence?", answer: "The KPD team can coordinate availability review, floor plan discussion, payment plan explanation, and the next documentation steps for the selected development." },
+      { question: "What happens after I select a residence?", answer: "The Kasumigaseki Properties Development team can coordinate availability, floor-plan review, payment-plan explanation and the next documentation steps for the selected development." },
     ],
   },
   contact: {
     eyebrow: "Investment Inquiry",
     heading: "Begin with a private\ninvestment review.",
-    text: "Discuss budget, project fit, payment milestones, residency planning, and ownership strategy with the KPD advisory team.",
+    text: "Discuss budget, project fit, payment milestones, residency planning and ownership strategy in a private review.",
     image: "/legacy/assets/images/experience-center/hq/15.jpg",
     primaryLabel: "Book a review",
-    secondaryLabel: "Contact team",
+    secondaryLabel: "Contact the team",
   },
 };
 
@@ -145,27 +145,10 @@ export const investIcons = [
   "fi-tr-chart-mixed", "fi-tr-chart-histogram", "fi-tr-handshake", "fi-tr-arrow-trend-up", "fi-tr-passport", "fi-tr-building-shield", "fi-tr-calendar-clock", "fi-tr-file-invoice-dollar", "fi-tr-question",
 ];
 
-const nonEmpty = (value: unknown): value is string => typeof value === "string" && value.trim() !== "";
-
-/// Field-wise merge for an object section; list-valued sections replace the
-/// default list as a whole when the editor saved at least one entry.
-function mergeSection<T extends object>(base: T, saved: unknown): T {
-  const out = { ...base } as Record<string, unknown>;
-  if (saved && typeof saved === "object" && !Array.isArray(saved)) {
-    for (const [key, value] of Object.entries(saved as Record<string, unknown>)) {
-      if (!(key in out)) continue;
-      const current = out[key];
-      if (Array.isArray(current)) { if (Array.isArray(value) && value.length) out[key] = value; }
-      else if (current && typeof current === "object") out[key] = mergeSection(current as object, value);
-      else if (nonEmpty(value)) out[key] = value;
-    }
-  }
-  return out as T;
-}
-
-/// The page content: saved editor values over the delivered defaults.
+/// The page content is CMS-only. The delivered object above remains a schema
+/// template for validation, but is never rendered or used to prefill saves.
 export function mergeInvestContent(saved: unknown): InvestContent {
-  return mergeSection(investDefaults, saved);
+  return sanitizeInvestContent(saved);
 }
 
 /// Clamps arbitrary submitted JSON to the investor-guide schema: only known

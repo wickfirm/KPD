@@ -22,7 +22,7 @@ type PaneKey = (typeof panes)[number]["key"];
 
 const projectOptions = ["seven x seven Meydan Horizon Residences", "Villa 174", "Villa 24"];
 
-export function ContactInquiry({ email, phone, website }: { email: string; phone: string; website: string }) {
+export function ContactInquiry({ email = "", phone = "", website = "" }: { email?: string; phone?: string; website?: string }) {
   const [activePane, setActivePane] = useState<PaneKey>("sales");
   const [segment, setSegment] = useState<"client" | "broker">("client");
   const [cvName, setCvName] = useState("Attach a PDF or DOC");

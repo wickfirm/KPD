@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { legalSeo, pageMetadata } from "@/lib/seo";
 import { loadFixedPageSeo } from "@/lib/seo-store";
 import type { Metadata } from "next";
@@ -16,18 +16,17 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const seo = legalSeo[slug as keyof typeof legalSeo];
-  return seo ? pageMetadata(await loadFixedPageSeo(slug)) : { title: legalPages[slug]?.title ?? "Legal" };
+  return seo ? pageMetadata(await loadFixedPageSeo(slug)) : { title: "Legal" };
 }
 
-/// Managed legal pages render the delivered legal-page structure verbatim
-/// (see LegalPageView). Until a page is PUBLISHED the delivered static file is
-/// served by redirecting to /legacy/<file>.
+/// Managed legal pages render only CMS content; unpublished pages are not
+/// exposed through a delivered static-copy fallback.
 export default async function ManagedLegalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const meta = legalPages[slug];
   if (!meta) notFound();
   let page: { title: string; content: unknown; status: string } | null = null;
   try { page = await db.staticPage.findUnique({ where: { slug } }); } catch {}
-  if (!page || page.status !== "PUBLISHED") redirect(`/legacy/${meta.file}`);
+  if (!page || page.status !== "PUBLISHED") notFound();
   return <LegalPageView slug={slug} page={page} />;
 }

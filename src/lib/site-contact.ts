@@ -1,43 +1,30 @@
 import { cache } from "react";
 import { db } from "@/lib/db";
 
-/// Site-wide contact details and footer settings (Admin → Site settings). Every
-/// field is optional in the database; an empty value falls back to the
-/// delivered default so a half-filled settings form can never blank a link.
+/// Site-wide contact details and footer settings (Admin → Site settings).
+/// The CMS is the only content source; omitted values intentionally stay blank.
 export type GlobalSettings = {
-  email: string;
-  phone: string;
-  whatsapp: string;
-  newsletterNote: string;
-  facebook: string;
-  x: string;
-  instagram: string;
-  youtube: string;
-  linkedin: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  newsletterNote?: string;
+  facebook?: string;
+  x?: string;
+  instagram?: string;
+  youtube?: string;
+  linkedin?: string;
 };
 
-export const globalDefaults: GlobalSettings = {
-  email: "info@kpd.ae",
-  phone: "+971 4 388 3099",
-  whatsapp: "https://wa.me/97143883099",
-  newsletterNote: "By signing up, I agree to receive KPD updates and accept the",
-  facebook: "https://www.facebook.com/",
-  x: "https://x.com/",
-  instagram: "https://www.instagram.com/",
-  youtube: "https://www.youtube.com/",
-  linkedin: "https://www.linkedin.com/company/kasumigasekimiddleeast",
-};
+/// Kept as an empty public constant for compatibility with existing callers.
+/// Runtime settings never populate missing values from this object.
+export const globalDefaults: GlobalSettings = {};
 
-/// Non-empty saved values over the delivered defaults.
+/// Parses the editable global settings without filling any missing values.
 export function mergeGlobalSettings(saved: unknown): GlobalSettings {
-  const merged = { ...globalDefaults };
-  if (saved && typeof saved === "object" && !Array.isArray(saved)) {
-    for (const key of Object.keys(globalDefaults) as (keyof GlobalSettings)[]) {
-      const value = (saved as Record<string, unknown>)[key];
-      if (typeof value === "string" && value.trim()) merged[key] = value.trim();
-    }
-  }
-  return merged;
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
+  return Object.fromEntries(Object.entries(saved as Record<string, unknown>)
+    .filter(([key, value]) => key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true }) && typeof value === "string")
+    .map(([key, value]) => [key, (value as string).trim()])) as GlobalSettings;
 }
 
 export const getGlobalSettings = cache(async (): Promise<GlobalSettings> => {
@@ -45,17 +32,17 @@ export const getGlobalSettings = cache(async (): Promise<GlobalSettings> => {
     const setting = await db.siteSetting.findUnique({ where: { key: "global" } });
     return mergeGlobalSettings(setting?.value);
   } catch {
-    return globalDefaults;
+    return {};
   }
 });
 
 /// "+971 4 388 3099" -> "tel:+97143883099"
-export function telHref(phone: string) {
+export function telHref(phone = "") {
   return `tel:${phone.replace(/[^+\d]/g, "")}`;
 }
 
 /// Accepts a full wa.me / api.whatsapp.com URL or a bare number.
-export function whatsappHref(value: string) {
+export function whatsappHref(value = "") {
   if (/^https?:\/\//i.test(value)) return value;
   return `https://wa.me/${value.replace(/\D/g, "")}`;
 }

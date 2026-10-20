@@ -12,7 +12,7 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
   const [state, formAction, pending] = useActionState(saveGlobalSettings, initialState);
   const global = settings.global ?? {};
   return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
-    <h1>Site settings</h1><p className="cms-muted">Shared contact details used across the site: the footer, the floating Enquiry / Call / WhatsApp buttons, the booking form and the Contact page. Leave a field empty to use the default. Homepage content lives under <strong>Pages → Homepage</strong>.</p>
+    <h1>Site settings</h1><p className="cms-muted">Shared contact details used across the site: the footer, the floating Enquiry / Call / WhatsApp buttons, the booking form and the Contact page. Leave a field empty to hide or disable that item. Homepage content lives under <strong>Pages → Homepage</strong>.</p>
     <h2 className="cms-form-heading">Contact</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Email</span><input type="email" name="email" defaultValue={global.email ?? ""} placeholder="info@kpd.ae" /><small>Used for enquiries, the booking form and newsletter sign-ups.</small></label>

@@ -1,5 +1,5 @@
 ﻿import type { CSSProperties, ReactNode } from "react";
-import { legacyDefaults, type LegacyContent, type LegacyMilestone } from "@/lib/legacy-defaults";
+import type { LegacyContent } from "@/lib/legacy-defaults";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -10,14 +10,14 @@ function multiline(value: string): ReactNode[] {
 /// delivered markup (public/legacy/legacy.html). Any number of milestones is
 /// supported; years alternate left/right exactly like the delivered design.
 export function LegacyMain({ content }: { content: LegacyContent }) {
-  const heading = content.heading || legacyDefaults.heading;
-  const text = content.text || legacyDefaults.text;
-  const image = content.image || legacyDefaults.image;
-  const milestones = content.timeline?.length ? content.timeline : legacyDefaults.timeline;
+  const heading = content.heading ?? "";
+  const text = content.text ?? "";
+  const image = content.image ?? "";
+  const milestones = content.timeline ?? [];
   return (
     <main className="legacy-main page-reference-main" id="top">
       <section className="page-reference-hero" aria-label="Legacy">
-        <img src={image} alt="Tokyo alleyway and Japanese hospitality context" />
+        {image ? <img src={image} alt="Tokyo alleyway and Japanese hospitality context" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
           <span>Legacy</span>
           <h1>{multiline(heading)}</h1>

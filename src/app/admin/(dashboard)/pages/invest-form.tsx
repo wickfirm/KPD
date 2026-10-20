@@ -14,12 +14,6 @@ const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 type Block = { type?: string; heading?: string; text?: string; image?: string };
 export type InvestPageDefaults = { id?: string; slug?: string; title?: string; content?: (Block & Record<string, unknown>)[] };
 
-const heroDefaults = {
-  heading: "Long-horizon\nvalue in Dubai",
-  text: "A focused investment pathway for buyers seeking regulated ownership, composed residential assets, and advisory clarity across Dubai's next chapter.",
-  image: "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg",
-};
-
 function Text({ label, value, onChange, placeholder, help, list }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; help?: string; list?: string }) {
   return <label className="cms-field"><span>{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} list={list} />{help ? <small>{help}</small> : null}</label>;
 }
@@ -60,8 +54,7 @@ function PanelEditor({ value, onChange }: { value: PanelSection; onChange: (chan
   </>;
 }
 
-/// Investor-guide editor: every section of the Invest in Dubai page. Fields
-/// show the delivered content until you save your own, like the public page.
+/// Investor-guide editor: every public value comes from this CMS record.
 export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefaults; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -96,12 +89,12 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <input type="hidden" name="investJson" value={JSON.stringify(content)} />
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <datalist id="invest-icons">{investIcons.map((icon) => <option key={icon} value={icon} />)}</datalist>
-    <p className="cms-muted">Fields show the delivered copy until you save your own. Saving makes the page live immediately.</p>
+    <p className="cms-muted">These fields are the public page source of truth. Empty values remain empty after saving.</p>
 
     <h2 className="cms-form-heading">Hero</h2>
-    <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading || heroDefaults.heading} /><small>Line breaks render on the public page exactly as typed.</small></label>
-    <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={3} defaultValue={hero?.text || heroDefaults.text} /></label>
-    <div className="cms-field"><span>Hero image</span><AssetUrlField name="image" defaultValue={hero?.image || heroDefaults.image} accept={IMAGES} placeholder="/legacy/assets/images/..." fileLabel="hero image" /></div>
+    <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={3} defaultValue={hero?.text ?? ""} /></label>
+    <div className="cms-field"><span>Hero image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} accept={IMAGES} placeholder="/legacy/assets/images/..." fileLabel="hero image" /></div>
     <Section title="Highlights under the hero" help="Three short highlights in the hero.">
       <ListEditor items={content.metrics} onChange={(metrics: Metric[]) => setContent((current) => ({ ...current, metrics }))} newItem={() => ({ value: "", label: "" })} addLabel="Add highlight" max={4} itemLabel={(item, index) => `${index + 1}. ${item.value || "Highlight"}`}
         renderItem={(item, update) => <div className="cms-grid"><Text label="Headline" value={item.value} onChange={(value) => update({ value })} /><Text label="Caption" value={item.label} onChange={(label) => update({ label })} /></div>} />

@@ -2,22 +2,22 @@ import { describe, expect, it } from "vitest";
 import { investDefaults, mergeInvestContent, sanitizeInvestContent } from "./invest-defaults";
 
 describe("mergeInvestContent", () => {
-  it("returns the delivered content when nothing is saved", () => {
-    expect(mergeInvestContent(undefined)).toEqual(investDefaults);
-    expect(mergeInvestContent(null)).toEqual(investDefaults);
-    expect(mergeInvestContent([])).toEqual(investDefaults);
+  it("returns an empty CMS shape when nothing is saved", () => {
+    expect(mergeInvestContent(undefined).metrics).toEqual([]);
+    expect(mergeInvestContent(null).benefits).toEqual({ heading: "", text: "", items: [] });
+    expect(mergeInvestContent([]).faq.items).toEqual([]);
   });
-  it("overrides field by field and falls back for empty strings", () => {
+  it("uses only saved fields and preserves blank CMS values", () => {
     const merged = mergeInvestContent({ benefits: { heading: "Why invest", text: "" }, contact: { primaryLabel: "Talk to us" } });
     expect(merged.benefits.heading).toBe("Why invest");
-    expect(merged.benefits.text).toBe(investDefaults.benefits.text);
-    expect(merged.benefits.items).toEqual(investDefaults.benefits.items);
+    expect(merged.benefits.text).toBe("");
+    expect(merged.benefits.items).toEqual([]);
     expect(merged.contact.primaryLabel).toBe("Talk to us");
-    expect(merged.contact.secondaryLabel).toBe(investDefaults.contact.secondaryLabel);
+    expect(merged.contact.secondaryLabel).toBe("");
   });
-  it("replaces a list as a whole, but an empty list keeps the default", () => {
+  it("replaces a list as a whole, including an intentionally empty list", () => {
     expect(mergeInvestContent({ faq: { items: [{ question: "Q?", answer: "A." }] } }).faq.items).toEqual([{ question: "Q?", answer: "A." }]);
-    expect(mergeInvestContent({ faq: { items: [] } }).faq.items).toEqual(investDefaults.faq.items);
+    expect(mergeInvestContent({ faq: { items: [] } }).faq.items).toEqual([]);
   });
 });
 
