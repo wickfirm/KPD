@@ -75,6 +75,7 @@ export function HomeDevelopmentText({ text }: { text: string }) {
 }
 
 export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
+  if (!cards.length) return null;
   return (
     <section className="pdf-section pdf-development-cards" id="development-cards" aria-label="Our developments">
       {cards.map((card, index) => (
@@ -124,6 +125,9 @@ export function HomeExperienceGallery({ images }: { images?: string[] }) {
 /// static tail (events, sunset band, live news, and the hidden legacy bands)
 /// rides through unchanged inside a wrapper div.
 export function HomeMain({ settings, staticTail }: { settings: HomeSettings; staticTail: string }) {
+  /// An empty array is an explicit CMS choice to remove every card. Fall back
+  /// only when the setting has never been saved, not when it was saved empty.
+  const developmentCards = Array.isArray(settings.developmentCards) ? settings.developmentCards : homeDefaults.developmentCards;
   return (
     <main className="development-pdf-home" id="top">
       <HomeHero video={settings.heroVideo || homeDefaults.heroVideo} />
@@ -135,7 +139,7 @@ export function HomeMain({ settings, staticTail }: { settings: HomeSettings; sta
       />
       <HomeDevelopmentBanner heading={settings.developmentHeading || homeDefaults.developmentHeading} slides={settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides} />
       {(settings.developmentTextVisible ?? homeDefaults.developmentTextVisible) && (settings.developmentText || homeDefaults.developmentText) ? <HomeDevelopmentText text={settings.developmentText || homeDefaults.developmentText} /> : null}
-      <HomeDevelopmentCards cards={settings.developmentCards?.length ? settings.developmentCards : homeDefaults.developmentCards} />
+      <HomeDevelopmentCards cards={developmentCards} />
       <HomeContactBlock
         heading={settings.contactHeading || homeDefaults.contactHeading}
         text={settings.contactText || homeDefaults.contactText}

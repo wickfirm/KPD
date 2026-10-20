@@ -39,7 +39,9 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
   const [experienceImages, setExperienceImages] = useState(settings.experienceImages ?? []);
   const [stats, setStats] = useState<StatItem[]>(() => (settings.introStats?.length ? settings.introStats : homeDefaults.introStats));
   const [slides, setSlides] = useState<BannerSlide[]>(() => (settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides));
-  const [cards, setCards] = useState<DevelopmentCard[]>(() => (settings.developmentCards?.length ? settings.developmentCards : homeDefaults.developmentCards));
+  /// An empty saved list means “show no cards”; only an absent setting uses
+  /// the delivered defaults.
+  const [cards, setCards] = useState<DevelopmentCard[]>(() => (Array.isArray(settings.developmentCards) ? settings.developmentCards : homeDefaults.developmentCards));
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <datalist id="home-project-links">{projectLinks.map((link) => <option key={link.href} value={link.href}>{link.name}</option>)}</datalist>
     <h2 className="cms-form-heading">Hero video</h2>
