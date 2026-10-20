@@ -3,6 +3,7 @@
 /// CMS-only and does not read this object at runtime.
 import { db } from "../src/lib/db";
 import { investDefaults } from "../src/lib/invest-defaults";
+import type { Prisma } from "@prisma/client";
 
 async function main() {
   const current = await db.staticPage.findUnique({ where: { slug: "invest-in-dubai" } });
@@ -10,7 +11,7 @@ async function main() {
   const content = [
     ...blocks.filter((block) => block.type !== "invest"),
     { type: "invest", ...investDefaults },
-  ];
+  ] as unknown as Prisma.InputJsonArray;
 
   await db.staticPage.upsert({
     where: { slug: "invest-in-dubai" },
