@@ -738,8 +738,16 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     linkedin: String(formData.get("linkedin") || "").trim(),
     youtube: String(formData.get("youtube") || "").trim(),
   };
+  const newsListing = {
+    eyebrow: String(formData.get("newsEyebrow") || "").trim(),
+    heading: normalizeLineBreaks(formData.get("newsListingHeading") as string | null),
+    intro: String(formData.get("newsListingIntro") || "").trim(),
+  };
   try {
-    await db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } });
+    await db.$transaction([
+      db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } }),
+      db.siteSetting.upsert({ where: { key: "news_listing" }, update: { value: newsListing }, create: { key: "news_listing", value: newsListing } }),
+    ]);
     return { label: "Site settings" };
   } catch {
     return { error: "Unable to save site settings." };

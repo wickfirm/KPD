@@ -12,13 +12,14 @@ export const dynamic = "force-dynamic";
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireRole(["ADMIN"]);
   const [rows, flash] = await Promise.all([
-    db.siteSetting.findMany({ where: { key: { in: ["global", "home"] } } }),
+    db.siteSetting.findMany({ where: { key: { in: ["global", "home", "news_listing"] } } }),
     searchParams,
   ]);
   const settings: Settings = {};
   for (const row of rows) {
     if (row.key === "global") settings.global = row.value as Settings["global"];
     if (row.key === "home") settings.home = row.value as Settings["home"];
+    if (row.key === "news_listing") settings.newsListing = row.value as Settings["newsListing"];
   }
   return <>
     <div className="cms-page-heading">
