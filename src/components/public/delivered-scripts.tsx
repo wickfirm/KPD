@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 const DELIVERED_SCRIPT = "/legacy/assets/js/site-cms.js?v=20261014-mortgage-enquiry";
+const INQUIRY_FORM_COPY_SCRIPT = "/legacy/assets/js/inquiry-form-copy.js?v=20261020";
 
 /// The delivered script binds scroll/resize listeners on window and document.
 /// Re-executing it on every soft navigation would stack a new generation of
@@ -29,6 +30,8 @@ export function DeliveredEarlyScripts() {
       {/* Intentionally parse-blocking: it must run before first paint, like the delivered pages. */}
       {/* eslint-disable-next-line @next/next/no-sync-scripts */}
       <script src={DELIVERED_SCRIPT} />
+      {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+      <script src={INQUIRY_FORM_COPY_SCRIPT} />
       <script dangerouslySetInnerHTML={{ __html: TRACK_OFF }} />
     </>
   );
@@ -56,7 +59,7 @@ export function DeliveredScripts({ sources = [], bodyClass }: { sources?: string
     const ranEarly = w.__kpdEarly === location.pathname;
     delete w.__kpdEarly;
     if (!ranEarly) w.__kpdTrack?.release();
-    const urls = ranEarly ? sources : [DELIVERED_SCRIPT, ...sources];
+    const urls = ranEarly ? sources : [DELIVERED_SCRIPT, INQUIRY_FORM_COPY_SCRIPT, ...sources];
     const track = w.__kpdTrack;
     if (track && urls.length) track.on = true;
     const scripts = urls.map((src, index) => {

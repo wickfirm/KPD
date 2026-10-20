@@ -1,0 +1,37 @@
+// Current enquiry copy, kept separate from the delivered interaction layer so
+// every React-rendered page and its persisted modal receive the same wording.
+(function () {
+  function updateInquiryForm() {
+    const modal = document.querySelector(".booking-modal");
+    const card = modal && modal.querySelector(".booking-card");
+    if (!card) return;
+
+    const title = card.querySelector("#booking-title");
+    if (title) title.textContent = "Start a conversation.";
+
+    const intro = card.querySelector("#booking-title + p");
+    if (intro) intro.textContent = "Tell us about your property enquiry.";
+
+    const form = card.querySelector(".booking-lead-form");
+    if (!form) return;
+    const fields = form.querySelectorAll("input.booking-lead-field");
+    if (fields[0]) fields[0].setAttribute("placeholder", "Full name");
+    if (fields[1]) fields[1].setAttribute("placeholder", "Email address");
+    if (fields[2]) fields[2].setAttribute("placeholder", "Phone number");
+
+    const interest = form.querySelector('select[name="Interest"]');
+    if (interest) {
+      interest.innerHTML = "<option value=\"\">Interested in:</option><option>seven x seven</option><option>Villa 174</option><option>Villa 24</option><option>Online Call</option><option>Customer Experience Centre Visit</option><option>Investing</option><option>Broker Partnership</option>";
+    }
+
+    const message = form.querySelector('textarea[name="Message"]');
+    if (message) message.setAttribute("placeholder", "Message");
+    const submit = form.querySelector(".booking-lead-submit");
+    if (submit) submit.textContent = "Send enquiry";
+
+    const note = card.querySelector(".booking-privacy-note");
+    if (note) note.textContent = "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally.";
+  }
+
+  updateInquiryForm();
+})();

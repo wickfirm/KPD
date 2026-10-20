@@ -15,6 +15,11 @@ export type HomeSettings = {
   introHeading?: string;
   introParagraphs?: string[];
   developmentHeading?: string;
+  developmentTextVisible?: boolean;
+  developmentText?: string;
+  newsHeading?: string;
+  newsText?: string;
+  newsCta?: string;
   contactHeading?: string;
   contactText?: string;
   experienceImages?: string[];
@@ -30,7 +35,7 @@ export const homeDefaults = {
     { value: "$2.27B", label: "Logistics" },
     { value: "$1.64B", label: "Hotels" },
   ] as StatItem[],
-  statsNote: "(As of February, 2026)",
+  statsNote: "(As of August 2026)",
   /// The delivered development banner slides (the first slide shows on load).
   bannerSlides: [
     { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "seven x seven Meydan Horizon Residences" },
@@ -52,6 +57,11 @@ export const homeDefaults = {
     "From refined craftsmanship and forward-thinking innovation to thoughtful guardianship, we uphold rigorous standards at every stage, creating spaces that stand the test of time.",
   ],
   developmentHeading: "Different places. One standard.",
+  developmentTextVisible: true,
+  developmentText: "Quality, peace of mind and innovation are not a tier we reserve for certain projects. They are the standard every Kasumigaseki development is held to, whatever its form or price.",
+  newsHeading: "The Latest from Kasumigaseki Properties Development.",
+  newsText: "Development updates, market notes and the thinking behind how we build.",
+  newsCta: "Read News & Insights",
   contactHeading: "Visit the Experience Centre",
   contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",
   galleryPanels: [

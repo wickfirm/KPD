@@ -17,6 +17,30 @@
   display: none;
 }
 
+/* Optional homepage copy beneath the developments image slider. */
+.pdf-development-text {
+  padding: 42px 0 0;
+}
+
+.pdf-development-text p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--black);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+@media (max-width: 767px) {
+  .pdf-development-text {
+    padding-top: 28px;
+  }
+
+  .pdf-development-text p {
+    font-size: 17px;
+  }
+}
+
 
 /* Hero titles on the development and legal pages sat at the very top of the
    hero, hidden behind the fixed header. The delivered stylesheet's final hero

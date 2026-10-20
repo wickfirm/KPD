@@ -8,6 +8,20 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
+function escapeHtml(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+/// Replaces the one CMS-managed band inside the otherwise delivered static
+/// homepage tail. Values are escaped before the tail is rendered as HTML.
+function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
+  const heading = settings.newsHeading || homeDefaults.newsHeading;
+  const text = settings.newsText || homeDefaults.newsText;
+  const cta = settings.newsCta || homeDefaults.newsCta;
+  const section = `<section class="pdf-section pdf-events-head" id="events"><h2>${escapeHtml(heading)}</h2><div><p>${escapeHtml(text).replaceAll("\n", "<br>")}</p><a href="#news">${escapeHtml(cta)}</a></div></section>`;
+  return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
+}
+
 export function HomeHero({ video }: { video: string }) {
   return (
     <section className="pdf-section pdf-hero">
@@ -54,6 +68,10 @@ export function HomeDevelopmentBanner({ heading, slides }: { heading: string; sl
       </div>
     </section>
   );
+}
+
+export function HomeDevelopmentText({ text }: { text: string }) {
+  return <section className="pdf-section pdf-development-text" aria-label="Our development standard"><p>{multiline(text)}</p></section>;
 }
 
 export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
@@ -116,13 +134,14 @@ export function HomeMain({ settings, staticTail }: { settings: HomeSettings; sta
         statsNote={settings.statsNote ?? homeDefaults.statsNote}
       />
       <HomeDevelopmentBanner heading={settings.developmentHeading || homeDefaults.developmentHeading} slides={settings.bannerSlides?.length ? settings.bannerSlides : homeDefaults.bannerSlides} />
+      {(settings.developmentTextVisible ?? homeDefaults.developmentTextVisible) && (settings.developmentText || homeDefaults.developmentText) ? <HomeDevelopmentText text={settings.developmentText || homeDefaults.developmentText} /> : null}
       <HomeDevelopmentCards cards={settings.developmentCards?.length ? settings.developmentCards : homeDefaults.developmentCards} />
       <HomeContactBlock
         heading={settings.contactHeading || homeDefaults.contactHeading}
         text={settings.contactText || homeDefaults.contactText}
       />
       <HomeExperienceGallery images={(settings.experienceImages ?? []).filter(Boolean)} />
-      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(staticTail) }} />
+      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
     </main>
   );
 }

@@ -60,6 +60,8 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     </section>
     <h2 className="cms-form-heading">Developments section</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={settings.developmentTextVisible ?? homeDefaults.developmentTextVisible} /> <span><strong>Show the development standard text</strong><small>Shows the text block immediately below the large developments image slider.</small></span></label>
+    <label className="cms-field"><span>Development standard text</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? homeDefaults.developmentText} /><small>Leave this editable for future changes; untick the option above to hide the block.</small></label>
     <section className="cms-editor-section">
       <h3>Banner slides</h3>
       <p className="cms-muted">The full-width image slider above the cards. The first slide shows on load.</p>
@@ -84,6 +86,10 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`card ${index + 1} image`} /></div>
         </>} />
     </section>
+    <h2 className="cms-form-heading">News & insights</h2>
+    <label className="cms-field"><span>Heading</span><textarea name="newsHeading" rows={2} defaultValue={settings.newsHeading ?? homeDefaults.newsHeading} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? homeDefaults.newsText} /></label>
+    <label className="cms-field"><span>Button label</span><input name="newsCta" defaultValue={settings.newsCta ?? homeDefaults.newsCta} /><small>Links visitors to the homepage news feed.</small></label>
     <h2 className="cms-form-heading">Contact strip</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
