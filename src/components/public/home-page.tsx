@@ -1,7 +1,8 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
-import { type BannerSlide, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { HomeDevelopmentSlider } from "./home-development-slider";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -48,27 +49,6 @@ export function HomeIntro({ heading, paragraphs, stats, statsNote }: { heading: 
           <div className="pdf-stat" key={`${stat.label}-${index}`}><strong><Link href="/about">{stat.value}</Link></strong><span>{stat.label}</span></div>
         ))}
         {statsNote ? <p className="stats-as-of">{statsNote}</p> : null}
-      </div>
-    </section>
-  );
-}
-
-export function HomeDevelopmentBanner({ heading, slides }: { heading: string; slides: BannerSlide[] }) {
-  return (
-    <section className="pdf-section pdf-development-banner" id="developments" data-development-slider>
-      <div className="pdf-development-slides" aria-hidden="true">
-        {slides.map((slide, index) => (
-          <div className={`pdf-development-slide${index === 0 ? " active" : ""}`} key={`${slide.image}-${index}`}><img src={slide.image} alt="" /></div>
-        ))}
-      </div>
-      <div className="pdf-development-content">
-        <h2>{heading}</h2>
-        <Link className="pdf-development-button btn-pill text-white" href="/#development-cards">View all developments</Link>
-        <div className="pdf-development-dots" aria-label="Development slides">
-          {slides.map((slide, index) => (
-            <button className={index === 0 ? "active" : undefined} type="button" data-development-dot={index} aria-label={`Show ${slide.label}`} key={`${slide.label}-${index}`} />
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -139,7 +119,7 @@ export function HomeMain({ settings, staticTail }: { settings: HomeSettings; sta
     <main className="development-pdf-home" id="top">
       {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
       {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} /> : null}
-      {bannerSlides.length ? <HomeDevelopmentBanner heading={settings.developmentHeading ?? ""} slides={bannerSlides} /> : null}
+      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} /> : null}
       {settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} /> : null}
       <HomeDevelopmentCards cards={developmentCards} />
       {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} /> : null}

@@ -17,18 +17,31 @@
   display: none;
 }
 
-/* Optional homepage copy beneath the developments image slider. */
+/* CMS-only homepage additions. These rules deliberately sit after the
+   delivered stylesheet so editor-provided long copy remains composed. */
 .pdf-development-text {
-  padding: 42px 0 0;
+  padding: clamp(34px, 4vw, 64px) 0 0;
 }
 
 .pdf-development-text p {
-  max-width: 760px;
+  max-width: 820px;
   margin: 0;
   color: var(--black);
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 24px;
+}
+
+.pdf-development-content h2 {
+  max-inline-size: min(90vw, 34ch);
+  text-wrap: balance;
+}
+
+.home-development-page .pdf-events-head h2 {
+  max-inline-size: 20ch;
+  white-space: normal;
+  text-wrap: balance;
+  font-size: clamp(42px, 3.6vw, 65px);
 }
 
 @media (max-width: 767px) {
@@ -37,7 +50,8 @@
   }
 
   .pdf-development-text p {
-    font-size: 17px;
+    font-size: 14px;
+    line-height: 22px;
   }
 }
 
