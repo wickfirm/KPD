@@ -4,7 +4,16 @@
 // Public delivery goes through the bucket's public base URL (custom domain or
 // r2.dev) so all assets are served via the Cloudflare CDN.
 // ─────────────────────────────────────────────────────────────────────────────
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3";
+import { SignatureV4 } from "@smithy/signature-v4";
+import { createHash, createHmac } from "node:crypto";
+
+class R2Sha256 {
+  private hash: ReturnType<typeof createHash> | ReturnType<typeof createHmac>;
+  constructor(secret?: string | Uint8Array) { this.hash = secret ? createHmac("sha256", secret) : createHash("sha256"); }
+  update(value: Uint8Array | string) { this.hash.update(value); }
+  async digest() { return this.hash.digest(); }
+}
 
 function s3() {
   const accountId = process.env.R2_ACCOUNT_ID;
@@ -44,6 +53,61 @@ export async function r2Upload(
       CacheControl: "public, max-age=31536000, immutable",
     }),
   );
+  return { key, url: r2PublicUrl(key) };
+}
+
+/// Short-lived browser-to-R2 PUT URL. Large files never pass through Vercel;
+/// the CMS only issues the signature and subsequently registers the R2 URL.
+export async function r2PresignedUpload(key: string, contentType: string): Promise<string> {
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const bucket = process.env.R2_BUCKET;
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucket) throw new Error("R2 is not configured.");
+  const hostname = `${accountId}.r2.cloudflarestorage.com`;
+  const signer = new SignatureV4({ credentials: { accessKeyId, secretAccessKey }, region: "auto", service: "s3", sha256: R2Sha256 as never });
+  const signed = await signer.presign({
+    method: "PUT",
+    protocol: "https:",
+    hostname,
+    path: `/${bucket}/${key}`,
+    headers: { "content-type": contentType, host: hostname },
+    query: {},
+  }, { expiresIn: 300 });
+  const query = new URLSearchParams(Object.entries(signed.query ?? {}).flatMap(([name, value]) => Array.isArray(value) ? value.map((item) => [name, item]) : [[name, value ?? ""]])).toString();
+  return `https://${hostname}${signed.path}${query ? `?${query}` : ""}`;
+}
+
+/// Vercel rejects request bodies above 4.5 MB before a route can process them.
+/// These helpers let the authenticated CMS stream larger (up to 25 MB) files
+/// through several small route requests without exposing R2 credentials.
+export async function r2StartMultipartUpload(key: string, contentType: string): Promise<string> {
+  const bucket = process.env.R2_BUCKET;
+  if (!bucket) throw new Error("R2_BUCKET is not set");
+  const result = await s3().send(new CreateMultipartUploadCommand({
+    Bucket: bucket, Key: key, ContentType: contentType, CacheControl: "public, max-age=31536000, immutable",
+  }));
+  if (!result.UploadId) throw new Error("R2 did not create the multipart upload.");
+  return result.UploadId;
+}
+
+export async function r2UploadPart(key: string, uploadId: string, partNumber: number, body: Uint8Array): Promise<string> {
+  const bucket = process.env.R2_BUCKET;
+  if (!bucket) throw new Error("R2_BUCKET is not set");
+  const result = await s3().send(new UploadPartCommand({ Bucket: bucket, Key: key, UploadId: uploadId, PartNumber: partNumber, Body: body }));
+  if (!result.ETag) throw new Error("R2 did not return an upload-part tag.");
+  return result.ETag;
+}
+
+export async function r2CompleteMultipartUpload(key: string, uploadId: string, parts: { partNumber: number; eTag: string }[]): Promise<{ key: string; url: string }> {
+  const bucket = process.env.R2_BUCKET;
+  if (!bucket) throw new Error("R2_BUCKET is not set");
+  await s3().send(new CompleteMultipartUploadCommand({
+    Bucket: bucket,
+    Key: key,
+    UploadId: uploadId,
+    MultipartUpload: { Parts: parts.map((part) => ({ PartNumber: part.partNumber, ETag: part.eTag })) },
+  }));
   return { key, url: r2PublicUrl(key) };
 }
 

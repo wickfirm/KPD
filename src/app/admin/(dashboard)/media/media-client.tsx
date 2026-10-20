@@ -12,6 +12,27 @@ export function MediaUploadForm() {
   const [progress, setProgress] = useState("");
   const [pending, setPending] = useState(false);
 
+  async function uploadFile(file: File) {
+    // Vercel rejects requests over 4.5 MB. Send larger files directly to R2
+    // with a five-minute, single-use CMS signature; Vercel stores no file data.
+    if (file.size > 4 * 1024 * 1024) {
+      const signed = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "presign", fileName: file.name, contentType: file.type, size: file.size }) });
+      const signature = await signed.json().catch(() => ({}));
+      if (!signed.ok || !signature.uploadUrl || !signature.key) throw new Error(signature.error || "Could not prepare the R2 upload.");
+      const uploaded = await fetch(signature.uploadUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
+      if (!uploaded.ok) throw new Error("R2 rejected the file upload. Check the bucket CORS settings for this website.");
+      const registered = await fetch("/api/admin/assets", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "register", key: signature.key, fileName: file.name, contentType: file.type, size: file.size }) });
+      const result = await registered.json().catch(() => ({}));
+      if (!registered.ok) throw new Error(result.error || "The R2 file uploaded, but could not be added to the media library.");
+      return;
+    }
+    const body = new FormData();
+    body.set("file", file);
+    const response = await fetch("/api/admin/assets", { method: "POST", body });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(result.error || "Upload failed.");
+  }
+
   async function upload(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const files = Array.from(inputRef.current?.files ?? []);
@@ -28,12 +49,8 @@ export function MediaUploadForm() {
 
     for (const [index, file] of files.entries()) {
       setProgress(`Uploading ${index + 1} of ${files.length}: ${file.name}`);
-      const body = new FormData();
-      body.set("file", file);
       try {
-        const response = await fetch("/api/admin/assets", { method: "POST", body });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(result.error || "Upload failed.");
+        await uploadFile(file);
         uploaded += 1;
       } catch (reason) {
         failures.push(`${file.name}: ${reason instanceof Error ? reason.message : "Upload failed."}`);
