@@ -107,7 +107,7 @@ export function HomeContactBlock({ heading, text }: { heading: string; text: str
 /// same count, so CMS images replace all five together.
 export function HomeExperienceGallery({ images }: { images?: string[] }) {
   const panels: GalleryPanel[] = images?.length === 5
-    ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: `Experience Center image ${index + 1}` }))
+    ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: homeDefaults.galleryPanels[index].caption }))
     : homeDefaults.galleryPanels;
   return (
     <section className="pdf-section pdf-vertical-gallery pdf-gallery-flex" id="experience-center" aria-label="Experience Center gallery" data-gallery-flex>

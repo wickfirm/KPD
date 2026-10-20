@@ -65,10 +65,10 @@ export const homeDefaults = {
   contactHeading: "Visit the Experience Centre",
   contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",
   galleryPanels: [
-    { key: "arrival", image: "/legacy/assets/images/experience-center/hq/1.jpg", caption: "Experience Center arrival" },
-    { key: "materials", image: "/legacy/assets/images/experience-center/hq/4.jpg", caption: "Material corridor" },
-    { key: "consultation", image: "/legacy/assets/images/experience-center/hq/7.jpg", caption: "Private consultation lounge" },
-    { key: "model", image: "/legacy/assets/images/experience-center/hq/14.jpg", caption: "Model walkthrough space" },
-    { key: "advisory", image: "/legacy/assets/images/experience-center/hq/17.jpg", caption: "Advisory room" },
+    { key: "arrival", image: "/legacy/assets/images/experience-center/hq/1.jpg", caption: "Private Consultation" },
+    { key: "materials", image: "/legacy/assets/images/experience-center/hq/4.jpg", caption: "Model Walkthrough" },
+    { key: "consultation", image: "/legacy/assets/images/experience-center/hq/7.jpg", caption: "Delivery Workspace" },
+    { key: "model", image: "/legacy/assets/images/experience-center/hq/14.jpg", caption: "Asset Performance" },
+    { key: "advisory", image: "/legacy/assets/images/experience-center/hq/17.jpg", caption: "Platform Note" },
   ],
 };
