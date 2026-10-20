@@ -8,7 +8,7 @@ import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields"
 import type { LegacyMilestone } from "@/lib/legacy-defaults";
 
 type ManagementPerson = { name?: string; role?: string; bio?: string; image?: string };
-type Block = { type?: string; heading?: string; text?: string; image?: string; ctaLabel?: string; ctaUrl?: string; sectionHeading?: string; mission?: string; vision?: string; chairmanText?: string; chairmanName?: string; chairmanRole?: string; chairmanImage?: string; management?: ManagementPerson[]; timeline?: LegacyMilestone[] };
+type Block = { type?: string; heading?: string; text?: string; image?: string; eyebrow?: string; ctaLabel?: string; ctaUrl?: string; sectionHeading?: string; mission?: string; vision?: string; chairmanText?: string; chairmanName?: string; chairmanRole?: string; chairmanImage?: string; management?: ManagementPerson[]; timeline?: LegacyMilestone[] };
 export type StaticPageDefaults = { id?: string; slug?: string; title?: string; status?: string; content?: Block[] };
 const initialState: StaticPageFormState = {};
 
@@ -81,6 +81,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
     <h2 className="cms-form-heading">Page introduction</h2>
     <p className="cms-muted">These fields are the public page source of truth. Empty values remain empty after saving.</p>
     <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    {defaults?.slug === "contact" ? <label className="cms-field"><span>Hero label</span><input name="eyebrow" defaultValue={hero?.eyebrow ?? defaults.title ?? ""} /><small>The small label above the Contact page heading.</small></label> : null}
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text ?? ""} /></label>
     <div className="cms-grid">
       <label className="cms-field"><span>Feature image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} placeholder="/legacy/assets/images/..." /></label>

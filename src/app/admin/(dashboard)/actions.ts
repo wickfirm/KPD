@@ -535,6 +535,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
   const heading = normalizeLineBreaks(formData.get("heading") as string | null);
   const intro = String(formData.get("intro") || "").trim();
   const image = String(formData.get("image") || "").trim();
+  const eyebrow = String(formData.get("eyebrow") || "").trim();
   const ctaLabel = String(formData.get("ctaLabel") || "").trim();
   const ctaUrl = String(formData.get("ctaUrl") || "").trim();
   const paragraphs = nonEmptyLines(formData.get("paragraphs"));
@@ -604,7 +605,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     }
   }
   const content = [
-    ...(heading || intro || image || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, ctaLabel, ctaUrl }] : []),
+    ...(heading || intro || image || eyebrow || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, eyebrow, ctaLabel, ctaUrl }] : []),
     ...paragraphBlocks(paragraphs),
     ...(about ? [about] : []),
     ...(legacy ? [legacy] : []),
