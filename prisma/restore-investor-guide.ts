@@ -1,6 +1,8 @@
 /// One-time CMS recovery for the Investor Guide. It persists the complete
 /// canonical guide into the static-page record; the public page remains
 /// CMS-only and does not read this object at runtime.
+import { config } from "dotenv";
+config({ path: ".env.local" });
 import { db } from "../src/lib/db";
 import { investDefaults } from "../src/lib/invest-defaults";
 import type { Prisma } from "@prisma/client";
