@@ -12,6 +12,7 @@ function multiline(value: string): ReactNode[] {
 /// any number of management cards is supported.
 export function AboutMain({ content }: { content: AboutContent }) {
   const heading = content.heading ?? "";
+  const sectionHeading = content.sectionHeading ?? "";
   const heroText = content.heroText ?? "";
   const heroImage = content.heroImage ?? "";
   const story = content.story?.filter(Boolean) ?? [];
@@ -35,7 +36,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
       <section className="about-story" id="about">
         <div className="about-story-grid">
           <div className="about-story-copy">
-            <h2 className="about-story-title">{multiline(heading)}</h2>
+            <h2 className="about-story-title">{multiline(sectionHeading)}</h2>
             {story.map((paragraph, index) => <p key={index}>{multiline(paragraph)}</p>)}
           </div>
           <div className="about-story-media">

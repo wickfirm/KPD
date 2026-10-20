@@ -5,6 +5,7 @@
 export type AboutPerson = { name?: string; role?: string; bio?: string; image?: string };
 export type AboutContent = {
   heading?: string;
+  sectionHeading?: string;
   heroText?: string;
   heroImage?: string;
   story?: string[];
@@ -19,6 +20,7 @@ export type AboutContent = {
 
 export const aboutDefaults = {
   heading: "Built on understanding.",
+  sectionHeading: "Built on understanding.",
   heroText: "Kasumigaseki Properties Development brings the institutional discipline of Kasumigaseki Capital listed on the Tokyo Stock Exchange Prime Market, externally audited, and publicly held. For investors and residents, this model is built to foster trust, mitigate risk, and support long-term value creation.",
   heroImage: "/legacy/assets/images/library/about-advisory-model-presentation.jpg",
   story: [

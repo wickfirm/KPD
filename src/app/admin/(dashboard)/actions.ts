@@ -584,6 +584,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
   legacyTimeline = legacyTimeline.filter((item) => item.year || item.title || item.summary || item.body || item.image);
   const about = slug === "about" ? {
     type: "about",
+    sectionHeading: normalizeLineBreaks(formData.get("aboutSectionHeading") as string | null),
     mission: String(formData.get("mission") || "").trim(),
     vision: String(formData.get("vision") || "").trim(),
     chairmanText: String(formData.get("chairmanText") || "").trim(),
