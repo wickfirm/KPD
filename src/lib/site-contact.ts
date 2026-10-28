@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 
 export type FormRecipientKey = "enquiry" | "booking" | "floorPlan" | "calculator" | "newsletter" | "contactSales" | "contactCustomer" | "contactChannel" | "contactCareers" | "contactPress";
 export type FormRecipients = Partial<Record<FormRecipientKey, string>>;
+export type SiteTextStyle = { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" };
+export type SiteTypography = { headings?: SiteTextStyle; body?: SiteTextStyle; ctas?: SiteTextStyle };
 
 /// Site-wide contact details and footer settings (Admin → Site settings).
 /// The CMS is the only content source; omitted values intentionally stay blank.
@@ -25,6 +27,7 @@ export type GlobalSettings = {
   callLabel?: string;
   whatsappLabel?: string;
   popupEnabled?: boolean;
+  typography?: SiteTypography;
   recipients?: FormRecipients;
   popupTitle?: string;
   popupIntro?: string;
@@ -40,9 +43,11 @@ export const globalDefaults: GlobalSettings = {};
 export function mergeGlobalSettings(saved: unknown): GlobalSettings {
   if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
   return Object.fromEntries(Object.entries(saved as Record<string, unknown>)
-    .filter(([key, value]) => (key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, newsletterHeading: true, newsletterSubmitLabel: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true, enquiryLabel: true, callLabel: true, whatsappLabel: true, popupTitle: true, popupIntro: true, popupSubmitLabel: true, popupNote: true }) && typeof value === "string") || (key in ({ enquiryEnabled: true, callEnabled: true, whatsappEnabled: true, popupEnabled: true }) && typeof value === "boolean") || (key === "recipients" && typeof value === "object" && value !== null && !Array.isArray(value)))
+    .filter(([key, value]) => (key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, newsletterHeading: true, newsletterSubmitLabel: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true, enquiryLabel: true, callLabel: true, whatsappLabel: true, popupTitle: true, popupIntro: true, popupSubmitLabel: true, popupNote: true }) && typeof value === "string") || (key in ({ enquiryEnabled: true, callEnabled: true, whatsappEnabled: true, popupEnabled: true }) && typeof value === "boolean") || ((key === "recipients" || key === "typography") && typeof value === "object" && value !== null && !Array.isArray(value)))
     .map(([key, value]) => key === "recipients"
       ? [key, Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([recipientKey, recipient]) => recipientKey in ({ enquiry: true, booking: true, floorPlan: true, calculator: true, newsletter: true, contactSales: true, contactCustomer: true, contactChannel: true, contactCareers: true, contactPress: true }) && typeof recipient === "string").map(([recipientKey, recipient]) => [recipientKey, (recipient as string).trim()]))]
+      : key === "typography"
+        ? [key, Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([styleKey, style]) => styleKey in ({ headings: true, body: true, ctas: true }) && style && typeof style === "object" && !Array.isArray(style)).map(([styleKey, style]) => [styleKey, Object.fromEntries(Object.entries(style as Record<string, unknown>).filter(([styleProperty, styleValue]) => styleProperty in ({ fontSize: true, fontWeight: true, fontStyle: true }) && typeof styleValue === "string").map(([styleProperty, styleValue]) => [styleProperty, (styleValue as string).trim()]))]))]
       : [key, (value as string).trim()])) as GlobalSettings;
 }
 

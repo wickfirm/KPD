@@ -769,6 +769,12 @@ export async function deleteStaticPage(formData: FormData) {
 
 /// Shared write path for the site-wide contact details record.
 async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
+  const textStyle = (prefix: string) => {
+    const fontSize = String(formData.get(`${prefix}FontSize`) || "").trim();
+    const fontWeight = ["normal", "bold"].includes(String(formData.get(`${prefix}FontWeight`) || "")) ? String(formData.get(`${prefix}FontWeight`)) as "normal" | "bold" : undefined;
+    const fontStyle = ["normal", "italic"].includes(String(formData.get(`${prefix}FontStyle`) || "")) ? String(formData.get(`${prefix}FontStyle`)) as "normal" | "italic" : undefined;
+    return { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) };
+  };
   const global = {
     email: String(formData.get("email") || "").trim(),
     phone: String(formData.get("phone") || "").trim(),
@@ -788,6 +794,7 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     callLabel: String(formData.get("callLabel") || "").trim(),
     whatsappLabel: String(formData.get("whatsappLabel") || "").trim(),
     popupEnabled: formData.get("popupEnabled") === "on",
+    typography: { headings: textStyle("typographyHeadings"), body: textStyle("typographyBody"), ctas: textStyle("typographyCtas") },
     recipients: {
       enquiry: String(formData.get("recipientEnquiry") || "").trim(),
       booking: String(formData.get("recipientBooking") || "").trim(),

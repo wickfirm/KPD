@@ -3,8 +3,9 @@
 import { useActionState } from "react";
 import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
 import type { FormRecipients } from "@/lib/site-contact";
+import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
 
-export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
+export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients; typography?: { headings?: TextStyleValue; body?: TextStyleValue; ctas?: TextStyleValue } }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
@@ -22,6 +23,11 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
       <label className="cms-field"><span>Phone</span><input name="phone" defaultValue={global.phone ?? ""} placeholder="+971 4 388 3099" /><small>Shown on the Contact page and used by the Call button.</small></label>
       <label className="cms-field"><span>WhatsApp</span><input name="whatsapp" defaultValue={global.whatsapp ?? ""} placeholder="https://wa.me/97143883099" /><small>A wa.me link, or just the number with country code.</small></label>
     </div>
+    <h2 className="cms-form-heading">Site-wide typography</h2>
+    <p className="cms-muted">These controls apply to headings, body copy, and CTA labels across all public CMS pages. Leave font size blank to preserve the delivered design’s size.</p>
+    <TextStyleFields prefix="typographyHeadings" value={global.typography?.headings} label="Headings" preserveDefault />
+    <TextStyleFields prefix="typographyBody" value={global.typography?.body} label="Body copy" preserveDefault />
+    <TextStyleFields prefix="typographyCtas" value={global.typography?.ctas} label="CTA labels" preserveDefault />
     <h2 className="cms-form-heading">Form delivery routing</h2>
     <p className="cms-muted">Choose the intended recipient for each form. A blank field uses the default recipient above. The selected recipient is stored with every submission and will be used for email delivery once mail credentials are connected.</p>
     <div className="cms-grid">
