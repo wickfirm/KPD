@@ -47,6 +47,11 @@ const nextConfig = {
       { source: "/legacy/single-project.html", destination: "/developments/seven-x-seven", permanent: true },
       { source: "/legacy/emerald-villa.html", destination: "/developments/emerald-villa", permanent: true },
       { source: "/legacy/dubai-hills-mansion.html", destination: "/developments/dubai-hills-mansion", permanent: true },
+      { source: "/legacy/news-article.html", destination: "/news", permanent: true },
+      { source: "/legacy/blog-article.html", destination: "/news", permanent: true },
+      { source: "/legacy/terms.html", destination: "/terms", permanent: true },
+      { source: "/legacy/privacy-policy.html", destination: "/privacy-policy", permanent: true },
+      { source: "/legacy/cookie-policy.html", destination: "/cookie-policy", permanent: true },
     ];
   },
 };

@@ -5,9 +5,10 @@ import { previewSectionDraft, saveProjectModule, type ProjectModuleFormState } f
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reorder";
 import { moduleKindLabels } from "@/lib/project-starter";
+import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
 
 type ModuleItem = { label?: string; value?: string; image?: string; url?: string };
-type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string };
+type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyleValue; textStyle?: TextStyleValue };
 type Defaults = { id?: string; title?: string; slug?: string; kind?: string; profile?: string; sortOrder?: number; content?: ModuleContent };
 const initialState: ProjectModuleFormState = {};
 
@@ -73,6 +74,8 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
       </div>
     </details>
     <label className="cms-field"><span>Text</span><textarea name="text" rows={5} defaultValue={defaults?.content?.text ?? ""} placeholder="The editorial copy shown in this section." /></label>
+    <TextStyleFields prefix="title" value={defaults?.content?.titleStyle} label="Section-title appearance" />
+    <TextStyleFields prefix="text" value={defaults?.content?.textStyle} label="Section-copy appearance" />
     <input type="hidden" name="images" value={images.join("\n")} />
     <input type="hidden" name="items" value={items.map((item) => [item.label ?? "", item.value ?? "", item.image ?? "", item.url ?? ""].join(" | ")).join("\n")} />
     <section className="cms-editor-section" aria-labelledby={`media-${defaults?.id ?? "new"}`}><div><h3 id={`media-${defaults?.id ?? "new"}`}>Media</h3><p className="cms-muted">Upload images directly, then drag the handle (or use Move up / Move down) to set the order they appear in. Existing images stay until you replace or remove them.</p></div>

@@ -82,7 +82,7 @@ export const pageSeo = {
   home: {
     path: "/",
     title: "Kasumigaseki Properties Development (KPD) | Dubai Developer",
-    description: "KPD extends Kasumigaseki Capital's development discipline to Dubai with a curated residential pipeline: Seven X Seven, Emerald Villa and Dubai Hills Mansion.",
+    description: "KPD extends Kasumigaseki Capital's development discipline to Dubai through a curated residential development pipeline.",
   },
   about: {
     path: "/about",

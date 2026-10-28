@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { buildLlmsTxt } from "@/lib/llms";
+import { getGlobalSettings } from "@/lib/site-contact";
 
 export const revalidate = 3600;
 
@@ -25,7 +26,8 @@ export async function GET() {
   } catch {
     // keep the fixed pages
   }
-  return new Response(buildLlmsTxt({ projects, articles }), {
+  const contact = await getGlobalSettings();
+  return new Response(buildLlmsTxt({ projects, articles, email: contact.email }), {
     headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=3600, s-maxage=3600" },
   });
 }

@@ -18,6 +18,10 @@ export type GlobalSettings = {
   enquiryEnabled?: boolean;
   callEnabled?: boolean;
   whatsappEnabled?: boolean;
+  enquiryLabel?: string;
+  callLabel?: string;
+  whatsappLabel?: string;
+  popupEnabled?: boolean;
   popupTitle?: string;
   popupIntro?: string;
   popupSubmitLabel?: string;
@@ -32,7 +36,7 @@ export const globalDefaults: GlobalSettings = {};
 export function mergeGlobalSettings(saved: unknown): GlobalSettings {
   if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
   return Object.fromEntries(Object.entries(saved as Record<string, unknown>)
-    .filter(([key, value]) => (key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, newsletterHeading: true, newsletterSubmitLabel: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true, popupTitle: true, popupIntro: true, popupSubmitLabel: true, popupNote: true }) && typeof value === "string") || (key in ({ enquiryEnabled: true, callEnabled: true, whatsappEnabled: true }) && typeof value === "boolean"))
+    .filter(([key, value]) => (key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, newsletterHeading: true, newsletterSubmitLabel: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true, enquiryLabel: true, callLabel: true, whatsappLabel: true, popupTitle: true, popupIntro: true, popupSubmitLabel: true, popupNote: true }) && typeof value === "string") || (key in ({ enquiryEnabled: true, callEnabled: true, whatsappEnabled: true, popupEnabled: true }) && typeof value === "boolean"))
     .map(([key, value]) => [key, (value as string).trim()])) as GlobalSettings;
 }
 

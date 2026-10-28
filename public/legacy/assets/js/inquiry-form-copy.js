@@ -22,7 +22,9 @@
 
     const interest = form.querySelector('select[name="Interest"]');
     if (interest) {
-      interest.innerHTML = "<option value=\"\">Interested in:</option><option>seven x seven</option><option>Villa 174</option><option>Villa 24</option><option>Online Call</option><option>Customer Experience Centre Visit</option><option>Investing</option><option>Broker Partnership</option>";
+      const projects = Array.isArray(copy.projects) ? copy.projects : [];
+      const escape = (value) => String(value).replace(/[&<>\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character]));
+      interest.innerHTML = `<option value="">Interested in:</option>${projects.map((name) => `<option>${escape(name)}</option>`).join("")}<option>Online Call</option><option>Customer Experience Centre Visit</option><option>Investing</option><option>Broker Partnership</option>`;
     }
 
     const message = form.querySelector('textarea[name="Message"]');

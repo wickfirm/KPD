@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ORGANIZATION_ID, SITE_URL, WEBSITE_ID, organizationJsonLd } from "@/lib/site";
+import { getGlobalSettings } from "@/lib/site-contact";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -29,7 +30,9 @@ const websiteJsonLd = {
   publisher: { "@id": ORGANIZATION_ID },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const contact = await getGlobalSettings();
+  const organization = { ...organizationJsonLd, ...(contact.email ? { email: contact.email } : {}) };
   return (
     <html lang="en">
       <body suppressHydrationWarning>
@@ -39,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify([organizationJsonLd, websiteJsonLd]) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([organization, websiteJsonLd]) }}
         />
       </body>
     </html>

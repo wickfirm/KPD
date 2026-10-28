@@ -7,7 +7,7 @@ type Article = { slug: string; title: string; summary: string };
 /// The /llms.txt document: a short, plain-text guide to the site for AI
 /// assistants and answer engines. Links and summaries only; every line comes
 /// from the site's own pages.
-export function buildLlmsTxt(input: { projects: Dev[]; articles: Article[] }): string {
+export function buildLlmsTxt(input: { projects: Dev[]; articles: Article[]; email?: string }): string {
   const line = (label: string, path: string, text: string) => `- [${label}](${absoluteUrl(path)}): ${text}`;
   const parts: string[] = [
     `# ${SITE_NAME} (KPD)`,
@@ -27,6 +27,6 @@ export function buildLlmsTxt(input: { projects: Dev[]; articles: Article[] }): s
   if (input.articles.length) {
     parts.push("", "## Latest news", ...input.articles.map((article) => line(article.title, `/news/${article.slug}`, clampDescription(article.summary) || article.title)));
   }
-  parts.push("", "## Contact", "- info@kpd.ae", "");
-  return parts.join("\n");
+  if (input.email) parts.push("", "## Contact", `- ${input.email}`, "");
+  return `${parts.join("\n")}\n`;
 }

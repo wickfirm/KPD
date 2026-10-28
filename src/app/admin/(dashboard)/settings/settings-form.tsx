@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
 
-export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
+export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
@@ -27,7 +27,13 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
       <label className="cms-check"><input type="checkbox" name="callEnabled" defaultChecked={global.callEnabled !== false} /><span><strong>Show Call</strong><small>Uses the phone number above.</small></span></label>
       <label className="cms-check"><input type="checkbox" name="whatsappEnabled" defaultChecked={global.whatsappEnabled !== false} /><span><strong>Show WhatsApp</strong><small>Uses the WhatsApp address above.</small></span></label>
     </div>
+    <div className="cms-grid">
+      <label className="cms-field"><span>Enquiry label</span><input name="enquiryLabel" defaultValue={global.enquiryLabel ?? "Enquiry"} /></label>
+      <label className="cms-field"><span>Call label</span><input name="callLabel" defaultValue={global.callLabel ?? "Call"} /></label>
+      <label className="cms-field"><span>WhatsApp label</span><input name="whatsappLabel" defaultValue={global.whatsappLabel ?? "WhatsApp"} /></label>
+    </div>
     <h2 className="cms-form-heading">Enquiry popup</h2>
+    <label className="cms-check"><input type="checkbox" name="popupEnabled" defaultChecked={global.popupEnabled !== false} /><span><strong>Enable enquiry popup</strong><small>Turn this off to remove the floating popup launcher while keeping the Enquiry contact action available.</small></span></label>
     <div className="cms-grid"><label className="cms-field"><span>Heading</span><input name="popupTitle" defaultValue={global.popupTitle ?? "Start a conversation."} /></label><label className="cms-field"><span>Send button</span><input name="popupSubmitLabel" defaultValue={global.popupSubmitLabel ?? "Send enquiry"} /></label></div>
     <label className="cms-field"><span>Introduction</span><textarea name="popupIntro" rows={2} defaultValue={global.popupIntro ?? "Tell us about your property enquiry."} /></label>
     <label className="cms-field"><span>Confirmation note</span><textarea name="popupNote" rows={3} defaultValue={global.popupNote ?? "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally."} /></label>

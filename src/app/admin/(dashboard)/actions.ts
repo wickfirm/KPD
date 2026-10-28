@@ -322,6 +322,14 @@ function moduleContentFromForm(formData: FormData) {
   const ctaVisible = formData.get("ctaVisible") === "on";
   const mapUrl = String(formData.get("mapUrl") || "").trim();
   const presentation = formData.get("presentation") === "calm" ? "calm" : undefined;
+  const style = (prefix: string) => {
+    const fontSize = String(formData.get(`${prefix}FontSize`) || "").trim();
+    const fontWeight = formData.get(`${prefix}FontWeight`) === "bold" ? "bold" : undefined;
+    const fontStyle = formData.get(`${prefix}FontStyle`) === "italic" ? "italic" : undefined;
+    return fontSize || fontWeight || fontStyle ? { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) } : undefined;
+  };
+  const titleStyle = style("title");
+  const bodyTextStyle = style("text");
 
   return {
     ...(text ? { text } : {}),
@@ -332,6 +340,8 @@ function moduleContentFromForm(formData: FormData) {
     ...(!ctaVisible ? { ctaVisible: false } : {}),
     ...(mapUrl ? { mapUrl } : {}),
     ...(presentation ? { presentation } : {}),
+    ...(titleStyle ? { titleStyle } : {}),
+    ...(bodyTextStyle ? { textStyle: bodyTextStyle } : {}),
   };
 }
 
@@ -774,6 +784,10 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     enquiryEnabled: formData.get("enquiryEnabled") === "on",
     callEnabled: formData.get("callEnabled") === "on",
     whatsappEnabled: formData.get("whatsappEnabled") === "on",
+    enquiryLabel: String(formData.get("enquiryLabel") || "").trim(),
+    callLabel: String(formData.get("callLabel") || "").trim(),
+    whatsappLabel: String(formData.get("whatsappLabel") || "").trim(),
+    popupEnabled: formData.get("popupEnabled") === "on",
     popupTitle: String(formData.get("popupTitle") || "").trim(),
     popupIntro: String(formData.get("popupIntro") || "").trim(),
     popupSubmitLabel: String(formData.get("popupSubmitLabel") || "").trim(),

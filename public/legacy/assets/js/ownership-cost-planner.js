@@ -32,6 +32,10 @@
   }
 
   function mount(holder, settings) {
+    if (!Array.isArray(settings.projects) || !settings.projects.length) {
+      holder.innerHTML = '<p class="ownership-planner__unavailable">No published development is currently available for planning. Please contact the KPD team for assistance.</p>';
+      return;
+    }
     const compact = holder.dataset.plannerCompact === "true";
     // Server-rendered pages include the calculator HTML in the initial paint;
     // only build it here when the mount point is empty (static fallback).

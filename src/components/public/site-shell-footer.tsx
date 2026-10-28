@@ -10,7 +10,7 @@ export async function SiteShellFooter() {
   const developments = await getNavDevelopments();
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.
-  const contactScript = `window.__KPD_CONTACT=${JSON.stringify(contact).replace(/</g, "\u003c")};`;
+  const contactScript = `window.__KPD_CONTACT=${JSON.stringify({ ...contact, projects: developments.map(({ name }) => name) }).replace(/</g, "\u003c")};`;
   return <><script dangerouslySetInnerHTML={{ __html: contactScript }} /><footer className="section_footer" id="footer">
     <div className="footer_container">
       <div className="footer_header">
