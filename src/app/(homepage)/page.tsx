@@ -4,7 +4,7 @@ import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
 import { loadFixedPageSeo } from "@/lib/seo-store";
 import { loadHomeSettings } from "@/lib/home-saved";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 export async function generateMetadata() {
   return pageMetadata(await loadFixedPageSeo("home"));
 }

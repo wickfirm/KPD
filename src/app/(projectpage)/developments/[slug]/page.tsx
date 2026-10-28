@@ -8,7 +8,7 @@ import { DevelopmentView } from "@/components/public/development-view";
 import { loadSeoOverride } from "@/lib/seo-store";
 import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 /// One query per request, shared by generateMetadata and the page via cache().
 const getPublishedProject = cache(async (slug: string) => {

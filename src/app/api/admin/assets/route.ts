@@ -4,7 +4,7 @@ import { getActor, requireSession } from "@/lib/auth";
 import { can } from "@/lib/permissions";
 import { r2CompleteMultipartUpload, r2PresignedUpload, r2StartMultipartUpload, r2Upload, r2UploadPart, buildCmsKey, r2PublicUrl } from "@/lib/r2";
 
-const MAX_BYTES = 25 * 1024 * 1024;
+const MAX_BYTES = 250 * 1024 * 1024;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "video/mp4", "application/pdf"]);
 
 async function requireMediaUploader() {
@@ -32,13 +32,13 @@ export async function POST(request: NextRequest) {
     if (!body) return NextResponse.json({ error: "Invalid upload request." }, { status: 400 });
     try {
       if (body.action === "start") {
-        if (!validUpload(String(body.fileName || ""), String(body.contentType || ""), Number(body.size))) return NextResponse.json({ error: "Use a supported file type up to 25 MB." }, { status: 400 });
+        if (!validUpload(String(body.fileName || ""), String(body.contentType || ""), Number(body.size))) return NextResponse.json({ error: "Use a supported file type up to 250 MB." }, { status: 400 });
         const key = buildCmsKey(String(body.fileName));
         const uploadId = await r2StartMultipartUpload(key, String(body.contentType));
         return NextResponse.json({ key, uploadId });
       }
       if (body.action === "presign") {
-        if (!validUpload(String(body.fileName || ""), String(body.contentType || ""), Number(body.size))) return NextResponse.json({ error: "Use a supported file type up to 25 MB." }, { status: 400 });
+        if (!validUpload(String(body.fileName || ""), String(body.contentType || ""), Number(body.size))) return NextResponse.json({ error: "Use a supported file type up to 250 MB." }, { status: 400 });
         const key = buildCmsKey(String(body.fileName));
         return NextResponse.json({ key, uploadUrl: await r2PresignedUpload(key) });
       }

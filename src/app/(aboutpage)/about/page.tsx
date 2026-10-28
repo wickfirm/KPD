@@ -7,7 +7,7 @@ import { loadStaticBlocks } from "@/lib/static-blocks";
 export async function generateMetadata() {
   return pageMetadata(await loadFixedPageSeo("about"));
 }
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 /// Unified delivered shell + React content; the delivered design is the
 /// fallback for every field.
