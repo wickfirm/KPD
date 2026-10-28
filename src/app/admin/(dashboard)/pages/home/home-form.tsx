@@ -5,7 +5,7 @@ import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
-import { type BannerSlide, type DevelopmentCard, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { type BannerSlide, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 
 export type { HomeSettings };
 const initialState: SiteSettingsFormState = {};
@@ -13,7 +13,7 @@ const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 
 /// Homepage editor: the values below are the only source of editable homepage
 /// content. Blank and empty lists deliberately remain blank when saved.
-export default function HomeForm({ settings, projectLinks = [], seo }: { settings: HomeSettings; projectLinks?: { href: string; name: string }[]; seo?: SeoFieldDefaults }) {
+export default function HomeForm({ settings, seo }: { settings: HomeSettings; seo?: SeoFieldDefaults }) {
   const [state, formAction, pending] = useActionState(saveHomeSettings, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [previewing, setPreviewing] = useState(false);
@@ -39,9 +39,7 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
   const [experienceCaptions, setExperienceCaptions] = useState(settings.experienceCaptions ?? []);
   const [stats, setStats] = useState<StatItem[]>(() => settings.introStats ?? []);
   const [slides, setSlides] = useState<BannerSlide[]>(() => settings.bannerSlides ?? []);
-  const [cards, setCards] = useState<DevelopmentCard[]>(() => settings.developmentCards ?? []);
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
-    <datalist id="home-project-links">{projectLinks.map((link) => <option key={link.href} value={link.href}>{link.name}</option>)}</datalist>
     <h2 className="cms-form-heading">Hero video</h2>
     <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4" placeholder="https://…" fileLabel="hero video" />
     <h2 className="cms-form-heading">Introduction</h2>
@@ -74,20 +72,7 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`slide ${index + 1} image`} /></div>
         </>} />
     </section>
-    <section className="cms-editor-section">
-      <h3>Development cards</h3>
-      <p className="cms-muted">One card per development shown under the slider. Link a card to a development page, for example <code>/developments/your-project</code>.</p>
-      <input type="hidden" name="developmentCardsJson" value={JSON.stringify(cards)} />
-      <ListEditor items={cards} onChange={setCards} newItem={() => ({ href: "", image: "", title: "", copy: "" })} addLabel="Add card" itemLabel={(item, index) => `Card ${index + 1}${item.title ? ` — ${item.title}` : ""}`}
-        renderItem={(item, update, index) => <>
-          <div className="cms-grid">
-            <label className="cms-field"><span>Title</span><input value={item.title} onChange={(event) => update({ title: event.target.value })} /></label>
-            <label className="cms-field"><span>Link</span><input list="home-project-links" value={item.href} onChange={(event) => update({ href: event.target.value })} placeholder="/developments/…" /></label>
-          </div>
-          <label className="cms-field"><span>Description</span><textarea rows={3} value={item.copy} onChange={(event) => update({ copy: event.target.value })} /></label>
-          <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`card ${index + 1} image`} /></div>
-        </>} />
-    </section>
+    <section className="cms-editor-section"><h3>Development cards</h3><p className="cms-muted">Generated automatically from the first three published, public developments. Their name, introduction, hero image and ordering come from each Development editor; drafting or archiving one removes it here immediately.</p></section>
     <h2 className="cms-form-heading">News & insights</h2>
     <label className="cms-field"><span>Heading</span><textarea name="newsHeading" rows={2} defaultValue={settings.newsHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? ""} /></label>

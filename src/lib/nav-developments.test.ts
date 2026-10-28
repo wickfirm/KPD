@@ -11,8 +11,9 @@ describe("injectNavDevelopments", () => {
   const shell = getNewsPageShell();
   const raw = shell.beforeMain + shell.afterMain;
 
-  it("changes nothing when there are no extra developments", () => {
-    expect(injectNavDevelopments(raw, [])).toBe(raw);
+  it("removes every fixed development when none are published", () => {
+    const out = injectNavDevelopments(raw, []);
+    for (const slug of ["seven-x-seven", "emerald-villa", "dubai-hills-mansion"]) expect(out).not.toContain(`/developments/${slug}`);
   });
 
   it("adds each extra to the header dropdown, mobile menu and footer", () => {
@@ -35,10 +36,11 @@ describe("injectNavDevelopments", () => {
     expect(out).not.toContain("<Tower>");
   });
 
-  it("leaves the delivered three developments untouched", () => {
-    const out = injectNavDevelopments(raw, extras);
-    for (const slug of ["seven-x-seven", "emerald-villa", "dubai-hills-mansion"]) {
-      expect(out.split(`/developments/${slug}`).length).toBe(raw.split(`/developments/${slug}`).length);
-    }
+  it("uses the supplied published list in place of the delivered three", () => {
+    const published: NavDevelopment[] = [{ slug: "seven-x-seven", name: "Seven X Seven", heroImage: null }, ...extras];
+    const out = injectNavDevelopments(raw, published);
+    expect(out).toContain('/developments/seven-x-seven');
+    expect(out).not.toContain('/developments/emerald-villa');
+    expect(out).not.toContain('/developments/dubai-hills-mansion');
   });
 });

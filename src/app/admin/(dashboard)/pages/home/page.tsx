@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { db } from "@/lib/db";
 import HomeForm, { type HomeSettings } from "./home-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
@@ -13,12 +12,8 @@ export const dynamic = "force-dynamic";
 export default async function AdminHomePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const [flash] = await Promise.all([searchParams]);
   let home: HomeSettings = {};
-  let projectLinks: { href: string; name: string }[] = [];
   try {
-    const projects = await db.project.findMany({ where: { status: "PUBLISHED", profile: "FULL" }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { slug: true, name: true } });
-    projectLinks = projects.map((project) => ({ href: `/developments/${project.slug}`, name: project.name }));
-  } catch {}
-  try {
+    const { db } = await import("@/lib/db");
     const setting = await db.siteSetting.findUnique({ where: { key: "home" } });
     if (setting?.value && typeof setting.value === "object" && !Array.isArray(setting.value)) home = setting.value as HomeSettings;
   } catch {}
@@ -34,7 +29,7 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
     </div>
     <SavedBanner params={flash} />
     <EditorShell>
-      <div className="cms-card"><HomeForm settings={home} projectLinks={projectLinks} seo={seo} /></div>
+      <div className="cms-card"><HomeForm settings={home} seo={seo} /></div>
       <VersionHistory entityType="HOME_SETTINGS" entityId="home" entityLabel="the homepage" />
     </EditorShell>
   </>;

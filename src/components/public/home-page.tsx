@@ -109,11 +109,10 @@ export function HomeExperienceGallery({ images, captions }: { images?: string[];
 
 /// The homepage <main>: CMS content is authoritative. The delivered static
 /// tail only supplies structural markup; editable text is replaced above.
-export function HomeMain({ settings, staticTail }: { settings: HomeSettings; staticTail: string }) {
+export function HomeMain({ settings, staticTail, developmentCards }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[] }) {
   const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
   const introStats = settings.introStats ?? [];
   const bannerSlides = settings.bannerSlides ?? [];
-  const developmentCards = settings.developmentCards ?? [];
   const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || introStats.length || settings.statsNote?.trim());
   const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
   return (
