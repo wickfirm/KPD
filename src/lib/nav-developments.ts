@@ -2,24 +2,19 @@ import { db } from "@/lib/db";
 
 // ── Developments created in the CMS, shown in the site navigation ─────────────
 //
-// The header dropdown, the mobile menu and the footer list the three delivered
-// developments in fixed markup. Any further PUBLISHED development (created in
-// /admin) is appended after them, so a new project is reachable from every
-// page without a code change. The delivered three are never touched.
-
-export const coreDevelopmentSlugs = ["seven-x-seven", "emerald-villa", "dubai-hills-mansion"];
-
-/// Keep the dropdown's preview rules (public.css) and the menu a sensible size.
-export const maxNavExtras = 6;
+// Navigation is derived from the same published FULL projects query as the
+// public listings. Drafting, archiving, creating, or removing a development
+// therefore takes effect in the menu and footer at the same time.
+export const maxNavExtras = 12;
 
 export type NavDevelopment = { slug: string; name: string; heroImage: string | null };
 
-/// Published, public (FULL profile) developments beyond the delivered three.
+/// Published, public (FULL profile) developments in their editorial order.
 /// Never throws: a database failure just means no extras are shown.
 export async function getNavDevelopments(): Promise<NavDevelopment[]> {
   try {
     const rows = await db.project.findMany({
-      where: { status: "PUBLISHED", profile: "FULL", slug: { notIn: coreDevelopmentSlugs } },
+      where: { status: "PUBLISHED", profile: "FULL" },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       take: maxNavExtras,
       select: { slug: true, name: true, heroImage: true },

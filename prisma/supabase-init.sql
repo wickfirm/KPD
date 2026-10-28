@@ -68,6 +68,7 @@ CREATE TABLE IF NOT EXISTS "projects" (
     "profile" "ProjectProfile" NOT NULL DEFAULT 'FULL',
     "status" "ContentStatus" NOT NULL DEFAULT 'DRAFT',
     "heroImage" TEXT,
+    "heroVideo" TEXT,
     "location" TEXT,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "publishedAt" TIMESTAMP(3),
@@ -75,6 +76,8 @@ CREATE TABLE IF NOT EXISTS "projects" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
 );
+
+ALTER TABLE "projects" ADD COLUMN IF NOT EXISTS "heroVideo" TEXT;
 
 CREATE TABLE IF NOT EXISTS "project_modules" (
     "id" TEXT NOT NULL,

@@ -66,10 +66,7 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
         <input name="title" defaultValue={defaults?.title} required />
       </label>
 
-      <label className="cms-field">
-        <span>Slug (leave blank to derive from title)</span>
-        <input name="slug" defaultValue={defaults?.slug} />
-      </label>
+      <div className="cms-field"><span>Article address</span><output>/{defaults?.slug ?? "derived-from-title"}</output><small>Created automatically from the title and kept stable after publishing.</small></div>
 
       <label className="cms-field">
         <span>Kind</span>

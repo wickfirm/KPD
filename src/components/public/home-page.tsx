@@ -18,11 +18,12 @@ function escapeHtml(value: string) {
 function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   const heading = settings.newsHeading?.trim() ?? "";
   const text = settings.newsText?.trim() ?? "";
-  const cta = settings.newsCta?.trim() ?? "";
+  const cta = settings.newsCtaVisible === false ? "" : settings.newsCta?.trim() ?? "";
+  const ctaUrl = settings.newsCtaUrl?.trim() || "#news";
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
-    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2>${escapeHtml(heading)}</h2>` : ""}<div>${text ? `<p>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="#news">${escapeHtml(cta)}</a>` : ""}</div></section>`
+    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2>${escapeHtml(heading)}</h2>` : ""}<div>${text ? `<p>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : ""}</div></section>`
     : "";
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
@@ -76,13 +77,13 @@ export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
   );
 }
 
-export function HomeContactBlock({ heading, text }: { heading: string; text: string }) {
+export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean }) {
   return (
     <section className="pdf-section pdf-contact-block" id="contact">
       <div><h2>{multiline(heading)}</h2></div>
       <div className="pdf-contact-copy">
         <p>{multiline(text)}</p>
-        <Link href="/contact#experience-center">Book a visit</Link>
+        {ctaVisible && ctaLabel ? <Link href={ctaUrl || "/contact#experience-center"}>{ctaLabel}</Link> : null}
       </div>
     </section>
   );
@@ -119,10 +120,10 @@ export function HomeMain({ settings, staticTail }: { settings: HomeSettings; sta
     <main className="development-pdf-home" id="top">
       {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
       {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} /> : null}
-      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} /> : null}
+      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} /> : null}
       {settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} /> : null}
       <HomeDevelopmentCards cards={developmentCards} />
-      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} /> : null}
+      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} /> : null}
       <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} />
       <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
     </main>

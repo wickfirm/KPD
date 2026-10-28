@@ -8,11 +8,20 @@ export type GlobalSettings = {
   phone?: string;
   whatsapp?: string;
   newsletterNote?: string;
+  newsletterHeading?: string;
+  newsletterSubmitLabel?: string;
   facebook?: string;
   x?: string;
   instagram?: string;
   youtube?: string;
   linkedin?: string;
+  enquiryEnabled?: boolean;
+  callEnabled?: boolean;
+  whatsappEnabled?: boolean;
+  popupTitle?: string;
+  popupIntro?: string;
+  popupSubmitLabel?: string;
+  popupNote?: string;
 };
 
 /// Kept as an empty public constant for compatibility with existing callers.
@@ -23,7 +32,7 @@ export const globalDefaults: GlobalSettings = {};
 export function mergeGlobalSettings(saved: unknown): GlobalSettings {
   if (!saved || typeof saved !== "object" || Array.isArray(saved)) return {};
   return Object.fromEntries(Object.entries(saved as Record<string, unknown>)
-    .filter(([key, value]) => key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true }) && typeof value === "string")
+    .filter(([key, value]) => (key in ({ email: true, phone: true, whatsapp: true, newsletterNote: true, newsletterHeading: true, newsletterSubmitLabel: true, facebook: true, x: true, instagram: true, youtube: true, linkedin: true, popupTitle: true, popupIntro: true, popupSubmitLabel: true, popupNote: true }) && typeof value === "string") || (key in ({ enquiryEnabled: true, callEnabled: true, whatsappEnabled: true }) && typeof value === "boolean"))
     .map(([key, value]) => [key, (value as string).trim()])) as GlobalSettings;
 }
 

@@ -113,7 +113,8 @@ async function saveSeoFor(entityType: string, entityId: string, formData: FormDa
 async function applyArticle(id: string, formData: FormData): Promise<ApplyResult> {
   const title = String(formData.get("title") || "").trim();
   const kind = formData.get("kind") === "BLOG" ? "BLOG" : "NEWS";
-  const slug = slugify(String(formData.get("slug") || "") || title);
+  const existingSlug = id ? await db.article.findUnique({ where: { id }, select: { slug: true } }) : null;
+  const slug = existingSlug?.slug ?? slugify(title);
   const summary = String(formData.get("summary") || "").trim();
   const coverImage = String(formData.get("coverImage") || "").trim() || null;
   const coverImageAlt = String(formData.get("coverImageAlt") || "").trim() || null;
@@ -206,9 +207,10 @@ export async function previewArticleDraft(formData: FormData): Promise<{ error?:
   if (!title) return { error: "Give the article a title to preview it." };
   let body: string[];
   try { body = parseBody(String(formData.get("body") || "")); } catch (err) { return { error: (err as Error).message }; }
+  const saved = id ? await db.article.findUnique({ where: { id }, select: { slug: true } }) : null;
   const draft: ArticleDraft = {
     kind: formData.get("kind") === "BLOG" ? "BLOG" : "NEWS",
-    slug: slugify(String(formData.get("slug") || "") || title),
+    slug: saved?.slug ?? slugify(title),
     title,
     summary: String(formData.get("summary") || "").trim(),
     body,
@@ -316,6 +318,8 @@ function moduleContentFromForm(formData: FormData) {
 
   const text = String(formData.get("text") || "").trim();
   const url = String(formData.get("url") || "").trim();
+  const ctaLabel = String(formData.get("ctaLabel") || "").trim();
+  const ctaVisible = formData.get("ctaVisible") === "on";
   const mapUrl = String(formData.get("mapUrl") || "").trim();
   const presentation = formData.get("presentation") === "calm" ? "calm" : undefined;
 
@@ -324,6 +328,8 @@ function moduleContentFromForm(formData: FormData) {
     ...(images.length ? { images } : {}),
     ...(items.length ? { items } : {}),
     ...(url ? { url } : {}),
+    ...(ctaLabel ? { ctaLabel } : {}),
+    ...(!ctaVisible ? { ctaVisible: false } : {}),
     ...(mapUrl ? { mapUrl } : {}),
     ...(presentation ? { presentation } : {}),
   };
@@ -332,7 +338,8 @@ function moduleContentFromForm(formData: FormData) {
 /// Shared development write path (editor form + version restore).
 async function applyProject(id: string, formData: FormData): Promise<ApplyResult> {
   const name = String(formData.get("name") || "").trim();
-  const slug = slugify(String(formData.get("slug") || "") || name);
+  const currentSlug = id ? await db.project.findUnique({ where: { id }, select: { slug: true } }) : null;
+  const slug = currentSlug?.slug ?? slugify(name);
   if (!name || !slug) return { error: "Development name is required." };
 
   const status = projectStatus(formData.get("status"));
@@ -344,6 +351,7 @@ async function applyProject(id: string, formData: FormData): Promise<ApplyResult
     profile: projectProfile(formData.get("profile")),
     status,
     heroImage: String(formData.get("heroImage") || "").trim() || null,
+    heroVideo: String(formData.get("heroVideo") || "").trim() || null,
     location: String(formData.get("location") || "").trim() || null,
     sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
   };
@@ -415,7 +423,8 @@ export async function saveProject(
 async function applyProjectModule(id: string, formData: FormData): Promise<ApplyResult> {
   const projectId = String(formData.get("projectId") || "");
   const title = normalizeLineBreaks(formData.get("title") as string | null);
-  const slug = slugify(String(formData.get("slug") || "") || title);
+  const existingSlug = id ? await db.projectModule.findUnique({ where: { id }, select: { slug: true } }) : null;
+  const slug = existingSlug?.slug ?? slugify(title);
   if (!projectId || !title || !slug) return { error: "Module title is required." };
 
   const kind = moduleKind(formData.get("kind"));
@@ -496,7 +505,8 @@ export async function previewSectionDraft(formData: FormData): Promise<{ error?:
   await requirePermission("content.write");
   const projectId = String(formData.get("projectId") || "");
   const title = normalizeLineBreaks(formData.get("title") as string | null);
-  const slug = slugify(String(formData.get("slug") || "") || title);
+  const existing = formData.get("id") ? await db.projectModule.findUnique({ where: { id: String(formData.get("id")) }, select: { slug: true } }) : null;
+  const slug = existing?.slug ?? slugify(title);
   if (!projectId || !title || !slug) return { error: "Give the section a title to preview it." };
   const project = await db.project.findUnique({ where: { id: projectId }, select: { slug: true } });
   if (!project) return { error: "This development no longer exists." };
@@ -639,13 +649,13 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
 /// hard-deleted rows are re-created on restore.
 async function applyStaticPage(id: string, formData: FormData): Promise<ApplyResult> {
   const title = String(formData.get("title") || "").trim();
-  let slug = slugify(String(formData.get("slug") || "") || title);
+  let slug = slugify(title);
   if (id) {
     // The public URL of a fixed page (About, Legacy, Contact, Investor guide, the legal
     // pages) is defined by the site's routes: renaming its slug would orphan the row so
     // neither the editor nor the public page could find it again. Those pages keep their slug.
     const current = await db.staticPage.findUnique({ where: { id }, select: { slug: true } });
-    if (current && findEditablePage(current.slug)) slug = current.slug;
+    if (current) slug = current.slug;
   }
   const status = projectStatus(formData.get("status"));
   if (!title || !slug) return { error: "Page title is required." };
@@ -680,7 +690,9 @@ const previewablePageSlugs = ["terms", "privacy-policy", "cookie-policy", "about
 /// page-preview.ts). Nothing public changes and the page is not saved.
 export async function previewPageDraft(formData: FormData): Promise<{ error?: string; slug?: string }> {
   await requirePermission("content.editLive");
-  const slug = slugify(String(formData.get("slug") || ""));
+  const id = String(formData.get("id") || "");
+  const existing = id ? await db.staticPage.findUnique({ where: { id }, select: { slug: true } }) : null;
+  const slug = existing?.slug ?? slugify(String(formData.get("title") || ""));
   if (!previewablePageSlugs.includes(slug)) return { error: "This page cannot be previewed this way." };
   const title = String(formData.get("title") || "").trim();
   if (!title) return { error: "Give the page a title to preview it." };
@@ -706,7 +718,8 @@ export async function saveStaticPage(
 ): Promise<StaticPageFormState> {
   const { session } = await requirePermission("content.editLive");
   const id = String(formData.get("id") || "");
-  const slug = slugify(String(formData.get("slug") || "") || String(formData.get("title") || ""));
+  const existing = id ? await db.staticPage.findUnique({ where: { id }, select: { slug: true } }) : null;
+  const slug = existing?.slug ?? slugify(String(formData.get("title") || ""));
 
   const result = await applyStaticPage(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this page." };
@@ -751,11 +764,20 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     phone: String(formData.get("phone") || "").trim(),
     whatsapp: String(formData.get("whatsapp") || "").trim(),
     newsletterNote: String(formData.get("newsletterNote") || "").trim(),
+    newsletterHeading: String(formData.get("newsletterHeading") || "").trim(),
+    newsletterSubmitLabel: String(formData.get("newsletterSubmitLabel") || "").trim(),
     facebook: String(formData.get("facebook") || "").trim(),
     x: String(formData.get("x") || "").trim(),
     instagram: String(formData.get("instagram") || "").trim(),
     linkedin: String(formData.get("linkedin") || "").trim(),
     youtube: String(formData.get("youtube") || "").trim(),
+    enquiryEnabled: formData.get("enquiryEnabled") === "on",
+    callEnabled: formData.get("callEnabled") === "on",
+    whatsappEnabled: formData.get("whatsappEnabled") === "on",
+    popupTitle: String(formData.get("popupTitle") || "").trim(),
+    popupIntro: String(formData.get("popupIntro") || "").trim(),
+    popupSubmitLabel: String(formData.get("popupSubmitLabel") || "").trim(),
+    popupNote: String(formData.get("popupNote") || "").trim(),
   };
   const newsListing = {
     eyebrow: String(formData.get("newsEyebrow") || "").trim(),
@@ -824,13 +846,22 @@ function homeSettingsFromForm(formData: FormData) {
     introHeading: normalizeLineBreaks(formData.get("introHeading") as string | null),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
     developmentHeading: normalizeLineBreaks(formData.get("developmentHeading") as string | null),
+    developmentHeadingPosition: formData.get("developmentHeadingPosition") === "below" ? "below" : "overlay",
+    developmentCtaLabel: String(formData.get("developmentCtaLabel") || "").trim(),
+    developmentCtaUrl: String(formData.get("developmentCtaUrl") || "").trim(),
+    developmentCtaVisible: formData.get("developmentCtaVisible") === "on",
     developmentTextVisible: formData.get("developmentTextVisible") === "on",
     developmentText: normalizeLineBreaks(formData.get("developmentText") as string | null),
     newsHeading: normalizeLineBreaks(formData.get("newsHeading") as string | null),
     newsText: normalizeLineBreaks(formData.get("newsText") as string | null),
     newsCta: String(formData.get("newsCta") || "").trim(),
+    newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
+    newsCtaVisible: formData.get("newsCtaVisible") === "on",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
     contactText: String(formData.get("contactText") || "").trim(),
+    contactCtaLabel: String(formData.get("contactCtaLabel") || "").trim(),
+    contactCtaUrl: String(formData.get("contactCtaUrl") || "").trim(),
+    contactCtaVisible: formData.get("contactCtaVisible") === "on",
     experienceImages: nonEmptyLines(formData.get("experienceImages")),
     /// Keep empty positions so captions stay paired with their image.
     experienceCaptions: String(formData.get("experienceCaptions") ?? "").split(/\r?\n/).map((caption) => caption.trim()),

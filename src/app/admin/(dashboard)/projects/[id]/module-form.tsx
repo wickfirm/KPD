@@ -7,7 +7,7 @@ import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reo
 import { moduleKindLabels } from "@/lib/project-starter";
 
 type ModuleItem = { label?: string; value?: string; image?: string; url?: string };
-type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; mapUrl?: string; presentation?: string };
+type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string };
 type Defaults = { id?: string; title?: string; slug?: string; kind?: string; profile?: string; sortOrder?: number; content?: ModuleContent };
 const initialState: ProjectModuleFormState = {};
 
@@ -68,7 +68,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
     <details className="cms-advanced-input">
       <summary>Advanced options</summary>
       <div className="cms-grid">
-        <label className="cms-field"><span>Section address</span><input name="slug" defaultValue={defaults?.slug} placeholder="derived from the title" /><small>Used for the section's link on the page.</small></label>
+        <div className="cms-field"><span>Section address</span><output>#{defaults?.slug ?? "derived-from-title"}</output><small>Created automatically from the section title and kept stable after publishing.</small></div>
         <label className="cms-field"><span>Visibility</span><select name="profile" defaultValue={defaults?.profile ?? "FULL"}><option value="FULL">Public site</option><option value="RESTRICTED">Restricted (not shown publicly)</option></select></label>
       </div>
     </details>
@@ -85,6 +85,8 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
     </section>}
     <div className="cms-grid">
       <label className="cms-field"><span>Button link (optional)</span><input name="url" defaultValue={defaults?.content?.url ?? ""} placeholder="/contact?project=..." /><small>Where the section's button goes, if it has one.</small></label>
+      <label className="cms-field"><span>Button text</span><input name="ctaLabel" defaultValue={defaults?.content?.ctaLabel ?? ""} placeholder="Explore" /><small>Leave blank to use the section’s standard label.</small></label>
+      <label className="cms-check"><input type="checkbox" name="ctaVisible" defaultChecked={defaults?.content?.ctaVisible !== false} /><span><strong>Show button</strong><small>Hide it without losing the saved link.</small></span></label>
       <label className="cms-field"><span>Layout</span><select name="presentation" defaultValue={defaults?.content?.presentation ?? "standard"}><option value="standard">Standard</option><option value="calm">Split panel (text beside a large image)</option></select></label>
       {kind === "LOCATION" ? <label className="cms-field"><span>Map embed link</span><input name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} placeholder="https://www.google.com/maps/embed?..." /><small>Used on developments created in the CMS. The three original developments keep their built-in travel map.</small></label> : <input type="hidden" name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} />}
     </div>

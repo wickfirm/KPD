@@ -7,21 +7,8 @@ import { getNavDevelopments } from "@/lib/nav-developments";
 /// Interactions (menu, dropdowns, scroll states) stay with the delivered
 /// site-cms.js, which binds these elements when it executes per page view.
 
-const developments = [
-  { label: "seven x seven", href: "/developments/seven-x-seven", className: "mega-project-link mega-project-sxs" },
-  { label: "Villa 174", href: "/developments/emerald-villa", className: "mega-project-link mega-project-emerald" },
-  { label: "Villa 24", href: "/developments/dubai-hills-mansion", className: "mega-project-link mega-project-hills" },
-];
-
-const megaPreviews = [
-  { className: "mega-preview-image mega-preview-sxs is-default", src: "/legacy/assets/images/project-media/sxs/facade%20front%202.png" },
-  { className: "mega-preview-image mega-preview-emerald", src: "/legacy/assets/images/project-media/Emerald%20Villa/13_2.jpg" },
-  { className: "mega-preview-image mega-preview-hills", src: "/legacy/assets/images/project-media/Dubai%20Hills%20Mansion/6_plex_front_rev_final_1.jpg" },
-];
-
 export async function SiteShellHeader() {
-  /// Developments created in the CMS are appended after the delivered three.
-  const extras = await getNavDevelopments();
+  const developments = await getNavDevelopments();
   return <>
     <header className="site-header development-site-header is-delayed-nav">
       <div className="header-wrap">
@@ -33,13 +20,11 @@ export async function SiteShellHeader() {
             <div className="header-nav-menu header-mega-menu" role="menu" aria-label="Developments">
               <div className="header-mega-copy">
                 <div className="header-mega-list">
-                  {developments.map((project) => <Link key={project.href} className={project.className} href={project.href} role="menuitem">{project.label}</Link>)}
-                  {extras.map((project, index) => <Link key={project.slug} className={`mega-project-link mega-project-extra mega-project-extra-${index + 1}`} href={`/developments/${project.slug}`} role="menuitem">{project.name}</Link>)}
+                  {developments.map((project, index) => <Link key={project.slug} className={`mega-project-link mega-project-extra mega-project-extra-${index + 1}`} href={`/developments/${project.slug}`} role="menuitem">{project.name}</Link>)}
                 </div>
               </div>
               <div className="header-mega-preview" aria-hidden="true">
-                {megaPreviews.map((preview) => <img key={preview.src} className={preview.className} src={preview.src} alt="" />)}
-                {extras.map((project, index) => project.heroImage ? <img key={project.slug} className={`mega-preview-image mega-preview-extra-${index + 1}`} src={project.heroImage} alt="" /> : null)}
+                {developments.map((project, index) => project.heroImage ? <img key={project.slug} className={`mega-preview-image mega-preview-extra-${index + 1}${index === 0 ? " is-default" : ""}`} src={project.heroImage} alt="" /> : null)}
               </div>
             </div>
           </div>
@@ -69,12 +54,9 @@ export async function SiteShellHeader() {
       <button className="menu-close" type="button" data-menu-close aria-label="Close menu" />
       <div className="menu-inner"><ul className="menu-list">
         <li className="menu-item menu-item-main"><Link href="/#top">Home</Link></li>
-        <li className="menu-item menu-item-main has-sub"><Link href="/developments/seven-x-seven">Developments</Link>
+        <li className="menu-item menu-item-main has-sub"><Link href={developments[0] ? `/developments/${developments[0].slug}` : "/#developments"}>Developments</Link>
           <ul className="menu-sublist">
-            <li><Link href="/developments/seven-x-seven">seven x seven</Link></li>
-            <li><Link href="/developments/emerald-villa">Villa 174</Link></li>
-            <li><Link href="/developments/dubai-hills-mansion">Villa 24</Link></li>
-            {extras.map((project) => <li key={project.slug}><Link href={`/developments/${project.slug}`}>{project.name}</Link></li>)}
+            {developments.map((project) => <li key={project.slug}><Link href={`/developments/${project.slug}`}>{project.name}</Link></li>)}
           </ul>
         </li>
         <li className="menu-item menu-item-main has-sub"><Link href="/about">About</Link>

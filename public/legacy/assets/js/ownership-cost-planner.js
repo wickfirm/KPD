@@ -92,10 +92,15 @@
       const dld = price * number(settings.dldRate) / 100; const baseFees = dld + number(settings.registrationFee);
       const mortgageRegistration = finance ? loan * number(settings.mortgageRegistrationRate) / 100 + number(settings.mortgageAdminFee) : 0;
       const bankFee = finance ? loan * number(settings.bankArrangementRate) / 100 * (1 + number(settings.vatRate) / 100) : 0;
-      const milestoneCash = project.milestones.reduce((sum, milestone, index) => sum + (finance && index === project.milestones.length - 1 ? 0 : price * milestone.percentage / 100), 0);
+      // The loan may be capped below the handover milestone by LTV rules. Only
+      // the financed portion is deferred; the balance remains payable at handover.
+      const milestoneCash = project.milestones.reduce((sum, milestone, index) => {
+        const amount = price * milestone.percentage / 100;
+        return sum + (finance && index === project.milestones.length - 1 ? Math.max(0, amount - loan) : amount);
+      }, 0);
       const beforeKeys = milestoneCash + baseFees + mortgageRegistration + bankFee;
       find("[data-planner-before-keys]").textContent = money(beforeKeys);
-      find("[data-planner-timeline]").innerHTML = project.milestones.map((milestone, index) => { const financed = finance && index === project.milestones.length - 1; return `<li><span>${escape(milestone.label)}<small>${date(milestone.date)}</small></span><strong>${financed ? `${money(loan)} financed` : money(price * milestone.percentage / 100)}</strong></li>`; }).join("");
+      find("[data-planner-timeline]").innerHTML = project.milestones.map((milestone, index) => { const amount = price * milestone.percentage / 100; const financed = finance && index === project.milestones.length - 1; const remaining = financed ? Math.max(0, amount - loan) : 0; const label = financed ? `${money(loan)} financed${remaining ? ` + ${money(remaining)} cash` : ""}` : money(amount); return `<li><span>${escape(milestone.label)}<small>${date(milestone.date)}</small></span><strong>${label}</strong></li>`; }).join("");
       find("[data-planner-fees]").innerHTML = `<div><dt>DLD transfer fee</dt><dd>${money(dld)}</dd></div><div><dt>Registration and admin</dt><dd>${money(number(settings.registrationFee))}</dd></div>${finance ? `<div><dt>Mortgage registration</dt><dd>${money(mortgageRegistration)}</dd></div><div><dt>Bank arrangement fee</dt><dd>${money(bankFee)}</dd></div>` : ""}`;
       const mortgage = find("[data-planner-mortgage]"); mortgage.hidden = !finance;
       if (finance) { find("[data-planner-monthly]").textContent = money(payment(loan, number(rateField.value), number(periodField.value))); find("[data-planner-mortgage-detail]").textContent = `${money(loan)} over ${periodField.value} years at ${rateField.value}% p.a.`; }

@@ -1,5 +1,4 @@
-import { Figtree } from "next/font/google";
+import { Manrope } from "next/font/google";
 
-/// The CMS typeface. The public site is set in Saans, a licensed trial font that
-/// falls back to Figtree, so Figtree is the closest face we can ship freely.
-export const cmsFont = Figtree({ subsets: ["latin"], display: "swap" });
+/// Manrope is the shared typeface selected for both the public site and CMS.
+export const cmsFont = Manrope({ subsets: ["latin"], display: "swap" });

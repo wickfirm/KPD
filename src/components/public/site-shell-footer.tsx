@@ -7,10 +7,10 @@ import { getNavDevelopments } from "@/lib/nav-developments";
 /// mailto exactly as delivered.
 export async function SiteShellFooter() {
   const contact = await getGlobalSettings();
-  const extras = await getNavDevelopments();
+  const developments = await getNavDevelopments();
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.
-  const contactScript = `window.__KPD_CONTACT=${JSON.stringify({ email: contact.email ?? "", phone: contact.phone ?? "", whatsapp: contact.whatsapp ?? "" }).replace(/</g, "\u003c")};`;
+  const contactScript = `window.__KPD_CONTACT=${JSON.stringify(contact).replace(/</g, "\u003c")};`;
   return <><script dangerouslySetInnerHTML={{ __html: contactScript }} /><footer className="section_footer" id="footer">
     <div className="footer_container">
       <div className="footer_header">
@@ -23,10 +23,7 @@ export async function SiteShellFooter() {
           <div className="footer_links_col">
             <h3 className="footer_links_title text-size-footer">Developments</h3>
             <ul role="list" className="footer_links_list">
-              <li className="footer_links_item"><Link href="/developments/seven-x-seven" className="footer_link text-size-footer">seven x seven Meydan Horizon Residences</Link></li>
-              <li className="footer_links_item"><Link href="/developments/emerald-villa" className="footer_link text-size-footer">Villa 174</Link></li>
-              <li className="footer_links_item"><Link href="/developments/dubai-hills-mansion" className="footer_link text-size-footer">Villa 24</Link></li>
-              {extras.map((project) => <li className="footer_links_item" key={project.slug}><Link href={`/developments/${project.slug}`} className="footer_link text-size-footer">{project.name}</Link></li>)}
+              {developments.map((project) => <li className="footer_links_item" key={project.slug}><Link href={`/developments/${project.slug}`} className="footer_link text-size-footer">{project.name}</Link></li>)}
             </ul>
           </div>
           <div className="footer_links_col">
@@ -46,12 +43,12 @@ export async function SiteShellFooter() {
           </div>
         </div>
         <div className="footer_links_newsletter">
-          <h3 className="footer_links_title text-size-footer">Stay informed</h3>
+          <h3 className="footer_links_title text-size-footer">{contact.newsletterHeading || "Stay informed"}</h3>
           <div className="footer_form_block">
             <form id="footer-email-form" name="footer-email-form" method="post" action={contact.email ? `mailto:${contact.email}?subject=KPD%20Newsletter%20Signup` : undefined} encType="text/plain" className="footer_form" aria-label="Email Form">
               <label htmlFor="footerEmail" className="form-label hide">Email Address</label>
               <input className="input-text text-size-footer" maxLength={256} name="Email" placeholder="Email Address" type="email" id="footerEmail" required />
-              <input type="submit" className="button_submit" value="Subscribe" />
+              <input type="submit" className="button_submit" value={contact.newsletterSubmitLabel || "Subscribe"} />
             </form>
           </div>
           <div className="footer_newsletter_terms text-size-small">{contact.newsletterNote} <Link href="/privacy-policy" className="link">privacy policy.</Link></div>

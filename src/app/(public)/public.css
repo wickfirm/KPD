@@ -4,6 +4,7 @@
    site.css stays byte-for-byte as supplied. Their original cascade positions are
    kept: -top sat near the start of site.css, -end after its last rule. */
 @import url("/legacy/assets/css/figtree-local.css");
+@import url("https://fonts.googleapis.com/css2?family=Manrope:ital,wght@0,200..800;1,200..800&display=swap");
 @import url("/legacy/assets/css/ownership-planner-top.css");
 @import url("/legacy/assets/css/site.css");
 @import url("/legacy/assets/css/ownership-planner-end.css");
@@ -15,6 +16,11 @@
    bands stay hidden exactly as delivered. */
 .development-pdf-home > .pdf-static-tail > section:not(.pdf-section) {
   display: none;
+}
+
+/* Client direction: one typeface across public CMS-rendered and delivered bands. */
+.home-development-page, .home-development-page *, .single-project-page, .single-project-page * {
+  font-family: "Manrope", sans-serif;
 }
 
 /* CMS-only homepage additions. These rules deliberately sit after the
@@ -49,6 +55,24 @@
 .pdf-development-content h2 {
   max-inline-size: min(90vw, 34ch);
   text-wrap: balance;
+}
+
+.pdf-development-heading-below {
+  margin: 20px 0 0;
+  color: var(--black);
+  font-size: clamp(34px, 4vw, 64px);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+/* A two-card development/news set should use the available composition rather
+   than retain an empty third column. */
+.pdf-development-cards:has(.pdf-dev-card:nth-child(2):last-child) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .pdf-development-cards:has(.pdf-dev-card:nth-child(2):last-child) { grid-template-columns: 1fr; }
 }
 
 .home-development-page .pdf-events-head h2 {

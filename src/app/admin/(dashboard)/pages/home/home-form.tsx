@@ -60,6 +60,8 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     </section>
     <h2 className="cms-form-heading">Developments section</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-field"><span>Heading placement</span><select name="developmentHeadingPosition" defaultValue={settings.developmentHeadingPosition ?? "overlay"}><option value="overlay">Over the image</option><option value="below">Below the image</option></select></label>
+    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="developmentCtaVisible" defaultChecked={settings.developmentCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the button over the developments image slider.</small></span></label><label className="cms-field"><span>Button label</span><input name="developmentCtaLabel" defaultValue={settings.developmentCtaLabel ?? "View all developments"} /></label><label className="cms-field"><span>Button link</span><input name="developmentCtaUrl" defaultValue={settings.developmentCtaUrl ?? "/#development-cards"} /></label></div>
     <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={Boolean(settings.developmentTextVisible)} /> <span><strong>Show the development standard text</strong><small>Shows the text block immediately below the large developments image slider.</small></span></label>
     <label className="cms-field"><span>Development standard text</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? ""} /><small>Leave this editable for future changes; untick the option above to hide the block.</small></label>
     <section className="cms-editor-section">
@@ -89,12 +91,13 @@ export default function HomeForm({ settings, projectLinks = [], seo }: { setting
     <h2 className="cms-form-heading">News & insights</h2>
     <label className="cms-field"><span>Heading</span><textarea name="newsHeading" rows={2} defaultValue={settings.newsHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? ""} /></label>
-    <label className="cms-field"><span>Button label</span><input name="newsCta" defaultValue={settings.newsCta ?? ""} /><small>Links visitors to the homepage news feed.</small></label>
+    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="newsCtaVisible" defaultChecked={settings.newsCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the news button.</small></span></label><label className="cms-field"><span>Button label</span><input name="newsCta" defaultValue={settings.newsCta ?? "Read News & Insights"} /></label><label className="cms-field"><span>Button link</span><input name="newsCtaUrl" defaultValue={settings.newsCtaUrl ?? "/news"} /></label></div>
     <h2 className="cms-form-heading">Contact strip</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
       <label className="cms-field"><span>Contact copy</span><textarea name="contactText" rows={3} defaultValue={settings.contactText ?? ""} /></label>
     </div>
+    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="contactCtaVisible" defaultChecked={settings.contactCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the contact-strip button.</small></span></label><label className="cms-field"><span>Button label</span><input name="contactCtaLabel" defaultValue={settings.contactCtaLabel ?? "Book a visit"} /></label><label className="cms-field"><span>Button link</span><input name="contactCtaUrl" defaultValue={settings.contactCtaUrl ?? "/contact#experience-center"} /></label></div>
     <section className="cms-editor-section">
       <h3>Experience Center gallery</h3>
       <p className="cms-muted">The gallery appears only when it has exactly five CMS images. Captions are editable per image.</p>

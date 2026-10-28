@@ -34,6 +34,13 @@
     floatingContact.innerHTML = "<a href=\"mailto:" + kpdContact.email + "?subject=KPD%20Inquiry\" class=\"floating-contact__link\" aria-label=\"Send an enquiry\"><span class=\"floating-contact__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M6.75 6.5H17.25C18.35 6.5 19.25 7.4 19.25 8.5V14.5C19.25 15.6 18.35 16.5 17.25 16.5H11.2L7.2 19.5V16.5H6.75C5.65 16.5 4.75 15.6 4.75 14.5V8.5C4.75 7.4 5.65 6.5 6.75 6.5Z\"></path><path d=\"M8.25 10H15.75\"></path><path d=\"M8.25 13H13.5\"></path></svg></span><span>Enquiry</span></a><a href=\"" + kpdTelHref + "\" class=\"floating-contact__link\" aria-label=\"Call KPD\"><span class=\"floating-contact__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M8.15 5.5L10.15 9.1L8.85 10.4C9.65 12 11 13.35 12.6 14.15L13.9 12.85L17.5 14.85L16.9 17.75C16.75 18.45 16.1 18.95 15.38 18.85C9.95 18.08 5.92 14.05 5.15 8.62C5.05 7.9 5.55 7.25 6.25 7.1L8.15 5.5Z\"></path></svg></span><span>Call</span></a><a href=\"" + kpdWhatsappHref + "\" class=\"floating-contact__link\" target=\"_blank\" rel=\"noopener noreferrer\" aria-label=\"Contact KPD on WhatsApp\"><span class=\"floating-contact__icon\" aria-hidden=\"true\"><svg viewBox=\"0 0 24 24\" fill=\"none\"><path d=\"M7.25 18.25L4.75 19.25L5.7 16.65C4.98 15.48 4.58 14.1 4.58 12.62C4.58 8.36 7.99 4.92 12.2 4.92C16.42 4.92 19.83 8.36 19.83 12.62C19.83 16.88 16.42 20.32 12.2 20.32C10.38 20.32 8.7 19.67 7.25 18.25Z\"></path><path d=\"M9.45 9.15C9.25 9.62 9.3 10.68 10.55 12.05C11.8 13.42 13.13 14.05 13.72 13.98L14.75 12.95L16.45 13.78C16.38 14.38 15.98 15.5 14.65 15.72C12.8 16.02 9.42 13.95 8.58 11.45C8.12 10.1 8.72 9.32 9.45 9.15Z\"></path></svg></span><span>WhatsApp</span></a>";
     document.body.appendChild(floatingContact);
   }
+  // CMS visibility switches apply to both freshly-created and persistent widgets.
+  if (floatingContact) {
+    const links = floatingContact.querySelectorAll(".floating-contact__link");
+    if (links[0] && kpdContact.enquiryEnabled === false) links[0].remove();
+    if (links[1] && (kpdContact.callEnabled === false || !kpdContact.phone)) links[1].remove();
+    if (links[2] && (kpdContact.whatsappEnabled === false || !kpdContact.whatsapp)) links[2].remove();
+  }
 
   if (!goTop) {
     goTop = document.createElement("button");
@@ -45,7 +52,7 @@
   }
 
   bookingWidgetLauncher = document.querySelector("[data-booking-launcher]");
-  if (!bookingWidgetLauncher) {
+  if (!bookingWidgetLauncher && kpdContact.enquiryEnabled !== false) {
     bookingWidgetLauncher = document.createElement("button");
     bookingWidgetLauncher.className = "booking-widget-launcher visible";
     bookingWidgetLauncher.type = "button";

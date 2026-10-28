@@ -116,6 +116,7 @@ model Project {
   profile     ProjectProfile @default(FULL)
   status      ContentStatus  @default(DRAFT)
   heroImage   String?
+  heroVideo   String?
   location    String?
   sortOrder   Int            @default(0)
   publishedAt DateTime?

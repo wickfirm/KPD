@@ -10,6 +10,7 @@ export type DevelopmentProject = {
   tagline: string | null;
   description: string | null;
   heroImage: string | null;
+  heroVideo?: string | null;
   status: string;
   profile: string;
   modules: { id: string; slug: string; title: string; kind: string; content: unknown }[];
@@ -27,7 +28,7 @@ export function DevelopmentMain({ project, shell }: { project: DevelopmentProjec
   return (
     <main className="single-project-main" id="top">
       <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>
-        {project.heroImage ? <img src={project.heroImage} alt={project.name} /> : null}
+        {project.heroVideo ? <video src={project.heroVideo} poster={project.heroImage ?? undefined} autoPlay muted loop playsInline preload="metadata" aria-label={`${project.name} presentation`} /> : project.heroImage ? <img src={project.heroImage} alt={project.name} /> : null}
         <div className="page-hero-content"><h1>{project.name}</h1></div>
       </section>
 

@@ -75,7 +75,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <div className="cms-grid">
       <label className="cms-field"><span>Page title</span><input name="title" defaultValue={defaults?.title} required /></label>
-      <label className="cms-field"><span>URL slug{lockedSlug ? " (fixed for this page)" : ""}</span><input name="slug" defaultValue={defaults?.slug} placeholder="privacy-policy" readOnly={lockedSlug} /></label>
+      <div className="cms-field"><span>URL address</span><output>/{defaults?.slug ?? "derived-from-title"}</output><small>Created automatically and kept stable so existing links never break.</small></div>
       {liveByDefault
         ? <input type="hidden" name="status" value="PUBLISHED" />
         : <label className="cms-field"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft</option><option value="PUBLISHED">Published</option><option value="ARCHIVED">Archived</option></select>{isLegal ? <small>Until published, visitors see the original legal text; publish to show your edits.</small> : null}</label>}

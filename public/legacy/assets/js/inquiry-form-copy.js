@@ -1,16 +1,17 @@
 // Current enquiry copy, kept separate from the delivered interaction layer so
 // every React-rendered page and its persisted modal receive the same wording.
 (function () {
+  const copy = window.__KPD_CONTACT || {};
   function updateInquiryForm() {
     const modal = document.querySelector(".booking-modal");
     const card = modal && modal.querySelector(".booking-card");
     if (!card) return;
 
     const title = card.querySelector("#booking-title");
-    if (title) title.textContent = "Start a conversation.";
+    if (title) title.textContent = copy.popupTitle || "Start a conversation.";
 
     const intro = card.querySelector("#booking-title + p");
-    if (intro) intro.textContent = "Tell us about your property enquiry.";
+    if (intro) intro.textContent = copy.popupIntro || "Tell us about your property enquiry.";
 
     const form = card.querySelector(".booking-lead-form");
     if (!form) return;
@@ -27,10 +28,10 @@
     const message = form.querySelector('textarea[name="Message"]');
     if (message) message.setAttribute("placeholder", "Message");
     const submit = form.querySelector(".booking-lead-submit");
-    if (submit) submit.textContent = "Send enquiry";
+    if (submit) submit.textContent = copy.popupSubmitLabel || "Send enquiry";
 
     const note = card.querySelector(".booking-privacy-note");
-    if (note) note.textContent = "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally.";
+    if (note) note.textContent = copy.popupNote || "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally.";
   }
 
   updateInquiryForm();
