@@ -1,5 +1,5 @@
 ﻿import Link from "next/link";
-import { getGlobalSettings } from "@/lib/site-contact";
+import { getGlobalSettings, recipientFor } from "@/lib/site-contact";
 import { getNavDevelopments } from "@/lib/nav-developments";
 
 /// Delivered footer â€” 1:1 port of the delivered markup (link columns,
@@ -45,7 +45,7 @@ export async function SiteShellFooter() {
         <div className="footer_links_newsletter">
           <h3 className="footer_links_title text-size-footer">{contact.newsletterHeading || "Stay informed"}</h3>
           <div className="footer_form_block">
-            <form id="footer-email-form" name="footer-email-form" method="post" action={contact.email ? `mailto:${contact.email}?subject=KPD%20Newsletter%20Signup` : undefined} encType="text/plain" className="footer_form" aria-label="Email Form">
+            <form id="footer-email-form" name="footer-email-form" method="post" action={recipientFor(contact, "newsletter") ? `mailto:${recipientFor(contact, "newsletter")}?subject=KPD%20Newsletter%20Signup` : undefined} encType="text/plain" className="footer_form" aria-label="Email Form">
               <label htmlFor="footerEmail" className="form-label hide">Email Address</label>
               <input className="input-text text-size-footer" maxLength={256} name="Email" placeholder="Email Address" type="email" id="footerEmail" required />
               <input type="submit" className="button_submit" value={contact.newsletterSubmitLabel || "Subscribe"} />

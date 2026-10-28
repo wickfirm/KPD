@@ -7,6 +7,7 @@
   // footer publishes them as window.__KPD_CONTACT; the delivered values remain
   // the fallback (static /legacy/*.html pages and a missing/empty setting).
   const kpdContact = Object.assign({ email: "info@kpd.ae", phone: "+971 4 388 3099", whatsapp: "https://wa.me/97143883099" }, window.__KPD_CONTACT || {});
+  const recipientFor = (key) => (kpdContact.recipients && kpdContact.recipients[key]) || kpdContact.email;
   const kpdTelHref = "tel:" + String(kpdContact.phone).replace(/[^+\d]/g, "");
   const kpdWhatsappHref = /^https?:\/\//i.test(kpdContact.whatsapp) ? kpdContact.whatsapp : "https://wa.me/" + String(kpdContact.whatsapp).replace(/\D/g, "");
   const escapeHtml = (value) => String(value).replace(/[&<>\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character]));
@@ -1606,6 +1607,12 @@
       : form.querySelector("[name='project']") ? "Floor plan request"
       // [KPD CMS patch] forms that name their own type (the mortgage calculator's eligibility form).
       : valueFrom(formData, ["Inquiry Type"]) || "Website enquiry";
+    const recipientKey = form.id === "footer-email-form" ? "newsletter"
+      : form.classList.contains("booking-lead-form") ? "booking"
+      : form.querySelector("[name='project']") ? "floorPlan"
+      : form.classList.contains("mortgage-lead-form") ? "calculator"
+      : "enquiry";
+    const recipient = recipientFor(recipientKey);
     const name = [firstName, lastName].filter(Boolean).join(" ") || "Website visitor";
     const submit = form.querySelector("button[type='submit'], input[type='submit']");
 
@@ -1620,7 +1627,7 @@
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, phone, message, interest: plannerProject || interest, inquiryType, details, sourcePage: window.location.pathname })
+        body: JSON.stringify({ name, email, phone, message, interest: plannerProject || interest, inquiryType, recipient, details, sourcePage: window.location.pathname })
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");

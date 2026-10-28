@@ -20,8 +20,10 @@ export async function POST(req: NextRequest) {
   const interest = String(payload.interest || "").trim() || null;
   const sourcePage = String(payload.sourcePage || "").trim() || null;
   const inquiryType = String(payload.inquiryType || "").trim().slice(0, 80) || null;
+  const recipient = String(payload.recipient || "").trim().slice(0, 320);
   // Every field the visitor filled in, as ordered { label, value } pairs.
   const details = sanitizeDetails(payload.details);
+  if (recipient && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recipient)) details.push({ label: "Delivery recipient", value: recipient });
 
   if (!name || !email || !message) {
     return NextResponse.json(

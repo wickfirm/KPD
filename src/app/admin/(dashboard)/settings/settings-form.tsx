@@ -2,8 +2,9 @@
 
 import { useActionState } from "react";
 import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
+import type { FormRecipients } from "@/lib/site-contact";
 
-export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
+export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
@@ -11,14 +12,29 @@ const initialState: SiteSettingsFormState = {};
 export default function SettingsForm({ settings }: { settings: Settings }) {
   const [state, formAction, pending] = useActionState(saveGlobalSettings, initialState);
   const global = settings.global ?? {};
+  const recipients = global.recipients ?? {};
   const newsListing = settings.newsListing ?? {};
   return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h1>Site settings</h1><p className="cms-muted">Shared contact details used across the site: the footer, the floating Enquiry / Call / WhatsApp buttons, the booking form and the Contact page. Leave a field empty to hide or disable that item. Homepage content lives under <strong>Pages → Homepage</strong>.</p>
     <h2 className="cms-form-heading">Contact</h2>
     <div className="cms-grid">
-      <label className="cms-field"><span>Form recipient email</span><input type="email" name="email" defaultValue={global.email ?? ""} placeholder="info@kpd.ae" /><small>Used by every mailto enquiry, booking, floor-plan and newsletter form.</small></label>
+      <label className="cms-field"><span>Default form recipient email</span><input type="email" name="email" defaultValue={global.email ?? ""} placeholder="info@kpd.ae" /><small>Fallback when a specific form recipient below is blank.</small></label>
       <label className="cms-field"><span>Phone</span><input name="phone" defaultValue={global.phone ?? ""} placeholder="+971 4 388 3099" /><small>Shown on the Contact page and used by the Call button.</small></label>
       <label className="cms-field"><span>WhatsApp</span><input name="whatsapp" defaultValue={global.whatsapp ?? ""} placeholder="https://wa.me/97143883099" /><small>A wa.me link, or just the number with country code.</small></label>
+    </div>
+    <h2 className="cms-form-heading">Form delivery routing</h2>
+    <p className="cms-muted">Choose the intended recipient for each form. A blank field uses the default recipient above. The selected recipient is stored with every submission and will be used for email delivery once mail credentials are connected.</p>
+    <div className="cms-grid">
+      <label className="cms-field"><span>General enquiry</span><input type="email" name="recipientEnquiry" defaultValue={recipients.enquiry ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Booking popup</span><input type="email" name="recipientBooking" defaultValue={recipients.booking ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Floor-plan request</span><input type="email" name="recipientFloorPlan" defaultValue={recipients.floorPlan ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Calculator eligibility</span><input type="email" name="recipientCalculator" defaultValue={recipients.calculator ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Newsletter</span><input type="email" name="recipientNewsletter" defaultValue={recipients.newsletter ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Contact: Sales</span><input type="email" name="recipientContactSales" defaultValue={recipients.contactSales ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Contact: Customer care</span><input type="email" name="recipientContactCustomer" defaultValue={recipients.contactCustomer ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Contact: Channel partner</span><input type="email" name="recipientContactChannel" defaultValue={recipients.contactChannel ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Contact: Careers</span><input type="email" name="recipientContactCareers" defaultValue={recipients.contactCareers ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
+      <label className="cms-field"><span>Contact: Press</span><input type="email" name="recipientContactPress" defaultValue={recipients.contactPress ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
     </div>
     <h2 className="cms-form-heading">Enquiry, Call &amp; WhatsApp</h2>
     <p className="cms-muted">Choose which floating contact actions visitors see. Empty phone or WhatsApp values also hide their action.</p>
