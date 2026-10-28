@@ -65,7 +65,7 @@ export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
     <section className="pdf-section pdf-development-cards" id="development-cards" aria-label="Our developments">
       {cards.map((card, index) => (
         <a className="pdf-dev-card" href={card.href} key={`${card.href}-${index}`}>
-          <img src={card.image} alt={card.title} />
+          {card.image ? <img src={card.image} alt={card.title} /> : null}
           <div className="pdf-dev-card-body">
             <h3>{card.title}</h3>
             <p>{card.copy}</p>

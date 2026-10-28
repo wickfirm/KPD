@@ -35,14 +35,24 @@ export async function getPublishedDevelopmentCards(): Promise<DevelopmentCardSou
       where: { status: "PUBLISHED", profile: "FULL" },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
       take: 3,
-      select: { slug: true, name: true, heroImage: true, description: true },
+      select: {
+        slug: true, name: true, heroImage: true, description: true,
+        modules: { where: { profile: "FULL" }, orderBy: { sortOrder: "asc" }, select: { content: true } },
+      },
     });
-    return rows.filter((row) => Boolean(row.heroImage)).map((row) => ({
-      href: `/developments/${row.slug}`,
-      image: row.heroImage as string,
-      title: row.name,
-      copy: row.description ?? "",
-    }));
+    return rows.map((row) => {
+      const moduleImage = row.modules.flatMap(({ content }) => {
+        if (!content || typeof content !== "object" || Array.isArray(content)) return [];
+        const images = (content as { images?: unknown }).images;
+        return Array.isArray(images) ? images.filter((image): image is string => typeof image === "string" && Boolean(image.trim())) : [];
+      })[0];
+      return {
+        href: `/developments/${row.slug}`,
+        image: row.heroImage || moduleImage || "",
+        title: row.name,
+        copy: row.description ?? "",
+      };
+    });
   } catch {
     return [];
   }
