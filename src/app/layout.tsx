@@ -43,9 +43,9 @@ function safeLength(value?: string) {
 
 function typographyCss(typography: Awaited<ReturnType<typeof getGlobalSettings>>["typography"]) {
   const declarations = (style?: { fontSize?: string; fontWeight?: string; fontStyle?: string }) => [
-    safeLength(style?.fontSize) ? `font-size:${safeLength(style?.fontSize)}!important` : "",
-    style?.fontWeight === "bold" || style?.fontWeight === "normal" ? `font-weight:${style.fontWeight}!important` : "",
-    style?.fontStyle === "italic" || style?.fontStyle === "normal" ? `font-style:${style.fontStyle}!important` : "",
+    safeLength(style?.fontSize) ? `font-size:${safeLength(style?.fontSize)}` : "",
+    style?.fontWeight === "bold" || style?.fontWeight === "normal" ? `font-weight:${style.fontWeight}` : "",
+    style?.fontStyle === "italic" || style?.fontStyle === "normal" ? `font-style:${style.fontStyle}` : "",
   ].filter(Boolean).join(";");
   const headings = declarations(typography?.headings);
   const body = declarations(typography?.body);
