@@ -32,6 +32,7 @@ export type HomeSettings = {
   developmentCtaUrl?: string;
   developmentCtaVisible?: boolean;
   developmentTextVisible?: boolean;
+  developmentTextPosition?: "above" | "below";
   developmentText?: string;
   newsHeading?: string;
   newsText?: string;

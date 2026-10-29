@@ -56,8 +56,8 @@ export function HomeIntro({ heading, paragraphs, stats, statsNote, headingStyle,
   );
 }
 
-export function HomeDevelopmentText({ text, bodyStyle }: { text: string; bodyStyle?: HomeSettings["developmentTextStyle"] }) {
-  return <section className="pdf-section pdf-development-text" aria-label="Our development standard"><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
+export function HomeDevelopmentText({ text, bodyStyle, position = "below" }: { text: string; bodyStyle?: HomeSettings["developmentTextStyle"]; position?: "above" | "below" }) {
+  return <section className={`pdf-section pdf-development-text pdf-development-text--${position}`} aria-label="Our development standard"><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
 }
 
 export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible = true }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean }) {
@@ -121,8 +121,9 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
     <main className="development-pdf-home" id="top">
       {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
       {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} /> : null}
+      {settings.developmentTextVisible && settings.developmentTextPosition === "above" && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position="above" /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} /> : null}
-      {settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} /> : null}
+      {settings.developmentTextVisible && settings.developmentTextPosition !== "above" && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position="below" /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
       {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}
       <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} />

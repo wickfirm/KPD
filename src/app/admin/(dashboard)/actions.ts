@@ -905,6 +905,7 @@ function homeSettingsFromForm(formData: FormData) {
     developmentCtaUrl: String(formData.get("developmentCtaUrl") || "").trim(),
     developmentCtaVisible: formData.get("developmentCtaVisible") === "on",
     developmentTextVisible: formData.get("developmentTextVisible") === "on",
+    developmentTextPosition: formData.get("developmentTextPosition") === "above" ? "above" : "below",
     developmentText: normalizeLineBreaks(formData.get("developmentText") as string | null),
     newsHeading: normalizeLineBreaks(formData.get("newsHeading") as string | null),
     newsText: normalizeLineBreaks(formData.get("newsText") as string | null),

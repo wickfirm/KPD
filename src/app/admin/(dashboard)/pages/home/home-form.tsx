@@ -75,8 +75,9 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
         </>} />
     </section>
     <section className="cms-editor-section">
-      <h3>Text under the image</h3>
-      <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={settings.developmentTextVisible === true} /> <span><strong>Show the paragraph under the image</strong><small>Untick to remove it from the page. While it is shown, it stays under the developments image.</small></span></label>
+      <h3>Paragraph with the image</h3>
+      <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={settings.developmentTextVisible === true} /> <span><strong>Show this paragraph</strong><small>Untick to remove it from the page.</small></span></label>
+      <label className="cms-field"><span>Placement</span><select name="developmentTextPosition" defaultValue={settings.developmentTextPosition ?? "below"}><option value="below">Below the image</option><option value="above">Above the image</option></select><small>Above sits between the introduction and the developments picture. Below sits under the picture, before the cards.</small></label>
       <label className="cms-field"><span>Paragraph</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? ""} /></label>
       <TextStyleFields prefix="developmentText" value={settings.developmentTextStyle} label="Paragraph appearance" preserveDefault />
     </section>
