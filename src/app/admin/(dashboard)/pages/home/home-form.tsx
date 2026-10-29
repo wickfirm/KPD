@@ -42,7 +42,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
   const [slides, setSlides] = useState<BannerSlide[]>(() => settings.bannerSlides ?? []);
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero video</h2>
-    <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4" placeholder="https://…" fileLabel="hero video" />
+    <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4,video/webm" placeholder="https://…" fileLabel="hero video" />
     <h2 className="cms-form-heading">Introduction</h2>
     <label className="cms-field"><span>Introduction heading</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <TextStyleFields prefix="introHeading" value={settings.introHeadingStyle} label="Introduction heading appearance" preserveDefault />
