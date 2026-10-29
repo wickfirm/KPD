@@ -84,6 +84,7 @@ export type MobilePublicSiteProps = {
   footerBody: string;
   footerCopyright: string;
   registerHeadline: string;
+  registerBody: string;
   interestOptions: string[];
   consentCopy: string;
   primaryCta: string;
@@ -232,7 +233,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
           <h2>{props.aboutHeadline}</h2>
           <p>{props.aboutBody}</p>
           <button className="mobile-outline-button" type="button" onClick={() => props.onNavigate(4)}>{props.secondaryCta}</button>
-          <div className="mobile-unit-fact"><span>available unit types</span><strong>one two and three bedroom residences</strong></div>
+          <div className="mobile-unit-fact"><span>available unit types</span><strong>One-, two- and three-bedroom residences with penthouses</strong></div>
         </div>
         <img className="mobile-about-image" src={props.aboutImage} alt="seven x seven residences within Meydan Horizon" />
       </section>
@@ -245,20 +246,20 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
 
       <section className="mobile-apartments mobile-section" id="apartments">
         <div className="mobile-section-copy mobile-light-copy">
-          <h2>apartments</h2>
+          <h2>interiors</h2>
           <h3>{props.apartmentsHeadline}</h3>
           <p>{props.apartmentsBody}</p>
-          <button className="mobile-solid-button" type="button" onClick={props.onModalOpen}>{props.primaryCta}</button>
+          <button className="mobile-solid-button" type="button" onClick={() => props.onNavigate(28.5)}>explore floor plans</button>
         </div>
         <div className="mobile-apartment-track" aria-label="Apartment gallery">
           {[{ src: "/assets/sxs%20apartments/1.png", alt: "seven x seven living room and private workspace" }, { src: "/assets/sxs%20apartments/2.png", alt: "seven x seven living room with waterfront outlook" }, ...props.apartmentScenes].map((scene, index) => (
-            <figure key={`${scene.src}-${index}`}><img src={scene.src} alt={scene.alt} /><figcaption>{index === 1 ? "spaces shaped for everyday rituals" : index === 4 ? "material warmth precisely composed" : String(index + 1).padStart(2, "0")}</figcaption></figure>
+            <figure key={`${scene.src}-${index}`}><img src={scene.src} alt={scene.alt} /><figcaption>{index === 1 ? "Designed for your pace." : index === 2 ? "Slow mornings. Dinner with friends. A moment for yourself." : index === 4 ? "Precision you can feel." : index === 5 ? "Oak and walnut bring warmth. Travertine adds weight and texture." : String(index + 1).padStart(2, "0")}</figcaption></figure>
           ))}
         </div>
       </section>
 
       <section className="mobile-gallery mobile-section" id="gallery">
-        <header><h2>{props.galleryHeadline}</h2><div className="mobile-gallery-progress"><i style={{ transform: `scaleX(${galleryProgress / 100})` }} /><small style={{ left: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` }}>{Math.round(galleryProgress)}%</small><img src="/assets/brand/s-mark-white.png" alt="" /></div></header>
+        <header><h2>{props.galleryHeadline}</h2><p>see the balance</p><div className="mobile-gallery-progress"><i style={{ transform: `scaleX(${galleryProgress / 100})` }} /><small style={{ left: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` }}>{Math.round(galleryProgress)}%</small><img src="/assets/brand/s-mark-white.png" alt="" /></div></header>
         <div ref={galleryTrackRef} className="mobile-gallery-carousel" onScroll={syncGalleryProgress}>
           {props.galleryScenes.map((scene, index) => <figure onClick={() => props.onLightbox(scene)} key={scene.src}><img src={scene.src} alt={scene.alt} /><figcaption>{String(index + 1).padStart(2, "0")} / {String(props.galleryScenes.length).padStart(2, "0")}</figcaption></figure>)}
         </div>
@@ -267,12 +268,12 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
       <section className="mobile-exterior mobile-section" id="exterior">
         <img src={props.exteriorImage} alt="seven x seven residences exterior" />
         <div className="mobile-exterior-shade" />
-        <div className="mobile-section-copy"><h2>{props.exteriorHeadline}</h2><p>{props.exteriorBody}</p><button className="mobile-outline-button" type="button" onClick={props.onModalOpen}>{props.primaryCta}</button></div>
-        <footer><span>natural leisure above the city</span><i /></footer>
+        <div className="mobile-section-copy"><h2>{props.exteriorHeadline}</h2><p>{props.exteriorBody}</p><button className="mobile-outline-button" type="button" onClick={() => props.onNavigate(2)}>explore the residences</button></div>
+        <footer><span>Disconnect at arrival. Connect with yourself with every step in.</span><i /></footer>
       </section>
 
       <section className="mobile-amenities mobile-section" id="amenities">
-        <div className="mobile-section-copy mobile-light-copy"><h2>{props.amenitiesHeadline}</h2></div>
+        <div className="mobile-section-copy mobile-light-copy"><p>own your ritual</p><h2>{props.amenitiesHeadline}</h2></div>
         <figure className="mobile-amenity-feature" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveAmenity(distance < 0 ? 1 : -1); }}>
           <div className="mobile-amenity-images">{props.amenityScenes.map((scene, index) => <img className={index === props.activeAmenity ? "is-active" : ""} src={scene.src} alt={scene.alt} key={scene.src} />)}</div>
           <figcaption><span>{props.amenityLabels[props.activeAmenity]}</span><small>{String(props.activeAmenity + 1).padStart(2, "0")} / {String(props.amenityScenes.length).padStart(2, "0")}</small></figcaption>
@@ -295,8 +296,8 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
       </section>
 
       <section className="mobile-floor-plans mobile-section" id="floor-plans">
-        <div className="mobile-section-copy mobile-light-copy"><h2>{props.floorPlan.title}</h2></div>
-        <div className="mobile-floor-tabs" role="tablist">{(["one", "two", "three"] as const).map((key, index) => <button className={props.floorPlanKey === key ? "is-active" : ""} type="button" role="tab" aria-selected={props.floorPlanKey === key} onClick={() => props.onFloorPlanChange(key)} key={key}>{index + 1} bedroom</button>)}</div>
+        <div className="mobile-section-copy mobile-light-copy"><p>floor plans</p><h2>{props.floorPlan.title}</h2></div>
+        <div className="mobile-floor-tabs" role="tablist">{(["one", "two", "three"] as const).map((key) => <button className={props.floorPlanKey === key ? "is-active" : ""} type="button" role="tab" aria-selected={props.floorPlanKey === key} onClick={() => props.onFloorPlanChange(key)} key={key}>{key === "one" ? "1 bedroom" : key === "two" ? "2 bedrooms" : "3 bedrooms"}</button>)}</div>
         <div className="mobile-area-table"><header><span>unit</span><span>total area</span></header><p><strong>{props.floorPlan.unit}</strong><span>{props.floorPlan.totalSqft}</span><span>{props.floorPlan.totalSqm}</span></p><p><strong>suite area</strong><span>{props.floorPlan.suiteSqft}</span><span>{props.floorPlan.suiteSqm}</span></p><p><strong>balcony area</strong><span>{props.floorPlan.balconySqft}</span><span>{props.floorPlan.balconySqm}</span></p></div>
         <button className="mobile-plan-image" type="button" onClick={() => props.onLightbox({ src: props.floorPlan.image, alt: props.floorPlan.alt })}><img src={props.floorPlan.image} alt={props.floorPlan.alt} /><span>tap plan to enlarge</span></button>
         <div className="mobile-plan-legend"><h3>legend</h3>{props.floorPlan.legend.map(([number, name, size]) => <p key={number}><b>{number}</b><span>{name}</span><small>{size}</small></p>)}</div>
@@ -314,13 +315,13 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
         <img className="mobile-contact-bg" src="/assets/hero/seven-x-seven-facade-evening.webp" alt="" />
         <div className="mobile-contact-shade" />
         <form onSubmit={(event) => props.onSubmitLead(event, "Footer form")}>
-          <p>{props.registerHeadline}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead" aria-label="I am interested in">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit" disabled={props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting"}>{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting" ? "sending" : props.submitCta}</button>
+          <p>{props.registerHeadline}</p><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead" aria-label="I am interested in">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit" disabled={props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting"}>{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting" ? "sending" : props.submitCta}</button>
           {props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "success" ? <small role="status">Thank you. Your enquiry has been received.</small> : null}{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "error" ? <small role="alert">We could not submit your enquiry. Please try again.</small> : null}<small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small>
         </form>
         <div className="mobile-contact-brand"><img src="/assets/brand/logo-stacked-white.png" alt="seven x seven" /><p>{props.footerBody}</p><small>{props.footerCopyright}</small></div>
       </footer>
 
-      {props.modalOpen ? <div className="mobile-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) props.onModalClose(); }}><div><button className="mobile-modal-close" type="button" aria-label="Close registration form" onClick={props.onModalClose}><X /></button><form onSubmit={(event) => props.onSubmitLead(event, "Register modal")}><p>seven x seven residences</p><h2 id="mobile-modal-title">{props.registerHeadline}</h2><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit">{props.submitCta}</button><small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small></form></div></div> : null}
+      {props.modalOpen ? <div className="mobile-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) props.onModalClose(); }}><div><button className="mobile-modal-close" type="button" aria-label="Close registration form" onClick={props.onModalClose}><X /></button><form onSubmit={(event) => props.onSubmitLead(event, "Register modal")}><p>seven x seven residences</p><h2 id="mobile-modal-title">{props.registerHeadline}</h2><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit">{props.submitCta}</button><small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small></form></div></div> : null}
       {props.lightbox ? <div className="mobile-lightbox" role="dialog" aria-modal="true" aria-label="Image preview" onClick={() => props.onLightbox(null)}><button type="button" aria-label="Close image preview"><X /></button><img src={props.lightbox.src} alt={props.lightbox.alt} /></div> : null}
     </main>
   );

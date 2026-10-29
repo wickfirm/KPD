@@ -42,7 +42,7 @@ const heroGallery = [
   { src: "/assets/hero/Hero%20Gallery/20260914_SevenXSeven_Amenities_ColourDraft1.pdf%20(13).png", alt: "seven x seven outdoor wellness terrace", position: "68% 50%" }
 ];
 
-const manifestoText = "Stillness and energy. Privacy and connection. Retreat and play. No need to choose.";
+const manifestoText = "Explore one home for every kind of day. Surrounded by light. Shaped by details.";
 
 const moodBoardPortraits = [
   { src: "/assets/sxs%20apartments/3.png", alt: "seven x seven crafted kitchen and island" },
@@ -113,9 +113,9 @@ const communitySlides = [
   }
 ];
 
-const distanceHeading = "dubai within reach";
+const distanceHeading = "close to what matters.";
 const distanceDescription =
-  "Meydan Horizon keeps the city close. Business, culture, dining and shopping are within easy reach. At home, water, greenery and open views offer a calmer side of Dubai.";
+  "Meydan Horizon, within the wider MBR City, connects seven x seven residences to schools, business hubs, cultural districts, dining addresses and shopping centres. Everything stays within easy reach.";
 
 const distancePlaces = [
   { name: "Ras Al Khor Wildlife Sanctuary", minutes: "9 min", lat: 25.1926, lng: 55.3601, reveal: 0.08 },
@@ -139,7 +139,7 @@ const floorPlans = {
   one: {
     image: renderedFloorPlanImage,
     alt: "Rendered one bedroom residence floor plan",
-    title: "one bedroom floor plan",
+    title: "one-bedroom residences",
     unit: "1 bhk apartment",
     totalSqft: "858 sqft",
     totalSqm: "79.79 sqm",
@@ -158,7 +158,7 @@ const floorPlans = {
   two: {
     image: renderedFloorPlanImage,
     alt: "Rendered two bedroom residence floor plan",
-    title: "two bedroom floor plan",
+    title: "two-bedroom residences",
     unit: "2 bhk apartment",
     totalSqft: "1279 sqft",
     totalSqm: "118.84 sqm",
@@ -177,7 +177,7 @@ const floorPlans = {
   three: {
     image: renderedFloorPlanImage,
     alt: "Rendered three bedroom residence floor plan",
-    title: "three bedroom floor plan",
+    title: "three-bedroom residences",
     unit: "3 bhk apartment",
     totalSqft: "2560 sqft",
     totalSqm: "237.83 sqm",
@@ -196,9 +196,14 @@ const floorPlans = {
 } as const;
 
 type FloorPlanKey = keyof typeof floorPlans;
+const floorPlanTabLabels: Record<FloorPlanKey, string> = {
+  one: "1 bedroom",
+  two: "2 bedrooms",
+  three: "3 bedrooms"
+};
 
 const paymentMilestones = [
-  { percent: 20, title: "booking", detail: "At the time of booking", phase: "calendar" },
+  { percent: 20, title: "day 1", detail: "At the time of booking", phase: "calendar" },
   { percent: 10, title: "60 days", detail: "After the reservation date", phase: "calendar" },
   { percent: 10, title: "120 days", detail: "After the reservation date", phase: "calendar" },
   { percent: 5, title: "240 days", detail: "After the reservation date", phase: "calendar" },
@@ -212,10 +217,10 @@ const paymentMilestones = [
 
 const sectionNavigation = [
   { id: "home", label: "home", progress: 0 },
-  { id: "about-sevenxseven", label: "residences", progress: 2 },
-  { id: "apartments", label: "apartments", progress: 4 },
+  { id: "about-sevenxseven", label: "the residences", progress: 2 },
+  { id: "apartments", label: "interiors", progress: 4 },
   { id: "gallery", label: "gallery", progress: 8.8 },
-  { id: "exterior", label: "exterior", progress: 15.3 },
+  { id: "exterior", label: "architecture", progress: 15.3 },
   { id: "amenities", label: "amenities", progress: 16.3 },
   { id: "community", label: "community", progress: 22.3 },
   { id: "location", label: "location", progress: 23.3 },
@@ -1190,27 +1195,27 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         onHeroChange={(index) => setHeroSlides(({ current }) => ({ previous: current, current: index }))}
         heroEyebrow={text("hero", "eyebrow", "Meydan Horizon")}
         heroHeadline={text("hero", "headline", "luxury in balance")}
-        heroBody={text("hero", "body", "Japanese precision shapes every detail, and Dubai brings the energy. The balance is yours.")}
+        heroBody={text("hero", "body", "Stillness and energy. Privacy and connection. Retreat and play. The home that offers you both.")}
         heroVideo={media("hero", "media", "/assets/hero/video-1788257574774.mp4")}
         aboutImage={media("about", "media", "/assets/hero/about-building-cleanup.png")}
-        aboutHeadline={text("about", "headline", "live by the meydan horizon")}
-        aboutBody={text("about", "body", "At Meydan Horizon, Japanese precision shapes every detail, and Dubai brings the energy. The balance is yours.")}
+        aboutHeadline={text("about", "headline", "the residences")}
+        aboutBody={text("about", "body", "The city, within reach. Meydan Horizon keeps the city close. At home, water, greenery and open views reveal a calmer side of Dubai.")}
         manifesto={manifestoCopy}
-        apartmentsHeadline={text("apartments", "headline", "more room designed with intent")}
-        apartmentsBody={text("apartments", "body", "One-, two- and three-bedroom residences are designed around space, function and ease.")}
+        apartmentsHeadline={text("apartments", "headline", "more room, crafted with intent.")}
+        apartmentsBody={text("apartments", "body", "One-, two- and three-bedroom residences built around space, function and ease.")}
         apartmentScenes={apartmentScenes}
         galleryHeadline={text("gallery", "headline", "gallery")}
         galleryScenes={exteriorGalleryScenes}
         exteriorImage={media("exterior", "media", "/assets/hero/seven-x-seven-facade-evening.webp")}
-        exteriorHeadline={text("exterior", "headline", "distinctive by design")}
-        exteriorBody={text("exterior", "body", "Set between North Avenue and Ras Al Khor, the building rises from a four-level podium to sixteen residential floors and a rooftop. Clean lines are softened by curved balconies, warm timber tones and metallic accents.")}
-        amenitiesHeadline={text("amenities", "headline", "own your ritual")}
+        exteriorHeadline={text("exterior", "headline", "Discreetly different.")}
+        exteriorBody={text("exterior", "body", "Behind its composed allure, seven x seven residences Meydan Horizon extends everyday life beyond the home, revealing a connected sequence of wellness, social and outdoor spaces for every side of you.")}
+        amenitiesHeadline={text("amenities", "headline", "amenities")}
         amenityScenes={amenitySceneData}
         amenityLabels={amenityLabels}
         activeAmenity={activeAmenity}
         onAmenityChange={setActiveAmenity}
-        communityHeadline={text("community", "headline", "space to retreat reasons to gather")}
-        communityBody={text("community", "body", "Community here is not programmed. It happens. A familiar face after a workout. Children finding each other in the garden. Rooftop evenings that run late. Lobby conversations that linger. The spaces bring people together. The rest happens naturally.")}
+        communityHeadline={text("community", "headline", "mohammed bin rashid city")}
+        communityBody={text("community", "body", "MBR City brings together residential calm, new infrastructure, open landscapes and fast access to Dubai's central destinations.")}
         communityScenes={communitySceneData}
         activeCommunity={activeCommunitySlide}
         onCommunityChange={selectCommunitySlide}
@@ -1220,8 +1225,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         floorPlan={floorPlan}
         floorPlanKey={activeFloorPlan}
         onFloorPlanChange={setActiveFloorPlan}
-        paymentHeadline={text("payment", "headline", "payment plan")}
-        paymentBody={text("payment", "body", "A considered path from reservation to handover, aligned with time and construction progress.")}
+        paymentHeadline={text("payment", "headline", "a considered path to ownership")}
+        paymentBody={text("payment", "body", "A structured payment plan from reservation through handover, aligned with construction progress.")}
         milestones={paymentMilestones}
         selectedMilestone={selectedPaymentMilestone}
         onMilestoneChange={setSelectedPaymentMilestone}
@@ -1229,7 +1234,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         onTogglePayment={() => setPaymentPlaying((playing) => !playing)}
         footerBody={text("footer", "body", "seven x seven sees luxury as the freedom to live your way.")}
         footerCopyright={text("footer", "copyright", "Copyright 2026 Kasumigaseki Properties Development")}
-        registerHeadline={text("register", "headline", "register your interest")}
+        registerHeadline={text("register", "headline", "make it yours")}
+        registerBody={text("register", "body", "Explore availability, floor plans and purchase details with our team.")}
         interestOptions={interestOptions}
         consentCopy={consentCopy}
         primaryCta={primaryCta}
@@ -1326,7 +1332,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
             </button>
             <form className="interest-form" onSubmit={(event) => submitLead(event, "Register modal")}>
               <p>seven x seven residences</p>
-               <h2 id="interest-modal-title">{text("register", "headline", "register your interest")}</h2>
+               <h2 id="interest-modal-title">{text("register", "headline", "make it yours")}</h2>
+               <p>{text("register", "body", "Explore availability, floor plans and purchase details with our team.")}</p>
                <input type="text" name="FullName" placeholder="Full Name" aria-label="Full Name" required />
                <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
               <div className="interest-phone-field">
@@ -1377,7 +1384,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               <div className="hero-intro-copy">
                  <p className="hero-intro-kicker">{text("hero", "eyebrow", "Meydan Horizon")}</p>
                  <h1>{text("hero", "headline", "luxury in balance")}</h1>
-                 <p className="hero-intro-note">{text("hero", "body", "Japanese precision shapes every detail, and Dubai brings the energy. The balance is yours.")}</p>
+                 <p className="hero-intro-note">{text("hero", "body", "Stillness and energy. Privacy and connection. Retreat and play. The home that offers you both.")}</p>
               </div>
             </div>
           </section>
@@ -1405,10 +1412,10 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
             <div className="about-reveal-content">
               <div className="about-grid">
                 <div className="about-heading">
-                   <h2>{text("about", "headline", "live by the meydan horizon")}</h2>
+                   <h2>{text("about", "headline", "the residences")}</h2>
                 </div>
                 <div className="about-copy">
-                   <p>{text("about", "body", "At Meydan Horizon, Japanese precision shapes every detail, and Dubai brings the energy. The balance is yours.")}</p>
+                   <p>{text("about", "body", "The city, within reach. Meydan Horizon keeps the city close. At home, water, greenery and open views reveal a calmer side of Dubai.")}</p>
                   <button className="about-reveal-cta everly-cta" type="button" onClick={() => navigateFromMenu(4)}>
                      {secondaryCta}
                   </button>
@@ -1416,7 +1423,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               </div>
               <div className="about-image-fact">
                 <p>Available unit types</p>
-                <h3>one two and three bedroom residences</h3>
+                <h3>One-, two- and three-bedroom residences with penthouses</h3>
               </div>
             </div>
           </section>
@@ -1441,16 +1448,16 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
 
           <section className="mood-gallery" id="apartments" aria-label="seven x seven interior mood gallery">
             <header className="apartments-masthead">
-              <h2>apartments</h2>
+              <h2>interiors</h2>
               <div className="apartments-masthead-copy">
-                 <h3>{text("apartments", "headline", "more room designed with intent")}</h3>
-                 <p>{text("apartments", "body", "One-, two- and three-bedroom residences are designed around space, function and ease.")}</p>
+                 <h3>{text("apartments", "headline", "more room, crafted with intent.")}</h3>
+                 <p>{text("apartments", "body", "One-, two- and three-bedroom residences built around space, function and ease.")}</p>
                 <button
-                  className="everly-cta register-interest-trigger"
+                  className="everly-cta"
                   type="button"
-                  onClick={() => setInterestModalOpen(true)}
+                  onClick={() => navigateFromMenu(28.5, "floor-plans")}
                 >
-                   {primaryCta}
+                   explore floor plans
                 </button>
               </div>
             </header>
@@ -1478,17 +1485,16 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                     key={image.src}
                   >
                     <img src={image.src} alt={image.alt} />
-                    {index === 1 ? <figcaption>Spaces shaped for everyday rituals</figcaption> : null}
-                    {index === 4 ? <figcaption>Material warmth, precisely composed</figcaption> : null}
+                    {index === 1 ? <figcaption>Designed for your pace.</figcaption> : null}
+                    {index === 4 ? <figcaption>Precision you can feel.</figcaption> : null}
                     {index === 2 ? (
                       <figcaption>
-                        Warm material palettes, generous natural light, and thoughtful storage create homes that feel
-                        composed, personal, and effortless from morning to evening.
+                        Slow mornings. Dinner with friends. A moment for yourself. Here, your home follows your rhythm. Comfort. Convenience. Craft. Nothing left behind.
                       </figcaption>
                     ) : null}
                     {index === 5 ? (
                       <figcaption>
-                        Private rooms balance quiet utility with crafted surfaces and a restrained sense of comfort.
+                        Oak and walnut bring warmth. Travertine adds weight and texture. Soft light and tactile finishes wrap everything with quiet depth.
                       </figcaption>
                     ) : null}
                   </figure>
@@ -1509,6 +1515,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               <aside className="vertical-gallery-rail">
                 <div className="vertical-gallery-title">
                    <h2>{text("gallery", "headline", "gallery")}</h2>
+                   <p>{text("gallery", "note", "see the balance")}</p>
                   <div className="vertical-gallery-progress" aria-hidden="true">
                     <span className="vertical-gallery-progress-fill" />
                     <span className="vertical-gallery-percent" ref={galleryPercentRef}>0%</span>
@@ -1538,12 +1545,12 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               />
               <div className="exterior-reveal-overlay" aria-hidden="true" />
               <div className="exterior-content">
-                 <h2>{text("exterior", "headline", "distinctive by design")}</h2>
-                 <p>{text("exterior", "body", "Set between North Avenue and Ras Al Khor, the building rises from a four-level podium to sixteen residential floors and a rooftop. Clean lines are softened by curved balconies, warm timber tones and metallic accents.")}</p>
-                 <button className="everly-cta register-interest-trigger" type="button" onClick={() => setInterestModalOpen(true)}>{primaryCta}</button>
+                 <h2>{text("exterior", "headline", "Discreetly different.")}</h2>
+                 <p>{text("exterior", "body", "Behind its composed allure, seven x seven residences Meydan Horizon extends everyday life beyond the home, revealing a connected sequence of wellness, social and outdoor spaces for every side of you.")}</p>
+                 <button className="everly-cta" type="button" onClick={() => navigateFromMenu(2, "about-sevenxseven")}>explore the residences</button>
               </div>
               <div className="exterior-down-cue" aria-hidden="true">
-                <span>Natural leisure above the city</span>
+                <span>Disconnect at arrival. Connect with yourself with every step in.</span>
                 <i />
               </div>
             </div>
@@ -1561,7 +1568,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               </div>
               <div className="amenities-panel">
                 <div className="amenities-panel-heading">
-                   <h2>{text("amenities", "headline", "own your ritual")}</h2>
+                   <p>own your ritual</p>
+                   <h2>{text("amenities", "headline", "amenities")}</h2>
                 </div>
                 <div className="amenity-grid">
                   {amenities.map((amenity, index) => {
@@ -1590,8 +1598,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
           <section className="community-reveal" id="community" aria-label="Mohammed Bin Rashid City community">
             <div className="community-reveal-shell">
               <div className="community-copy">
-                 <h2>{text("community", "headline", "space to retreat reasons to gather")}</h2>
-                 <p className="community-description">{text("community", "body", "Community here is not programmed. It happens. A familiar face after a workout. Children finding each other in the garden. Rooftop evenings that run late. Lobby conversations that linger. The spaces bring people together. The rest happens naturally.")}</p>
+                 <h2>{text("community", "headline", "mohammed bin rashid city")}</h2>
+                 <p className="community-description">{text("community", "body", "MBR City brings together residential calm, new infrastructure, open landscapes and fast access to Dubai's central destinations.")}</p>
                  <button className="everly-cta register-interest-trigger" type="button" onClick={() => setInterestModalOpen(true)}>{primaryCta}</button>
               </div>
               <div className="community-carousel" aria-label="Community gallery" ref={communityCarouselRef}>
@@ -1687,10 +1695,11 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
           <section className="floor-plan-reveal floor-plan-section" id="floor-plans" aria-label="Residence floor plans">
             <div className="floor-plan-reveal-shell">
               <div className="floor-plan-panel">
+                <p>floor plans</p>
                 <h2>{floorPlan.title}</h2>
 
                 <div className="floor-plan-tabs" role="tablist" aria-label="Select a residence floor plan">
-                  {(Object.keys(floorPlans) as FloorPlanKey[]).map((key, index) => (
+                  {(Object.keys(floorPlans) as FloorPlanKey[]).map((key) => (
                     <button
                       className={key === activeFloorPlan ? "is-active" : ""}
                       type="button"
@@ -1699,7 +1708,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                       onClick={() => setActiveFloorPlan(key)}
                       key={key}
                     >
-                      {index + 1} bedroom
+                      {floorPlanTabLabels[key]}
                     </button>
                   ))}
                 </div>
@@ -1749,8 +1758,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
           <section className="payment-reveal" id="payment-plan" aria-label="seven x seven payment plan">
             <div className="payment-reveal-shell">
               <aside className="payment-intro">
-                 <h2>{text("payment", "headline", "payment plan")}</h2>
-                 <span>{text("payment", "body", "A considered path from reservation to handover, aligned with time and construction progress.")}</span>
+                 <h2>{text("payment", "headline", "a considered path to ownership")}</h2>
+                 <span>{text("payment", "body", "A structured payment plan from reservation through handover, aligned with construction progress.")}</span>
                  <button className="everly-cta register-interest-trigger" type="button" onClick={() => setInterestModalOpen(true)}>{primaryCta}</button>
               </aside>
 
@@ -1758,7 +1767,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                 <div className="payment-total" aria-live="polite">
                   <strong ref={paymentStatusPercentRef}>20%</strong>
                   <div>
-                    <h3 ref={paymentStatusTitleRef}>booking</h3>
+                    <h3 ref={paymentStatusTitleRef}>day 1</h3>
                     <p ref={paymentStatusDetailRef}>At the time of booking</p>
                   </div>
                 </div>
@@ -1845,7 +1854,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
 
               <div className="footer-grid">
                 <form className="footer-lead-form" onSubmit={(event) => submitLead(event, "Footer form")}>
-                   <p className="footer-form-kicker">{text("register", "headline", "register your interest")}</p>
+                   <p className="footer-form-kicker">{text("register", "headline", "make it yours")}</p>
+                   <p>{text("register", "body", "Explore availability, floor plans and purchase details with our team.")}</p>
                    <input type="text" name="FullName" placeholder="Full Name" aria-label="Full Name" required />
                    <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <div className="footer-phone-field">
