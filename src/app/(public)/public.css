@@ -183,18 +183,22 @@ body.home-development-page {
   margin: 28px auto 0;
   border-bottom: 1px solid #d9d9d9;
 }
-.kpd-terms-page .kpd-legal-tabs a {
+.kpd-terms-page .kpd-legal-tabs button {
   display: inline-flex;
   align-items: center;
   min-height: 48px;
   margin-bottom: -1px;
   padding: 0 18px;
+  border: 0;
   border-bottom: 3px solid transparent;
+  background: none;
   color: #000;
+  font: inherit;
   font-size: 15px;
   text-decoration: none;
+  cursor: pointer;
 }
-.kpd-terms-page .kpd-legal-tabs a[aria-current="page"] {
+.kpd-terms-page .kpd-legal-tabs button[aria-current="page"] {
   border-bottom-color: #000;
   font-weight: 600;
 }
@@ -223,7 +227,6 @@ body.home-development-page {
   flex-wrap: wrap;
   gap: 0 40px;
   min-width: 0;
-  max-width: 640px;
 }
 .kpd-terms-page .kpd-legal-copy p {
   flex: 1 1 100%;
@@ -249,6 +252,97 @@ body.home-development-page {
   color: #fff;
   font-size: 18px;
   line-height: 1.4;
+}
+.kpd-terms-page .kpd-legal-inline {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.kpd-terms-page .kpd-legal-chips,
+.kpd-terms-page .kpd-legal-cards {
+  display: flex;
+  flex: 1 1 100%;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 4px;
+}
+.kpd-terms-page .kpd-legal-chips > div,
+.kpd-terms-page .kpd-legal-cards > div {
+  flex: 1 1 200px;
+  padding-top: 14px;
+  border-top: 2px solid #000;
+}
+.kpd-terms-page .kpd-legal-cards strong,
+.kpd-terms-page .kpd-legal-chips > div {
+  display: block;
+  font-weight: 600;
+}
+.kpd-terms-page .kpd-legal-cards span {
+  display: block;
+  margin-top: 2px;
+  color: #595959;
+  font-size: 15px;
+}
+.kpd-terms-page .kpd-legal-table {
+  flex: 1 1 100%;
+  width: 100%;
+}
+.kpd-terms-page .kpd-legal-table-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid #d9d9d9;
+}
+.kpd-terms-page .kpd-legal-table-head {
+  padding: 10px 0;
+  border-bottom-color: #000;
+  font-size: 14px;
+  font-weight: 600;
+}
+.kpd-terms-page .kpd-legal-table-row > div:nth-child(1) { flex: 1 1 180px; font-weight: 600; }
+.kpd-terms-page .kpd-legal-table-row > div:nth-child(2) { flex: 2 1 260px; color: #333; font-weight: 400; }
+.kpd-terms-page .kpd-legal-table-row > div:nth-child(3) { flex: 1 1 200px; color: #595959; font-size: 15px; font-weight: 400; }
+.kpd-terms-page .kpd-legal-table-head > div { color: #000; font-size: 14px; font-weight: 600; }
+.kpd-terms-page .kpd-legal-contact {
+  width: min(1100px, calc(100% - 48px));
+  margin: 0 auto 64px;
+  padding: 32px 0;
+}
+.kpd-terms-page .kpd-legal-contact h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1.25;
+}
+.kpd-terms-page .kpd-legal-contact p {
+  max-width: 420px;
+  margin: 12px 0 0;
+  color: #333;
+}
+.kpd-terms-page .kpd-legal-contact a {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  align-items: center;
+  max-width: 420px;
+  min-height: 44px;
+  margin-top: 20px;
+  padding: 8px 0;
+  border-top: 1px solid #cfcfcf;
+  border-bottom: 1px solid #cfcfcf;
+  color: inherit;
+  text-decoration: none;
+}
+.kpd-terms-page .kpd-legal-contact a span:first-child {
+  flex: 0 0 90px;
+  color: #595959;
+  font-size: 14px;
 }
 
 /* Developments created in the CMS: preview image shown when their link is hovered (mirrors the delivered three). */
