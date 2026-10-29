@@ -1,7 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
-import { type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { homeDefaults, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
 import { HomeDevelopmentSlider } from "./home-development-slider";
 
@@ -122,7 +122,7 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
       {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
       {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} /> : null}
       {settings.developmentTextVisible && settings.developmentTextPosition === "above" && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position="above" /> : null}
-      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} /> : null}
+      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} /> : null}
       {settings.developmentTextVisible && settings.developmentTextPosition !== "above" && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position="below" /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
       {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}

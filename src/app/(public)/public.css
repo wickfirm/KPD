@@ -168,3 +168,95 @@ body.home-development-page {
   opacity: 1;
   transform: scale(1);
 }
+
+/* Investor guide sections can be reordered from the CMS. The hero stays outside this stack. */
+.invest-section-stack {
+  display: flex;
+  flex-direction: column;
+}
+.invest-section-stack > section {
+  min-width: 0;
+}
+
+/* Brochure request, opened from a development's introduction. */
+.brochure-request {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.brochure-request__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(20, 24, 28, 0.46);
+}
+.brochure-request__panel {
+  position: relative;
+  width: min(760px, 100%);
+  padding: 32px;
+  background: #f6f4f1;
+  color: #14241f;
+}
+.brochure-request__panel h2 {
+  margin: 0 0 8px;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+.brochure-request__panel > p {
+  margin: 0 0 24px;
+}
+.brochure-request__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 24px;
+}
+.brochure-request__panel label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.brochure-request__panel input,
+.brochure-request__panel select {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border: 1px solid #d9d4cc;
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.brochure-request__panel small {
+  color: #c4473a;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.brochure-request__panel button[type="submit"] {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 22px;
+  padding: 18px 20px;
+  border: 0;
+  background: #1c1c1c;
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.brochure-request__status {
+  margin-top: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+@media (max-width: 700px) {
+  .brochure-request__grid { grid-template-columns: 1fr; }
+  .brochure-request__panel h2 { font-size: 32px; }
+}

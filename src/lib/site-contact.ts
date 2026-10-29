@@ -36,6 +36,9 @@ export type GlobalSettings = {
   popupIntro?: string;
   popupSubmitLabel?: string;
   popupNote?: string;
+  /// "every-page" opens on each page view. "session" once a visit. "day" once a day.
+  popupFrequency?: "every-page" | "session" | "day";
+  popupDelaySeconds?: number;
 };
 
 /// Kept as an empty public constant for compatibility with existing callers.
@@ -43,6 +46,7 @@ export type GlobalSettings = {
 export const globalDefaults: GlobalSettings = {};
 
 const STRING_KEYS = ["email", "phone", "whatsapp", "newsletterNote", "newsletterHeading", "newsletterSubmitLabel", "facebook", "x", "instagram", "youtube", "linkedin", "enquiryLabel", "callLabel", "whatsappLabel", "headerCtaLabel", "popupTitle", "popupIntro", "popupSubmitLabel", "popupNote"] as const;
+const POPUP_FREQUENCIES = ["every-page", "session", "day"] as const;
 const BOOLEAN_KEYS = ["enquiryEnabled", "callEnabled", "whatsappEnabled", "popupEnabled", "headerCtaVisible"] as const;
 const RECIPIENT_KEYS = ["enquiry", "booking", "floorPlan", "calculator", "newsletter", "contactSales", "contactCustomer", "contactChannel", "contactCareers", "contactPress"] as const;
 const TYPE_KEYS = ["headings", "body", "ctas"] as const;
@@ -60,6 +64,11 @@ export function mergeGlobalSettings(saved: unknown): GlobalSettings {
   for (const key of BOOLEAN_KEYS) {
     if (typeof source[key] === "boolean") result[key] = source[key];
   }
+  if (typeof source.popupFrequency === "string" && (POPUP_FREQUENCIES as readonly string[]).includes(source.popupFrequency)) {
+    result.popupFrequency = source.popupFrequency as GlobalSettings["popupFrequency"];
+  }
+  const delay = typeof source.popupDelaySeconds === "number" ? source.popupDelaySeconds : Number(source.popupDelaySeconds);
+  if (Number.isFinite(delay)) result.popupDelaySeconds = Math.max(0, Math.min(120, Math.round(delay)));
   if (source.recipients && typeof source.recipients === "object" && !Array.isArray(source.recipients)) {
     const recipients: FormRecipients = {};
     for (const key of RECIPIENT_KEYS) {

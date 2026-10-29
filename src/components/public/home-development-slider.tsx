@@ -7,7 +7,7 @@ import type { BannerSlide } from "@/lib/home-defaults";
 /// The delivered script runs before React has hydrated on some homepage loads.
 /// Own this CMS-rendered carousel in React so autoplay and the dot controls are
 /// reliable regardless of load timing or client-side navigation.
-export function HomeDevelopmentSlider({ heading, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle }: { heading: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" } }) {
+export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" } }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -30,6 +30,7 @@ export function HomeDevelopmentSlider({ heading, slides, ctaLabel, ctaUrl, ctaVi
         </div>
         <div className="pdf-development-content">
           {headingPosition === "overlay" ? <h2 style={headingStyle}>{heading}</h2> : null}
+          {bannerText?.trim() ? <p>{bannerText}</p> : null}
           {ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel}</Link> : null}
           <div className="pdf-development-dots" aria-label="Choose a development slide">
             {slides.map((slide, index) => (

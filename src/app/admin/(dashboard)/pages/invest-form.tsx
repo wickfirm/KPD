@@ -6,7 +6,8 @@ import { previewInvestDraft, saveStaticPage, type StaticPageFormState } from "..
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
-import { investIcons, mergeInvestContent, type FaqItem, type FeaturedCard, type IconCard, type InvestContent, type Metric, type PanelSection, type YieldRow } from "@/lib/invest-defaults";
+import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reorder";
+import { ensureInvestSections, investIcons, investSectionLabels, mergeInvestContent, type FaqItem, type FeaturedCard, type IconCard, type InvestContent, type InvestSectionId, type Metric, type PanelSection, type YieldRow } from "@/lib/invest-defaults";
 
 const initialState: StaticPageFormState = {};
 const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
@@ -78,7 +79,8 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     } finally { setPreviewing(false); }
   }
   const hero = (defaults.content ?? []).find((block) => block.type === "hero");
-  const [content, setContent] = useState<InvestContent>(() => mergeInvestContent((defaults.content ?? []).find((block) => block.type === "invest")));
+  const [content, setContent] = useState<InvestContent>(() => ensureInvestSections(mergeInvestContent((defaults.content ?? []).find((block) => block.type === "invest"))));
+  const sectionDrag = useDragReorder(content.sectionOrder, (sectionOrder: InvestSectionId[]) => setContent((current) => ({ ...current, sectionOrder })));
   const patch = <K extends keyof InvestContent>(key: K, changes: Partial<InvestContent[K]>) => setContent((current) => ({ ...current, [key]: { ...(current[key] as object), ...changes } as InvestContent[K] }));
 
   return <form ref={formRef} action={formAction}>
@@ -100,6 +102,11 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
         renderItem={(item, update) => <div className="cms-grid"><Text label="Headline" value={item.value} onChange={(value) => update({ value })} /><Text label="Caption" value={item.label} onChange={(label) => update({ label })} /></div>} />
     </Section>
 
+    <h2 className="cms-form-heading">Section order</h2>
+    <p className="cms-muted">The calculator starts last. Drag a row, or use Move up and Move down, to change where each block sits. The hero stays at the top.</p>
+    <ol className="cms-member-list">
+      {content.sectionOrder.map((id, index) => <li className="cms-repeat-card" key={id} {...sectionDrag.dropProps(index)}><div className="cms-repeat-card__head"><strong><DragHandle {...sectionDrag.handleProps(index)} />{investSectionLabels[id]}</strong><span className="cms-actions"><button className="cms-text-button" type="button" onClick={() => setContent((current) => ({ ...current, sectionOrder: reorder(current.sectionOrder, index, index - 1) }))} disabled={index === 0}>Move up</button><button className="cms-text-button" type="button" onClick={() => setContent((current) => ({ ...current, sectionOrder: reorder(current.sectionOrder, index, index + 1) }))} disabled={index === content.sectionOrder.length - 1}>Move down</button></span></div></li>)}
+    </ol>
     <h2 className="cms-form-heading">Why Dubai remains investable</h2>
     <div className="cms-grid"><Text label="Heading" value={content.benefits.heading} onChange={(heading) => patch("benefits", { heading })} /></div>
     <Area label="Intro" value={content.benefits.text} onChange={(text) => patch("benefits", { text })} />
@@ -123,6 +130,13 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
           <Text label="Appreciation bar length" value={item.gainBar} onChange={(gainBar) => update({ gainBar })} placeholder="100%" />
         </div>
       </>} />
+
+    <h2 className="cms-form-heading">Flexible payment plans</h2>
+    <label className="cms-check"><input type="checkbox" checked={content.paymentVisible !== false} onChange={(event) => setContent((current) => ({ ...current, paymentVisible: event.target.checked }))} /> <span><strong>Show this section</strong><small>The four-step payment path from the original investor guide.</small></span></label>
+    <div className="cms-grid"><Text label="Heading" value={content.payment.heading} onChange={(heading) => patch("payment", { heading })} /></div>
+    <Area label="Intro" value={content.payment.text} onChange={(text) => patch("payment", { text })} />
+    <Picture label="Image" value={content.payment.image} onChange={(image) => patch("payment", { image })} />
+    <IconCards items={content.payment.cards} onChange={(cards) => patch("payment", { cards })} addLabel="Add step" />
 
     <h2 className="cms-form-heading">Golden Visa / residency</h2>
     <PanelEditor value={content.residency} onChange={(changes) => patch("residency", changes)} />
@@ -159,16 +173,6 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <ListEditor items={content.faq.items} onChange={(items: FaqItem[]) => patch("faq", { items })} newItem={() => ({ question: "", answer: "" })} addLabel="Add question" itemLabel={(item, index) => `${index + 1}. ${item.question || "New question"}`}
       renderItem={(item, update) => <><Text label="Question" value={item.question} onChange={(question) => update({ question })} /><Area label="Answer" value={item.answer} onChange={(answer) => update({ answer })} rows={4} /></>} />
     <p className="cms-muted">These questions also feed the page’s FAQ structured data for search engines.</p>
-
-    <h2 className="cms-form-heading">Closing band</h2>
-    <div className="cms-grid">
-      <Text label="Eyebrow" value={content.contact.eyebrow} onChange={(eyebrow) => patch("contact", { eyebrow })} />
-      <Text label="Primary button" value={content.contact.primaryLabel} onChange={(primaryLabel) => patch("contact", { primaryLabel })} help="Opens the booking form." />
-      <Text label="Secondary button" value={content.contact.secondaryLabel} onChange={(secondaryLabel) => patch("contact", { secondaryLabel })} help="Links to the Contact page." />
-    </div>
-    <Area label="Heading" value={content.contact.heading} onChange={(heading) => patch("contact", { heading })} rows={2} help="Line breaks render exactly as typed." />
-    <Area label="Text" value={content.contact.text} onChange={(text) => patch("contact", { text })} />
-    <Picture label="Background image" value={content.contact.image} onChange={(image) => patch("contact", { image })} />
 
     <SeoFields defaults={seo} />
     <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save investor guide"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>

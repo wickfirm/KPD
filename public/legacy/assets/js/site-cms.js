@@ -735,14 +735,21 @@
 
   function initTimedBookingPopup() {
     if (!modal) return;
-    // [KPD CMS patch] offer the timed popup once per browser session — with
-    // soft navigation the script re-executes per page view and re-offering
-    // on every view would feel broken.
+    if (kpdContact.popupEnabled === false || kpdContact.enquiryEnabled === false) return;
+    // [KPD CMS patch] frequency and delay come from Site settings.
+    // every-page (the default) opens on each page. session and day remember a visit.
+    const frequency = kpdContact.popupFrequency || "every-page";
+    const storageKey = "kpdBookingPopupOffered";
     try {
-      if (window.sessionStorage.getItem("kpdBookingPopupOffered")) return;
+      if (frequency === "session" && window.sessionStorage.getItem(storageKey)) return;
+      if (frequency === "day") {
+        const stamp = Number(window.localStorage.getItem(storageKey));
+        if (stamp && Date.now() - stamp < 24 * 60 * 60 * 1000) return;
+      }
     } catch (error) {}
     setModal(false);
-    const delay = 5000;
+    const delaySeconds = Number(kpdContact.popupDelaySeconds);
+    const delay = Number.isFinite(delaySeconds) && delaySeconds >= 0 ? delaySeconds * 1000 : 5000;
     const tryOpen = () => {
       if (bookingModalTouched || modal.classList.contains("open")) return;
       if (document.body.classList.contains("menu-open") || document.body.classList.contains("modal-open")) {
@@ -751,7 +758,8 @@
       }
       setModal(true);
       try {
-        window.sessionStorage.setItem("kpdBookingPopupOffered", "1");
+        if (frequency === "session") window.sessionStorage.setItem(storageKey, "1");
+        if (frequency === "day") window.localStorage.setItem(storageKey, String(Date.now()));
       } catch (error) {}
     };
     window.setTimeout(tryOpen, delay);

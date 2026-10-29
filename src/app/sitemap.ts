@@ -13,6 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/invest-in-dubai"), changeFrequency: "monthly", priority: 0.9 },
     { url: absoluteUrl("/news"), changeFrequency: "daily", priority: 0.9 },
     { url: absoluteUrl("/about"), changeFrequency: "monthly", priority: 0.8 },
+    { url: absoluteUrl("/seven-x-seven"), changeFrequency: "monthly", priority: 0.8 },
     { url: absoluteUrl("/legacy"), changeFrequency: "yearly", priority: 0.6 },
     { url: absoluteUrl("/contact"), changeFrequency: "yearly", priority: 0.6 },
   ];

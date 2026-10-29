@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { pushLeadToSalesforce } from "@/lib/salesforce";
 import { leadDescription, sanitizeDetails } from "@/lib/submissions";
 import { getGlobalSettings, recipientFor, type FormRecipientKey } from "@/lib/site-contact";
+import { brochureLink, sendBrochureEmail } from "@/lib/brochure-mail";
+import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 
 /// Public contact / booking form endpoint (Salesforce dual-write, Clause 2).
 /// Always persists locally; then mirrors to Salesforce as a Lead.
@@ -78,5 +80,20 @@ export async function POST(req: NextRequest) {
     // The lead is safely stored locally — respond success; sync retries later.
   }
 
-  return NextResponse.json({ ok: true, id: submission.id }, { status: 201 });
+  let emailed = false;
+  if (inquiryType === "Brochure request") {
+    const projectSlug = String(payload.projectSlug || "").trim();
+    const project = projectSlug ? await db.project.findUnique({ where: { slug: projectSlug }, select: { id: true, name: true } }).catch(() => null) : null;
+    const chromeRow = project ? await db.siteSetting.findUnique({ where: { key: projectChromeKey(project.id) } }).catch(() => null) : null;
+    const downloadUrl = brochureLink(req.nextUrl.origin, parseProjectChrome(chromeRow?.value).brochureUrl ?? "");
+    if (project && downloadUrl) {
+      try {
+        emailed = (await sendBrochureEmail({ to: email, name, projectName: project.name, downloadUrl })).sent;
+      } catch (error) {
+        console.error("[api/contact] brochure email failed:", error);
+      }
+    }
+  }
+
+  return NextResponse.json({ ok: true, id: submission.id, emailed }, { status: 201 });
 }

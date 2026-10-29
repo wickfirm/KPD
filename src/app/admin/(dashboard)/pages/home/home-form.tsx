@@ -5,7 +5,7 @@ import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
-import { type BannerSlide, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { homeDefaults, type BannerSlide, type HomeSettings, type StatItem } from "@/lib/home-defaults";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
 
 export type { HomeSettings };
@@ -61,6 +61,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     </section>
     <h2 className="cms-form-heading">Developments image</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-field"><span>Line on the image</span><textarea name="developmentBannerText" rows={3} defaultValue={settings.developmentBannerText ?? homeDefaults.developmentBannerText ?? ""} /><small>Sits on the picture, between the heading and the button. Clear it and save to remove the line.</small></label>
     <label className="cms-field"><span>Heading placement</span><select name="developmentHeadingPosition" defaultValue={settings.developmentHeadingPosition ?? "overlay"}><option value="overlay">Over the image</option><option value="above">Above the image</option><option value="below">Below the image</option></select><small>Above and below sit outside the picture. Over keeps the heading on the picture.</small></label>
     <TextStyleFields prefix="developmentHeading" value={settings.developmentHeadingStyle} label="Developments heading appearance" preserveDefault />
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="developmentCtaVisible" defaultChecked={settings.developmentCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the button on the developments image.</small></span></label><label className="cms-field"><span>Button label</span><input name="developmentCtaLabel" defaultValue={settings.developmentCtaLabel ?? "View all developments"} /></label><label className="cms-field"><span>Button link</span><input name="developmentCtaUrl" defaultValue={settings.developmentCtaUrl ?? "/#development-cards"} /></label></div>

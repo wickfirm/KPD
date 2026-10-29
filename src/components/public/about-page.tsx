@@ -1,5 +1,5 @@
 ﻿import type { ReactNode } from "react";
-import type { AboutContent } from "@/lib/about-defaults";
+import { aboutDefaults, type AboutContent } from "@/lib/about-defaults";
 import { textStyleProps } from "@/lib/text-style";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -7,10 +7,9 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
-/// The <main> content of the About page as real React â€” a 1:1 port of the
-/// delivered markup (public/legacy/about-us.html). The duplicated CEO section
-/// from the delivered file is intentionally omitted (client-confirmed), and
-/// any number of management cards is supported.
+/// The <main> content of the About page as real React — a port of the
+/// delivered markup (public/legacy/about-us.html), including the CEO message.
+/// Any number of management cards is supported.
 export function AboutMain({ content }: { content: AboutContent }) {
   const heading = content.heading ?? "";
   const sectionHeading = content.sectionHeading ?? "";
@@ -23,6 +22,10 @@ export function AboutMain({ content }: { content: AboutContent }) {
   const chairmanName = content.chairmanName ?? "";
   const chairmanRole = content.chairmanRole ?? "";
   const chairmanImage = content.chairmanImage ?? "";
+  const ceoText = content.ceoText ?? aboutDefaults.ceoText;
+  const ceoName = content.ceoName ?? aboutDefaults.ceoName;
+  const ceoRole = content.ceoRole ?? aboutDefaults.ceoRole;
+  const ceoImage = content.ceoImage ?? aboutDefaults.ceoImage;
   const management = content.management ?? [];
   return (
     <main className="about-main page-reference-main" id="top">
@@ -56,6 +59,13 @@ export function AboutMain({ content }: { content: AboutContent }) {
           <div className="about-chairman-signature"><strong>{chairmanName}</strong><span>{chairmanRole}</span></div>
         </div>
       </section>
+      {ceoText || ceoName || ceoRole || ceoImage ? <section className="about-ceo" id="ceo">
+        <div className="about-ceo-copy">
+          {ceoText ? <p>{multiline(ceoText)}</p> : null}
+          <div className="about-chairman-signature">{ceoName ? <strong>{ceoName}</strong> : null}{ceoRole ? <span>{ceoRole}</span> : null}</div>
+        </div>
+        <div className="about-ceo-media">{ceoImage ? <img src={ceoImage} alt={ceoName ? `${ceoName} portrait` : "Chief Executive Officer portrait"} /> : null}</div>
+      </section> : null}
       <section className="about-management" id="management">
         <h2>Executive Management</h2>
         <div className="about-management-grid">

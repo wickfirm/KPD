@@ -35,6 +35,9 @@ describe("site contact settings", () => {
     expect(merged.popupEnabled).toBe(false);
     expect(merged.headerCtaVisible).toBe(false);
     expect(merged.popupTitle).toBe("Write to us");
+    expect(mergeGlobalSettings({ popupFrequency: "day", popupDelaySeconds: "8" }).popupFrequency).toBe("day");
+    expect(mergeGlobalSettings({ popupDelaySeconds: 3.4 }).popupDelaySeconds).toBe(3);
+    expect(mergeGlobalSettings({ popupFrequency: "always", popupDelaySeconds: "soon" }).popupFrequency).toBeUndefined();
     expect(merged.recipients).toEqual({ newsletter: "news@kpd.ae", enquiry: "hello@kpd.ae" });
     expect(merged.typography?.headings).toEqual({ fontSize: "32px", fontWeight: "bold", fontStyle: "italic" });
   });

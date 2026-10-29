@@ -6,7 +6,7 @@ import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
-import { mergeInvestContent, type IconCard } from "@/lib/invest-defaults";
+import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId } from "@/lib/invest-defaults";
 
 export type InvestHero = { type?: string; heading?: string; text?: string; image?: string };
 
@@ -17,12 +17,13 @@ function multiline(value: string): ReactNode[] {
 
 
 const delay = (value: string) => ({ "--motion-delay": value } as React.CSSProperties);
+const stackOrder = (order: readonly InvestSectionId[], id: InvestSectionId) => ({ order: Math.max(0, order.indexOf(id)) }) as React.CSSProperties;
 const icon = (name: string, extra = "") => <i className={`fi ${name} invest-icon${extra ? ` ${extra}` : ""}`} aria-hidden="true"></i>;
 
 /// The Invest in Dubai page (delivered invest-in-dubai.html design). Shared by the
 /// public route and the admin unsaved-changes preview so both render identically.
 export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; saved?: unknown; previewNote?: string }) {
-  const c = mergeInvestContent(saved);
+  const c = ensureInvestSections(mergeInvestContent(saved));
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -44,7 +45,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         <div className="invest-hero-metrics motion-reveal" style={delay("120ms")} aria-label="Investment highlights">{c.metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>
       </section>
 
-      <section className="invest-benefits kpd-section kpd-section--compact" aria-label="Investor benefits">
+      <div className="invest-section-stack">
+      <section className="invest-benefits kpd-section kpd-section--compact" aria-label="Investor benefits" style={stackOrder(c.sectionOrder, "benefits")}>
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.benefits.heading}</h2><div className="single-project-section-copy"><p>{c.benefits.text}</p></div></div>
         <div className="invest-benefit-carousel motion-reveal" data-invest-carousel>
           <div className="invest-benefit-track">
@@ -54,7 +56,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         </div>
       </section>
 
-      <section className="invest-market kpd-section kpd-section--compact" aria-label="Dubai comparison lens">
+      <section className="invest-market kpd-section kpd-section--compact" aria-label="Dubai comparison lens" style={stackOrder(c.sectionOrder, "market")}>
         <div className="invest-editorial-grid invest-editorial-grid--top"><h2 className="motion-reveal">{c.market.heading}</h2><div className="invest-copy motion-reveal" style={delay("80ms")}><p>{c.market.text}</p></div></div>
         <div className="invest-yield-board motion-reveal">
           <div className="invest-yield-head"><span>City / Market</span><span>Rental Gross Yield</span><span>Capital Appreciation</span></div>
@@ -70,22 +72,19 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
       </section>
 
       {/* The client's mortgage calculator, verbatim (src/lib/mortgage-calculator-html.ts); driven by his mortgage-calculator.js. */}
-      <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+      <section {...mortgageCalculatorSectionProps} style={stackOrder(c.sectionOrder, "calculator")} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
 
-      <section className="invest-payment-plan kpd-section" aria-label="Flexible payment plans" hidden>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2>Flexible Payment Plans.</h2><div className="single-project-section-copy"><p>Investment structure should be clear before commitment. KPD reviews booking, construction, handover, and post-handover obligations as one complete cash-flow path.</p></div></div>
+      {c.paymentVisible === false ? null : <section className="invest-payment-plan kpd-section" aria-label="Flexible payment plans" style={stackOrder(c.sectionOrder, "payment")}>
+        <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.payment.heading}</h2><div className="single-project-section-copy">{c.payment.text ? <p>{c.payment.text}</p> : null}</div></div>
         <div className="invest-payment-layout">
-          <figure className="invest-payment-media motion-reveal"><img src="/legacy/assets/images/library/luxury-downtown-of-dubai-2026-03-19-09-24-48-utc.jpg" alt="Luxury downtown Dubai skyline" /></figure>
+          {c.payment.image ? <figure className="invest-payment-media motion-reveal"><img src={c.payment.image} alt="" /></figure> : null}
           <div className="invest-payment-cards">
-            <article className="invest-payment-card motion-reveal" style={delay("60ms")}><i className="fi fi-tr-wallet-money invest-icon" aria-hidden="true"></i><h3>Reservation</h3><p>Confirm the selected residence, initial booking amount, registration path, and payment-plan version before moving forward.</p></article>
-            <article className="invest-payment-card motion-reveal" style={delay("120ms")}><i className="fi fi-tr-calendar-clock invest-icon" aria-hidden="true"></i><h3>Construction milestones</h3><p>Review scheduled payments against construction progress, target handover, and total capital allocation.</p></article>
-            <article className="invest-payment-card motion-reveal" style={delay("180ms")}><i className="fi fi-tr-key invest-icon" aria-hidden="true"></i><h3>Handover balance</h3><p>Understand completion obligations, handover documentation, and the ownership transition before final payment.</p></article>
-            <article className="invest-payment-card motion-reveal" style={delay("240ms")}><i className="fi fi-tr-file-invoice-dollar invest-icon" aria-hidden="true"></i><h3>Post-handover planning</h3><p>Where available, post-handover terms are reviewed alongside leasing, resale, and holding-period objectives.</p></article>
+            {c.payment.cards.map((item, index) => <article className="invest-payment-card motion-reveal" style={delay(`${60 + index * 60}ms`)} key={`${item.title}-${index}`}>{icon(item.icon)}<h3>{item.title}</h3><p>{item.text}</p></article>)}
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section className="invest-residency kpd-section" aria-label="Residency through property investment">
+      <section className="invest-residency kpd-section" aria-label="Residency through property investment" style={stackOrder(c.sectionOrder, "residency")}>
         <div className="invest-residency-panel motion-reveal">
           {icon("fi-tr-passport", "invest-residency-icon")}
           <span className="kpd-eyebrow">{c.residency.eyebrow}</span>
@@ -101,7 +100,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         </div>
       </section>
 
-      <section className="invest-pathway kpd-section" id="investment-pathway" aria-label="Investment pathway">
+      <section className="invest-pathway kpd-section" id="investment-pathway" aria-label="Investment pathway" style={stackOrder(c.sectionOrder, "pathway")}>
         <div className="single-project-section-head invest-section-head motion-reveal">
           <h2>{c.pathway.heading}</h2>
           <div className="single-project-section-copy"><p>{c.pathway.text}</p><button className="btn-pill" type="button" data-booking-open>{c.pathway.button}</button></div>
@@ -117,7 +116,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         </div>
       </section>
 
-      <section className="invest-trust invest-residency kpd-section" aria-label="Developer trust and delivery">
+      <section className="invest-trust invest-residency kpd-section" aria-label="Developer trust and delivery" style={stackOrder(c.sectionOrder, "trust")}>
         <div className="invest-residency-panel invest-trust-copy motion-reveal">
           {icon("fi-tr-building-shield")}
           <span className="kpd-eyebrow">{c.trust.eyebrow}</span>
@@ -133,7 +132,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         </div>
       </section>
 
-      <section className="invest-liquidity kpd-section" aria-label="Market liquidity and exit">
+      <section className="invest-liquidity kpd-section" aria-label="Market liquidity and exit" style={stackOrder(c.sectionOrder, "liquidity")}>
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.liquidity.heading}</h2><div className="single-project-section-copy"><p>{c.liquidity.text}</p></div></div>
         <div className="invest-liquidity-grid">
           <article className="invest-liquidity-feature motion-reveal">{icon(c.liquidity.feature.icon)}<h3>{c.liquidity.feature.title}</h3><p>{c.liquidity.feature.text}</p></article>
@@ -141,14 +140,14 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         </div>
       </section>
 
-      <section className="invest-featured kpd-section" aria-label="Featured developments">
+      <section className="invest-featured kpd-section" aria-label="Featured developments" style={stackOrder(c.sectionOrder, "featured")}>
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.featured.heading}</h2><div className="single-project-section-copy"><p>{c.featured.text}</p></div></div>
         <div className={`pdf-development-cards invest-development-cards${c.featured.cards.length < 3 ? ` pdf-development-cards--count-${c.featured.cards.length}` : ""}`}>
           {c.featured.cards.map((item, index) => <Link className="pdf-dev-card motion-reveal" style={index ? delay(`${index * 80}ms`) : undefined} href={item.href || "/"} key={`${item.href}-${index}`}><img src={item.image} alt={`${item.title} exterior`} /><div className="pdf-dev-card-body"><h3>{item.title}</h3><p>{item.copy}</p><span>Explore</span></div></Link>)}
         </div>
       </section>
 
-      <section className="invest-faq-section kpd-section kpd-section--compact" aria-label="Investor questions">
+      <section className="invest-faq-section kpd-section kpd-section--compact" aria-label="Investor questions" style={stackOrder(c.sectionOrder, "faq")}>
         <div className="invest-faq-shell">
           <aside className="invest-faq-aside motion-reveal">
             {icon("fi-tr-question")}
@@ -161,19 +160,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
           </div>
         </div>
       </section>
-
-      <section className="projects-spec-contact invest-contact" aria-label="Begin an investment inquiry">
-        <img src={c.contact.image} alt="Private advisory workspace at the KPD Experience Center" />
-        <div className="projects-spec-contact-copy motion-reveal">
-          <span>{c.contact.eyebrow}</span>
-          <h2>{multiline(c.contact.heading)}</h2>
-          <p>{c.contact.text}</p>
-          <div className="projects-spec-contact-actions">
-            <button type="button" data-booking-open>{c.contact.primaryLabel}</button>
-            <Link href="/contact">{c.contact.secondaryLabel}</Link>
-          </div>
-        </div>
-      </section>
+      </div>
     </main><SiteShellFooter />
     <InvestEnhancements />
     <DeliveredEarlyScripts />

@@ -19,6 +19,10 @@ export type AboutContent = {
   chairmanName?: string;
   chairmanRole?: string;
   chairmanImage?: string;
+  ceoText?: string;
+  ceoName?: string;
+  ceoRole?: string;
+  ceoImage?: string;
   management?: AboutPerson[];
 };
 
@@ -40,6 +44,10 @@ export const aboutDefaults = {
   chairmanName: "Mohammed Alabbar",
   chairmanRole: "Chairman",
   chairmanImage: "/legacy/assets/images/team/Alabbar.jpg",
+  ceoText: "Dubai rewards developers who arrive with patience and leave with a reputation. KPD was built to do both - to assess land with discipline, to build with craft, and to remain responsible for what we hand over long after the keys change hands.",
+  ceoName: "",
+  ceoRole: "Chief Executive Officer",
+  ceoImage: "/legacy/assets/images/section/CEO%20Image.png",
   management: [
     { name: "Tatsuya Suzuki", role: "CEO", bio: "", image: "/team/tatsuya-suzuki.jpg" },
     { name: "Hiroyuki Chiba", role: "Executive Director", bio: "", image: "" },

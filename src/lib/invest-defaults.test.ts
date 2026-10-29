@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { investDefaults, mergeInvestContent, sanitizeInvestContent } from "./invest-defaults";
+import { ensureInvestSections, investDefaults, mergeInvestContent, sanitizeInvestContent } from "./invest-defaults";
 
 describe("mergeInvestContent", () => {
   it("returns an empty CMS shape when nothing is saved", () => {
@@ -34,6 +34,16 @@ describe("sanitizeInvestContent", () => {
     expect(out.faq.heading).toBe("Hello");
     expect(out.faq.items).toEqual([{ question: "Q", answer: "A" }]);
     expect(out.market.rows[0].trend).toBe("up");
+  });
+  it("keeps the calculator last until the editor moves it", () => {
+    expect(sanitizeInvestContent({ benefits: { heading: "Why" } }).sectionOrder.at(-1)).toBe("calculator");
+    expect(sanitizeInvestContent({ sectionOrder: ["faq", "calculator", "benefits"] }).sectionOrder.slice(0, 3)).toEqual(["faq", "calculator", "benefits"]);
+  });
+  it("restores the payment plan when the saved page has none", () => {
+    const page = ensureInvestSections(mergeInvestContent({ benefits: { heading: "Why" } }));
+    expect(page.payment.heading).toBe("Flexible Payment Plans.");
+    expect(page.payment.cards).toHaveLength(4);
+    expect(ensureInvestSections(mergeInvestContent({ paymentVisible: false })).payment.heading).toBe("");
   });
   it("survives garbage input", () => {
     expect(sanitizeInvestContent("nope").faq.items).toEqual([]);

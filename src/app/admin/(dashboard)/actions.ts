@@ -27,7 +27,7 @@ import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 import { normalizeLineBreaks } from "@/lib/line-breaks";
 import { textStyleFromForm } from "@/lib/text-style";
-import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
+import { developmentSlots, parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
 import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
 import { contactInquiryDefaults } from "@/lib/contact-inquiry-content";
@@ -404,10 +404,15 @@ export async function saveProject(
 
   const result = await applyProject(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
+  const previousChrome = parseProjectChrome((await db.siteSetting.findUnique({ where: { key: projectChromeKey(result.id) } }).catch(() => null))?.value);
   const chrome = parseProjectChrome({
     ctaLabel: String(formData.get("heroCtaLabel") || "").trim(),
     ctaUrl: String(formData.get("heroCtaUrl") || "").trim(),
     ctaVisible: formData.get("heroCtaVisible") === "on",
+    brochureLabel: String(formData.get("brochureLabel") || "").trim(),
+    brochureUrl: String(formData.get("brochureUrl") || "").trim(),
+    brochureVisible: formData.get("brochureVisible") === "on",
+    calculatorIndex: previousChrome.calculatorIndex,
     nameStyle: textStyleFromForm(formData, "projectName"),
     taglineStyle: textStyleFromForm(formData, "projectTagline"),
     descriptionStyle: textStyleFromForm(formData, "projectDescription"),
@@ -625,6 +630,10 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     chairmanName: String(formData.get("chairmanName") || "").trim(),
     chairmanRole: String(formData.get("chairmanRole") || "").trim(),
     chairmanImage: String(formData.get("chairmanImage") || "").trim(),
+    ceoText: String(formData.get("ceoText") || "").trim(),
+    ceoName: String(formData.get("ceoName") || "").trim(),
+    ceoRole: String(formData.get("ceoRole") || "").trim(),
+    ceoImage: String(formData.get("ceoImage") || "").trim(),
     management,
   } : null;
   const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline } : null;
@@ -805,6 +814,8 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     headerCtaLabel: String(formData.get("headerCtaLabel") || "").trim(),
     headerCtaVisible: formData.get("headerCtaVisible") === "on",
     popupEnabled: formData.get("popupEnabled") === "on",
+    popupFrequency: formData.get("popupFrequency") === "session" ? "session" : formData.get("popupFrequency") === "day" ? "day" : "every-page",
+    popupDelaySeconds: Math.max(0, Math.min(120, Math.round(Number(formData.get("popupDelaySeconds")) || 0))),
     typography: { headings: textStyle("typographyHeadings"), body: textStyle("typographyBody"), ctas: textStyle("typographyCtas") },
     recipients: {
       enquiry: String(formData.get("recipientEnquiry") || "").trim(),
@@ -890,6 +901,7 @@ function homeSettingsFromForm(formData: FormData) {
     introHeading: normalizeLineBreaks(formData.get("introHeading") as string | null),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
     developmentHeading: normalizeLineBreaks(formData.get("developmentHeading") as string | null),
+    developmentBannerText: normalizeLineBreaks(formData.get("developmentBannerText") as string | null),
     developmentHeadingPosition: formData.get("developmentHeadingPosition") === "below" ? "below" : formData.get("developmentHeadingPosition") === "above" ? "above" : "overlay",
     developmentHeadingStyle: textStyleFromForm(formData, "developmentHeading"),
     introHeadingStyle: textStyleFromForm(formData, "introHeading"),
@@ -1223,9 +1235,23 @@ export async function moveProjectModule(formData: FormData) {
   const projectId = String(formData.get("projectId") || "");
   if (!mayEditContent(user.role, await owningProjectStatus(projectId, id))) redirect("/admin?denied=1");
   const direction = formData.get("direction") === "up" ? -1 : 1;
-  const rows = await db.projectModule.findMany({ where: { projectId }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: { id: true } });
-  const order = reorderIds(rows.map((row) => row.id), id, direction);
-  await db.$transaction(order.map((moduleId, index) => db.projectModule.update({ where: { id: moduleId }, data: { sortOrder: (index + 1) * 10 } })));
+  const [rows, chromeRow] = await Promise.all([
+    db.projectModule.findMany({ where: { projectId }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: { id: true } }),
+    db.siteSetting.findUnique({ where: { key: projectChromeKey(projectId) } }).catch(() => null),
+  ]);
+  const chrome = parseProjectChrome(chromeRow?.value);
+  const slots = developmentSlots(rows, chrome.calculatorIndex).map((slot) => (slot === "calculator" ? "calculator" : slot.id));
+  const order = reorderIds(slots, id, direction);
+  const moduleOrder = order.filter((slotId) => slotId !== "calculator");
+  const calculatorIndex = Math.max(0, order.indexOf("calculator"));
+  await db.$transaction([
+    ...moduleOrder.map((moduleId, index) => db.projectModule.update({ where: { id: moduleId }, data: { sortOrder: (index + 1) * 10 } })),
+    db.siteSetting.upsert({
+      where: { key: projectChromeKey(projectId) },
+      update: { value: { ...chrome, calculatorIndex } },
+      create: { key: projectChromeKey(projectId), value: { calculatorIndex } },
+    }),
+  ]);
   const project = await db.project.findUnique({ where: { id: projectId }, select: { slug: true } });
   if (project) revalidatePath(`/developments/${project.slug}`);
   revalidatePath(`/admin/projects/${projectId}`);

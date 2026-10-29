@@ -3,6 +3,8 @@ import type { ProjectShell } from "@/lib/legacy-project";
 import type { ProjectChrome } from "@/lib/project-chrome";
 import { textStyleProps } from "@/lib/text-style";
 import { DevelopmentModule } from "./development-template";
+import { BrochureRequest } from "./brochure-request";
+import { developmentSlots } from "@/lib/project-chrome";
 import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 
 export type DevelopmentProject = {
@@ -41,24 +43,24 @@ export function DevelopmentMain({ project, shell }: { project: DevelopmentProjec
           <div className="single-project-intro-copy">
             <h1 style={textStyleProps(project.chrome?.taglineStyle)}>{multiline(project.tagline ?? "")}</h1>
             <p style={textStyleProps(project.chrome?.descriptionStyle)}>{project.description ?? ""}</p>
-            {project.chrome?.ctaVisible === false ? null : <div className="single-project-actions">
-              <a className="btn-pill" href={project.chrome?.ctaUrl || "#amenities"}>{project.chrome?.ctaLabel || "Explore"}</a>
+            {project.chrome?.ctaVisible === false && project.chrome?.brochureVisible === false ? null : <div className="single-project-actions">
+              {project.chrome?.ctaVisible === false ? null : <a className="btn-pill" href={project.chrome?.ctaUrl || "#amenities"}>{project.chrome?.ctaLabel || "Explore"}</a>}
+              {project.chrome?.brochureVisible === false ? null : <BrochureRequest projectName={project.name} projectSlug={project.slug} label={project.chrome?.brochureLabel || "Download brochure"} />}
             </div>}
           </div>
         </div>
       </section>
 
-      {project.modules.map((module) => (
-        <DevelopmentModule
-          key={module.id}
-          module={{ slug: module.slug, title: module.title, kind: module.kind, content: module.content }}
-          projectName={project.name}
-          shell={{ meydanFigure: shell.meydanFigure, calmFigure: shell.calmFigure, locationShell: shell.locationShell }}
-        />
+      {developmentSlots(project.modules, project.chrome?.calculatorIndex).map((slot) => (
+        slot === "calculator"
+          ? <section key="calculator" {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+          : <DevelopmentModule
+            key={slot.id}
+            module={{ slug: slot.slug, title: slot.title, kind: slot.kind, content: slot.content }}
+            projectName={project.name}
+            shell={{ meydanFigure: shell.meydanFigure, calmFigure: shell.calmFigure, locationShell: shell.locationShell }}
+          />
       ))}
-
-      {/* The Investor Guide calculator is deliberately shared by every project page. */}
-      <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
 
     </main>
   );

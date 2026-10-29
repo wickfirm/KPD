@@ -17,6 +17,7 @@ export type HomeSettings = {
   introHeading?: string;
   introParagraphs?: string[];
   developmentHeading?: string;
+  developmentBannerText?: string;
   developmentHeadingPosition?: "overlay" | "above" | "below";
   developmentHeadingStyle?: TextStyle;
   introHeadingStyle?: TextStyle;
@@ -80,6 +81,7 @@ export const homeDefaults = {
     "From refined craftsmanship and forward-thinking innovation to thoughtful guardianship, we uphold rigorous standards at every stage, creating spaces that stand the test of time.",
   ],
   developmentHeading: "Different places. One standard.",
+  developmentBannerText: "Three addresses. One standard. Residences, villas and mansions across Dubai's most considered districts.",
   developmentTextVisible: true,
   developmentText: "Quality, peace of mind and innovation are not a tier we reserve for certain projects. They are the standard every Kasumigaseki development is held to, whatever its form or price.",
   newsHeading: "The Latest from Kasumigaseki Properties Development.",

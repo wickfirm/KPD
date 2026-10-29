@@ -9,11 +9,29 @@ export type FeaturedCard = { href: string; image: string; title: string; copy: s
 export type Metric = { value: string; label: string };
 
 export type PanelSection = { eyebrow: string; heading: string; text: string; button: string; image: string; cards: IconCard[] };
+export type PaymentSection = { heading: string; text: string; image: string; cards: IconCard[] };
+
+export const investSectionIds = ["benefits", "market", "payment", "residency", "pathway", "trust", "liquidity", "featured", "faq", "calculator"] as const;
+export type InvestSectionId = (typeof investSectionIds)[number];
+export const investSectionLabels: Record<InvestSectionId, string> = {
+  benefits: "Why Dubai remains investable",
+  market: "Yield comparison",
+  payment: "Flexible payment plans",
+  residency: "Golden Visa / residency",
+  pathway: "Investment pathway",
+  trust: "Developer trust and delivery",
+  liquidity: "Market liquidity and exit",
+  featured: "Featured developments",
+  faq: "Frequently asked questions",
+  calculator: "Mortgage calculator",
+};
 
 export type InvestContent = {
   metrics: Metric[];
   benefits: { heading: string; text: string; items: IconCard[] };
   market: { heading: string; text: string; source: string; rows: YieldRow[] };
+  payment: PaymentSection;
+  paymentVisible: boolean;
   residency: PanelSection;
   pathway: { heading: string; text: string; button: string; steps: IconCard[] };
   trust: PanelSection;
@@ -21,6 +39,7 @@ export type InvestContent = {
   featured: { heading: string; text: string; cards: FeaturedCard[] };
   faq: { eyebrow: string; heading: string; text: string; items: FaqItem[] };
   contact: { eyebrow: string; heading: string; text: string; image: string; primaryLabel: string; secondaryLabel: string };
+  sectionOrder: InvestSectionId[];
 };
 
 /// Everything the editor may save: any part can be missing and falls back to
@@ -116,6 +135,19 @@ export const investDefaults: InvestContent = {
       { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/project-media/Dubai%20Hills%20Mansion/6_plex_front_rev_final_1.jpg", title: "Villa 24", copy: "A mansion-scale home organised around garden, wellness and long-term family life." },
     ],
   },
+  payment: {
+    heading: "Flexible Payment Plans.",
+    text: "Investment structure should be clear before commitment. KPD reviews booking, construction, handover and post-handover obligations as one complete cash-flow path.",
+    image: "/legacy/assets/images/library/luxury-downtown-of-dubai-2026-03-19-09-24-48-utc.jpg",
+    cards: [
+      { icon: "fi-tr-wallet-money", title: "Reservation", text: "Confirm the selected residence, initial booking amount, registration path and payment-plan version before moving forward." },
+      { icon: "fi-tr-calendar-clock", title: "Construction milestones", text: "Review scheduled payments against construction progress, target handover and total capital allocation." },
+      { icon: "fi-tr-key", title: "Handover balance", text: "Understand completion obligations, handover documentation and the ownership transition before final payment." },
+      { icon: "fi-tr-file-invoice-dollar", title: "Post-handover planning", text: "Where available, post-handover terms are reviewed alongside leasing, resale and holding-period objectives." },
+    ],
+  },
+  paymentVisible: true,
+  sectionOrder: [...investSectionIds],
   faq: {
     eyebrow: "Frequently Asked Questions",
     heading: "Answers for the first investment conversation.",
@@ -152,6 +184,28 @@ export function mergeInvestContent(saved: unknown): InvestContent {
   return sanitizeInvestContent(saved);
 }
 
+/// Puts the calculator last and keeps every section once. Unknown ids are dropped.
+export function normalizeInvestSectionOrder(value: unknown): InvestSectionId[] {
+  const allowed = new Set<string>(investSectionIds);
+  const picked: InvestSectionId[] = [];
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      if (typeof item === "string" && allowed.has(item) && !picked.includes(item as InvestSectionId)) picked.push(item as InvestSectionId);
+    }
+  }
+  for (const id of investSectionIds) if (!picked.includes(id)) picked.push(id);
+  return picked;
+}
+
+/// The payment-plan block was hidden in the delivered file. Show its copy until
+/// the CMS record has its own, and leave a deliberately hidden section hidden.
+export function ensureInvestSections(content: InvestContent): InvestContent {
+  if (content.paymentVisible === false) return content;
+  const empty = !content.payment.heading && !content.payment.text && !content.payment.image && content.payment.cards.length === 0;
+  if (!empty) return content;
+  return { ...content, payment: { ...investDefaults.payment, cards: investDefaults.payment.cards.map((card) => ({ ...card })) } };
+}
+
 /// Clamps arbitrary submitted JSON to the investor-guide schema: only known
 /// keys survive, every value is a trimmed string (or an allowed enum), list
 /// entries that are completely empty are dropped. The delivered defaults are
@@ -175,5 +229,12 @@ function sanitizeLike(template: unknown, value: unknown): unknown {
 }
 
 export function sanitizeInvestContent(value: unknown): InvestContent {
-  return sanitizeLike(investDefaults, value) as InvestContent;
+  const { sectionOrder: _sectionOrder, paymentVisible: _paymentVisible, ...shape } = investDefaults;
+  const content = sanitizeLike(shape, value) as Omit<InvestContent, "sectionOrder" | "paymentVisible">;
+  const source = value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+  return {
+    ...content,
+    paymentVisible: source.paymentVisible === false ? false : true,
+    sectionOrder: normalizeInvestSectionOrder(source.sectionOrder),
+  };
 }
