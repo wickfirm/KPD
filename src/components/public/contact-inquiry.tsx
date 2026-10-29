@@ -312,7 +312,7 @@ export function ContactInquiry({ email = "", phone = "", website = "", content }
           </div>
 
           <div className="contact-consents">
-            <label><input type="checkbox" name="Terms" required /> <span>I have read and agree to Kasumigaseki Properties Development&apos;s <a href="/terms">Terms of Service</a> and <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+            <label><input type="checkbox" name="Terms" required /> <span>I have read and agree to Kasumigaseki Properties Development&apos;s <a href="/terms">Terms and Conditions</a> and <a href="/privacy-policy">Privacy Policy</a>.</span></label>
             <label><input type="checkbox" name="Marketing" /> <span>I consent to receive marketing communications from Kasumigaseki Properties Development in accordance with the Privacy Policy. I can unsubscribe at any time.</span></label>
           </div>
           <button className="contact-submit" type="submit" disabled={pending}>Send enquiry</button>

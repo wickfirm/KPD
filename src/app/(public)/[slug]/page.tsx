@@ -4,6 +4,7 @@ import { loadFixedPageSeo } from "@/lib/seo-store";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { LegalPageView, legalPages } from "@/components/public/legal-page-view";
+import { applyTermsCopyOnce } from "@/lib/terms-restore";
 
 export const revalidate = 300;
 
@@ -25,6 +26,7 @@ export default async function ManagedLegalPage({ params }: { params: Promise<{ s
   const { slug } = await params;
   const meta = legalPages[slug];
   if (!meta) notFound();
+  if (slug === "terms") await applyTermsCopyOnce();
   let page: { title: string; content: unknown; status: string } | null = null;
   try { page = await db.staticPage.findUnique({ where: { slug } }); } catch {}
   if (!page || page.status !== "PUBLISHED") notFound();

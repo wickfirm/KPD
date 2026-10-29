@@ -11,6 +11,7 @@ import { ConfirmButton } from "@/components/admin/confirm-button";
 import { EditorShell } from "@/components/admin/editor-shell";
 import { editorSeoDefaults } from "@/lib/seo-store";
 import { fixedPageSeoDefaults, seoKey } from "@/lib/seo-overrides";
+import { applyTermsCopyOnce } from "@/lib/terms-restore";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function EditPage({
 }) {
   const [{ id }, flash] = await Promise.all([params, searchParams]);
   const entry = findEditablePage(id);
+  if (entry?.key === "terms") await applyTermsCopyOnce();
 
   let page = await db.staticPage.findUnique({ where: entry ? { slug: entry.key } : { id } });
   if (!page && entry) {

@@ -18,7 +18,7 @@ export const editablePages: EditablePage[] = [
   { key: "invest-in-dubai", title: "Investor guide", description: "Every section of the Invest in Dubai page: hero, benefits, yield comparison, residency, pathway, trust, liquidity, featured developments, FAQ and closing band.", href: "/admin/pages/invest-in-dubai", publicHref: "/invest-in-dubai", editor: "static" },
   { key: "contact", title: "Contact", description: "Intro heading and copy for the Contact page hero.", href: "/admin/pages/contact", publicHref: "/contact", editor: "static" },
   { key: "legacy", title: "Legacy", description: "Company story page with the six-part alternating timeline.", href: "/admin/pages/legacy", publicHref: "/legacy", editor: "static" },
-  { key: "terms", title: "Terms of Use", description: "Legal hero and body copy for the terms page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/terms", publicHref: "/terms", editor: "static" },
+  { key: "terms", title: "Terms and Conditions", description: "Legal hero and body copy for the terms page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/terms", publicHref: "/terms", editor: "static" },
   { key: "privacy-policy", title: "Privacy Policy", description: "Legal hero and body copy for the privacy page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/privacy-policy", publicHref: "/privacy-policy", editor: "static" },
   { key: "cookie-policy", title: "Cookie Policy", description: "Legal hero and body copy for the cookie page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/cookie-policy", publicHref: "/cookie-policy", editor: "static" },
 ];

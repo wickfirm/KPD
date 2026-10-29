@@ -117,7 +117,7 @@ export const legalSeo = {
     description: "How KPD collects, uses and shares personal information from website visitors, buyers, investors and partners, and the choices you have.",
   },
   terms: {
-    title: "Terms of Use | KPD",
+    title: "Terms and Conditions | KPD",
     description: "The terms governing use of the Kasumigaseki Properties Development website, its project information, content and contact pages.",
   },
   "cookie-policy": {

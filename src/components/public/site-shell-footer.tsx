@@ -57,7 +57,7 @@ export async function SiteShellFooter() {
       <div className="footer_legal_social footer_links">
         <div className="footer_legal_left">
           <ul role="list" className="footer_links_row">
-            <li className="footer_links_item footer_links_legal_item"><Link href="/terms" className="footer_link text-size-footer">Terms of Use</Link></li>
+            <li className="footer_links_item footer_links_legal_item"><Link href="/terms" className="footer_link text-size-footer">Terms and Conditions</Link></li>
             <li className="footer_links_item footer_links_legal_item"><Link href="/privacy-policy" className="footer_link text-size-footer">Privacy</Link></li>
             <li className="footer_links_item footer_links_legal_item"><Link href="/cookie-policy" className="footer_link text-size-footer">Cookie Policy</Link></li>
           </ul>

@@ -5,6 +5,7 @@
 // Run: npm run db:seed
 import { PrismaClient } from "@prisma/client";
 import { ownershipCostPlannerDefaults } from "../src/lib/ownership-cost-planner";
+import { termsPageContent, termsPageTitle } from "../src/lib/terms-defaults";
 
 const db = new PrismaClient();
 
@@ -182,7 +183,7 @@ async function main() {
     { slug: "invest-in-dubai", title: "Invest in Dubai" },
     { slug: "faq", title: "Frequently Asked Questions" },
     { slug: "privacy-policy", title: "Privacy Policy" },
-    { slug: "terms", title: "Terms & Conditions" },
+    { slug: "terms", title: termsPageTitle },
   ];
   for (const p of pages) {
     await db.staticPage.upsert({
@@ -191,7 +192,7 @@ async function main() {
       create: {
         slug: p.slug,
         title: p.title,
-        content: [
+        content: p.slug === "terms" ? termsPageContent : [
           {
             type: "paragraph",
             text:
@@ -206,7 +207,7 @@ async function main() {
                 : "Placeholder — final text to be supplied by the client's legal counsel (Clause 3) and wired through the CMS (Clause 2).",
           },
         ],
-        status: "DRAFT",
+        status: p.slug === "terms" ? "PUBLISHED" : "DRAFT",
       },
     });
   }
