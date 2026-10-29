@@ -51,7 +51,7 @@ export async function SiteShellFooter() {
               <input type="submit" className="button_submit" value={contact.newsletterSubmitLabel || "Subscribe"} />
             </form>
           </div>
-          <div className="footer_newsletter_terms text-size-small">{contact.newsletterNote} <Link href="/privacy-policy" className="link">privacy policy.</Link></div>
+          <div className="footer_newsletter_terms text-size-small">{contact.newsletterNote?.trim()}{contact.newsletterNote?.trim() ? " " : null}<Link className="footer-privacy-link" href="/privacy-policy">privacy policy.</Link></div>
         </div>
       </div>
       <div className="footer_legal_social footer_links">

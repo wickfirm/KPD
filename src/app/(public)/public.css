@@ -30,10 +30,19 @@ body.home-development-page {
   font-family: "Manrope", sans-serif;
 }
 
+/* The delivered stylesheet turns the privacy link into an inline flex item,
+   which swallows the space before it. Keep a real gap after the note. */
+.footer_newsletter_terms .footer-privacy-link {
+  margin-inline-start: 0.35em;
+}
+
 /* CMS-only homepage additions. These rules deliberately sit after the
    delivered stylesheet so editor-provided long copy remains composed. */
 .pdf-development-text {
-  padding: clamp(34px, 4vw, 64px) 0 0;
+  position: relative;
+  clear: both;
+  margin-top: 28px;
+  padding: 0;
 }
 
 .pdf-development-text p {
