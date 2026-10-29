@@ -143,7 +143,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
 
       <section className="invest-featured kpd-section" aria-label="Featured developments">
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.featured.heading}</h2><div className="single-project-section-copy"><p>{c.featured.text}</p></div></div>
-        <div className="pdf-development-cards invest-development-cards">
+        <div className={`pdf-development-cards invest-development-cards${c.featured.cards.length < 3 ? ` pdf-development-cards--count-${c.featured.cards.length}` : ""}`}>
           {c.featured.cards.map((item, index) => <Link className="pdf-dev-card motion-reveal" style={index ? delay(`${index * 80}ms`) : undefined} href={item.href || "/"} key={`${item.href}-${index}`}><img src={item.image} alt={`${item.title} exterior`} /><div className="pdf-dev-card-body"><h3>{item.title}</h3><p>{item.copy}</p><span>Explore</span></div></Link>)}
         </div>
       </section>

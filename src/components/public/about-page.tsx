@@ -1,5 +1,6 @@
 ﻿import type { ReactNode } from "react";
 import type { AboutContent } from "@/lib/about-defaults";
+import { textStyleProps } from "@/lib/text-style";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -29,8 +30,8 @@ export function AboutMain({ content }: { content: AboutContent }) {
         {heroImage ? <img src={heroImage} alt="Real estate advisory model presentation" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
           <span>About</span>
-          <h1>{multiline(heading)}</h1>
-          <p>{multiline(heroText)}</p>
+          <h1 style={textStyleProps(content.headingStyle)}>{multiline(heading)}</h1>
+          <p style={textStyleProps(content.heroTextStyle)}>{multiline(heroText)}</p>
         </div>
       </section>
       <section className="about-story" id="about">

@@ -5,7 +5,7 @@ import { can } from "@/lib/permissions";
 import { r2CompleteMultipartUpload, r2PresignedUpload, r2StartMultipartUpload, r2Upload, r2UploadPart, buildCmsKey, r2PublicUrl } from "@/lib/r2";
 
 const MAX_BYTES = 250 * 1024 * 1024;
-const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "video/mp4", "application/pdf"]);
+const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "video/mp4", "video/webm", "application/pdf"]);
 
 async function requireMediaUploader() {
   const session = await requireSession();
@@ -73,8 +73,8 @@ export async function POST(request: NextRequest) {
   const form = await request.formData();
   const file = form.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "Choose a file to upload." }, { status: 400 });
-  if (!allowedTypes.has(file.type)) return NextResponse.json({ error: "Use a JPG, PNG, WebP, GIF, SVG, MP4, or PDF file." }, { status: 400 });
-  if (file.size > MAX_BYTES) return NextResponse.json({ error: "Files must be 25 MB or smaller." }, { status: 400 });
+  if (!allowedTypes.has(file.type)) return NextResponse.json({ error: "Use a JPG, PNG, WebP, GIF, SVG, MP4, WebM, or PDF file." }, { status: 400 });
+  if (file.size > MAX_BYTES) return NextResponse.json({ error: "Files must be 250 MB or smaller." }, { status: 400 });
   try {
     const uploaded = await r2Upload(buildCmsKey(file.name), new Uint8Array(await file.arrayBuffer()), file.type);
     await db.mediaAsset.create({
@@ -102,7 +102,7 @@ export async function PUT(request: NextRequest) {
   const key = String(request.headers.get("x-kpd-upload-key") || "");
   const uploadId = String(request.headers.get("x-kpd-upload-id") || "");
   const partNumber = Number(request.headers.get("x-kpd-part-number"));
-  const length = Number(request.headers.get("content-length"));
+  const length = Number(request.headers.get("x-kpd-part-length") || request.headers.get("content-length"));
   if (!key.startsWith("cms/") || !uploadId || !Number.isInteger(partNumber) || partNumber < 1 || !Number.isFinite(length) || length <= 0 || length > 4 * 1024 * 1024) return NextResponse.json({ error: "Invalid upload chunk." }, { status: 400 });
   try {
     const eTag = await r2UploadPart(key, uploadId, partNumber, new Uint8Array(await request.arrayBuffer()));

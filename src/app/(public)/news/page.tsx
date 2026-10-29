@@ -35,7 +35,6 @@ export default async function NewsPage() {
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page" sources={[
       "/legacy/assets/js/live-news.js?v=20261007-internal-links",
-      "/legacy/assets/js/site.js?v=20260715-backend-start-1",
     ]} />
   </>;
 }

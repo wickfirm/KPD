@@ -6,6 +6,7 @@ import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { type BannerSlide, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { TextStyleFields } from "@/components/admin/text-style-fields";
 
 export type { HomeSettings };
 const initialState: SiteSettingsFormState = {};
@@ -44,7 +45,9 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4" placeholder="https://…" fileLabel="hero video" />
     <h2 className="cms-form-heading">Introduction</h2>
     <label className="cms-field"><span>Introduction heading</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <TextStyleFields prefix="introHeading" value={settings.introHeadingStyle} label="Introduction heading appearance" preserveDefault />
     <label className="cms-field"><span>Introduction paragraphs</span><textarea name="introParagraphs" rows={6} defaultValue={(settings.introParagraphs ?? []).join("\n\n")} /><small>Separate paragraphs with a blank line.</small></label>
+    <TextStyleFields prefix="introBody" value={settings.introBodyStyle} label="Introduction text appearance" preserveDefault />
     <section className="cms-editor-section">
       <h3>Key figures</h3>
       <p className="cms-muted">The figures strip under the introduction. Each figure links to the About page.</p>
@@ -58,10 +61,12 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     </section>
     <h2 className="cms-form-heading">Developments section</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
-    <label className="cms-field"><span>Heading placement</span><select name="developmentHeadingPosition" defaultValue={settings.developmentHeadingPosition ?? "overlay"}><option value="overlay">Over the image</option><option value="below">Below the image</option></select></label>
+    <label className="cms-field"><span>Heading placement</span><select name="developmentHeadingPosition" defaultValue={settings.developmentHeadingPosition ?? "overlay"}><option value="overlay">Over the image</option><option value="above">Above the image</option><option value="below">Below the image</option></select><small>Above and below sit outside the picture. Over keeps the heading on the picture.</small></label>
+    <TextStyleFields prefix="developmentHeading" value={settings.developmentHeadingStyle} label="Developments heading appearance" preserveDefault />
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="developmentCtaVisible" defaultChecked={settings.developmentCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the button over the developments image slider.</small></span></label><label className="cms-field"><span>Button label</span><input name="developmentCtaLabel" defaultValue={settings.developmentCtaLabel ?? "View all developments"} /></label><label className="cms-field"><span>Button link</span><input name="developmentCtaUrl" defaultValue={settings.developmentCtaUrl ?? "/#development-cards"} /></label></div>
     <label className="cms-check"><input type="checkbox" name="developmentTextVisible" defaultChecked={Boolean(settings.developmentTextVisible)} /> <span><strong>Show the development standard text</strong><small>Shows the text block immediately below the large developments image slider.</small></span></label>
     <label className="cms-field"><span>Development standard text</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? ""} /><small>Leave this editable for future changes; untick the option above to hide the block.</small></label>
+    <TextStyleFields prefix="developmentText" value={settings.developmentTextStyle} label="Development standard text appearance" preserveDefault />
     <section className="cms-editor-section">
       <h3>Banner slides</h3>
       <p className="cms-muted">The full-width image slider above the cards. The first slide shows on load.</p>
@@ -72,16 +77,22 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`slide ${index + 1} image`} /></div>
         </>} />
     </section>
-    <section className="cms-editor-section"><h3>Development cards</h3><p className="cms-muted">Generated automatically from the first three published, public developments. Their name, introduction, hero image and ordering come from each Development editor; drafting or archiving one removes it here immediately.</p></section>
+    <section className="cms-editor-section"><h3>Development cards</h3><p className="cms-muted">Generated automatically from the first three published, public developments. Their name, introduction, hero image and ordering come from each Development editor; drafting or archiving one removes it here immediately. One or two cards stretch to fill the row.</p>
+      <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="cardCtaVisible" defaultChecked={settings.cardCtaVisible !== false} /><span><strong>Show the card button</strong><small>The card still opens the development. This only shows or hides the label.</small></span></label><label className="cms-field"><span>Card button label</span><input name="cardCtaLabel" defaultValue={settings.cardCtaLabel ?? "Explore"} /></label></div>
+    </section>
     <h2 className="cms-form-heading">News & insights</h2>
     <label className="cms-field"><span>Heading</span><textarea name="newsHeading" rows={2} defaultValue={settings.newsHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <TextStyleFields prefix="newsHeading" value={settings.newsHeadingStyle} label="News heading appearance" preserveDefault />
     <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? ""} /></label>
+    <TextStyleFields prefix="newsBody" value={settings.newsBodyStyle} label="News text appearance" preserveDefault />
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="newsCtaVisible" defaultChecked={settings.newsCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the news button.</small></span></label><label className="cms-field"><span>Button label</span><input name="newsCta" defaultValue={settings.newsCta ?? "Read News & Insights"} /></label><label className="cms-field"><span>Button link</span><input name="newsCtaUrl" defaultValue={settings.newsCtaUrl ?? "/news"} /></label></div>
     <h2 className="cms-form-heading">Contact strip</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
       <label className="cms-field"><span>Contact copy</span><textarea name="contactText" rows={3} defaultValue={settings.contactText ?? ""} /></label>
     </div>
+    <TextStyleFields prefix="contactHeading" value={settings.contactHeadingStyle} label="Contact heading appearance" preserveDefault />
+    <TextStyleFields prefix="contactBody" value={settings.contactBodyStyle} label="Contact text appearance" preserveDefault />
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="contactCtaVisible" defaultChecked={settings.contactCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the contact-strip button.</small></span></label><label className="cms-field"><span>Button label</span><input name="contactCtaLabel" defaultValue={settings.contactCtaLabel ?? "Book a visit"} /></label><label className="cms-field"><span>Button link</span><input name="contactCtaUrl" defaultValue={settings.contactCtaUrl ?? "/contact#experience-center"} /></label></div>
     <section className="cms-editor-section">
       <h3>Experience Center gallery</h3>

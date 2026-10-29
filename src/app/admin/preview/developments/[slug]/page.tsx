@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { DevelopmentView } from "@/components/public/development-view";
 import { isFreshDraft, overlayDraftSection, sectionDraftKey } from "@/lib/section-preview";
+import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Draft preview", robots: { index: false, follow: false } };
@@ -32,7 +33,8 @@ export default async function DevelopmentPreviewPage({ params, searchParams }: {
     }
   }
   const state = project.status === "PUBLISHED" ? "Published" : project.status === "ARCHIVED" ? "Archived" : "Draft";
+  const chromeRow = await db.siteSetting.findUnique({ where: { key: projectChromeKey(project.id) } }).catch(() => null);
   return <div className="home-development-page single-project-page">
-    <DevelopmentView project={{ ...project, modules }} previewNote={`${draftNote}Admin preview · ${state} · ${project.name} · visitors cannot see this URL`} />
+    <DevelopmentView project={{ ...project, modules, chrome: parseProjectChrome(chromeRow?.value) }} previewNote={`${draftNote}Admin preview · ${state} · ${project.name} · visitors cannot see this URL`} />
   </div>;
 }

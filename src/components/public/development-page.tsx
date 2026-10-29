@@ -1,5 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import type { ProjectShell } from "@/lib/legacy-project";
+import type { ProjectChrome } from "@/lib/project-chrome";
+import { textStyleProps } from "@/lib/text-style";
 import { DevelopmentModule } from "./development-template";
 import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 
@@ -14,6 +16,7 @@ export type DevelopmentProject = {
   status: string;
   profile: string;
   modules: { id: string; slug: string; title: string; kind: string; content: unknown }[];
+  chrome?: ProjectChrome;
 };
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -29,18 +32,18 @@ export function DevelopmentMain({ project, shell }: { project: DevelopmentProjec
     <main className="single-project-main" id="top">
       <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>
         {project.heroVideo ? <video src={project.heroVideo} poster={project.heroImage ?? undefined} autoPlay muted loop playsInline preload="metadata" aria-label={`${project.name} presentation`} /> : project.heroImage ? <img src={project.heroImage} alt={project.name} /> : null}
-        <div className="page-hero-content"><h1>{project.name}</h1></div>
+        <div className="page-hero-content"><h1 style={textStyleProps(project.chrome?.nameStyle)}>{project.name}</h1></div>
       </section>
 
       <section className="single-project-intro kpd-section" id="overview">
         <div className="single-project-intro-grid single-project-intro-grid--pdf">
           {project.heroImage ? <figure className="single-project-sketch single-project-intro-media"><img src={project.heroImage} alt={`${project.name} exterior`} /></figure> : null}
           <div className="single-project-intro-copy">
-            <h1>{multiline(project.tagline ?? "")}</h1>
-            <p>{project.description ?? ""}</p>
-            <div className="single-project-actions">
-              <a className="btn-pill" href="#amenities">Explore</a>
-            </div>
+            <h1 style={textStyleProps(project.chrome?.taglineStyle)}>{multiline(project.tagline ?? "")}</h1>
+            <p style={textStyleProps(project.chrome?.descriptionStyle)}>{project.description ?? ""}</p>
+            {project.chrome?.ctaVisible === false ? null : <div className="single-project-actions">
+              <a className="btn-pill" href={project.chrome?.ctaUrl || "#amenities"}>{project.chrome?.ctaLabel || "Explore"}</a>
+            </div>}
           </div>
         </div>
       </section>

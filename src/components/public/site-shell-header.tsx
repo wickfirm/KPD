@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import { getNavDevelopments } from "@/lib/nav-developments";
+import { getGlobalSettings } from "@/lib/site-contact";
 
 /// Delivered site chrome â€” a 1:1 port of the header, mega menu, media
 /// dropdown and mobile menu panel from the delivered templates. Markup and
@@ -8,7 +9,7 @@ import { getNavDevelopments } from "@/lib/nav-developments";
 /// site-cms.js, which binds these elements when it executes per page view.
 
 export async function SiteShellHeader() {
-  const developments = await getNavDevelopments();
+  const [developments, contact] = await Promise.all([getNavDevelopments(), getGlobalSettings()]);
   return <>
     <header className="site-header development-site-header is-delayed-nav">
       <div className="header-wrap">
@@ -46,7 +47,7 @@ export async function SiteShellHeader() {
             </div>
             <Link href="/contact">Contact</Link>
           </nav>
-          <button className="btn-pill header-book-call" type="button" data-booking-open>Enquire now</button>
+          {contact.headerCtaVisible === false ? null : <button className="btn-pill header-book-call" type="button" data-booking-open>{contact.headerCtaLabel || "Enquire now"}</button>}
         </div>
       </div>
     </header>

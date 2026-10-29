@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { DevelopmentView } from "@/components/public/development-view";
 import { loadSeoOverride } from "@/lib/seo-store";
+import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 
 export const dynamic = "force-dynamic";
@@ -50,9 +51,10 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   const { slug } = await params;
   const project = await getPublishedProject(slug);
   if (!project) notFound();
+  const chromeRow = await db.siteSetting.findUnique({ where: { key: projectChromeKey(project.id) } }).catch(() => null);
   return <>
     <JsonLd data={residenceJsonLd(project)} />
     <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: project.name, path: `/developments/${project.slug}` }])} />
-    <DevelopmentView project={project} />
+    <DevelopmentView project={{ ...project, chrome: parseProjectChrome(chromeRow?.value) }} />
   </>;
 }

@@ -5,6 +5,7 @@ import { previewPageDraft, saveStaticPage, type StaticPageFormState } from "../a
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
+import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
 import type { LegacyMilestone } from "@/lib/legacy-defaults";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 
@@ -83,8 +84,10 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
     <h2 className="cms-form-heading">Page introduction</h2>
     <p className="cms-muted">These fields are the public page source of truth. Empty values remain empty after saving.</p>
     <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
+    <TextStyleFields prefix="pageHeading" value={hero?.headingStyle as TextStyleValue | undefined} label="Heading appearance" preserveDefault />
     {defaults?.slug === "contact" ? <label className="cms-field"><span>Hero label</span><input name="eyebrow" defaultValue={hero?.eyebrow ?? defaults.title ?? ""} /><small>The small label above the Contact page heading.</small></label> : null}
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text ?? ""} /></label>
+    <TextStyleFields prefix="pageIntro" value={hero?.textStyle as TextStyleValue | undefined} label="Intro appearance" preserveDefault />
     <div className="cms-grid">
       <label className="cms-field"><span>Feature image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} placeholder="/legacy/assets/images/..." /></label>
     </div>

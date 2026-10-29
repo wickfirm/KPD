@@ -1,6 +1,8 @@
 ﻿/// Canonical homepage content as delivered by the client (public/legacy/
 /// index.html). Single source of truth for the public page fallbacks and the
-/// admin homepage editor. Pure data â€” safe for client components.
+/// admin homepage editor. Pure data — safe for client components.
+
+import type { TextStyle } from "@/lib/text-style";
 
 export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
 export type StatItem = { value: string; label: string };
@@ -15,7 +17,17 @@ export type HomeSettings = {
   introHeading?: string;
   introParagraphs?: string[];
   developmentHeading?: string;
-  developmentHeadingPosition?: "overlay" | "below";
+  developmentHeadingPosition?: "overlay" | "above" | "below";
+  developmentHeadingStyle?: TextStyle;
+  introHeadingStyle?: TextStyle;
+  introBodyStyle?: TextStyle;
+  developmentTextStyle?: TextStyle;
+  newsHeadingStyle?: TextStyle;
+  newsBodyStyle?: TextStyle;
+  contactHeadingStyle?: TextStyle;
+  contactBodyStyle?: TextStyle;
+  cardCtaLabel?: string;
+  cardCtaVisible?: boolean;
   developmentCtaLabel?: string;
   developmentCtaUrl?: string;
   developmentCtaVisible?: boolean;

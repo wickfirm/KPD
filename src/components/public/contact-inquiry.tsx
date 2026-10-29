@@ -114,7 +114,7 @@ export function ContactInquiry({ email = "", phone = "", website = "", content }
       const recipientKey: Record<PaneKey, string> = { sales: "contactSales", customer: "contactCustomer", channel: "contactChannel", job: "contactCareers", press: "contactPress" };
       const routing = (window as ContactWindow).__KPD_CONTACT;
       const recipient = routing?.recipients?.[recipientKey[activePane]] || routing?.email || "";
-      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: interestByPane[activePane], inquiryType: label, recipient, sourcePage: "/contact", message: messageByPane[activePane], details }) });
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: interestByPane[activePane], inquiryType: label, recipient, recipientKey: recipientKey[activePane], sourcePage: "/contact", message: messageByPane[activePane], details }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();

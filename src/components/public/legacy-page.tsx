@@ -1,5 +1,6 @@
 ﻿import type { CSSProperties, ReactNode } from "react";
 import type { LegacyContent } from "@/lib/legacy-defaults";
+import { textStyleProps } from "@/lib/text-style";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -20,8 +21,8 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
         {image ? <img src={image} alt="Tokyo alleyway and Japanese hospitality context" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
           <span>Legacy</span>
-          <h1>{multiline(heading)}</h1>
-          <p>{multiline(text)}</p>
+          <h1 style={textStyleProps(content.headingStyle)}>{multiline(heading)}</h1>
+          <p style={textStyleProps(content.textStyle)}>{multiline(text)}</p>
         </div>
       </section>
       <section className="legacy-timeline-section kpd-section" id="legacy-timeline" aria-label="Legacy milestones">

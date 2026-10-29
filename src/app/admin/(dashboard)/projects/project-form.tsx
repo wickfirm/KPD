@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import { saveProject, type ProjectFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
+import { TextStyleFields } from "@/components/admin/text-style-fields";
+import type { ProjectChrome } from "@/lib/project-chrome";
 
 export type ProjectDefaults = {
   id?: string; slug?: string; name?: string; tagline?: string | null; description?: string | null;
@@ -12,7 +14,7 @@ export type ProjectDefaults = {
 
 const initialState: ProjectFormState = {};
 
-export default function ProjectForm({ defaults, seo }: { defaults?: ProjectDefaults; seo?: SeoFieldDefaults }) {
+export default function ProjectForm({ defaults, seo, chrome }: { defaults?: ProjectDefaults; seo?: SeoFieldDefaults; chrome?: ProjectChrome }) {
   const [state, formAction, pending] = useActionState(saveProject, initialState);
   return <form action={formAction}>
     {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
@@ -21,8 +23,12 @@ export default function ProjectForm({ defaults, seo }: { defaults?: ProjectDefau
       <label className="cms-field"><span>Development name</span><input name="name" defaultValue={defaults?.name} required /></label>
       <label className="cms-field" data-requires="publish"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft — not public</option><option value="PUBLISHED">Published — live on the site</option><option value="ARCHIVED">Archived — removed from the site</option></select><small>Publishing, drafting and archiving take effect immediately.</small></label>
     </div>
+    <TextStyleFields prefix="projectName" value={chrome?.nameStyle} label="Name appearance" preserveDefault />
     <label className="cms-field"><span>Headline</span><textarea name="tagline" rows={2} defaultValue={defaults?.tagline ?? ""} placeholder="A short line under the name" /><small>Shown as the main heading of the introduction. Line breaks render on the page exactly as typed.</small></label>
+    <TextStyleFields prefix="projectTagline" value={chrome?.taglineStyle} label="Headline appearance" preserveDefault />
     <label className="cms-field"><span>Introduction</span><textarea name="description" rows={5} defaultValue={defaults?.description ?? ""} /></label>
+    <TextStyleFields prefix="projectDescription" value={chrome?.descriptionStyle} label="Introduction appearance" preserveDefault />
+    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="heroCtaVisible" defaultChecked={chrome?.ctaVisible !== false} /><span><strong>Show the introduction button</strong></span></label><label className="cms-field"><span>Button label</span><input name="heroCtaLabel" defaultValue={chrome?.ctaLabel ?? "Explore"} /></label><label className="cms-field"><span>Button link</span><input name="heroCtaUrl" defaultValue={chrome?.ctaUrl ?? "#amenities"} placeholder="#amenities" /></label></div>
     <div className="cms-field"><span>Hero image</span><AssetUrlField name="heroImage" defaultValue={defaults?.heroImage ?? ""} placeholder="/legacy/assets/images/..." /></div>
     <div className="cms-field"><span>Hero video (optional)</span><AssetUrlField name="heroVideo" defaultValue={defaults?.heroVideo ?? ""} accept="video/mp4,video/webm" placeholder="https://…" fileLabel="hero video" /><small>When supplied, the video plays behind the hero heading; the image remains its poster and the listing thumbnail.</small></div>
     {!defaults?.id ? <label className="cms-check"><input type="checkbox" name="starter" defaultChecked /> <span><strong>Start with the standard sections</strong><small>Adds overview, location, tour, amenities, floor plans and payment plan, ready to fill in.</small></span></label> : null}

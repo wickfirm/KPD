@@ -5,7 +5,7 @@ import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
 import type { FormRecipients } from "@/lib/site-contact";
 import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
 
-export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients; typography?: { headings?: TextStyleValue; body?: TextStyleValue; ctas?: TextStyleValue } }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
+export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; headerCtaLabel?: string; headerCtaVisible?: boolean; popupEnabled?: boolean; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients; typography?: { headings?: TextStyleValue; body?: TextStyleValue; ctas?: TextStyleValue } }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
@@ -42,6 +42,8 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
       <label className="cms-field"><span>Contact: Careers</span><input type="email" name="recipientContactCareers" defaultValue={recipients.contactCareers ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
       <label className="cms-field"><span>Contact: Press</span><input type="email" name="recipientContactPress" defaultValue={recipients.contactPress ?? ""} placeholder={global.email || "info@kpd.ae"} /></label>
     </div>
+    <h2 className="cms-form-heading">Header button</h2>
+    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="headerCtaVisible" defaultChecked={global.headerCtaVisible !== false} /><span><strong>Show “Enquire now”</strong><small>The button in the header. It opens the enquiry popup.</small></span></label><label className="cms-field"><span>Button label</span><input name="headerCtaLabel" defaultValue={global.headerCtaLabel ?? "Enquire now"} /></label></div>
     <h2 className="cms-form-heading">Enquiry, Call &amp; WhatsApp</h2>
     <p className="cms-muted">Choose which floating contact actions visitors see. Empty phone or WhatsApp values also hide their action.</p>
     <div className="cms-grid">

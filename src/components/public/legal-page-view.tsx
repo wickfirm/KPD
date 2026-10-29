@@ -1,9 +1,11 @@
+import { textStyleProps } from "@/lib/text-style";
+import type { TextStyle } from "@/lib/text-style";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
 import { DeliveredBodyClass } from "./delivered-body-class";
 
-type Block = { type?: string; heading?: string; text?: string; image?: string };
+type Block = { type?: string; heading?: string; text?: string; image?: string; headingStyle?: TextStyle };
 
 /// Registry only: it defines the CMS-managed legal routes, not page content.
 export const legalPages: Record<string, object> = { terms: {}, "privacy-policy": {}, "cookie-policy": {} };
@@ -20,7 +22,7 @@ export function LegalPageView({ slug: _slug, page, previewNote }: { slug: string
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page kpd-page" />
     <SiteShellHeader />
-    <main id="top"><section className="page-hero pdf-hero">{hero?.image ? <img src={hero.image} alt="" /> : null}<div className="page-hero-content"><h1>{hero?.heading ?? page.title}</h1></div></section><section className="kpd-legal-block">{sections.map((block, index) => block.type === "heading" ? <h2 key={index}>{block.heading}</h2> : <p key={index}>{block.text}</p>)}</section></main>
+    <main id="top"><section className="page-hero pdf-hero">{hero?.image ? <img src={hero.image} alt="" /> : null}<div className="page-hero-content"><h1 style={textStyleProps(hero?.headingStyle as TextStyle | undefined)}>{hero?.heading ?? page.title}</h1></div></section><section className="kpd-legal-block">{sections.map((block, index) => block.type === "heading" ? <h2 key={index}>{block.heading}</h2> : <p key={index}>{block.text}</p>)}</section></main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page kpd-page" />

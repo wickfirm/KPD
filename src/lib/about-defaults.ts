@@ -2,9 +2,13 @@
 /// about-us.html). Single source of truth for the public page fallbacks and
 /// the admin editor pre-fill. Pure data — safe for client components.
 
+import type { TextStyle } from "@/lib/text-style";
+
 export type AboutPerson = { name?: string; role?: string; bio?: string; image?: string };
 export type AboutContent = {
   heading?: string;
+  headingStyle?: TextStyle;
+  heroTextStyle?: TextStyle;
   sectionHeading?: string;
   heroText?: string;
   heroImage?: string;

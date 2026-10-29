@@ -26,6 +26,8 @@ import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-previe
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 import { normalizeLineBreaks } from "@/lib/line-breaks";
+import { textStyleFromForm } from "@/lib/text-style";
+import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
 import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
 import { contactInquiryDefaults } from "@/lib/contact-inquiry-content";
@@ -402,6 +404,16 @@ export async function saveProject(
 
   const result = await applyProject(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
+  const chrome = parseProjectChrome({
+    ctaLabel: String(formData.get("heroCtaLabel") || "").trim(),
+    ctaUrl: String(formData.get("heroCtaUrl") || "").trim(),
+    ctaVisible: formData.get("heroCtaVisible") === "on",
+    nameStyle: textStyleFromForm(formData, "projectName"),
+    taglineStyle: textStyleFromForm(formData, "projectTagline"),
+    descriptionStyle: textStyleFromForm(formData, "projectDescription"),
+  });
+  const chromeKey = projectChromeKey(result.id);
+  await db.siteSetting.upsert({ where: { key: chromeKey }, update: { value: chrome }, create: { key: chromeKey, value: chrome } });
   const seo = await saveSeoFor("PROJECT", result.id, formData);
 
   // A new development can start with the standard sections already in place.
@@ -410,11 +422,11 @@ export async function saveProject(
     await db.projectModule.createMany({ data: starterModules.map((module) => ({ projectId: result.id as string, slug: module.slug, title: module.title, kind: module.kind, profile: "FULL" as const, content: module.content as never, sortOrder: module.sortOrder })), skipDuplicates: true });
   }
 
-  const publicSlug = slugify(String(formData.get("slug") || "") || String(formData.get("name") || ""));
+  const savedProject = await db.project.findUnique({ where: { id: result.id }, select: { slug: true } });
   revalidatePath("/admin/projects");
   revalidatePath(`/admin/projects/${result.id}`);
   revalidatePublicContent();
-  if (publicSlug) revalidatePath(`/developments/${publicSlug}`);
+  if (savedProject) revalidatePath(`/developments/${savedProject.slug}`);
   await recordVersion({
     entityType: "PROJECT",
     entityId: result.id,
@@ -641,8 +653,10 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
       return { error: "The investor guide sections could not be read. Please review them and save again." };
     }
   }
+  const headingStyle = textStyleFromForm(formData, "pageHeading");
+  const introStyle = textStyleFromForm(formData, "pageIntro");
   const content = [
-    ...(heading || intro || image || eyebrow || ctaLabel || ctaUrl ? [{ type: "hero", heading, text: intro, image, eyebrow, ctaLabel, ctaUrl }] : []),
+    ...(heading || intro || image || eyebrow || ctaLabel || ctaUrl || headingStyle || introStyle ? [{ type: "hero", heading, text: intro, image, eyebrow, ctaLabel, ctaUrl, ...(headingStyle ? { headingStyle } : {}), ...(introStyle ? { textStyle: introStyle } : {}) }] : []),
     ...paragraphBlocks(paragraphs),
     ...(about ? [about] : []),
     ...(legacy ? [legacy] : []),
@@ -769,12 +783,7 @@ export async function deleteStaticPage(formData: FormData) {
 
 /// Shared write path for the site-wide contact details record.
 async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
-  const textStyle = (prefix: string) => {
-    const fontSize = String(formData.get(`${prefix}FontSize`) || "").trim();
-    const fontWeight = ["normal", "bold"].includes(String(formData.get(`${prefix}FontWeight`) || "")) ? String(formData.get(`${prefix}FontWeight`)) as "normal" | "bold" : undefined;
-    const fontStyle = ["normal", "italic"].includes(String(formData.get(`${prefix}FontStyle`) || "")) ? String(formData.get(`${prefix}FontStyle`)) as "normal" | "italic" : undefined;
-    return { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) };
-  };
+  const textStyle = (prefix: string) => textStyleFromForm(formData, prefix) ?? {};
   const global = {
     email: String(formData.get("email") || "").trim(),
     phone: String(formData.get("phone") || "").trim(),
@@ -793,6 +802,8 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     enquiryLabel: String(formData.get("enquiryLabel") || "").trim(),
     callLabel: String(formData.get("callLabel") || "").trim(),
     whatsappLabel: String(formData.get("whatsappLabel") || "").trim(),
+    headerCtaLabel: String(formData.get("headerCtaLabel") || "").trim(),
+    headerCtaVisible: formData.get("headerCtaVisible") === "on",
     popupEnabled: formData.get("popupEnabled") === "on",
     typography: { headings: textStyle("typographyHeadings"), body: textStyle("typographyBody"), ctas: textStyle("typographyCtas") },
     recipients: {
@@ -870,7 +881,7 @@ const text = (value: unknown) => String(value ?? "").trim();
 /// The homepage settings as the editor currently has them. Shared by the real
 /// save and the unsaved-changes preview so the two can never disagree.
 function homeSettingsFromForm(formData: FormData) {
-  return {
+  return Object.fromEntries(Object.entries({
     introStats: parseJsonList(formData.get("introStatsJson"), (item) => (text(item.value) || text(item.label) ? { value: text(item.value), label: text(item.label) } : null)),
     statsNote: String(formData.get("statsNote") ?? "").trim(),
     bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development" } : null)),
@@ -879,7 +890,17 @@ function homeSettingsFromForm(formData: FormData) {
     introHeading: normalizeLineBreaks(formData.get("introHeading") as string | null),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
     developmentHeading: normalizeLineBreaks(formData.get("developmentHeading") as string | null),
-    developmentHeadingPosition: formData.get("developmentHeadingPosition") === "below" ? "below" : "overlay",
+    developmentHeadingPosition: formData.get("developmentHeadingPosition") === "below" ? "below" : formData.get("developmentHeadingPosition") === "above" ? "above" : "overlay",
+    developmentHeadingStyle: textStyleFromForm(formData, "developmentHeading"),
+    introHeadingStyle: textStyleFromForm(formData, "introHeading"),
+    introBodyStyle: textStyleFromForm(formData, "introBody"),
+    developmentTextStyle: textStyleFromForm(formData, "developmentText"),
+    newsHeadingStyle: textStyleFromForm(formData, "newsHeading"),
+    newsBodyStyle: textStyleFromForm(formData, "newsBody"),
+    contactHeadingStyle: textStyleFromForm(formData, "contactHeading"),
+    contactBodyStyle: textStyleFromForm(formData, "contactBody"),
+    cardCtaLabel: String(formData.get("cardCtaLabel") || "").trim(),
+    cardCtaVisible: formData.get("cardCtaVisible") === "on",
     developmentCtaLabel: String(formData.get("developmentCtaLabel") || "").trim(),
     developmentCtaUrl: String(formData.get("developmentCtaUrl") || "").trim(),
     developmentCtaVisible: formData.get("developmentCtaVisible") === "on",
@@ -898,7 +919,7 @@ function homeSettingsFromForm(formData: FormData) {
     experienceImages: nonEmptyLines(formData.get("experienceImages")),
     /// Keep empty positions so captions stay paired with their image.
     experienceCaptions: String(formData.get("experienceCaptions") ?? "").split(/\r?\n/).map((caption) => caption.trim()),
-  };
+  }).filter(([, value]) => value !== undefined));
 }
 
 async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {

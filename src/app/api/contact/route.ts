@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { pushLeadToSalesforce } from "@/lib/salesforce";
 import { leadDescription, sanitizeDetails } from "@/lib/submissions";
+import { getGlobalSettings, recipientFor, type FormRecipientKey } from "@/lib/site-contact";
 
 /// Public contact / booking form endpoint (Salesforce dual-write, Clause 2).
 /// Always persists locally; then mirrors to Salesforce as a Lead.
@@ -20,7 +21,12 @@ export async function POST(req: NextRequest) {
   const interest = String(payload.interest || "").trim() || null;
   const sourcePage = String(payload.sourcePage || "").trim() || null;
   const inquiryType = String(payload.inquiryType || "").trim().slice(0, 80) || null;
-  const recipient = String(payload.recipient || "").trim().slice(0, 320);
+  const recipientKeys = new Set<FormRecipientKey>(["enquiry", "booking", "floorPlan", "calculator", "newsletter", "contactSales", "contactCustomer", "contactChannel", "contactCareers", "contactPress"]);
+  const requestedKey = String(payload.recipientKey || "");
+  const settings = await getGlobalSettings();
+  const fromSettings = recipientKeys.has(requestedKey as FormRecipientKey) ? recipientFor(settings, requestedKey as FormRecipientKey) : "";
+  const fromClient = String(payload.recipient || "").trim();
+  const recipient = (fromSettings || fromClient).slice(0, 320);
   // Every field the visitor filled in, as ordered { label, value } pairs.
   const details = sanitizeDetails(payload.details);
   if (recipient && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recipient)) details.push({ label: "Delivery recipient", value: recipient });

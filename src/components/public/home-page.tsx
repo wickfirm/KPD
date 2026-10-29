@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
 import { type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
 import { HomeDevelopmentSlider } from "./home-development-slider";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -23,7 +24,7 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
-    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2>${escapeHtml(heading)}</h2>` : ""}<div>${text ? `<p>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : ""}</div></section>`
+    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading)}</h2>` : ""}<div>${text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : ""}</div></section>`
     : "";
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
@@ -36,13 +37,13 @@ export function HomeHero({ video }: { video: string }) {
   );
 }
 
-export function HomeIntro({ heading, paragraphs, stats, statsNote }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string }) {
+export function HomeIntro({ heading, paragraphs, stats, statsNote, headingStyle, bodyStyle }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"] }) {
   return (
     <section className="pdf-section pdf-intro" id="about">
       <div className="pdf-intro-grid">
-        <h1>{multiline(heading)}</h1>
+        <h1 style={textStyleProps(headingStyle)}>{multiline(heading)}</h1>
         <div className="pdf-intro-copy">
-          {paragraphs.map((paragraph, index) => <p key={index}>{multiline(paragraph)}</p>)}
+          {paragraphs.map((paragraph, index) => <p key={index} style={textStyleProps(bodyStyle)}>{multiline(paragraph)}</p>)}
         </div>
       </div>
       <div className="pdf-stat-grid">
@@ -55,21 +56,22 @@ export function HomeIntro({ heading, paragraphs, stats, statsNote }: { heading: 
   );
 }
 
-export function HomeDevelopmentText({ text }: { text: string }) {
-  return <section className="pdf-section pdf-development-text" aria-label="Our development standard"><p>{multiline(text)}</p></section>;
+export function HomeDevelopmentText({ text, bodyStyle }: { text: string; bodyStyle?: HomeSettings["developmentTextStyle"] }) {
+  return <section className="pdf-section pdf-development-text" aria-label="Our development standard"><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
 }
 
-export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
+export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible = true }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean }) {
   if (!cards.length) return null;
+  const countClass = cards.length < 3 ? ` pdf-development-cards--count-${cards.length}` : "";
   return (
-    <section className="pdf-section pdf-development-cards" id="development-cards" aria-label="Our developments">
+    <section className={`pdf-section pdf-development-cards${countClass}`} id="development-cards" aria-label="Our developments">
       {cards.map((card, index) => (
         <a className="pdf-dev-card" href={card.href} key={`${card.href}-${index}`}>
           {card.image ? <img src={card.image} alt={card.title} /> : null}
           <div className="pdf-dev-card-body">
             <h3>{card.title}</h3>
             <p>{card.copy}</p>
-            <span>Explore</span>
+            {ctaVisible && ctaLabel ? <span>{ctaLabel}</span> : null}
           </div>
         </a>
       ))}
@@ -77,12 +79,12 @@ export function HomeDevelopmentCards({ cards }: { cards: DevelopmentCard[] }) {
   );
 }
 
-export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean }) {
+export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"] }) {
   return (
     <section className="pdf-section pdf-contact-block" id="contact">
-      <div><h2>{multiline(heading)}</h2></div>
+      <div><h2 style={textStyleProps(headingStyle)}>{multiline(heading)}</h2></div>
       <div className="pdf-contact-copy">
-        <p>{multiline(text)}</p>
+        <p style={textStyleProps(bodyStyle)}>{multiline(text)}</p>
         {ctaVisible && ctaLabel ? <Link href={ctaUrl || "/contact#experience-center"}>{ctaLabel}</Link> : null}
       </div>
     </section>
@@ -118,11 +120,11 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   return (
     <main className="development-pdf-home" id="top">
       {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
-      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} /> : null}
-      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} /> : null}
-      {settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} /> : null}
-      <HomeDevelopmentCards cards={developmentCards} />
-      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} /> : null}
+      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} /> : null}
+      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} /> : null}
+      {settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} /> : null}
+      <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
+      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}
       <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} />
       <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
     </main>
