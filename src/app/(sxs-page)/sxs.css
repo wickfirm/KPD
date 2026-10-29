@@ -3,6 +3,11 @@
 @font-face { font-family: Arboria; src: url("/fonts/Arboria-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
 @font-face { font-family: Arboria; src: url("/fonts/Arboria-Bold.ttf") format("truetype"); font-weight: 600 800; font-display: swap; }
 @font-face { font-family: "Bely Display"; src: url("/fonts/BelyDisplay-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "arboria"; src: url("/fonts/Arboria-Light.ttf") format("truetype"); font-weight: 300; font-display: swap; }
+@font-face { font-family: "arboria"; src: url("/fonts/Arboria-Book.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "arboria"; src: url("/fonts/Arboria-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: "arboria"; src: url("/fonts/Arboria-Bold.ttf") format("truetype"); font-weight: 600 800; font-display: swap; }
+@font-face { font-family: "bely-display"; src: url("/fonts/BelyDisplay-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
 :root {
   --black: #050504;
   --paper: #f7f4ef;
@@ -6357,4 +6362,28 @@ img {
     font-size: 14px;
     white-space: nowrap;
   }
+}
+
+/* This page keeps the residence fonts (Arboria and Bely) even when the main
+   site stylesheet is still loaded. Their rules name the families arboria and
+   bely-display, and the main site sets Figtree on body and form controls. */
+body.sxs-residence {
+  --black: #050504;
+  --paper: #f7f4ef;
+  --warm: #d8cbbe;
+  --cashmere: #d8cbbe;
+  --dune: #8d6f57;
+  --gold: #d9b061;
+  --accent: var(--dune);
+  --button-hover-accent: var(--gold);
+  --gallery-accent: var(--gold);
+  --payment-accent: var(--gold);
+  --menu-accent: #e9e611;
+  --shadow: rgba(0, 0, 0, 0.58);
+  background: var(--black);
+  color: var(--paper);
+  font-family: "arboria", Arial, sans-serif;
+}
+body.sxs-residence :where(button, input, textarea, select) {
+  font-family: "arboria", Arial, sans-serif;
 }

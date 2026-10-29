@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { SevenXSevenFresh } from "@/components/public/sxs/SevenXSevenFresh";
 import { emptySxsContent } from "@/lib/sxs-content";
 
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 /// A second seven x seven page, brought over from the client's residence site.
 /// /developments/seven-x-seven is unchanged.
 export default function SevenXSevenResidencePage() {
-  return <SevenXSevenFresh content={emptySxsContent()} />;
+  return <><DeliveredBodyClass bodyClass="sxs-residence" /><SevenXSevenFresh content={emptySxsContent()} /></>;
 }
