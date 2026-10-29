@@ -7,7 +7,7 @@ import type { BannerSlide } from "@/lib/home-defaults";
 /// The delivered script runs before React has hydrated on some homepage loads.
 /// Own this CMS-rendered carousel in React so autoplay and the dot controls are
 /// reliable regardless of load timing or client-side navigation.
-export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" } }) {
+export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" }; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" } }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -16,12 +16,18 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
     return () => window.clearInterval(timer);
   }, [slides.length]);
 
+  const slideCaption = slides[activeIndex]?.text?.trim();
+  const shownCaption = slideCaption || caption?.trim() || "";
+  const captionBlock = captionVisible && shownCaption
+    ? <section className={`pdf-section pdf-development-text pdf-development-text--${captionPosition}`} aria-label="Our development standard"><p style={captionStyle}>{shownCaption}</p></section>
+    : null;
   const outsideHeading = heading && headingPosition !== "overlay"
     ? <h2 className={`pdf-development-heading-outside pdf-development-heading-outside--${headingPosition}`} style={headingStyle}>{heading}</h2>
     : null;
   return (
     <>
       {headingPosition === "above" ? outsideHeading : null}
+      {captionPosition === "above" ? captionBlock : null}
       <section className="pdf-section pdf-development-banner" id="developments" aria-roledescription="carousel" aria-label="Featured developments">
         <div className="pdf-development-slides" aria-hidden="true">
           {slides.map((slide, index) => (
@@ -40,6 +46,7 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
         </div>
       </section>
       {headingPosition === "below" ? outsideHeading : null}
+      {captionPosition !== "above" ? captionBlock : null}
     </>
   );
 }

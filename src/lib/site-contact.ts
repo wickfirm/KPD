@@ -39,6 +39,8 @@ export type GlobalSettings = {
   /// "every-page" opens on each page view. "session" once a visit. "day" once a day.
   popupFrequency?: "every-page" | "session" | "day";
   popupDelaySeconds?: number;
+  /// Choices in the enquiry popup's Interested in menu.
+  popupInterests?: string[];
 };
 
 /// Kept as an empty public constant for compatibility with existing callers.
@@ -69,6 +71,9 @@ export function mergeGlobalSettings(saved: unknown): GlobalSettings {
   }
   const delay = typeof source.popupDelaySeconds === "number" ? source.popupDelaySeconds : Number(source.popupDelaySeconds);
   if (Number.isFinite(delay)) result.popupDelaySeconds = Math.max(0, Math.min(120, Math.round(delay)));
+  if (Array.isArray(source.popupInterests)) {
+    result.popupInterests = source.popupInterests.filter((item): item is string => typeof item === "string").map((item) => item.trim()).filter(Boolean);
+  }
   if (source.recipients && typeof source.recipients === "object" && !Array.isArray(source.recipients)) {
     const recipients: FormRecipients = {};
     for (const key of RECIPIENT_KEYS) {

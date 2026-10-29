@@ -8,7 +8,7 @@ const floorPlans = (name: string, text: string): Module => ({ slug: "floor-plans
 
 /// Payment plan per the delivered page: intro copy, Download Payment Plan
 /// button (mailto), and four milestones each with its description line.
-const paymentPlan = (name: string, text: string, items: { value: string; label: string; text: string }[]): Module => ({ slug: "payment-plan", title: "Payment Plan", kind: "CUSTOM", sortOrder: 60, content: { text, url: `mailto:info@kpd.ae?subject=${encodeURIComponent(`${name} Payment Plan`)}`, items } });
+const paymentPlan = (_name: string, text: string, items: { value: string; label: string; text: string }[]): Module => ({ slug: "payment-plan", title: "Payment Plan", kind: "CUSTOM", sortOrder: 60, content: { text, ctaVisible: false, items } });
 
 const calmPanel = (title: string, text: string, image: string, name: string): Module => ({ slug: "brochure", title, kind: "CUSTOM", sortOrder: 45, content: { presentation: "calm", text, images: [image], url: `/legacy/contact.html?project=${encodeURIComponent(name)}&request=brochure` } });
 

@@ -151,6 +151,28 @@ body.home-development-page {
   top: auto;
 }
 
+/* Terms, Privacy and Cookie Policy: a readable column under the skyline hero. */
+.kpd-legal-page {
+  background: #fff;
+  color: #14241f;
+}
+.kpd-legal-page .kpd-legal-block {
+  width: min(820px, calc(100% - 48px));
+  margin-inline: auto;
+}
+.kpd-legal-page .kpd-legal-block p,
+.kpd-legal-page .kpd-legal-block li {
+  color: #1e252c;
+}
+.kpd-legal-page .kpd-legal-block h2 {
+  color: #111;
+}
+.kpd-legal-page .kpd-legal-block a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 /* Developments created in the CMS: preview image shown when their link is hovered (mirrors the delivered three). */
 .header-mega-menu.header-mega-menu:has(.mega-project-extra-1:hover) .mega-preview-extra-1,
 .header-mega-menu.header-mega-menu:has(.mega-project-extra-1:focus) .mega-preview-extra-1,

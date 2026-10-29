@@ -6,7 +6,7 @@ import type { TextStyle } from "@/lib/text-style";
 
 export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
 export type StatItem = { value: string; label: string };
-export type BannerSlide = { image: string; label: string };
+export type BannerSlide = { image: string; label: string; text?: string };
 
 export type HomeSettings = {
   introStats?: StatItem[];

@@ -69,10 +69,11 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <h3>Banner slides</h3>
       <p className="cms-muted">The full-width image slider above the cards. The first slide shows on load.</p>
       <input type="hidden" name="bannerSlidesJson" value={JSON.stringify(slides)} />
-      <ListEditor items={slides} onChange={setSlides} newItem={() => ({ image: "", label: "" })} addLabel="Add slide" itemLabel={(item, index) => `Slide ${index + 1}${item.label ? ` — ${item.label}` : ""}`}
+      <ListEditor items={slides} onChange={setSlides} newItem={() => ({ image: "", label: "", text: "" })} addLabel="Add slide" itemLabel={(item, index) => `Slide ${index + 1}${item.label ? ` — ${item.label}` : ""}`}
         renderItem={(item, update, index) => <>
           <label className="cms-field"><span>Name (for screen readers)</span><input value={item.label} onChange={(event) => update({ label: event.target.value })} placeholder="Seven X Seven" /></label>
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`slide ${index + 1} image`} /></div>
+          <label className="cms-field"><span>Text for this slide</span><textarea rows={3} value={item.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Leave blank to use the shared paragraph below." /><small>This text changes with the picture. A new slide can carry its own paragraph.</small></label>
         </>} />
     </section>
     <section className="cms-editor-section">

@@ -26,6 +26,29 @@ function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
+/// The delivered closing band. It sits immediately after the calculator.
+function PrivateViewing({ chrome }: { chrome?: ProjectChrome }) {
+  if (chrome?.enquireVisible === false) return null;
+  const heading = chrome?.enquireHeading || "Arrange a private\nviewing.";
+  const text = chrome?.enquireText || "Floor plans, pricing, and availability are shared through a single appointment-led conversation.";
+  const image = chrome?.enquireImage || "/legacy/assets/images/experience-center/hq/15.jpg";
+  const secondaryUrl = chrome?.enquireSecondaryUrl || "/contact";
+  return (
+    <section className="projects-spec-contact single-project-enquire" aria-label={chrome?.enquireEyebrow || "Arrange a private viewing"}>
+      <img src={image} alt="Private viewing and advisory workspace" />
+      <div className="projects-spec-contact-copy motion-reveal">
+        <span>{chrome?.enquireEyebrow || "Enquire"}</span>
+        <h2>{multiline(heading)}</h2>
+        <p>{text}</p>
+        <div className="projects-spec-contact-actions">
+          <button type="button" data-booking-open>{chrome?.enquirePrimaryLabel || "Book a viewing"}</button>
+          <a href={secondaryUrl}>{chrome?.enquireSecondaryLabel || "Register interest"}</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /// The development page <main>: hero and overview render from the project row,
 /// then each CMS module renders through DevelopmentModule. Content fields have
 /// no delivered fallback: deleting them in the CMS deletes them from the page.
@@ -53,7 +76,10 @@ export function DevelopmentMain({ project, shell }: { project: DevelopmentProjec
 
       {developmentSlots(project.modules, project.chrome?.calculatorIndex).map((slot) => (
         slot === "calculator"
-          ? <section key="calculator" {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+          ? <div key="calculator">
+            <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+            <PrivateViewing chrome={project.chrome} />
+          </div>
           : <DevelopmentModule
             key={slot.id}
             module={{ slug: slot.slug, title: slot.title, kind: slot.kind, content: slot.content }}
