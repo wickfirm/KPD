@@ -16,6 +16,7 @@ export type ProjectChrome = {
   enquireText?: string;
   enquireImage?: string;
   enquirePrimaryLabel?: string;
+  enquirePrimaryUrl?: string;
   enquireSecondaryLabel?: string;
   enquireSecondaryUrl?: string;
   /// Slot of the shared calculator among the content sections. Missing means last.
@@ -50,6 +51,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
   const enquireText = typeof source.enquireText === "string" ? source.enquireText.trim() : "";
   const enquireImage = typeof source.enquireImage === "string" ? source.enquireImage.trim() : "";
   const enquirePrimaryLabel = typeof source.enquirePrimaryLabel === "string" ? source.enquirePrimaryLabel.trim() : "";
+  const enquirePrimaryUrl = typeof source.enquirePrimaryUrl === "string" ? source.enquirePrimaryUrl.trim() : "";
   const enquireSecondaryLabel = typeof source.enquireSecondaryLabel === "string" ? source.enquireSecondaryLabel.trim() : "";
   const enquireSecondaryUrl = typeof source.enquireSecondaryUrl === "string" ? source.enquireSecondaryUrl.trim() : "";
   const calculatorIndex = typeof source.calculatorIndex === "number" && Number.isInteger(source.calculatorIndex) ? source.calculatorIndex : undefined;
@@ -66,6 +68,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
     ...(enquireText ? { enquireText } : {}),
     ...(enquireImage ? { enquireImage } : {}),
     ...(enquirePrimaryLabel ? { enquirePrimaryLabel } : {}),
+    ...(enquirePrimaryUrl ? { enquirePrimaryUrl } : {}),
     ...(enquireSecondaryLabel ? { enquireSecondaryLabel } : {}),
     ...(enquireSecondaryUrl ? { enquireSecondaryUrl } : {}),
     ...(calculatorIndex !== undefined && calculatorIndex >= 0 ? { calculatorIndex } : {}),

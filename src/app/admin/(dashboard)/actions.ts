@@ -418,6 +418,7 @@ export async function saveProject(
     enquireText: String(formData.get("enquireText") || "").trim(),
     enquireImage: String(formData.get("enquireImage") || "").trim(),
     enquirePrimaryLabel: String(formData.get("enquirePrimaryLabel") || "").trim(),
+    enquirePrimaryUrl: String(formData.get("enquirePrimaryUrl") || "").trim(),
     enquireSecondaryLabel: String(formData.get("enquireSecondaryLabel") || "").trim(),
     enquireSecondaryUrl: String(formData.get("enquireSecondaryUrl") || "").trim(),
     calculatorIndex: previousChrome.calculatorIndex,

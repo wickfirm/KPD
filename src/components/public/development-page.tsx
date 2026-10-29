@@ -41,7 +41,7 @@ function PrivateViewing({ chrome }: { chrome?: ProjectChrome }) {
         <h2>{multiline(heading)}</h2>
         <p>{text}</p>
         <div className="projects-spec-contact-actions">
-          <button type="button" data-booking-open>{chrome?.enquirePrimaryLabel || "Book a viewing"}</button>
+          {chrome?.enquirePrimaryUrl ? <a href={chrome.enquirePrimaryUrl}>{chrome?.enquirePrimaryLabel || "Book a viewing"}</a> : <button type="button" data-booking-open>{chrome?.enquirePrimaryLabel || "Book a viewing"}</button>}
           <a href={secondaryUrl}>{chrome?.enquireSecondaryLabel || "Register interest"}</a>
         </div>
       </div>
