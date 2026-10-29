@@ -23,6 +23,7 @@ import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
 import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
+import { applySxsSettings } from "./seven-x-seven/actions";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 import { normalizeLineBreaks } from "@/lib/line-breaks";
@@ -86,6 +87,7 @@ function editorPathFor(entityType: string, entityId: string): string {
     case "HOME_SETTINGS": return "/admin/pages/home";
     case "GLOBAL_SETTINGS": return "/admin/settings";
     case "CALCULATOR": return "/admin/calculator";
+    case "SXS_PAGE": return "/admin/seven-x-seven";
     default: return "/admin";
   }
 }
@@ -1142,6 +1144,7 @@ export async function restoreVersion(formData: FormData) {
     case "HOME_SETTINGS": result = await applyHomeSettings(payload); break;
     case "GLOBAL_SETTINGS": result = await applyGlobalSettings(payload); break;
     case "CALCULATOR": result = await applyCalculator(payload); break;
+    case "SXS_PAGE": result = await applySxsSettings(payload); break;
     default: redirect(version.path || "/admin");
   }
 

@@ -19,6 +19,7 @@ export const contentVersionEntities = [
   "HOME_SETTINGS",
   "GLOBAL_SETTINGS",
   "CALCULATOR",
+  "SXS_PAGE",
 ] as const;
 
 export type ContentVersionEntity = (typeof contentVersionEntities)[number];

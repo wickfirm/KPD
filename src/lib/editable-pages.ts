@@ -14,6 +14,7 @@ export type EditablePage = {
 
 export const editablePages: EditablePage[] = [
   { key: "home", title: "Homepage", description: "Hero video, introduction, developments heading, contact strip, and the Experience Center gallery.", href: "/admin/pages/home", publicHref: "/", editor: "home" },
+  { key: "seven-x-seven", title: "seven x seven", description: "The residence landing page: text, buttons, images, floor plans, amenities and the payment plan.", href: "/admin/seven-x-seven", publicHref: "/seven-x-seven", editor: "static" },
   { key: "about", title: "About us", description: "Mission, vision, chairman's message, and the executive management team.", href: "/admin/about", publicHref: "/about", editor: "about" },
   { key: "invest-in-dubai", title: "Investor guide", description: "Every section of the Invest in Dubai page: hero, benefits, yield comparison, residency, pathway, trust, liquidity, featured developments, FAQ and closing band.", href: "/admin/pages/invest-in-dubai", publicHref: "/invest-in-dubai", editor: "static" },
   { key: "contact", title: "Contact", description: "Intro heading and copy for the Contact page hero.", href: "/admin/pages/contact", publicHref: "/contact", editor: "static" },

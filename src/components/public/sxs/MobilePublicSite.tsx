@@ -54,7 +54,13 @@ export type MobilePublicSiteProps = {
   apartmentsBody: string;
   apartmentScenes: MediaItem[];
   galleryHeadline: string;
+  galleryNote?: string;
   galleryScenes: MediaItem[];
+  logo?: string;
+  markWhite?: string;
+  markBlack?: string;
+  mapImage?: string;
+  apartmentLead?: MediaItem[];
   exteriorImage: string;
   exteriorHeadline: string;
   exteriorBody: string;
@@ -70,7 +76,7 @@ export type MobilePublicSiteProps = {
   onCommunityChange: (index: number) => void;
   locationHeadline: string;
   locationBody: string;
-  distancePlaces: Array<{ name: string; minutes: string }>;
+  distancePlaces: ReadonlyArray<{ name: string; minutes: string }>;
   floorPlan: FloorPlan;
   floorPlanKey: string;
   onFloorPlanChange: (key: "one" | "two" | "three") => void;
@@ -188,7 +194,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
     <main className={`mobile-public${props.preview ? " is-cms-preview" : ""}`}>
       <header className={`mobile-site-header${props.mobileScrolled ? " is-scrolled" : ""}${props.menuOpen ? " menu-open" : ""}`}>
           <a href="#home" aria-label="Return to home" onClick={(event) => { event.preventDefault(); props.onNavigate(0, "home"); }}>
-          <img src="/assets/brand/logo-stacked-white.png" alt="seven x seven Meydan Horizon residences" />
+          <img src={props.logo ?? "/assets/brand/logo-stacked-white.png"} alt="seven x seven Meydan Horizon residences" />
         </a>
         <span>{activeNav?.label ?? "home"}</span>
         <button type="button" aria-label={props.menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={props.menuOpen} onClick={props.onMenuToggle}>
@@ -198,7 +204,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
       </header>
 
       <div className={`mobile-menu${props.menuOpen ? " is-open" : ""}`} aria-hidden={!props.menuOpen}>
-        <img src="/assets/brand/logo-stacked-white.png" alt="seven x seven" />
+        <img src={props.logo ?? "/assets/brand/logo-stacked-white.png"} alt="seven x seven" />
         <nav aria-label="Sections">
           <p>explore the residences</p>
           {props.navigation.map((item, index) => (
@@ -209,7 +215,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
         </nav>
       </div>
 
-      {props.menuTransitioning ? <div className="mobile-anchor-loader" role="status"><img src="/assets/brand/s-mark-white.png" alt="" /></div> : null}
+      {props.menuTransitioning ? <div className="mobile-anchor-loader" role="status"><img src={props.markWhite ?? "/assets/brand/s-mark-white.png"} alt="" /></div> : null}
 
       <section className="mobile-hero is-visible" id="home" aria-label="seven x seven residences">
         <div className="mobile-hero-gallery" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveHero(distance < 0 ? 1 : -1); }} onClick={() => moveHero(1)}>
@@ -252,14 +258,14 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
           <button className="mobile-solid-button" type="button" onClick={() => props.onNavigate(28.5)}>explore floor plans</button>
         </div>
         <div className="mobile-apartment-track" aria-label="Apartment gallery">
-          {[{ src: "/assets/sxs%20apartments/1.png", alt: "seven x seven living room and private workspace" }, { src: "/assets/sxs%20apartments/2.png", alt: "seven x seven living room with waterfront outlook" }, ...props.apartmentScenes].map((scene, index) => (
+          {[...(props.apartmentLead ?? [{ src: "/assets/sxs%20apartments/1.png", alt: "seven x seven living room and private workspace" }, { src: "/assets/sxs%20apartments/2.png", alt: "seven x seven living room with waterfront outlook" }]), ...props.apartmentScenes].map((scene, index) => (
             <figure key={`${scene.src}-${index}`}><img src={scene.src} alt={scene.alt} /><figcaption>{index === 1 ? "Designed for your pace." : index === 2 ? "Slow mornings. Dinner with friends. A moment for yourself." : index === 4 ? "Precision you can feel." : index === 5 ? "Oak and walnut bring warmth. Travertine adds weight and texture." : String(index + 1).padStart(2, "0")}</figcaption></figure>
           ))}
         </div>
       </section>
 
       <section className="mobile-gallery mobile-section" id="gallery">
-        <header><h2>{props.galleryHeadline}</h2><p>see the balance</p><div className="mobile-gallery-progress"><i style={{ transform: `scaleX(${galleryProgress / 100})` }} /><small style={{ left: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` }}>{Math.round(galleryProgress)}%</small><img src="/assets/brand/s-mark-white.png" alt="" /></div></header>
+        <header><h2>{props.galleryHeadline}</h2><p>{props.galleryNote ?? "see the balance"}</p><div className="mobile-gallery-progress"><i style={{ transform: `scaleX(${galleryProgress / 100})` }} /><small style={{ left: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` }}>{Math.round(galleryProgress)}%</small><img src={props.markWhite ?? "/assets/brand/s-mark-white.png"} alt="" /></div></header>
         <div ref={galleryTrackRef} className="mobile-gallery-carousel" onScroll={syncGalleryProgress}>
           {props.galleryScenes.map((scene, index) => <figure onClick={() => props.onLightbox(scene)} key={scene.src}><img src={scene.src} alt={scene.alt} /><figcaption>{String(index + 1).padStart(2, "0")} / {String(props.galleryScenes.length).padStart(2, "0")}</figcaption></figure>)}
         </div>
@@ -291,7 +297,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
 
       <section className="mobile-location mobile-section" id="location">
         <div className="mobile-section-copy mobile-dark-copy"><h2>{props.locationHeadline}</h2><p>{props.locationBody}</p></div>
-        <div className="mobile-location-map"><img src="/assets/maps/mobile-driving-distances.png" alt="Map of Dubai around seven x seven residences" /><div className="mobile-residence-marker"><span><img src="/assets/brand/s-mark-black.png" alt="" /></span><strong>seven x seven residences</strong></div></div>
+        <div className="mobile-location-map"><img src={props.mapImage ?? "/assets/maps/mobile-driving-distances.png"} alt="Map of Dubai around seven x seven residences" /><div className="mobile-residence-marker"><span><img src={props.markBlack ?? "/assets/brand/s-mark-black.png"} alt="" /></span><strong>seven x seven residences</strong></div></div>
         <div className="mobile-distance-list">{sortedDistancePlaces.map((place) => <div key={place.name}><strong>{place.name}</strong><span>{place.minutes}</span></div>)}</div>
       </section>
 
@@ -318,7 +324,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
           <p>{props.registerHeadline}</p><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead" aria-label="I am interested in">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit" disabled={props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting"}>{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting" ? "sending" : props.submitCta}</button>
           {props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "success" ? <small role="status">Thank you. Your enquiry has been received.</small> : null}{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "error" ? <small role="alert">We could not submit your enquiry. Please try again.</small> : null}<small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small>
         </form>
-        <div className="mobile-contact-brand"><img src="/assets/brand/logo-stacked-white.png" alt="seven x seven" /><p>{props.footerBody}</p><small>{props.footerCopyright}</small></div>
+        <div className="mobile-contact-brand"><img src={props.logo ?? "/assets/brand/logo-stacked-white.png"} alt="seven x seven" /><p>{props.footerBody}</p><small>{props.footerCopyright}</small></div>
       </footer>
 
       {props.modalOpen ? <div className="mobile-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) props.onModalClose(); }}><div><button className="mobile-modal-close" type="button" aria-label="Close registration form" onClick={props.onModalClose}><X /></button><form onSubmit={(event) => props.onSubmitLead(event, "Register modal")}><p>seven x seven residences</p><h2 id="mobile-modal-title">{props.registerHeadline}</h2><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit">{props.submitCta}</button><small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small></form></div></div> : null}

@@ -27,7 +27,7 @@ import {
   FaUmbrellaBeach,
   FaWaterLadder
 } from "react-icons/fa6";
-import type { SxsContent, SxsSectionKey } from "@/lib/sxs-content";
+import { readFloorPlans, readMilestones, readPlaces, type SxsContent, type SxsSectionKey } from "@/lib/sxs-content";
 import { MobilePublicSite } from "./MobilePublicSite";
 
 type SectionKey = SxsSectionKey;
@@ -117,7 +117,7 @@ const distanceHeading = "close to what matters.";
 const distanceDescription =
   "Meydan Horizon, within the wider MBR City, connects seven x seven residences to schools, business hubs, cultural districts, dining addresses and shopping centres. Everything stays within easy reach.";
 
-const distancePlaces = [
+const defaultDistancePlaces = [
   { name: "Ras Al Khor Wildlife Sanctuary", minutes: "9 min", lat: 25.1926, lng: 55.3601, reveal: 0.08 },
   { name: "Downtown Dubai / Burj Khalifa / Dubai Mall", minutes: "10-12 min", lat: 25.1972, lng: 55.2744, reveal: 0.15 },
   { name: "Dubai Creek Harbour", minutes: "10-12 min", lat: 25.202, lng: 55.344, reveal: 0.22 },
@@ -135,7 +135,7 @@ const residenceCoordinates = { lat: 25.18141, lng: 55.32252 };
 
 const renderedFloorPlanImage = "/assets/plans/rendered-floorplan.png";
 
-const floorPlans = {
+const defaultFloorPlans = {
   one: {
     image: renderedFloorPlanImage,
     alt: "Rendered one bedroom residence floor plan",
@@ -195,14 +195,14 @@ const floorPlans = {
   }
 } as const;
 
-type FloorPlanKey = keyof typeof floorPlans;
+type FloorPlanKey = keyof typeof defaultFloorPlans;
 const floorPlanTabLabels: Record<FloorPlanKey, string> = {
   one: "1 bedroom",
   two: "2 bedrooms",
   three: "3 bedrooms"
 };
 
-const paymentMilestones = [
+const defaultPaymentMilestones = [
   { percent: 20, title: "day 1", detail: "At the time of booking", phase: "calendar" },
   { percent: 10, title: "60 days", detail: "After the reservation date", phase: "calendar" },
   { percent: 10, title: "120 days", detail: "After the reservation date", phase: "calendar" },
@@ -269,7 +269,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   };
   const media = (section: SectionKey, key: string, fallback: string) => {
     const value = content[section]?.[key];
-    return typeof value === "string" && value.startsWith("/") ? value : fallback;
+    return typeof value === "string" && (/^https?:\/\//i.test(value) || value.startsWith("/")) ? value : fallback;
   };
   const mediaItems = (section: SectionKey, key: string, fallback: Array<{ src: string; alt: string; label?: string; position?: string }>) => {
     const value = content[section]?.[key];
@@ -304,6 +304,21 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   const secondaryCta = text("cta", "secondary", "explore residences");
   const submitCta = text("cta", "submit", primaryCta);
   const consentCopy = text("register", "consent", "By submitting this form you agree to share your details so the sales team can contact you and accept our privacy policy.").replace(/privacy policy\.?$/i, "").trim();
+  const liveFloorPlans = readFloorPlans(content.floorplans?.plans, defaultFloorPlans);
+  const livePaymentMilestones = readMilestones(content.payment?.milestones, defaultPaymentMilestones);
+  const liveDistancePlaces = readPlaces(content.location?.places, defaultDistancePlaces);
+  const floorPlanTabs: Record<FloorPlanKey, string> = {
+    one: text("floorplans", "tabOne", floorPlanTabLabels.one),
+    two: text("floorplans", "tabTwo", floorPlanTabLabels.two),
+    three: text("floorplans", "tabThree", floorPlanTabLabels.three),
+  };
+  const logoWhite = media("brand", "logoWhite", "/assets/brand/logo-stacked-white.png");
+  const logoBlack = media("brand", "logoBlack", "/assets/brand/logo-stacked-black.png");
+  const markWhite = media("brand", "markWhite", "/assets/brand/s-mark-white.png");
+  const markBlack = media("brand", "markBlack", "/assets/brand/s-mark-black.png");
+  const introImage = media("brand", "intro", "/assets/hero/sxs%20without%20bg.png");
+  const mapImage = media("brand", "map", "/assets/maps/mobile-driving-distances.png");
+  const galleryNote = text("gallery", "note", "see the balance");
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuTransitioning, setMenuTransitioning] = useState(false);
   const [interestModalOpen, setInterestModalOpen] = useState(false);
@@ -385,7 +400,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   const userScrollIntentRef = useRef(false);
   const scrollAnimationFrameRef = useRef<number | null>(null);
   const menuTransitionTimerRef = useRef<number | null>(null);
-  const floorPlan = floorPlans[activeFloorPlan];
+  const floorPlan = liveFloorPlans[activeFloorPlan];
   useLayoutEffect(() => {
     const query = window.matchMedia("(max-width: 720px)");
     const update = () => setIsMobile(query.matches);
@@ -429,7 +444,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
     if (!isMobile || !paymentPlaying) return;
     const timer = window.setInterval(() => {
       setSelectedPaymentMilestone((current) => {
-        if (current >= paymentMilestones.length - 1) {
+        if (current >= livePaymentMilestones.length - 1) {
           setPaymentPlaying(false);
           return current;
         }
@@ -548,7 +563,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   };
 
   const selectPaymentMilestone = (index: number) => {
-    const milestone = paymentMilestones[index];
+    const milestone = livePaymentMilestones[index];
     setSelectedPaymentMilestone(index);
     if (paymentStatusPercentRef.current) paymentStatusPercentRef.current.textContent = `${milestone.percent}%`;
     if (paymentStatusTitleRef.current) paymentStatusTitleRef.current.textContent = milestone.title;
@@ -711,7 +726,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
 
           constructor(
             private readonly position: google.maps.LatLng,
-            private readonly place: (typeof distancePlaces)[number]
+            private readonly place: (typeof liveDistancePlaces)[number]
           ) {
             super();
           }
@@ -816,7 +831,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         });
         distanceGoogleMapsRef.current = { light: mapInstance, dark: darkMapInstance };
 
-        overlays = distancePlaces.map((place) => {
+        overlays = liveDistancePlaces.map((place) => {
           const overlay = new DistancePlaceOverlay(new google.maps.LatLng(place.lat, place.lng), place);
           overlay.setMap(mapInstance);
           return overlay;
@@ -1056,28 +1071,28 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       site.style.setProperty("--payment-y", `${(1 - paymentRevealProgress) * 100}%`);
       site.style.setProperty("--payment-lock-y", `${(paymentRevealProgress - 1) * 100}%`);
 
-      const paymentStep = paymentSequenceProgress * paymentMilestones.length;
-      const paymentStepIndex = Math.min(Math.floor(paymentStep), paymentMilestones.length - 1);
+      const paymentStep = paymentSequenceProgress * livePaymentMilestones.length;
+      const paymentStepIndex = Math.min(Math.floor(paymentStep), livePaymentMilestones.length - 1);
       const paymentStepFraction = Math.min(paymentStep - paymentStepIndex, 1);
-      const paymentTotals = paymentMilestones.reduce<number[]>((totals, milestone) => {
+      const paymentTotals = livePaymentMilestones.reduce<number[]>((totals, milestone) => {
         totals.push((totals.at(-1) ?? 0) + milestone.percent);
         return totals;
       }, []);
       const paymentBefore = paymentStepIndex === 0 ? 0 : paymentTotals[paymentStepIndex - 1];
-      const paymentPaid = paymentBefore + paymentMilestones[paymentStepIndex].percent * paymentStepFraction;
+      const paymentPaid = paymentBefore + livePaymentMilestones[paymentStepIndex].percent * paymentStepFraction;
       site.style.setProperty("--payment-paid", `${paymentPaid.toFixed(2)}%`);
       site.style.setProperty("--payment-mark-x", `${paymentPaid.toFixed(2)}%`);
       site.style.setProperty("--payment-mark-rotation", `${(paymentSequenceProgress * 1080).toFixed(2)}deg`);
       site.style.setProperty("--footer-x", `${(1 - footerRevealProgress) * 100}%`);
       site.style.setProperty("--footer-lock-x", `${(footerRevealProgress - 1) * 100}%`);
 
-      const paymentStatus = paymentMilestones[paymentStepIndex];
+      const paymentStatus = livePaymentMilestones[paymentStepIndex];
       if (paymentStatusPercentRef.current) paymentStatusPercentRef.current.textContent = `${paymentStatus.percent}%`;
       if (paymentStatusTitleRef.current) paymentStatusTitleRef.current.textContent = paymentStatus.title;
       if (paymentStatusDetailRef.current) paymentStatusDetailRef.current.textContent = paymentStatus.detail;
       site.querySelectorAll<HTMLElement>(".payment-milestone").forEach((milestone, index) => {
-        const revealAt = index / paymentMilestones.length;
-        const milestoneProgress = Math.min(Math.max((paymentSequenceProgress - revealAt) * paymentMilestones.length, 0), 1);
+        const revealAt = index / livePaymentMilestones.length;
+        const milestoneProgress = Math.min(Math.max((paymentSequenceProgress - revealAt) * livePaymentMilestones.length, 0), 1);
         milestone.style.setProperty("--milestone-progress", milestoneProgress.toFixed(4));
         milestone.dataset.active = index === paymentStepIndex ? "true" : "false";
       });
@@ -1221,13 +1236,22 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         onCommunityChange={selectCommunitySlide}
         locationHeadline={distanceHeadingCopy}
         locationBody={distanceDescriptionCopy}
-        distancePlaces={distancePlaces}
+        distancePlaces={liveDistancePlaces}
+        galleryNote={galleryNote}
+        logo={logoWhite}
+        markWhite={markWhite}
+        markBlack={markBlack}
+        mapImage={mapImage}
+        apartmentLead={[
+          { src: media("apartments", "imageOne", "/assets/sxs%20apartments/1.png"), alt: "seven x seven living room and private workspace" },
+          { src: media("apartments", "imageTwo", "/assets/sxs%20apartments/2.png"), alt: "seven x seven living room with waterfront outlook" },
+        ]}
         floorPlan={floorPlan}
         floorPlanKey={activeFloorPlan}
         onFloorPlanChange={setActiveFloorPlan}
         paymentHeadline={text("payment", "headline", "a considered path to ownership")}
         paymentBody={text("payment", "body", "A structured payment plan from reservation through handover, aligned with construction progress.")}
-        milestones={paymentMilestones}
+        milestones={livePaymentMilestones}
         selectedMilestone={selectedPaymentMilestone}
         onMilestoneChange={setSelectedPaymentMilestone}
         paymentPlaying={paymentPlaying}
@@ -1264,8 +1288,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
     <main className={`fresh-site intro-active${preview ? " is-cms-preview" : ""}`} ref={siteRef}>
       <div className="hero-logo-flight" aria-label="seven x seven">
         <div className="hero-logo-shell">
-          <img className="hero-logo-image hero-logo-image-light" src="/assets/brand/logo-stacked-white.png" alt="" />
-          <img className="hero-logo-image hero-logo-image-dark" src="/assets/brand/logo-stacked-black.png" alt="" />
+          <img className="hero-logo-image hero-logo-image-light" src={logoWhite} alt="" />
+          <img className="hero-logo-image hero-logo-image-dark" src={logoBlack} alt="" />
         </div>
       </div>
 
@@ -1281,7 +1305,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       </button>
 
       <div className={`site-menu${menuOpen ? " is-open" : ""}`} aria-hidden={!menuOpen}>
-        <img className="site-menu-brand" src="/assets/brand/logo-stacked-white.png" alt="seven x seven" />
+        <img className="site-menu-brand" src={logoWhite} alt="seven x seven" />
         <nav id="site-navigation" aria-label="Sections">
           <p>explore the residences</p>
           {navigationSections.map((section, index) => (
@@ -1305,7 +1329,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
 
       {menuTransitioning ? (
         <div className="menu-anchor-loader" role="status" aria-live="polite" aria-label="Opening selected section">
-          <img src="/assets/brand/s-mark-white.png" alt="" />
+          <img src={markWhite} alt="" />
         </div>
       ) : null}
 
@@ -1359,9 +1383,9 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         <div className="stage-sticky">
           <div className="intro-loader" aria-hidden="true">
             <div className="intro-loader-mark">
-              <img src="/assets/brand/s-mark-white.png" alt="" />
+              <img src={markWhite} alt="" />
             </div>
-            <img className="intro-loader-facade" src="/assets/hero/sxs%20without%20bg.png" alt="" />
+            <img className="intro-loader-facade" src={introImage} alt="" />
           </div>
 
           <section className="fresh-hero" id="home" aria-label="seven x seven residences facade reveal">
@@ -1465,13 +1489,13 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               <div className="mood-panel mood-panel-opening">
                 <div className="mood-opening-left">
                   <img
-                    src="/assets/sxs%20apartments/1.png"
+                    src={media("apartments", "imageOne", "/assets/sxs%20apartments/1.png")}
                     alt="seven x seven living room and private workspace"
                   />
                 </div>
                 <div className="mood-opening-right">
                   <img
-                    src="/assets/sxs%20apartments/2.png"
+                    src={media("apartments", "imageTwo", "/assets/sxs%20apartments/2.png")}
                     alt="seven x seven living room with waterfront outlook"
                   />
                 </div>
@@ -1502,7 +1526,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               })}
               <figure className="mood-panel mood-panel-closing">
                 <img
-                  src="/assets/sxs%20apartments/10.png"
+                  src={media("apartments", "imageTen", "/assets/sxs%20apartments/10.png")}
                   alt="seven x seven residents lounge"
                 />
               </figure>
@@ -1515,7 +1539,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               <aside className="vertical-gallery-rail">
                 <div className="vertical-gallery-title">
                    <h2>{text("gallery", "headline", "gallery")}</h2>
-                   <p>{text("gallery", "note", "see the balance")}</p>
+                   <p>{galleryNote}</p>
                   <div className="vertical-gallery-progress" aria-hidden="true">
                     <span className="vertical-gallery-progress-fill" />
                     <span className="vertical-gallery-percent" ref={galleryPercentRef}>0%</span>
@@ -1680,8 +1704,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
 
                   <div className="distance-residence-marker">
                     <span className="distance-marker-disc">
-                      <img className="distance-marker-light" src="/assets/brand/s-mark-white.png" alt="" />
-                      <img className="distance-marker-dark" src="/assets/brand/s-mark-black.png" alt="" />
+                      <img className="distance-marker-light" src={markWhite} alt="" />
+                      <img className="distance-marker-dark" src={markBlack} alt="" />
                     </span>
                     <p>seven x seven residences</p>
                     <small>Meydan Horizon</small>
@@ -1695,11 +1719,11 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
           <section className="floor-plan-reveal floor-plan-section" id="floor-plans" aria-label="Residence floor plans">
             <div className="floor-plan-reveal-shell">
               <div className="floor-plan-panel">
-                <p>floor plans</p>
+                <p>{text("floorplans", "headline", "floor plans")}</p>
                 <h2>{floorPlan.title}</h2>
 
                 <div className="floor-plan-tabs" role="tablist" aria-label="Select a residence floor plan">
-                  {(Object.keys(floorPlans) as FloorPlanKey[]).map((key) => (
+                  {(Object.keys(liveFloorPlans) as FloorPlanKey[]).map((key) => (
                     <button
                       className={key === activeFloorPlan ? "is-active" : ""}
                       type="button"
@@ -1708,7 +1732,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                       onClick={() => setActiveFloorPlan(key)}
                       key={key}
                     >
-                      {floorPlanTabLabels[key]}
+                      {floorPlanTabs[key]}
                     </button>
                   ))}
                 </div>
@@ -1774,7 +1798,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
 
                 <div className="payment-progress" aria-label="Cumulative amount paid">
                   <div className="payment-progress-track">
-                    {paymentMilestones.map((milestone, index) => (
+                    {livePaymentMilestones.map((milestone, index) => (
                       <span style={{ flexGrow: milestone.percent }} key={`${milestone.title}-${index}`} />
                     ))}
                     <i />
@@ -1793,7 +1817,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                     <span>Reservation calendar</span>
                   </div>
                   <div className="payment-milestone-row">
-                    {paymentMilestones.slice(0, 5).map((milestone, index) => (
+                    {livePaymentMilestones.map((milestone, index) => ({ milestone, index })).filter((entry) => entry.milestone.phase === "calendar").map(({ milestone, index }) => (
                       <button
                         className={`payment-milestone${selectedPaymentMilestone === index ? " is-selected" : ""}`}
                         data-active="false"
@@ -1817,8 +1841,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                     <span>Building progress</span>
                   </div>
                   <div className="payment-milestone-row">
-                    {paymentMilestones.slice(5).map((milestone, localIndex) => {
-                      const index = localIndex + 5;
+                    {livePaymentMilestones.map((milestone, index) => ({ milestone, index })).filter((entry) => entry.milestone.phase !== "calendar").map(({ milestone, index }) => {
                       const Icon = milestone.phase === "handover" ? KeyRound : Building2;
                       return (
                         <button
@@ -1847,7 +1870,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
             <div className="footer-reveal-shell">
               <img
                 className="footer-background"
-                src="/assets/hero/seven-x-seven-facade-evening.webp"
+                src={media("exterior", "media", "/assets/hero/seven-x-seven-facade-evening.webp")}
                 alt="seven x seven residences illuminated at dusk"
               />
               <div className="footer-shade" aria-hidden="true" />
@@ -1875,7 +1898,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                 </form>
 
                 <div className="footer-brand">
-                  <img src="/assets/brand/logo-stacked-white.png" alt="seven x seven" />
+                  <img src={logoWhite} alt="seven x seven" />
                    <p>{text("footer", "body", "seven x seven sees luxury as the freedom to live your way.")}</p>
                    <p className="footer-copyright">{text("footer", "copyright", "Copyright 2026 Kasumigaseki Properties Development")}</p>
                 </div>

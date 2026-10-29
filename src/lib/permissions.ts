@@ -95,7 +95,7 @@ export function allowedStatus<T extends string>(role: unknown, requested: T): T 
 const adminOnlyPaths = ["/admin/users", "/admin/settings", "/admin/activity"];
 /// Contributors write articles and developments; these areas hold live pages,
 /// visitors' personal details or publishing controls.
-const noContributorPaths = ["/admin/pages", "/admin/about", "/admin/calculator", "/admin/submissions", "/admin/rss"];
+const noContributorPaths = ["/admin/pages", "/admin/about", "/admin/calculator", "/admin/submissions", "/admin/rss", "/admin/seven-x-seven"];
 
 const under = (pathname: string, path: string) => pathname === path || pathname.startsWith(`${path}/`);
 
