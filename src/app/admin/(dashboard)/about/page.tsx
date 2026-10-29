@@ -8,6 +8,7 @@ import { EditorShell } from "@/components/admin/editor-shell";
 import { editorSeoDefaults } from "@/lib/seo-store";
 import { seoKey } from "@/lib/seo-overrides";
 import { pageSeo } from "@/lib/seo";
+import { restoreAboutTeamOnce } from "@/lib/about-team-restore";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,7 @@ export const dynamic = "force-dynamic";
 /// discoverable without requiring editors to search the generic Pages library.
 export default async function AdminAboutPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireUser();
+  await restoreAboutTeamOnce();
   const [flash] = await Promise.all([searchParams]);
   const [page, seo] = await Promise.all([db.staticPage.findUnique({ where: { slug: "about" } }), editorSeoDefaults(seoKey("page", "about"), pageSeo.about)]);
   const defaults = page

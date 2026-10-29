@@ -1,3 +1,4 @@
+import { restoreAboutTeamOnce } from "@/lib/about-team-restore";
 import { db } from "@/lib/db";
 
 export type StaticBlock = { type?: string; heading?: string; text?: string; image?: string; [key: string]: unknown };
@@ -6,6 +7,7 @@ export type StaticBlock = { type?: string; heading?: string; text?: string; imag
 /// throws: with nothing saved, the managed page remains intentionally empty.
 export async function loadStaticBlocks(slug: string): Promise<StaticBlock[]> {
   try {
+    if (slug === "about") await restoreAboutTeamOnce();
     const page = await db.staticPage.findUnique({ where: { slug } });
     return Array.isArray(page?.content) ? page.content as StaticBlock[] : [];
   } catch {
