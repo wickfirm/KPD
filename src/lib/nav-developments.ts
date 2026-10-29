@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 
 // ── Developments created in the CMS, shown in the site navigation ─────────────
 //
@@ -34,13 +35,14 @@ export async function getPublishedDevelopmentCards(): Promise<DevelopmentCardSou
     const rows = await db.project.findMany({
       where: { status: "PUBLISHED", profile: "FULL" },
       orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
-      take: 3,
       select: {
-        slug: true, name: true, heroImage: true, description: true,
+        id: true, slug: true, name: true, heroImage: true, description: true,
         modules: { where: { profile: "FULL" }, orderBy: { sortOrder: "asc" }, select: { content: true } },
       },
     });
-    return rows.map((row) => {
+    const chromeRows = rows.length ? await db.siteSetting.findMany({ where: { key: { in: rows.map((row) => projectChromeKey(row.id)) } } }) : [];
+    const hidden = new Set(chromeRows.filter((row) => parseProjectChrome(row.value).showOnHomepage === false).map((row) => row.key));
+    return rows.filter((row) => !hidden.has(projectChromeKey(row.id))).slice(0, 3).map((row) => {
       const moduleImage = row.modules.flatMap(({ content }) => {
         if (!content || typeof content !== "object" || Array.isArray(content)) return [];
         const images = (content as { images?: unknown }).images;

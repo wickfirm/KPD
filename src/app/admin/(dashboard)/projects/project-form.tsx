@@ -23,6 +23,7 @@ export default function ProjectForm({ defaults, seo, chrome }: { defaults?: Proj
       <label className="cms-field"><span>Development name</span><input name="name" defaultValue={defaults?.name} required /></label>
       <label className="cms-field" data-requires="publish"><span>Status</span><select name="status" defaultValue={defaults?.status ?? "DRAFT"}><option value="DRAFT">Draft — not public</option><option value="PUBLISHED">Published — live on the site</option><option value="ARCHIVED">Archived — removed from the site</option></select><small>Publishing, drafting and archiving take effect immediately.</small></label>
     </div>
+    <label className="cms-check"><input type="checkbox" name="showOnHomepage" defaultChecked={chrome?.showOnHomepage !== false} /><span><strong>Show on the homepage</strong><small>The large development cards under the developments image. Untick to keep the page published but off the homepage. Up to three ticked developments are shown, in the list order.</small></span></label>
     <TextStyleFields prefix="projectName" value={chrome?.nameStyle} label="Name appearance" preserveDefault />
     <label className="cms-field"><span>Headline</span><textarea name="tagline" rows={2} defaultValue={defaults?.tagline ?? ""} placeholder="A short line under the name" /><small>Shown as the main heading of the introduction. Line breaks render on the page exactly as typed.</small></label>
     <TextStyleFields prefix="projectTagline" value={chrome?.taglineStyle} label="Headline appearance" preserveDefault />

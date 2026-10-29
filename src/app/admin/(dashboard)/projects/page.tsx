@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { SavedBanner } from "@/components/admin/flash";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { duplicateProject, moveProject, setProjectStatus } from "../actions";
+import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
+import { HomepageToggle } from "./homepage-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +15,14 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   const params = await searchParams;
   const query = first(params.q).trim().toLowerCase();
   const statusFilter = first(params.status);
-  const all = await db.project.findMany({
+  const [all, chromeRows] = await Promise.all([
+    db.project.findMany({
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
     select: { id: true, slug: true, name: true, tagline: true, location: true, status: true, heroImage: true, updatedAt: true, _count: { select: { modules: true } } },
-  });
+  }),
+    db.siteSetting.findMany({ where: { key: { startsWith: "project-chrome:" } }, select: { key: true, value: true } }),
+  ]);
+  const shownOnHomepage = new Map(chromeRows.map((row) => [row.key, parseProjectChrome(row.value).showOnHomepage !== false]));
   const projects = all.filter((project) =>
     (!statusFilter || project.status === statusFilter) &&
     (!query || [project.name, project.slug, project.location ?? "", project.tagline ?? ""].some((value) => value.toLowerCase().includes(query))));
@@ -68,6 +74,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
                 <h2><Link href={`/admin/projects/${project.id}`}>{project.name}</Link></h2>
                 {project.tagline ? <p className="cms-dev-card__tagline">{project.tagline}</p> : null}
                 <p className="cms-muted">{project._count.modules} sections · /developments/{project.slug} · edited {project.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                <HomepageToggle id={project.id} shown={shownOnHomepage.get(projectChromeKey(project.id)) !== false} />
               </div>
               <div className="cms-dev-card__actions">
                 <Link className="cms-btn cms-btn--small" href={`/admin/projects/${project.id}`}>Edit</Link>

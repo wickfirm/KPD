@@ -19,6 +19,8 @@ export type ProjectChrome = {
   enquirePrimaryUrl?: string;
   enquireSecondaryLabel?: string;
   enquireSecondaryUrl?: string;
+  /// Absent means the published development still appears in the homepage cards.
+  showOnHomepage?: boolean;
   /// Slot of the shared calculator among the content sections. Missing means last.
   calculatorIndex?: number;
   nameStyle?: TextStyle;
@@ -71,6 +73,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
     ...(enquirePrimaryUrl ? { enquirePrimaryUrl } : {}),
     ...(enquireSecondaryLabel ? { enquireSecondaryLabel } : {}),
     ...(enquireSecondaryUrl ? { enquireSecondaryUrl } : {}),
+    ...(source.showOnHomepage === false ? { showOnHomepage: false } : {}),
     ...(calculatorIndex !== undefined && calculatorIndex >= 0 ? { calculatorIndex } : {}),
     ...(cleanTextStyle(source.nameStyle) ? { nameStyle: cleanTextStyle(source.nameStyle) } : {}),
     ...(cleanTextStyle(source.taglineStyle) ? { taglineStyle: cleanTextStyle(source.taglineStyle) } : {}),

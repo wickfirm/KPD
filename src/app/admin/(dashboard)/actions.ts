@@ -421,6 +421,7 @@ export async function saveProject(
     enquirePrimaryUrl: String(formData.get("enquirePrimaryUrl") || "").trim(),
     enquireSecondaryLabel: String(formData.get("enquireSecondaryLabel") || "").trim(),
     enquireSecondaryUrl: String(formData.get("enquireSecondaryUrl") || "").trim(),
+    showOnHomepage: formData.get("showOnHomepage") === "on",
     calculatorIndex: previousChrome.calculatorIndex,
     nameStyle: textStyleFromForm(formData, "projectName"),
     taglineStyle: textStyleFromForm(formData, "projectTagline"),
@@ -1196,6 +1197,23 @@ export async function setProjectStatus(formData: FormData) {
     : status === "ARCHIVED" ? `\u201c${existing.name}\u201d was archived and removed from the public site. Use Restore to bring it back as a draft.`
     : `\u201c${existing.name}\u201d is a draft again and no longer public.`;
   redirect(`${returnTo}${returnTo.includes("?") ? "&" : "?"}notice=${encodeURIComponent(notice)}`);
+}
+
+/// Shows or hides one development on the homepage cards without unpublishing it.
+export async function setProjectHomepage(formData: FormData) {
+  await requirePermission("content.publish");
+  const id = String(formData.get("id") || "");
+  const project = id ? await db.project.findUnique({ where: { id }, select: { slug: true } }) : null;
+  if (!project) redirect("/admin/projects");
+  const key = projectChromeKey(id);
+  const previous = parseProjectChrome((await db.siteSetting.findUnique({ where: { key } }).catch(() => null))?.value);
+  const chrome = parseProjectChrome({ ...previous, showOnHomepage: formData.get("showOnHomepage") === "on" });
+  await db.siteSetting.upsert({ where: { key }, update: { value: chrome }, create: { key, value: chrome } });
+  revalidatePath("/");
+  revalidatePath(`/developments/${project.slug}`);
+  revalidatePath("/admin/projects");
+  revalidatePublicContent();
+  redirect("/admin/projects");
 }
 
 /// Copies a development (and all its sections) as a new draft.

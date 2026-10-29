@@ -83,7 +83,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <label className="cms-field"><span>Paragraph</span><textarea name="developmentText" rows={3} defaultValue={settings.developmentText ?? ""} /></label>
       <TextStyleFields prefix="developmentText" value={settings.developmentTextStyle} label="Paragraph appearance" preserveDefault />
     </section>
-    <section className="cms-editor-section"><h3>Development cards</h3><p className="cms-muted">Generated automatically from the first three published, public developments. Their name, introduction, hero image and ordering come from each Development editor; drafting or archiving one removes it here immediately. One or two cards stretch to fill the row.</p>
+    <section className="cms-editor-section"><h3>Development cards</h3><p className="cms-muted">Taken from published developments that have “Show on the homepage” ticked, in the Developments list order, up to three. Untick that box on a development to leave it off the homepage. One or two cards stretch to fill the row.</p>
       <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="cardCtaVisible" defaultChecked={settings.cardCtaVisible !== false} /><span><strong>Show the card button</strong><small>The card still opens the development. This only shows or hides the label.</small></span></label><label className="cms-field"><span>Card button label</span><input name="cardCtaLabel" defaultValue={settings.cardCtaLabel ?? "Explore"} /></label></div>
     </section>
     <h2 className="cms-form-heading">Contact strip</h2>
