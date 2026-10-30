@@ -53,7 +53,7 @@ function planFrom(value: unknown, fallback: Record<string, unknown>) {
   };
 }
 
-export function sxsContentFromForm(formData: FormData): SxsContent {
+function sxsContentFromForm(formData: FormData): SxsContent {
   const plans = json<Record<string, unknown>>(formData, "plansJson", sxsDefaults.floorplans.plans as Record<string, unknown>);
   const fallbackPlans = sxsDefaults.floorplans.plans as Record<string, Record<string, unknown>>;
   const content: SxsContent = {
