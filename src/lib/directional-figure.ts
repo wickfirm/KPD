@@ -22,3 +22,18 @@ export function directionalFigure(figureHtml: string, images: string[] | undefin
     .replace(/<span[^>]*data-directional-slide[^>]*><\/span>\s*/g, "")
     .replace("</figure>", `${slides}</figure>`);
 }
+
+/// Builds a delivered-shaped directional slider from scratch for CMS sections
+/// that have no delivered figure (e.g. a payment plan the editor gave images).
+/// Same markup contract as the delivered figures, so the client's site.js
+/// drives the prev/next cycling identically.
+export function cmsDirectionalFigure(images: string[], alt: string, className = "single-project-calm-media"): string {
+  if (!images.length) return "";
+  const attr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const slides = images.map((image) => `<span hidden data-directional-slide data-image="${attr(image)}" data-alt="${attr(alt)}"></span>`).join("");
+  return `<figure class="${className} single-project-directional-media" data-directional-media>` +
+    `<img src="${attr(images[0])}" alt="${attr(alt)}" data-directional-image>` +
+    `<button type="button" aria-label="Previous image" data-directional-prev></button>` +
+    `<button type="button" aria-label="Next image" data-directional-next></button>` +
+    `${slides}</figure>`;
+}

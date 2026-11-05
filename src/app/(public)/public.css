@@ -552,3 +552,9 @@ body.home-development-page {
 .single-project-page .single-project-section-copy .btn-pill {
   margin-top: clamp(28px, 3vw, 44px);
 }
+
+/* ── Payment plan slider (CMS-era, round two) ───────────────────────────────
+   CMS-uploaded images render as a directional slider above the milestones. */
+.single-project-payment .single-project-directional-media {
+  margin: 0 0 clamp(24px, 3vw, 44px);
+}
