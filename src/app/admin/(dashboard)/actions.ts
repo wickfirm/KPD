@@ -915,6 +915,8 @@ function homeSettingsFromForm(formData: FormData) {
     introStats: parseJsonList(formData.get("introStatsJson"), (item) => (text(item.value) || text(item.label) ? { value: text(item.value), label: text(item.label) } : null)),
     statsNote: String(formData.get("statsNote") ?? "").trim(),
     statsNoteUrl: String(formData.get("statsNoteUrl") || "").trim(),
+    statsValueStyle: textStyleFromForm(formData, "statsValue"),
+    statsLabelStyle: textStyleFromForm(formData, "statsLabel"),
     bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development", ...(text(item.text) ? { text: text(item.text) } : {}) } : null)),
     developmentCards: parseJsonList(formData.get("developmentCardsJson"), (item) => (text(item.title) || text(item.image) ? { href: text(item.href), image: text(item.image), title: text(item.title), copy: text(item.copy) } : null)),
     heroVideo: String(formData.get("heroVideo") || "").trim(),

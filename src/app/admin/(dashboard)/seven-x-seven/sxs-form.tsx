@@ -161,7 +161,7 @@ export default function SxsForm({ content }: { content: SxsContent }) {
       <label className="cms-field"><span>Location body</span><textarea name="locationBody" rows={4} defaultValue={asText(content.location.body)} /></label>
       <ListEditor items={places} onChange={setPlaces} addLabel="Add place" newItem={() => ({ name: "", minutes: "", lat: 25.18, lng: 55.32, reveal: 0.5 })} itemLabel={(item, index) => item.name || `Place ${index + 1}`}
         renderItem={(item, update) => <div className="cms-grid"><label className="cms-field"><span>Name</span><input value={item.name} onChange={(event) => update({ name: event.target.value })} /></label><label className="cms-field"><span>Time</span><input value={item.minutes} onChange={(event) => update({ minutes: event.target.value })} /></label><label className="cms-field"><span>Latitude</span><input value={item.lat} onChange={(event) => update({ lat: Number(event.target.value) })} /></label><label className="cms-field"><span>Longitude</span><input value={item.lng} onChange={(event) => update({ lng: Number(event.target.value) })} /></label></div>} />
-      <div className="cms-field"><span>Mobile map</span><AssetUrlField name="mapImage" defaultValue={asText(content.brand.map)} accept="image/*" fileLabel="location map" /></div>
+      <div className="cms-field"><span>Mobile map</span><AssetUrlField name="mapImage" defaultValue={asText(content.brand.map)} accept="image/*" fileLabel="location map" specs="Mobile portrait, about 900 × 1400px, under 4 MB." /></div>
     </section>
 
     <FloorPlanEditor title="One bedroom" plan={one} onChange={setOne} tabName="tabOne" tabDefault={asText(content.floorplans.tabOne)} />
@@ -195,10 +195,10 @@ export default function SxsForm({ content }: { content: SxsContent }) {
     <section className="cms-editor-section">
       <h2 className="cms-form-heading">Brand images</h2>
       <div className="cms-grid">
-        <div className="cms-field"><span>White logo</span><AssetUrlField name="logoWhite" defaultValue={asText(content.brand.logoWhite)} accept="image/*" fileLabel="white logo" /></div>
-        <div className="cms-field"><span>Black logo</span><AssetUrlField name="logoBlack" defaultValue={asText(content.brand.logoBlack)} accept="image/*" fileLabel="black logo" /></div>
-        <div className="cms-field"><span>White mark</span><AssetUrlField name="markWhite" defaultValue={asText(content.brand.markWhite)} accept="image/*" fileLabel="white mark" /></div>
-        <div className="cms-field"><span>Black mark</span><AssetUrlField name="markBlack" defaultValue={asText(content.brand.markBlack)} accept="image/*" fileLabel="black mark" /></div>
+        <div className="cms-field"><span>White logo</span><AssetUrlField name="logoWhite" defaultValue={asText(content.brand.logoWhite)} accept="image/*" fileLabel="white logo" specs="Transparent PNG, about 360 × 180px, under 1 MB." /></div>
+        <div className="cms-field"><span>Black logo</span><AssetUrlField name="logoBlack" defaultValue={asText(content.brand.logoBlack)} accept="image/*" fileLabel="black logo" specs="Transparent PNG, about 360 × 180px, under 1 MB." /></div>
+        <div className="cms-field"><span>White mark</span><AssetUrlField name="markWhite" defaultValue={asText(content.brand.markWhite)} accept="image/*" fileLabel="white mark" specs="Transparent PNG, about 200 × 200px, under 500 KB." /></div>
+        <div className="cms-field"><span>Black mark</span><AssetUrlField name="markBlack" defaultValue={asText(content.brand.markBlack)} accept="image/*" fileLabel="black mark" specs="Transparent PNG, about 200 × 200px, under 500 KB." /></div>
         <div className="cms-field"><span>Intro image</span><AssetUrlField name="introImage" defaultValue={asText(content.brand.intro)} accept="image/*" fileLabel="intro image" /></div>
       </div>
     </section>
