@@ -7,7 +7,9 @@ import type { TextStyle } from "@/lib/text-style";
 
 export type LegacyMilestone = { year?: string; title?: string; summary?: string; body?: string; image?: string };
 
-export type LegacyContent = { heading?: string; text?: string; image?: string; headingStyle?: TextStyle; textStyle?: TextStyle; timeline?: LegacyMilestone[] };
+/// `eyebrow` follows the delivered hero label: undefined keeps the delivered
+/// "Legacy" line, an empty string hides it, any other value replaces it.
+export type LegacyContent = { eyebrow?: string; heading?: string; text?: string; image?: string; headingStyle?: TextStyle; textStyle?: TextStyle; timeline?: LegacyMilestone[] };
 
 export const legacyDefaults: Required<Pick<LegacyContent, "heading" | "text" | "image">> & { timeline: LegacyMilestone[] } = {
   heading: "History",

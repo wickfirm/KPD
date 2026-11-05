@@ -978,7 +978,10 @@ export async function previewInvestDraft(formData: FormData): Promise<{ error?: 
   if (raw) {
     try { invest = sanitizeInvestContent(JSON.parse(raw)); } catch { return { error: "The investor guide sections could not be read. Please review them and try again." }; }
   }
-  const hero = { type: "hero", heading: String(formData.get("heading") || "").trim(), text: String(formData.get("intro") || "").trim(), image: String(formData.get("image") || "").trim() };
+  const heroFields = { type: "hero", eyebrow: String(formData.get("eyebrow") || "").trim(), heading: String(formData.get("heading") || "").trim(), text: String(formData.get("intro") || "").trim(), image: String(formData.get("image") || "").trim() };
+  // A real save drops the hero block when every field is empty; mirror that so
+  // the preview shows the same delivered defaults the public page would.
+  const hero = heroFields.eyebrow || heroFields.heading || heroFields.text || heroFields.image ? heroFields : undefined;
   const key = siteDraftKey("invest", session.email);
   const value = newSiteDraft({ hero, saved: invest ? { type: "invest", ...invest } : undefined });
   await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });

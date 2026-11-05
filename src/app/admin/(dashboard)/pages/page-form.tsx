@@ -86,7 +86,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
     <p className="cms-muted">These fields are the public page source of truth. Empty values remain empty after saving.</p>
     <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <TextStyleFields prefix="pageHeading" value={hero?.headingStyle as TextStyleValue | undefined} label="Heading appearance" preserveDefault />
-    {defaults?.slug === "contact" ? <label className="cms-field"><span>Hero label</span><input name="eyebrow" defaultValue={hero?.eyebrow ?? defaults.title ?? ""} /><small>The small label above the Contact page heading.</small></label> : null}
+    {isAbout || isLegacy || defaults?.slug === "contact" ? <label className="cms-field"><span>Hero label</span><input name="eyebrow" defaultValue={hero?.eyebrow ?? (isAbout ? "About" : isLegacy ? "Legacy" : defaults.title ?? "")} /><small>The small label above the heading. Leave empty to hide it on the page.</small></label> : null}
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={4} defaultValue={hero?.text ?? ""} /></label>
     <TextStyleFields prefix="pageIntro" value={hero?.textStyle as TextStyleValue | undefined} label="Intro appearance" preserveDefault />
     <div className="cms-grid">

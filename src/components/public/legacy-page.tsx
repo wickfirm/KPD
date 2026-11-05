@@ -20,7 +20,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
       <section className="page-reference-hero" aria-label="Legacy">
         {image ? <img src={image} alt="Tokyo alleyway and Japanese hospitality context" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
-          <span>Legacy</span>
+          {content.eyebrow === "" ? null : <span>{content.eyebrow ?? "Legacy"}</span>}
           <h1 style={textStyleProps(content.headingStyle)}>{multiline(heading)}</h1>
           <p style={textStyleProps(content.textStyle)}>{multiline(text)}</p>
         </div>

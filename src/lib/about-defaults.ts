@@ -6,6 +6,9 @@ import type { TextStyle } from "@/lib/text-style";
 
 export type AboutPerson = { name?: string; role?: string; bio?: string; image?: string };
 export type AboutContent = {
+  /// Hero label: undefined keeps the delivered "About" line, an empty string
+  /// hides it, any other value replaces it.
+  eyebrow?: string;
   heading?: string;
   headingStyle?: TextStyle;
   heroTextStyle?: TextStyle;

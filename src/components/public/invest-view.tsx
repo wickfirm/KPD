@@ -8,7 +8,7 @@ import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId } from "@/lib/invest-defaults";
 
-export type InvestHero = { type?: string; heading?: string; text?: string; image?: string };
+export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string };
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -41,7 +41,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
     <SiteShellHeader /><main className="invest-main page-reference-main" id="top">
       <section className="page-reference-hero invest-hero" aria-label="Invest in Dubai">
         {hero?.image ? <img src={hero.image} alt="Dubai skyline with Burj Khalifa" /> : null}
-        <div className="page-reference-hero-copy motion-reveal"><span>Invest in Dubai</span><h1>{multiline(hero?.heading ?? "")}</h1><p>{hero?.text ?? ""}</p></div>
+        <div className="page-reference-hero-copy motion-reveal">{hero?.eyebrow === "" ? null : <span>{hero?.eyebrow ?? "Invest in Dubai"}</span>}<h1>{multiline(hero?.heading ?? "")}</h1><p>{hero?.text ?? ""}</p></div>
         <div className="invest-hero-metrics motion-reveal" style={delay("120ms")} aria-label="Investment highlights">{c.metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>
       </section>
 

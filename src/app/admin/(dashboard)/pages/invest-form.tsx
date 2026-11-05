@@ -12,7 +12,7 @@ import { ensureInvestSections, investIcons, investSectionLabels, mergeInvestCont
 const initialState: StaticPageFormState = {};
 const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 
-type Block = { type?: string; heading?: string; text?: string; image?: string };
+type Block = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string };
 export type InvestPageDefaults = { id?: string; slug?: string; title?: string; content?: (Block & Record<string, unknown>)[] };
 
 function Text({ label, value, onChange, placeholder, help, list }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; help?: string; list?: string }) {
@@ -94,6 +94,7 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <p className="cms-muted">These fields are the public page source of truth. Empty values remain empty after saving.</p>
 
     <h2 className="cms-form-heading">Hero</h2>
+    <label className="cms-field"><span>Eyebrow</span><input name="eyebrow" defaultValue={hero?.eyebrow ?? "Invest in Dubai"} /><small>The small line above the heading. Leave empty to hide it on the page.</small></label>
     <label className="cms-field"><span>Heading</span><textarea name="heading" rows={2} defaultValue={hero?.heading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={3} defaultValue={hero?.text ?? ""} /></label>
     <div className="cms-field"><span>Hero image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} accept={IMAGES} placeholder="/legacy/assets/images/..." fileLabel="hero image" /></div>

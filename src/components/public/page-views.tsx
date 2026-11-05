@@ -19,6 +19,7 @@ export function AboutView({ blocks, previewNote }: { blocks: StaticBlock[]; prev
   const hero = blocks.find((block) => block.type === "hero");
   const about = blocks.find((block) => block.type === "about") as (StaticBlock & AboutContent) | undefined;
   const content: AboutContent = {
+    eyebrow: hero?.eyebrow as string | undefined,
     heading: hero?.heading,
     headingStyle: hero?.headingStyle as AboutContent["headingStyle"],
     heroText: hero?.text,
@@ -41,7 +42,7 @@ export function AboutView({ blocks, previewNote }: { blocks: StaticBlock[]; prev
 export function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero");
   const timeline = blocks.find((block) => block.type === "legacy") as (StaticBlock & { timeline?: LegacyMilestone[] }) | undefined;
-  const content: LegacyContent = { heading: hero?.heading, text: hero?.text, image: hero?.image, headingStyle: hero?.headingStyle as LegacyContent["headingStyle"], textStyle: hero?.textStyle as LegacyContent["textStyle"], timeline: timeline?.timeline };
+  const content: LegacyContent = { eyebrow: hero?.eyebrow as string | undefined, heading: hero?.heading, text: hero?.text, image: hero?.image, headingStyle: hero?.headingStyle as LegacyContent["headingStyle"], textStyle: hero?.textStyle as LegacyContent["textStyle"], timeline: timeline?.timeline };
   return <>
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page legacy-design-page" />

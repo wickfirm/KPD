@@ -32,7 +32,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
       <section className="page-reference-hero" aria-label="About Kasumigaseki Properties Development">
         {heroImage ? <img src={heroImage} alt="Real estate advisory model presentation" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
-          <span>About</span>
+          {content.eyebrow === "" ? null : <span>{content.eyebrow ?? "About"}</span>}
           <h1 style={textStyleProps(content.headingStyle)}>{multiline(heading)}</h1>
           <p style={textStyleProps(content.heroTextStyle)}>{multiline(heroText)}</p>
         </div>
