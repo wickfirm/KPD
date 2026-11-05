@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { pushLeadToSalesforce } from "@/lib/salesforce";
+import { pushLeadToSalesforce, SALESFORCE_LEAD_HOLD_NOTE, shouldMirrorSubmissionToSalesforce } from "@/lib/salesforce";
 import { leadDescription, sanitizeDetails } from "@/lib/submissions";
 import { getGlobalSettings, recipientFor, type FormRecipientKey } from "@/lib/site-contact";
 import { brochureLink, sendBrochureEmail } from "@/lib/brochure-mail";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 
 /// Public contact / booking form endpoint (Salesforce dual-write, Clause 2).
-/// Always persists locally; then mirrors to Salesforce as a Lead.
+/// Always persists locally. Confirmed enquiry types then mirror to Salesforce as a Lead.
 export async function POST(req: NextRequest) {
   let payload: Record<string, unknown>;
   try {
@@ -43,10 +43,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
 
+  // Newsletter, job, and customer-service forms stay in Messages until that
+  // lead list is confirmed. Every other enquiry is mirrored to Salesforce.
+  const mirrorToSalesforce = shouldMirrorSubmissionToSalesforce({ recipientKey: requestedKey, inquiryType });
+  const propertyInterestId = String(payload.propertyInterestId || "").trim() || null;
+  const held = mirrorToSalesforce ? {} : { syncError: SALESFORCE_LEAD_HOLD_NOTE };
+
   let submission;
   try {
     submission = await db.contactSubmission.create({
-      data: { name, email, phone, message, interest, sourcePage, inquiryType, details: details.length ? details : undefined },
+      data: { name, email, phone, message, interest, sourcePage, inquiryType, details: details.length ? details : undefined, ...held },
     });
   } catch (err) {
     // If the inquiryType/details columns are not in the database yet (migration
@@ -54,7 +60,7 @@ export async function POST(req: NextRequest) {
     console.error("[api/contact] structured insert failed, retrying without the new columns:", err);
     try {
       submission = await db.contactSubmission.create({
-        data: { name, email, phone, message: leadDescription(message, details), interest, sourcePage },
+        data: { name, email, phone, message: leadDescription(message, details), interest, sourcePage, ...held },
       });
     } catch (fallbackError) {
       console.error("[api/contact] database error:", fallbackError);
@@ -65,19 +71,30 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Dual-write: mirror to Salesforce, recording the outcome.
-  try {
-    const salesforceId = await pushLeadToSalesforce({ name, email, phone, message: leadDescription(message, details), interest, sourcePage });
-    await db.contactSubmission.update({
-      where: { id: submission.id },
-      data: { status: "SYNCED", salesforceId, syncedAt: new Date(), syncError: null },
-    });
-  } catch (err) {
-    await db.contactSubmission.update({
-      where: { id: submission.id },
-      data: { status: "FAILED", syncError: (err as Error).message.slice(0, 500) },
-    });
-    // The lead is safely stored locally — respond success; sync retries later.
+  if (mirrorToSalesforce) {
+    // Dual-write: mirror to Salesforce, recording the outcome.
+    try {
+      const salesforceId = await pushLeadToSalesforce({
+        name,
+        email,
+        phone,
+        message: leadDescription(message, details),
+        interest,
+        propertyInterestId,
+        sourcePage,
+        inquiryType,
+      });
+      await db.contactSubmission.update({
+        where: { id: submission.id },
+        data: { status: "SYNCED", salesforceId, syncedAt: new Date(), syncError: null },
+      });
+    } catch (err) {
+      await db.contactSubmission.update({
+        where: { id: submission.id },
+        data: { status: "FAILED", syncError: (err as Error).message.slice(0, 500) },
+      });
+      // The lead is safely stored locally — respond success; sync retries later.
+    }
   }
 
   let emailed = false;

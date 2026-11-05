@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { requirePermission } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
-import { pushLeadToSalesforce } from "@/lib/salesforce";
+import { pushLeadToSalesforce, SALESFORCE_LEAD_HOLD_NOTE, shouldMirrorSubmissionToSalesforce } from "@/lib/salesforce";
 import { leadDescription, readDetails } from "@/lib/submissions";
 
 /// Re-attempt the Salesforce mirror for one stored enquiry (NEW or FAILED).
@@ -23,6 +23,15 @@ export async function retrySubmissionSync(formData: FormData) {
   if (submission.status === "SYNCED") {
     redirect(`/admin/submissions?error=${encodeURIComponent("This message is already synced to Salesforce.")}`);
   }
+  if (!shouldMirrorSubmissionToSalesforce({ inquiryType: submission.inquiryType })) {
+    await db.contactSubmission.update({
+      where: { id },
+      data: { status: "NEW", syncError: SALESFORCE_LEAD_HOLD_NOTE },
+    });
+    await logActivity({ action: "submission.retry", session, entityType: "CONTACT_SUBMISSION", entityId: id, summary: `Left enquiry from ${submission.email} in Messages. This form is not sent to Salesforce yet.` });
+    revalidatePath("/admin/submissions");
+    redirect(`/admin/submissions?error=${encodeURIComponent(SALESFORCE_LEAD_HOLD_NOTE)}`);
+  }
 
   let synced = false;
   let failure = "";
@@ -34,6 +43,7 @@ export async function retrySubmissionSync(formData: FormData) {
       message: leadDescription(submission.message, readDetails((submission as { details?: unknown }).details)),
       interest: submission.interest,
       sourcePage: submission.sourcePage,
+      inquiryType: submission.inquiryType,
     });
     await db.contactSubmission.update({
       where: { id },
