@@ -484,3 +484,41 @@ body.home-development-page {
     margin-top: 24px;
   }
 }
+
+/* ── Legacy page: end-of-page button (CMS-era, batch 3 item 2) ───────────── */
+.legacy-end-cta {
+  display: flex;
+  justify-content: center;
+  padding-top: 0;
+}
+.legacy-end-cta .btn-pill {
+  min-width: clamp(180px, 16vw, 240px);
+}
+
+/* ── Investor guide: residency / trust panels (CMS-era, batch 3 item 3) ────
+   The black panel stretched to the whole support column (picture + the three
+   cards below it), leaving a tall empty black area under the button. Give the
+   picture and the panel their own row so their bottoms align, and let the
+   cards span the full width beneath both. Only above the stacking
+   breakpoint; on small screens the delivered single-column layout stands. */
+@media (min-width: 1025px) {
+  .invest-dubai-page .invest-residency {
+    grid-template-rows: auto auto;
+  }
+  .invest-dubai-page .invest-residency .invest-residency-support {
+    display: contents;
+  }
+  .invest-dubai-page .invest-residency .invest-residency-panel {
+    grid-row: 1;
+    grid-column: 1;
+  }
+  .invest-dubai-page .invest-residency .invest-residency-media {
+    grid-row: 1;
+    grid-column: 2;
+    height: 100%;
+  }
+  .invest-dubai-page .invest-residency .invest-residency-cards {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
+}

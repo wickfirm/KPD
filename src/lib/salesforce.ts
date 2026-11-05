@@ -20,7 +20,7 @@
 // Point SALESFORCE_LOGIN_URL at the UAT sandbox. Do not use the production org
 // for the first test of this mapping, and do not deploy it to production first.
 
-const API_VERSION = "v60.0";
+const API_VERSION = "v68.0";
 const DESCRIPTION_LIMIT = 32_000;
 
 /// Queue "website_leads". 00G is the Group/Queue prefix; the id is the full value.
@@ -275,7 +275,13 @@ async function getAccessToken(): Promise<string> {
     // Bound the handshake so a slow Salesforce cannot pin the enquiry buttons.
     signal: AbortSignal.timeout(5_000),
   });
-  if (!res.ok) throw new Error(`Salesforce auth failed (${res.status})`);
+  if (!res.ok) {
+    /// Salesforce error bodies carry no credentials, only an error code and
+    /// description - exactly what the client's admin asks for when the token
+    /// request fails.
+    const detail = await res.text();
+    throw new Error(`Salesforce auth failed (${res.status}): ${detail.slice(0, 300)}`);
+  }
   const data = (await res.json()) as { access_token: string; instance_url: string };
   if (!data.instance_url) throw new Error("Salesforce auth did not return an instance URL.");
   instanceUrl = data.instance_url.replace(/\/$/, "");

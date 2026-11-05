@@ -51,6 +51,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
           })}
         </div>
       </section>
+      {content.ctaVisible === false || !content.ctaUrl ? null : <section className="legacy-end-cta kpd-section" aria-label={content.ctaLabel || "Learn more"}><a className="btn-pill" href={content.ctaUrl}>{content.ctaLabel || "Learn more"}</a></section>}
     </main>
   );
 }

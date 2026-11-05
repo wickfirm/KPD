@@ -62,7 +62,11 @@ function PanelEditor({ value, onChange }: { value: PanelSection; onChange: (chan
     <div className="cms-grid">
       <Text label="Eyebrow" value={value.eyebrow} onChange={(eyebrow) => onChange({ eyebrow })} />
       <Text label="Heading" value={value.heading} onChange={(heading) => onChange({ heading })} />
-      <Text label="Button label" value={value.button} onChange={(button) => onChange({ button })} help="Opens the booking form." />
+      <Text label="Button label" value={value.button} onChange={(button) => onChange({ button })} help="Opens the booking form, or the link below when one is set." />
+    </div>
+    <div className="cms-grid">
+      <Text label="Button link" value={value.ctaUrl ?? ""} onChange={(ctaUrl) => onChange({ ctaUrl })} placeholder="/contact#experience-center" help="Sends the button to this address instead of the booking form. Leave empty to keep the booking form." />
+      <label className="cms-check"><input type="checkbox" checked={value.ctaVisible !== false} onChange={(event) => onChange({ ctaVisible: event.target.checked })} /> <span><strong>Show button</strong><small>Untick to remove the button from the panel.</small></span></label>
     </div>
     <Area label="Text" value={value.text} onChange={(text) => onChange({ text })} rows={4} />
     <Appearance label="Heading appearance" value={value.headingStyle} onChange={(headingStyle) => onChange({ headingStyle })} />
