@@ -57,7 +57,7 @@ describe("the client's mortgage calculator markup", () => {
   it("applies the CMS text styles to the heading and intro only", () => {
     const styled = mortgageCalculatorHtmlWith({ heading: "H", text: "T", headingStyle: { fontWeight: "300" }, textStyle: { fontSize: "20px" } });
     expect(styled).toContain('<h2 id="mortgage-calculator-title" style="font-weight:300">H</h2>');
-    expect(styled).toContain('<p style="font-size:20px">T</p>');
+    expect(styled).toContain(`<p style="font-size:min(20px, 10vw)">T</p>`);
     expect(mortgageCalculatorHtmlWith({ heading: "H", text: "T" })).toContain('<h2 id="mortgage-calculator-title">H</h2>');
   });
 });

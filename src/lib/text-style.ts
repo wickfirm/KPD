@@ -49,11 +49,21 @@ export function cleanTextStyle(value: unknown): TextStyle | undefined {
   return { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}), ...(lineHeight ? { lineHeight } : {}) };
 }
 
+/// CMS font sizes are emitted as min(size, 10vw): desktop renders the exact
+/// size, while on small screens no editor value can exceed a tenth of the
+/// viewport (client-approved mobile guard). Delivered sizes without a CMS
+/// value are untouched - their own media queries keep working.
+const MOBILE_FONT_CAP = "10vw";
+
+export function mobileSafeFontSize(size: string): string {
+  return `min(${size}, ${MOBILE_FONT_CAP})`;
+}
+
 /// Inline style for a React element. Unsafe sizes are dropped.
 export function textStyleProps(value?: TextStyle | null): { fontSize?: string; fontWeight?: TextStyle["fontWeight"]; fontStyle?: "normal" | "italic"; lineHeight?: string } | undefined {
   const clean = cleanTextStyle(value);
   if (!clean) return undefined;
-  return clean;
+  return { ...clean, ...(clean.fontSize ? { fontSize: mobileSafeFontSize(clean.fontSize) } : {}) };
 }
 
 /// A safe style attribute for CMS text that is written into an HTML string.
@@ -61,7 +71,7 @@ export function textStyleAttribute(value?: TextStyle | null) {
   const clean = cleanTextStyle(value);
   if (!clean) return "";
   const css = [
-    clean.fontSize ? `font-size:${clean.fontSize}` : "",
+    clean.fontSize ? `font-size:${mobileSafeFontSize(clean.fontSize)}` : "",
     clean.fontWeight ? `font-weight:${clean.fontWeight}` : "",
     clean.fontStyle ? `font-style:${clean.fontStyle}` : "",
     clean.lineHeight ? `line-height:${clean.lineHeight}` : "",
