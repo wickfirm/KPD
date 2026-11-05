@@ -42,7 +42,7 @@ export function HomeHero({ video }: { video: string }) {
   );
 }
 
-export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"] }) {
+export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle, valueStyle, labelStyle }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"] }) {
   return (
     <section className="pdf-section pdf-intro" id="about">
       <div className="pdf-intro-grid">
@@ -53,7 +53,7 @@ export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl,
       </div>
       <div className="pdf-stat-grid">
         {stats.map((stat, index) => (
-          <div className="pdf-stat" key={`${stat.label}-${index}`}><strong><Link href="/about">{stat.value}</Link></strong><span>{stat.label}</span></div>
+          <div className="pdf-stat" key={`${stat.label}-${index}`}><strong><Link href="/about" style={textStyleProps(valueStyle)}>{stat.value}</Link></strong><span style={textStyleProps(labelStyle)}>{stat.label}</span></div>
         ))}
         {statsNote ? <p className="stats-as-of">{statsNoteUrl
           ? <a href={statsNoteUrl} target={/^https?:/i.test(statsNoteUrl) ? "_blank" : undefined} rel={/^https?:/i.test(statsNoteUrl) ? "noreferrer" : undefined}>{statsNote}</a>
@@ -127,7 +127,7 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   return (
     <main className="development-pdf-home" id="top">
       {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
-      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} /> : null}
+      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} ctaPosition={settings.developmentCtaPosition} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
       {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}

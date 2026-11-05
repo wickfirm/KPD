@@ -23,8 +23,8 @@ function Text({ label, value, onChange, placeholder, help, list }: { label: stri
 function Area({ label, value, onChange, rows = 3, help }: { label: string; value: string; onChange: (value: string) => void; rows?: number; help?: string }) {
   return <label className="cms-field"><span>{label}</span><textarea rows={rows} value={value} onChange={(event) => onChange(event.target.value)} />{help ? <small>{help}</small> : null}</label>;
 }
-function Picture({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
-  return <div className="cms-field"><span>{label}</span><AssetUrlField value={value} onChange={onChange} accept={IMAGES} placeholder="https://…" fileLabel={label.toLowerCase()} /></div>;
+function Picture({ label, value, onChange, specs }: { label: string; value: string; onChange: (value: string) => void; specs?: string }) {
+  return <div className="cms-field"><span>{label}</span><AssetUrlField value={value} onChange={onChange} accept={IMAGES} placeholder="https://…" fileLabel={label.toLowerCase()} specs={specs} /></div>;
 }
 function Section({ title, help, children }: { title: string; help?: string; children: ReactNode }) {
   return <section className="cms-editor-section"><h3>{title}</h3>{help ? <p className="cms-muted">{help}</p> : null}{children}</section>;
@@ -72,7 +72,7 @@ function PanelEditor({ value, onChange }: { value: PanelSection; onChange: (chan
     <Area label="Text" value={value.text} onChange={(text) => onChange({ text })} rows={4} />
     <Appearance label="Heading appearance" value={value.headingStyle} onChange={(headingStyle) => onChange({ headingStyle })} />
     <Appearance label="Text appearance" value={value.textStyle} onChange={(textStyle) => onChange({ textStyle })} />
-    <Picture label="Image" value={value.image} onChange={(image) => onChange({ image })} />
+    <Picture label="Image" value={value.image} onChange={(image) => onChange({ image })} specs="Landscape, about 1800 × 1100px, under 4 MB." />
     <h4 className="cms-subheading">Cards</h4>
     <IconCards items={value.cards} onChange={(cards) => onChange({ cards })} addLabel="Add card" />
   </>;
@@ -122,7 +122,7 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <TextStyleFields prefix="pageHeading" value={hero?.headingStyle as TextStyleValue | undefined} label="Heading appearance" preserveDefault />
     <label className="cms-field"><span>Intro copy</span><textarea name="intro" rows={3} defaultValue={hero?.text ?? ""} /></label>
     <TextStyleFields prefix="pageIntro" value={hero?.textStyle as TextStyleValue | undefined} label="Intro appearance" preserveDefault />
-    <div className="cms-field"><span>Hero image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} accept={IMAGES} placeholder="/legacy/assets/images/..." fileLabel="hero image" /></div>
+    <div className="cms-field"><span>Hero image</span><AssetUrlField name="image" defaultValue={hero?.image ?? ""} accept={IMAGES} placeholder="/legacy/assets/images/..." fileLabel="hero image" specs="Wide landscape, about 2400 × 1200px, under 4 MB." /></div>
     <Section title="Highlights under the hero" help="Three short highlights in the hero.">
       <ListEditor items={content.metrics} onChange={(metrics: Metric[]) => setContent((current) => ({ ...current, metrics }))} newItem={() => ({ value: "", label: "" })} addLabel="Add highlight" max={4} itemLabel={(item, index) => `${index + 1}. ${item.value || "Highlight"}`}
         renderItem={(item, update) => <div className="cms-grid"><Text label="Headline" value={item.value} onChange={(value) => update({ value })} /><Text label="Caption" value={item.label} onChange={(label) => update({ label })} /></div>} />
@@ -172,7 +172,7 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <label className="cms-check"><input type="checkbox" checked={content.paymentVisible !== false} onChange={(event) => setContent((current) => ({ ...current, paymentVisible: event.target.checked }))} /> <span><strong>Show this section</strong><small>The four-step payment path from the original investor guide.</small></span></label>
     <div className="cms-grid"><Text label="Heading" value={content.payment.heading} onChange={(heading) => patch("payment", { heading })} /></div>
     <Area label="Intro" value={content.payment.text} onChange={(text) => patch("payment", { text })} />
-    <Picture label="Image" value={content.payment.image} onChange={(image) => patch("payment", { image })} />
+    <Picture label="Image" value={content.payment.image} onChange={(image) => patch("payment", { image })} specs="Landscape, about 1800 × 1100px, under 4 MB." />
     <IconCards items={content.payment.cards} onChange={(cards) => patch("payment", { cards })} addLabel="Add step" />
     <Appearance label="Heading appearance" value={content.payment.headingStyle} onChange={(changes) => patch("payment", { headingStyle: { ...content.payment.headingStyle, ...changes } })} />
     <Appearance label="Text appearance" value={content.payment.textStyle} onChange={(changes) => patch("payment", { textStyle: { ...content.payment.textStyle, ...changes } })} />
@@ -207,7 +207,7 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
       renderItem={(item, update, index) => <>
         <div className="cms-grid"><Text label="Title" value={item.title} onChange={(title) => update({ title })} /><Text label="Link" value={item.href} onChange={(href) => update({ href })} placeholder="/developments/…" /></div>
         <Area label="Description" value={item.copy} onChange={(copy) => update({ copy })} />
-        <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`development ${index + 1} image`} /></div>
+        <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`development ${index + 1} image`} specs="Portrait card, about 900 × 1100px, under 4 MB." /></div>
       </>} />
     <Appearance label="Heading appearance" value={content.featured.headingStyle} onChange={(changes) => patch("featured", { headingStyle: { ...content.featured.headingStyle, ...changes } })} />
     <Appearance label="Text appearance" value={content.featured.textStyle} onChange={(changes) => patch("featured", { textStyle: { ...content.featured.textStyle, ...changes } })} />

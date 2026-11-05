@@ -558,3 +558,12 @@ body.home-development-page {
 .single-project-payment .single-project-directional-media {
   margin: 0 0 clamp(24px, 3vw, 44px);
 }
+
+/* ── Chairman portrait (CMS-era, round three) ───────────────────────────────
+   On very wide screens the media column grew flat and object-fit cropped the
+   chairman's face. Cap the column so the box keeps a portrait ratio. */
+@media (min-width: 1440px) {
+  .about-chairman {
+    grid-template-columns: minmax(0, clamp(420px, 30vw, 560px)) 1fr;
+  }
+}

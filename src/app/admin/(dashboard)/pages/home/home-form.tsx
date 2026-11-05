@@ -42,7 +42,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
   const [slides, setSlides] = useState<BannerSlide[]>(() => settings.bannerSlides ?? []);
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero video</h2>
-    <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4,video/webm" placeholder="https://…" fileLabel="hero video" />
+    <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4,video/webm" placeholder="https://…" fileLabel="hero video" specs="MP4 H.264, 1080p or smaller, under 4 MB (larger videos fail to upload — use an existing file link for big videos)." />
     <h2 className="cms-form-heading">Introduction</h2>
     <label className="cms-field"><span>Introduction heading</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <TextStyleFields prefix="introHeading" value={settings.introHeadingStyle} label="Introduction heading appearance" preserveDefault />
@@ -59,6 +59,8 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
         </div>} />
       <label className="cms-field"><span>Note under the figures</span><input name="statsNote" defaultValue={settings.statsNote ?? ""} /><small>For example the “as of” date. Leave empty to hide it.</small></label>
       <label className="cms-field"><span>Note link</span><input name="statsNoteUrl" defaultValue={settings.statsNoteUrl ?? ""} placeholder="https://kasumigaseki.co.jp/en/ir/" /><small>Makes the note clickable. Leave empty to show plain text.</small></label>
+      <TextStyleFields prefix="statsValue" value={settings.statsValueStyle} label="Key figure value appearance" preserveDefault />
+      <TextStyleFields prefix="statsLabel" value={settings.statsLabelStyle} label="Key figure caption appearance" preserveDefault />
     </section>
     <h2 className="cms-form-heading">Developments image</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
@@ -73,7 +75,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <ListEditor items={slides} onChange={setSlides} newItem={() => ({ image: "", label: "", text: "" })} addLabel="Add slide" itemLabel={(item, index) => `Slide ${index + 1}${item.label ? ` — ${item.label}` : ""}`}
         renderItem={(item, update, index) => <>
           <label className="cms-field"><span>Name (for screen readers)</span><input value={item.label} onChange={(event) => update({ label: event.target.value })} placeholder="Seven X Seven" /></label>
-          <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`slide ${index + 1} image`} /></div>
+          <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`slide ${index + 1} image`} specs="Wide landscape, about 2400 × 1200px, under 4 MB." /></div>
           <label className="cms-field"><span>Text for this slide</span><textarea rows={3} value={item.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Leave blank to use the shared paragraph below." /><small>This text changes with the picture. A new slide can carry its own paragraph.</small></label>
         </>} />
     </section>
@@ -102,7 +104,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <input type="hidden" name="experienceCaptions" value={experienceCaptions.join("\n")} />
       {experienceImages.map((image, index) => <div className="cms-repeat-card" key={`${image}-${index}`}>
         <div className="cms-repeat-card__head"><strong>Gallery image {index + 1}</strong><button className="cms-text-button cms-text-button--danger" type="button" onClick={() => { setExperienceImages((images) => images.filter((_, i) => i !== index)); setExperienceCaptions((captions) => captions.filter((_, i) => i !== index)); }}>Remove</button></div>
-        <AssetUrlField value={image} onChange={(next) => setExperienceImages((images) => images.map((value, i) => (i === index ? next : value)))} accept={IMAGES} placeholder="https://…" fileLabel={`gallery image ${index + 1}`} />
+        <AssetUrlField value={image} onChange={(next) => setExperienceImages((images) => images.map((value, i) => (i === index ? next : value)))} accept={IMAGES} placeholder="https://…" fileLabel={`gallery image ${index + 1}`} specs="Landscape, about 1600 × 1000px, under 4 MB." />
         <label className="cms-field"><span>Caption</span><input value={experienceCaptions[index] ?? ""} onChange={(event) => setExperienceCaptions((captions) => { const next = [...captions]; next[index] = event.target.value; return next; })} /></label>
       </div>)}
       <button className="cms-btn cms-btn--ghost" type="button" onClick={() => { setExperienceImages((images) => [...images, ""]); setExperienceCaptions((captions) => [...captions, ""]); }} disabled={experienceImages.length >= 5}>Add gallery image</button>

@@ -13,6 +13,9 @@ export type HomeSettings = {
   statsNote?: string;
   /// Optional link on the "as of" note (batch 3, item 1).
   statsNoteUrl?: string;
+  /// Key figures typography (round three).
+  statsValueStyle?: TextStyle;
+  statsLabelStyle?: TextStyle;
   bannerSlides?: BannerSlide[];
   developmentCards?: DevelopmentCard[];
   heroVideo?: string;

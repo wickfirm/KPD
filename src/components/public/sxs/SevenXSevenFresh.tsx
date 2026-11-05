@@ -1062,9 +1062,13 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       const distanceMapStart = mobileLayout ? 88 : 50;
       site.style.setProperty("--distance-map-x", `${((1 - distanceMapProgress) * distanceMapStart).toFixed(2)}%`);
       site.style.setProperty("--distance-marker-progress", distanceMarkerProgress.toFixed(4));
-      site.style.setProperty("--distance-light-radius", `${(distanceLightProgress * 145).toFixed(2)}vmax`);
-      site.style.setProperty("--distance-light-progress", distanceLightProgress.toFixed(4));
-      site.style.setProperty("--distance-light-theme", distanceLightProgress > 0 ? "1" : "0");
+      // Client direction (batch: seven-x-seven page): the light Google-map
+      // takeover read as a flat gray screen, so the location phase now keeps
+      // the dark map and its white marker for the whole stretch. The light
+      // radius, marker flip and theme stay pinned to the dark state.
+      site.style.setProperty("--distance-light-radius", "0vmax");
+      site.style.setProperty("--distance-light-progress", "0");
+      site.style.setProperty("--distance-light-theme", "0");
       site.style.setProperty("--distance-area-opacity", (0.32 + (1 - distanceLightProgress) * 0.68).toFixed(4));
       site.style.setProperty("--floor-plan-y", `${(1 - floorPlanRevealProgress) * 100}%`);
       site.style.setProperty("--floor-plan-lock-y", `${(floorPlanRevealProgress - 1) * 100}%`);
@@ -1695,12 +1699,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                     ref={distanceDarkMapRef}
                     aria-hidden="true"
                   />
-                  <div
-                    className="distance-live-map distance-light-map"
-                    ref={distanceMapRef}
-                    role="img"
-                    aria-label="Map of Dubai destinations surrounding seven x seven residences"
-                  />
+                  {/* The light live map was removed with the gray takeover; the dark map below is the only one shown. */}
+                  <div className="distance-live-map distance-light-map" aria-hidden="true" style={{ display: "none" }} />
 
                   <div className="distance-residence-marker">
                     <span className="distance-marker-disc">
