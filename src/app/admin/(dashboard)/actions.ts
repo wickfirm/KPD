@@ -940,6 +940,7 @@ function homeSettingsFromForm(formData: FormData) {
     newsCta: String(formData.get("newsCta") || "").trim(),
     newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
     newsCtaVisible: formData.get("newsCtaVisible") === "on",
+    newsCtaPosition: ["above", "left", "right"].includes(String(formData.get("newsCtaPosition") || "")) ? formData.get("newsCtaPosition") as "above" | "left" | "right" : "below",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
     contactText: String(formData.get("contactText") || "").trim(),
     contactCtaLabel: String(formData.get("contactCtaLabel") || "").trim(),

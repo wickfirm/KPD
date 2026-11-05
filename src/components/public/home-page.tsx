@@ -21,10 +21,15 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   const text = settings.newsText?.trim() ?? "";
   const cta = settings.newsCtaVisible === false ? "" : settings.newsCta?.trim() ?? "";
   const ctaUrl = settings.newsCtaUrl?.trim() || "#news";
+  /// The button and its supporting text move as a pair (client feedback 15).
+  const position = settings.newsCtaPosition === "above" || settings.newsCtaPosition === "left" || settings.newsCtaPosition === "right" ? settings.newsCtaPosition : "below";
+  const sectionClass = position === "below" ? "pdf-section pdf-events-head" : `pdf-section pdf-events-head pdf-events-head--cta-${position === "above" ? "above" : "side"}${position === "left" ? " pdf-events-head--cta-left" : ""}`;
+  const copy = text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : "";
+  const button = cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : "";
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
-    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : ""}</div></section>`
+    ? `<section class="${sectionClass}" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
