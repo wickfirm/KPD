@@ -21,24 +21,24 @@ export async function SiteShellFooter() {
       <div className="footer_links">
         <div className="footer_links_col_container">
           <div className="footer_links_col">
-            <h3 className="footer_links_title text-size-footer">Developments</h3>
+            <h3 className="footer_links_title text-size-footer">{contact.footerDevelopmentsTitle || "Developments"}</h3>
             <ul role="list" className="footer_links_list">
               {developments.map((project) => <li className="footer_links_item" key={project.slug}><Link href={`/developments/${project.slug}`} className="footer_link text-size-footer">{project.name}</Link></li>)}
             </ul>
           </div>
           <div className="footer_links_col">
-            <h3 className="footer_links_title text-size-footer">Company</h3>
+            <h3 className="footer_links_title text-size-footer">{contact.footerCompanyTitle || "Company"}</h3>
             <ul role="list" className="footer_links_list">
-              <li className="footer_links_item"><Link href="/about" className="footer_link text-size-footer">About Us</Link></li>
-              <li className="footer_links_item"><Link href="/legacy" className="footer_link text-size-footer">History</Link></li>
-              <li className="footer_links_item"><Link href="/invest-in-dubai" className="footer_link text-size-footer">Investor Guide</Link></li>
+              <li className="footer_links_item"><Link href="/about" className="footer_link text-size-footer">{contact.footerAboutLabel || "About Us"}</Link></li>
+              <li className="footer_links_item"><Link href="/legacy" className="footer_link text-size-footer">{contact.footerHistoryLabel || "History"}</Link></li>
+              <li className="footer_links_item"><Link href="/invest-in-dubai" className="footer_link text-size-footer">{contact.footerInvestorLabel || "Investor Guide"}</Link></li>
             </ul>
           </div>
           <div className="footer_links_col">
-            <h3 className="footer_links_title text-size-footer">Media</h3>
+            <h3 className="footer_links_title text-size-footer">{contact.footerMediaTitle || "Media"}</h3>
             <ul role="list" className="footer_links_list">
-              <li className="footer_links_item"><Link href="/news" className="footer_link text-size-footer">News &amp; Updates</Link></li>
-              <li className="footer_links_item"><Link href="/contact" className="footer_link text-size-footer">Contact Us</Link></li>
+              <li className="footer_links_item"><Link href="/news" className="footer_link text-size-footer">{contact.footerNewsLabel || "News & Updates"}</Link></li>
+              <li className="footer_links_item"><Link href="/contact" className="footer_link text-size-footer">{contact.footerContactLabel || "Contact Us"}</Link></li>
             </ul>
           </div>
         </div>
@@ -57,9 +57,9 @@ export async function SiteShellFooter() {
       <div className="footer_legal_social footer_links">
         <div className="footer_legal_left">
           <ul role="list" className="footer_links_row">
-            <li className="footer_links_item footer_links_legal_item"><Link href="/terms" className="footer_link text-size-footer">Terms and Conditions</Link></li>
-            <li className="footer_links_item footer_links_legal_item"><Link href="/privacy-policy" className="footer_link text-size-footer">Privacy</Link></li>
-            <li className="footer_links_item footer_links_legal_item"><Link href="/cookie-policy" className="footer_link text-size-footer">Cookie Policy</Link></li>
+            <li className="footer_links_item footer_links_legal_item"><Link href="/terms" className="footer_link text-size-footer">{contact.footerTermsLabel || "Terms and Conditions"}</Link></li>
+            <li className="footer_links_item footer_links_legal_item"><Link href="/privacy-policy" className="footer_link text-size-footer">{contact.footerPrivacyLabel || "Privacy"}</Link></li>
+            <li className="footer_links_item footer_links_legal_item"><Link href="/cookie-policy" className="footer_link text-size-footer">{contact.footerCookiesLabel || "Cookie Policy"}</Link></li>
           </ul>
           <div className="footer_links_social" aria-label="Social links">
             {contact.facebook ? <a aria-label="Facebook" href={contact.facebook} target="_blank" rel="noreferrer" className="icon-social-link-block"><div className="icon-socials">f</div></a> : null}
@@ -69,7 +69,7 @@ export async function SiteShellFooter() {
             <a aria-label="YouTube" href={contact.youtube} target="_blank" rel="noreferrer" className="icon-social-link-block"><div className="icon-socials"><svg width="16" height="12" viewBox="0 0 16 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.66 2.02c-.18-.7-.72-1.24-1.4-1.43C13.02.25 8 .25 8 .25S2.98.25 1.74.59C1.06.78.52 1.32.34 2.02.01 3.29.01 5.94.01 5.94s0 2.65.33 3.92c.18.7.72 1.24 1.4 1.43 1.24.34 6.26.34 6.26.34s5.02 0 6.26-.34c.68-.19 1.22-.73 1.4-1.43.33-1.27.33-3.92.33-3.92s0-2.65-.33-3.92ZM6.41 8.38V3.5l4.17 2.44-4.17 2.44Z" fill="currentColor" /></svg></div></a>
           </div>
         </div>
-        <div className="footer_legal_text text-size-footer">Kasumigaseki Properties Development &copy; 2026</div>
+        <div className="footer_legal_text text-size-footer">{contact.footerCopyright?.trim() || "Kasumigaseki Properties Development © 2026"}</div>
       </div>
     </div>
   </footer></>;

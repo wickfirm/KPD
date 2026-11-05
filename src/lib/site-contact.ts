@@ -16,6 +16,19 @@ export type GlobalSettings = {
   newsletterNote?: string;
   newsletterHeading?: string;
   newsletterSubmitLabel?: string;
+  /// Footer text (client feedback item 5). Blank keeps the delivered wording.
+  footerDevelopmentsTitle?: string;
+  footerCompanyTitle?: string;
+  footerMediaTitle?: string;
+  footerAboutLabel?: string;
+  footerHistoryLabel?: string;
+  footerInvestorLabel?: string;
+  footerNewsLabel?: string;
+  footerContactLabel?: string;
+  footerTermsLabel?: string;
+  footerPrivacyLabel?: string;
+  footerCookiesLabel?: string;
+  footerCopyright?: string;
   facebook?: string;
   x?: string;
   instagram?: string;
@@ -47,7 +60,7 @@ export type GlobalSettings = {
 /// Runtime settings never populate missing values from this object.
 export const globalDefaults: GlobalSettings = {};
 
-const STRING_KEYS = ["email", "phone", "whatsapp", "newsletterNote", "newsletterHeading", "newsletterSubmitLabel", "facebook", "x", "instagram", "youtube", "linkedin", "enquiryLabel", "callLabel", "whatsappLabel", "headerCtaLabel", "popupTitle", "popupIntro", "popupSubmitLabel", "popupNote"] as const;
+const STRING_KEYS = ["email", "phone", "whatsapp", "newsletterNote", "newsletterHeading", "newsletterSubmitLabel", "footerDevelopmentsTitle", "footerCompanyTitle", "footerMediaTitle", "footerAboutLabel", "footerHistoryLabel", "footerInvestorLabel", "footerNewsLabel", "footerContactLabel", "footerTermsLabel", "footerPrivacyLabel", "footerCookiesLabel", "footerCopyright", "facebook", "x", "instagram", "youtube", "linkedin", "enquiryLabel", "callLabel", "whatsappLabel", "headerCtaLabel", "popupTitle", "popupIntro", "popupSubmitLabel", "popupNote"] as const;
 const POPUP_FREQUENCIES = ["every-page", "session", "day"] as const;
 const BOOLEAN_KEYS = ["enquiryEnabled", "callEnabled", "whatsappEnabled", "popupEnabled", "headerCtaVisible"] as const;
 const RECIPIENT_KEYS = ["enquiry", "booking", "floorPlan", "calculator", "newsletter", "contactSales", "contactCustomer", "contactChannel", "contactCareers", "contactPress"] as const;

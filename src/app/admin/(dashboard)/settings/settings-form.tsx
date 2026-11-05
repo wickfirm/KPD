@@ -5,7 +5,7 @@ import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
 import type { FormRecipients } from "@/lib/site-contact";
 import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
 
-export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; headerCtaLabel?: string; headerCtaVisible?: boolean; popupEnabled?: boolean; popupFrequency?: "every-page" | "session" | "day"; popupDelaySeconds?: number; popupInterests?: string[]; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients; typography?: { headings?: TextStyleValue; body?: TextStyleValue; ctas?: TextStyleValue } }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
+export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; footerDevelopmentsTitle?: string; footerCompanyTitle?: string; footerMediaTitle?: string; footerAboutLabel?: string; footerHistoryLabel?: string; footerInvestorLabel?: string; footerNewsLabel?: string; footerContactLabel?: string; footerTermsLabel?: string; footerPrivacyLabel?: string; footerCookiesLabel?: string; footerCopyright?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; headerCtaLabel?: string; headerCtaVisible?: boolean; popupEnabled?: boolean; popupFrequency?: "every-page" | "session" | "day"; popupDelaySeconds?: number; popupInterests?: string[]; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients; typography?: { headings?: TextStyleValue; body?: TextStyleValue; ctas?: TextStyleValue } }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
@@ -68,8 +68,31 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
     <div className="cms-grid"><label className="cms-field"><span>Label</span><input name="newsEyebrow" defaultValue={newsListing.eyebrow ?? ""} placeholder="Media" /></label><label className="cms-field"><span>Page title</span><textarea name="newsListingHeading" rows={2} defaultValue={newsListing.heading ?? ""} placeholder="News and updates" /></label></div>
     <label className="cms-field"><span>Introduction</span><textarea name="newsListingIntro" rows={3} defaultValue={newsListing.intro ?? ""} /></label>
     <h2 className="cms-form-heading">Footer</h2>
+    <p className="cms-muted">Every word of the footer can be changed here. Leave a field empty to keep the delivered wording; the links themselves stay on their pages.</p>
     <div className="cms-grid"><label className="cms-field"><span>Newsletter heading</span><input name="newsletterHeading" defaultValue={global.newsletterHeading ?? "Stay informed"} /></label><label className="cms-field"><span>Subscribe button text</span><input name="newsletterSubmitLabel" defaultValue={global.newsletterSubmitLabel ?? "Subscribe"} /><small>This is the button beside the email field. The design shows it in capitals.</small></label></div>
     <label className="cms-field"><span>Newsletter note</span><textarea name="newsletterNote" rows={3} defaultValue={global.newsletterNote ?? ""} placeholder="Project updates, market insights and Kasumigaseki Properties Development news. Sent sparingly." /><small>Shown under the sign-up box. The “privacy policy.” link is added after it, with a space.</small></label>
+    <h3 className="cms-subheading">Link columns</h3>
+    <div className="cms-grid">
+      <label className="cms-field"><span>Developments column title</span><input name="footerDevelopmentsTitle" defaultValue={global.footerDevelopmentsTitle ?? "Developments"} /></label>
+      <label className="cms-field"><span>Company column title</span><input name="footerCompanyTitle" defaultValue={global.footerCompanyTitle ?? "Company"} /></label>
+      <label className="cms-field"><span>Media column title</span><input name="footerMediaTitle" defaultValue={global.footerMediaTitle ?? "Media"} /></label>
+    </div>
+    <div className="cms-grid">
+      <label className="cms-field"><span>About Us link text</span><input name="footerAboutLabel" defaultValue={global.footerAboutLabel ?? "About Us"} /></label>
+      <label className="cms-field"><span>History link text</span><input name="footerHistoryLabel" defaultValue={global.footerHistoryLabel ?? "History"} /></label>
+      <label className="cms-field"><span>Investor Guide link text</span><input name="footerInvestorLabel" defaultValue={global.footerInvestorLabel ?? "Investor Guide"} /></label>
+    </div>
+    <div className="cms-grid">
+      <label className="cms-field"><span>News link text</span><input name="footerNewsLabel" defaultValue={global.footerNewsLabel ?? "News & Updates"} /></label>
+      <label className="cms-field"><span>Contact link text</span><input name="footerContactLabel" defaultValue={global.footerContactLabel ?? "Contact Us"} /></label>
+    </div>
+    <h3 className="cms-subheading">Legal row</h3>
+    <div className="cms-grid">
+      <label className="cms-field"><span>Terms link text</span><input name="footerTermsLabel" defaultValue={global.footerTermsLabel ?? "Terms and Conditions"} /></label>
+      <label className="cms-field"><span>Privacy link text</span><input name="footerPrivacyLabel" defaultValue={global.footerPrivacyLabel ?? "Privacy"} /></label>
+      <label className="cms-field"><span>Cookie link text</span><input name="footerCookiesLabel" defaultValue={global.footerCookiesLabel ?? "Cookie Policy"} /></label>
+    </div>
+    <label className="cms-field"><span>Copyright line</span><input name="footerCopyright" defaultValue={global.footerCopyright ?? "Kasumigaseki Properties Development © 2026"} /></label>
     <div className="cms-grid">
       <label className="cms-field"><span>Facebook</span><input type="url" name="facebook" defaultValue={global.facebook ?? ""} placeholder="https://www.facebook.com/…" /></label>
       <label className="cms-field"><span>X (Twitter)</span><input type="url" name="x" defaultValue={global.x ?? ""} placeholder="https://x.com/…" /></label>
