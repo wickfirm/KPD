@@ -132,6 +132,11 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
         </div>
       </>} />
 
+    <h2 className="cms-form-heading">Mortgage calculator</h2>
+    <p className="cms-muted">The wording above the client’s calculator. Leave a field empty to keep the delivered wording.</p>
+    <Area label="Heading" value={content.calculator.heading} onChange={(heading) => patch("calculator", { heading })} rows={2} help="Line breaks render on the public page exactly as typed." />
+    <Area label="Intro copy" value={content.calculator.text} onChange={(text) => patch("calculator", { text })} rows={3} help="The line to the right of the heading, above the calculator." />
+
     <h2 className="cms-form-heading">Flexible payment plans</h2>
     <label className="cms-check"><input type="checkbox" checked={content.paymentVisible !== false} onChange={(event) => setContent((current) => ({ ...current, paymentVisible: event.target.checked }))} /> <span><strong>Show this section</strong><small>The four-step payment path from the original investor guide.</small></span></label>
     <div className="cms-grid"><Text label="Heading" value={content.payment.heading} onChange={(heading) => patch("payment", { heading })} /></div>

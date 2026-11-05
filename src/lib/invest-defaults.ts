@@ -2,6 +2,8 @@
 /// invest-in-dubai.html). Single source of truth for the public page fallbacks
 /// and the admin investor-guide editor. Pure data - safe for client components.
 
+import { mortgageCalculatorDefaultCopy } from "@/lib/mortgage-calculator-html";
+
 export type IconCard = { icon: string; title: string; text: string };
 export type YieldRow = { code: string; city: string; yieldLabel: string; yieldBar: string; trend: "up" | "down"; gainLabel: string; gainBar: string };
 export type FaqItem = { question: string; answer: string };
@@ -37,6 +39,7 @@ export type InvestContent = {
   trust: PanelSection;
   liquidity: { heading: string; text: string; feature: IconCard; cards: IconCard[] };
   featured: { heading: string; text: string; cards: FeaturedCard[] };
+  calculator: { heading: string; text: string };
   faq: { eyebrow: string; heading: string; text: string; items: FaqItem[] };
   contact: { eyebrow: string; heading: string; text: string; image: string; primaryLabel: string; secondaryLabel: string };
   sectionOrder: InvestSectionId[];
@@ -148,6 +151,7 @@ export const investDefaults: InvestContent = {
   },
   paymentVisible: true,
   sectionOrder: [...investSectionIds],
+  calculator: { ...mortgageCalculatorDefaultCopy },
   faq: {
     eyebrow: "Frequently Asked Questions",
     heading: "Answers for the first investment conversation.",

@@ -159,3 +159,28 @@ export const mortgageCalculatorHtml = `
         </aside>
       </div>
 `;
+
+/// The two CMS-editable lines of the calculator section (client feedback item 6):
+/// the heading and the intro to the right of it. Shared by the editor defaults
+/// and the render wrapper below so they can never disagree with the markup.
+export const mortgageCalculatorDefaultCopy = {
+  heading: "Plan the numbers before the viewing.",
+  text: "Adjust the purchase price, buyer profile and finance terms to see an illustrative monthly payment and estimated upfront costs.",
+};
+
+function escapeHtmlValue(value: string) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+/// The delivered inner markup with the heading and intro replaced by CMS values.
+/// Empty or missing values keep the delivered wording, so the section title
+/// referenced by aria-labelledby always renders. Line breaks render as <br>
+/// like every other multiline CMS field. The regexes survive future verbatim
+/// pastes of the client's markup with different wording.
+export function mortgageCalculatorHtmlWith(copy?: { heading?: string; text?: string }): string {
+  const heading = escapeHtmlValue((copy?.heading ?? "").trim() || mortgageCalculatorDefaultCopy.heading).replaceAll("\n", "<br>");
+  const text = escapeHtmlValue((copy?.text ?? "").trim() || mortgageCalculatorDefaultCopy.text).replaceAll("\n", "<br>");
+  return mortgageCalculatorHtml
+    .replace(/(<h2 id="mortgage-calculator-title">)[\s\S]*?(<\/h2>)/, `$1${heading}$2`)
+    .replace(/(<div class="invest-copy motion-reveal"[^>]*>\s*<p>)[\s\S]*?(<\/p>)/, `$1${text}$2`);
+}

@@ -5,7 +5,7 @@ import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
-import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
+import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId } from "@/lib/invest-defaults";
 
 export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string };
@@ -71,8 +71,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         {c.market.source ? <p className="invest-yield-source">{c.market.source}</p> : null}
       </section>
 
-      {/* The client's mortgage calculator, verbatim (src/lib/mortgage-calculator-html.ts); driven by his mortgage-calculator.js. */}
-      <section {...mortgageCalculatorSectionProps} style={stackOrder(c.sectionOrder, "calculator")} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+      {/* The client's mortgage calculator (src/lib/mortgage-calculator-html.ts), driven by his mortgage-calculator.js; the heading and intro line are CMS-editable. */}
+      <section {...mortgageCalculatorSectionProps} style={stackOrder(c.sectionOrder, "calculator")} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(c.calculator) }} />
 
       {c.paymentVisible === false ? null : <section className="invest-payment-plan kpd-section" aria-label="Flexible payment plans" style={stackOrder(c.sectionOrder, "payment")}>
         <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.payment.heading}</h2><div className="single-project-section-copy">{c.payment.text ? <p>{c.payment.text}</p> : null}</div></div>
