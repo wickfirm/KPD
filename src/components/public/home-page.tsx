@@ -24,7 +24,7 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
-    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading)}</h2>` : ""}<div>${text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : ""}</div></section>`
+    ? `<section class="pdf-section pdf-events-head" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : ""}${cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : ""}</div></section>`
     : "";
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }

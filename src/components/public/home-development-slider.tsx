@@ -16,13 +16,16 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
     return () => window.clearInterval(timer);
   }, [slides.length]);
 
+  /// Newlines in editor content render as <br>, matching the delivered markup.
+  const multiline = (value: string) => value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
+
   const slideCaption = slides[activeIndex]?.text?.trim();
   const shownCaption = slideCaption || caption?.trim() || "";
   const captionBlock = captionVisible && shownCaption
-    ? <section className={`pdf-section pdf-development-text pdf-development-text--${captionPosition}`} aria-label="Our development standard"><p style={captionStyle}>{shownCaption}</p></section>
+    ? <section className={`pdf-section pdf-development-text pdf-development-text--${captionPosition}`} aria-label="Our development standard"><p style={captionStyle}>{multiline(shownCaption)}</p></section>
     : null;
   const outsideHeading = heading && headingPosition !== "overlay"
-    ? <h2 className={`pdf-development-heading-outside pdf-development-heading-outside--${headingPosition}`} style={headingStyle}>{heading}</h2>
+    ? <h2 className={`pdf-development-heading-outside pdf-development-heading-outside--${headingPosition}`} style={headingStyle}>{multiline(heading)}</h2>
     : null;
   return (
     <>
@@ -35,8 +38,8 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
           ))}
         </div>
         <div className="pdf-development-content">
-          {headingPosition === "overlay" ? <h2 style={headingStyle}>{heading}</h2> : null}
-          {bannerText?.trim() ? <p>{bannerText}</p> : null}
+          {headingPosition === "overlay" ? <h2 style={headingStyle}>{multiline(heading)}</h2> : null}
+          {bannerText?.trim() ? <p>{multiline(bannerText)}</p> : null}
           {ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel}</Link> : null}
           <div className="pdf-development-dots" aria-label="Choose a development slide">
             {slides.map((slide, index) => (
