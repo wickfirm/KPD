@@ -636,6 +636,11 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
   const about = slug === "about" ? {
     type: "about",
     sectionHeading: normalizeLineBreaks(formData.get("aboutSectionHeading") as string | null),
+    sectionHeadingStyle: textStyleFromForm(formData, "aboutSectionHeading"),
+    storyImage: String(formData.get("aboutStoryImage") || "").trim(),
+    storyStyle: textStyleFromForm(formData, "aboutStory"),
+    missionVisionStyle: textStyleFromForm(formData, "aboutMissionVision"),
+    chairmanStyle: textStyleFromForm(formData, "aboutChairman"),
     mission: String(formData.get("mission") || "").trim(),
     vision: String(formData.get("vision") || "").trim(),
     chairmanText: String(formData.get("chairmanText") || "").trim(),

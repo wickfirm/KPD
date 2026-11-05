@@ -1,12 +1,15 @@
 /// Editor-controlled type for one piece of public text. Values are optional:
-/// a blank control keeps the delivered size, weight, or style.
+/// a blank control keeps the delivered size, weight, or style. The delivered
+/// Figtree face is variable (300–900), so numeric weights are safe; "normal"
+/// stays for rows saved before numeric weights were offered (it equals 400).
 export type TextStyle = {
   fontSize?: string;
-  fontWeight?: "normal" | "bold";
+  fontWeight?: "normal" | "bold" | "300" | "400" | "500";
   fontStyle?: "normal" | "italic";
 };
 
 const LENGTH = /^(?:0|[0-9]+(?:\.[0-9]+)?(?:px|rem|em|%|vw|vh)|clamp\([0-9.%\sremvw,()+-]+\))$/i;
+const WEIGHTS = new Set(["normal", "bold", "300", "400", "500"]);
 
 /// CMS typography accepts only CSS length values, so a saved size cannot
 /// become arbitrary CSS in the public document.
@@ -19,7 +22,7 @@ export function textStyleFromForm(formData: FormData, prefix: string): TextStyle
   const fontSize = safeLength(String(formData.get(`${prefix}FontSize`) || ""));
   const weight = String(formData.get(`${prefix}FontWeight`) || "");
   const slant = String(formData.get(`${prefix}FontStyle`) || "");
-  const fontWeight = weight === "bold" || weight === "normal" ? weight : undefined;
+  const fontWeight = WEIGHTS.has(weight) ? (weight as TextStyle["fontWeight"]) : undefined;
   const fontStyle = slant === "italic" || slant === "normal" ? slant : undefined;
   if (!fontSize && !fontWeight && !fontStyle) return undefined;
   return { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) };
@@ -29,14 +32,14 @@ export function cleanTextStyle(value: unknown): TextStyle | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const source = value as Record<string, unknown>;
   const fontSize = typeof source.fontSize === "string" ? safeLength(source.fontSize) : "";
-  const fontWeight = source.fontWeight === "bold" || source.fontWeight === "normal" ? source.fontWeight : undefined;
+  const fontWeight = typeof source.fontWeight === "string" && WEIGHTS.has(source.fontWeight) ? (source.fontWeight as TextStyle["fontWeight"]) : undefined;
   const fontStyle = source.fontStyle === "italic" || source.fontStyle === "normal" ? source.fontStyle : undefined;
   if (!fontSize && !fontWeight && !fontStyle) return undefined;
   return { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) };
 }
 
 /// Inline style for a React element. Unsafe sizes are dropped.
-export function textStyleProps(value?: TextStyle | null): { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" } | undefined {
+export function textStyleProps(value?: TextStyle | null): { fontSize?: string; fontWeight?: TextStyle["fontWeight"]; fontStyle?: "normal" | "italic" } | undefined {
   const clean = cleanTextStyle(value);
   if (!clean) return undefined;
   return clean;

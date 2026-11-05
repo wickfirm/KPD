@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BannerSlide } from "@/lib/home-defaults";
+import type { TextStyle } from "@/lib/text-style";
 
 /// The delivered script runs before React has hydrated on some homepage loads.
 /// Own this CMS-rendered carousel in React so autoplay and the dot controls are
 /// reliable regardless of load timing or client-side navigation.
-export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" }; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" } }) {
+export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: TextStyle; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {

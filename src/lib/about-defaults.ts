@@ -13,6 +13,14 @@ export type AboutContent = {
   headingStyle?: TextStyle;
   heroTextStyle?: TextStyle;
   sectionHeading?: string;
+  /// Philosophy-section image, independent from the hero: undefined follows
+  /// the hero image (rows saved before the split), an empty string shows no
+  /// picture, any other value shows that image.
+  storyImage?: string;
+  sectionHeadingStyle?: TextStyle;
+  storyStyle?: TextStyle;
+  missionVisionStyle?: TextStyle;
+  chairmanStyle?: TextStyle;
   heroText?: string;
   heroImage?: string;
   story?: string[];
