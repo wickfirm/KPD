@@ -11,7 +11,7 @@ export type FaqItem = { question: string; answer: string };
 export type FeaturedCard = { href: string; image: string; title: string; copy: string };
 export type Metric = { value: string; label: string };
 
-export type PanelSection = { eyebrow: string; heading: string; text: string; button: string; image: string; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
+export type PanelSection = { eyebrow: string; heading: string; text: string; button: string; image: string; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle; ctaUrl?: string; ctaVisible?: boolean };
 export type PaymentSection = { heading: string; text: string; image: string; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
 
 export const investSectionIds = ["benefits", "market", "payment", "residency", "pathway", "trust", "liquidity", "featured", "faq", "calculator"] as const;
@@ -90,6 +90,8 @@ export const investDefaults: InvestContent = {
   residency: {
     headingStyle: undefined,
     textStyle: undefined,
+    ctaUrl: undefined,
+    ctaVisible: undefined,
     eyebrow: "Golden Visa Through Property Investment",
     heading: "Residency planning, reviewed with the purchase.",
     text: "Residency is part of the ownership conversation. For some buyers, Dubai property is both an asset and part of a longer-term personal plan. We frame the discussion around qualifying asset value, ownership structure, documentation route and family intentions before commitment.",
@@ -118,6 +120,8 @@ export const investDefaults: InvestContent = {
   trust: {
     headingStyle: undefined,
     textStyle: undefined,
+    ctaUrl: undefined,
+    ctaVisible: undefined,
     eyebrow: "Developer Trust & Delivery",
     heading: "Review the platform behind the address.",
     text: "Behind every address, a public-company standard. Kasumigaseki Properties Development is backed by Kasumigaseki Capital, listed on the Tokyo Stock Exchange Prime Market. That institutional framework informs how projects are studied, documented, built and carried beyond handover.",
@@ -249,8 +253,11 @@ function sanitizeLike(template: unknown, value: unknown): unknown {
     }));
   }
   if (template === undefined) {
-    /// Optional text-style objects (headingStyle/textStyle) have no delivered
-    /// value of their own; keep only a clean style, or nothing at all.
+    /// Optional keys with no delivered value of their own: text-style objects
+    /// keep only a clean style, booleans and strings pass through trimmed, and
+    /// anything else is dropped.
+    if (typeof value === "boolean") return value;
+    if (typeof value === "string") return value.trim();
     return cleanTextStyle(value);
   }
   return typeof value === "string" ? value.trim() : "";

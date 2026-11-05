@@ -27,6 +27,39 @@ function routeLinks(html: string) {
   return html;
 }
 
+/// The delivered tail keeps three visible bands (events head, events grid,
+/// sunset band — the sections carrying the "pdf-section" class); everything
+/// after them is the old homepage, hidden with CSS. Hidden markup still ships
+/// to the browser where search engines see it — including a second H1 and
+/// internal production notes — so the tail now stops after the last
+/// pdf-section and the old bands are not served at all (client feedback
+/// batch 3, item 5).
+function keepVisibleSections(tail: string): string {
+  const visible: string[] = [];
+  let index = 0;
+  for (;;) {
+    const start = tail.indexOf("<section", index);
+    if (start === -1) break;
+    const tagRe = /<\/?section\b[^>]*>/g;
+    tagRe.lastIndex = start;
+    let depth = 0;
+    let end = -1;
+    let match: RegExpExecArray | null;
+    while ((match = tagRe.exec(tail))) {
+      depth += match[0][1] === "/" ? -1 : 1;
+      if (depth === 0) {
+        end = match.index + match[0].length;
+        break;
+      }
+    }
+    if (end === -1) break;
+    const block = tail.slice(start, end);
+    if (/\bpdf-section\b/.test(block.slice(0, block.indexOf(">")))) visible.push(block);
+    index = end;
+  }
+  return visible.join("\n");
+}
+
 /// The delivered static tail of the homepage main (events, sunset band, live
 /// news grid and the hidden legacy bands) — served verbatim inside the React
 /// main with assets routed and legacy links mapped.
@@ -40,5 +73,5 @@ export function getHomeStaticTail(): string {
   const eventsStart = body.indexOf('<section class="pdf-section pdf-events-head"');
   const mainEnd = body.indexOf("</main>");
   if (eventsStart === -1 || mainEnd === -1) throw new Error("The delivered homepage tail could not be located.");
-  return body.slice(eventsStart, mainEnd);
+  return keepVisibleSections(body.slice(eventsStart, mainEnd));
 }

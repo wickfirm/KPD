@@ -11,6 +11,8 @@ export type BannerSlide = { image: string; label: string; text?: string };
 export type HomeSettings = {
   introStats?: StatItem[];
   statsNote?: string;
+  /// Optional link on the "as of" note (batch 3, item 1).
+  statsNoteUrl?: string;
   bannerSlides?: BannerSlide[];
   developmentCards?: DevelopmentCard[];
   heroVideo?: string;
@@ -89,7 +91,7 @@ export const homeDefaults = {
   newsHeading: "The Latest from Kasumigaseki Properties Development.",
   newsText: "Development updates, market notes and the thinking behind how we build.",
   newsCta: "Read News & Insights",
-  contactHeading: "Visit the Experience Centre",
+  contactHeading: "Visit the Experience Center",
   contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",
   galleryPanels: [
     { key: "arrival", image: "/legacy/assets/images/experience-center/hq/1.jpg", caption: "Private Consultation" },

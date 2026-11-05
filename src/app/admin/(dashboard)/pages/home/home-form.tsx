@@ -58,6 +58,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
           <label className="cms-field"><span>Label</span><input value={item.label} onChange={(event) => update({ label: event.target.value })} placeholder="Global AUM" /></label>
         </div>} />
       <label className="cms-field"><span>Note under the figures</span><input name="statsNote" defaultValue={settings.statsNote ?? ""} /><small>For example the “as of” date. Leave empty to hide it.</small></label>
+      <label className="cms-field"><span>Note link</span><input name="statsNoteUrl" defaultValue={settings.statsNoteUrl ?? ""} placeholder="https://kasumigaseki.co.jp/en/ir/" /><small>Makes the note clickable. Leave empty to show plain text.</small></label>
     </section>
     <h2 className="cms-form-heading">Developments image</h2>
     <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>

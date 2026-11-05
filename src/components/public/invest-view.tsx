@@ -91,7 +91,9 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
           <span className="kpd-eyebrow">{c.residency.eyebrow}</span>
           <h2 style={textStyleProps(c.residency.headingStyle)}>{c.residency.heading}</h2>
           <p style={textStyleProps(c.residency.textStyle)}>{c.residency.text}</p>
-          <button className="btn-pill" type="button" data-booking-open>{c.residency.button}</button>
+          {c.residency.ctaVisible === false ? null : c.residency.ctaUrl
+            ? <Link className="btn-pill" href={c.residency.ctaUrl}>{c.residency.button}</Link>
+            : <button className="btn-pill" type="button" data-booking-open>{c.residency.button}</button>}
         </div>
         <div className="invest-residency-support">
           <figure className="invest-residency-media motion-reveal" style={delay("90ms")}><img src={c.residency.image} alt="Panoramic Dubai skyline" /></figure>
@@ -123,7 +125,9 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
           <span className="kpd-eyebrow">{c.trust.eyebrow}</span>
           <h2 style={textStyleProps(c.trust.headingStyle)}>{c.trust.heading}</h2>
           <p style={textStyleProps(c.trust.textStyle)}>{c.trust.text}</p>
-          <button className="btn-pill" type="button" data-booking-open>{c.trust.button}</button>
+          {c.trust.ctaVisible === false ? null : c.trust.ctaUrl
+            ? <Link className="btn-pill" href={c.trust.ctaUrl}>{c.trust.button}</Link>
+            : <button className="btn-pill" type="button" data-booking-open>{c.trust.button}</button>}
         </div>
         <div className="invest-residency-support invest-trust-support">
           <figure className="invest-residency-media invest-trust-media motion-reveal" style={delay("90ms")}><img src={c.trust.image} alt="Modern financial district towers" /></figure>

@@ -93,7 +93,7 @@ export const legalDocuments: LegalDocument[] = [
           p("We may collect the following, depending on how you deal with us."),
           { type: "table", headers: ["Information", "What it includes", "Where it comes from"], rows: [
             ["Contact details", "Your name, email address and phone number.", "Enquiry form, floor plan requests, email"],
-            ["Enquiry preferences", "The development you're interested in, and whether you want a call, a visit to our Customer Experience Centre, to invest or to partner as a broker.", "Enquiry form"],
+            ["Enquiry preferences", "The development you're interested in, and whether you want a call, a visit to our Customer Experience Center, to invest or to partner as a broker.", "Enquiry form"],
             ["Message content", "Whatever you write to us.", "Enquiry form, email"],
             ["Event registrations", "Your details when you register for a KPD event.", "Events"],
             ["Newsletter signups", "Your email address.", "Subscribe form in the site footer"],

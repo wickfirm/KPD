@@ -651,7 +651,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     ceoImage: String(formData.get("ceoImage") || "").trim(),
     management,
   } : null;
-  const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline } : null;
+  const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline, ctaLabel: String(formData.get("legacyCtaLabel") || "").trim(), ctaUrl: String(formData.get("legacyCtaUrl") || "").trim(), ctaVisible: formData.get("legacyCtaVisible") === "on" } : null;
   const contactForm = slug === "contact" ? {
     type: "contact-form",
     salesLabel: String(formData.get("contactSalesLabel") || "").trim() || contactInquiryDefaults.salesLabel,
@@ -911,6 +911,7 @@ function homeSettingsFromForm(formData: FormData) {
   return Object.fromEntries(Object.entries({
     introStats: parseJsonList(formData.get("introStatsJson"), (item) => (text(item.value) || text(item.label) ? { value: text(item.value), label: text(item.label) } : null)),
     statsNote: String(formData.get("statsNote") ?? "").trim(),
+    statsNoteUrl: String(formData.get("statsNoteUrl") || "").trim(),
     bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development", ...(text(item.text) ? { text: text(item.text) } : {}) } : null)),
     developmentCards: parseJsonList(formData.get("developmentCardsJson"), (item) => (text(item.title) || text(item.image) ? { href: text(item.href), image: text(item.image), title: text(item.title), copy: text(item.copy) } : null)),
     heroVideo: String(formData.get("heroVideo") || "").trim(),
