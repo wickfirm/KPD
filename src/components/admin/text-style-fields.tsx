@@ -1,6 +1,6 @@
 export type TextStyleValue = {
   fontSize?: string;
-  fontWeight?: "normal" | "bold";
+  fontWeight?: "normal" | "bold" | "300" | "400" | "500";
   fontStyle?: "normal" | "italic";
 };
 
@@ -10,7 +10,7 @@ export function TextStyleFields({ prefix, value, label = "Text appearance", pres
     <legend className="cms-subheading">{label}</legend>
     <div className="cms-grid">
       <label className="cms-field"><span>Font size</span><input name={`${prefix}FontSize`} defaultValue={value?.fontSize ?? ""} placeholder="e.g. 18px or 1.25rem" /><small>Leave blank for the site default.</small></label>
-      <label className="cms-field"><span>Weight</span><select name={`${prefix}FontWeight`} defaultValue={value?.fontWeight ?? (preserveDefault ? "" : "normal")}>{preserveDefault ? <option value="">Keep delivered weight</option> : null}<option value="normal">Normal</option><option value="bold">Bold</option></select></label>
+      <label className="cms-field"><span>Weight</span><select name={`${prefix}FontWeight`} defaultValue={value?.fontWeight ?? (preserveDefault ? "" : "normal")}>{preserveDefault ? <option value="">Keep delivered weight</option> : null}<option value="300">Light (300)</option><option value="normal">Normal (400)</option><option value="500">Medium (500)</option><option value="bold">Bold</option></select></label>
       <label className="cms-field"><span>Style</span><select name={`${prefix}FontStyle`} defaultValue={value?.fontStyle ?? (preserveDefault ? "" : "normal")}>{preserveDefault ? <option value="">Keep delivered style</option> : null}<option value="normal">Normal</option><option value="italic">Italic</option></select></label>
     </div>
   </fieldset>;

@@ -326,12 +326,7 @@ function moduleContentFromForm(formData: FormData) {
   const ctaVisible = formData.get("ctaVisible") === "on";
   const mapUrl = String(formData.get("mapUrl") || "").trim();
   const presentation = formData.get("presentation") === "calm" ? "calm" : undefined;
-  const style = (prefix: string) => {
-    const fontSize = String(formData.get(`${prefix}FontSize`) || "").trim();
-    const fontWeight = formData.get(`${prefix}FontWeight`) === "bold" ? "bold" : undefined;
-    const fontStyle = formData.get(`${prefix}FontStyle`) === "italic" ? "italic" : undefined;
-    return fontSize || fontWeight || fontStyle ? { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) } : undefined;
-  };
+  const style = (prefix: string) => textStyleFromForm(formData, prefix);
   const titleStyle = style("title");
   const bodyTextStyle = style("text");
 
@@ -341,7 +336,10 @@ function moduleContentFromForm(formData: FormData) {
     ...(items.length ? { items } : {}),
     ...(url ? { url } : {}),
     ...(ctaLabel ? { ctaLabel } : {}),
-    ...(!ctaVisible ? { ctaVisible: false } : {}),
+    // Stored faithfully: the payment-plan section only shows its button when
+    // ctaVisible is explicitly true (feedback item 11), so a ticked box used to
+    // vanish here and the button could never appear.
+    ...(ctaVisible ? { ctaVisible: true } : { ctaVisible: false }),
     ...(mapUrl ? { mapUrl } : {}),
     ...(presentation ? { presentation } : {}),
     ...(titleStyle ? { titleStyle } : {}),
@@ -636,6 +634,11 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
   const about = slug === "about" ? {
     type: "about",
     sectionHeading: normalizeLineBreaks(formData.get("aboutSectionHeading") as string | null),
+    sectionHeadingStyle: textStyleFromForm(formData, "aboutSectionHeading"),
+    storyImage: String(formData.get("aboutStoryImage") || "").trim(),
+    storyStyle: textStyleFromForm(formData, "aboutStory"),
+    missionVisionStyle: textStyleFromForm(formData, "aboutMissionVision"),
+    chairmanStyle: textStyleFromForm(formData, "aboutChairman"),
     mission: String(formData.get("mission") || "").trim(),
     vision: String(formData.get("vision") || "").trim(),
     chairmanText: String(formData.get("chairmanText") || "").trim(),
@@ -937,6 +940,7 @@ function homeSettingsFromForm(formData: FormData) {
     newsCta: String(formData.get("newsCta") || "").trim(),
     newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
     newsCtaVisible: formData.get("newsCtaVisible") === "on",
+    newsCtaPosition: ["above", "left", "right"].includes(String(formData.get("newsCtaPosition") || "")) ? formData.get("newsCtaPosition") as "above" | "left" | "right" : "below",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
     contactText: String(formData.get("contactText") || "").trim(),
     contactCtaLabel: String(formData.get("contactCtaLabel") || "").trim(),
@@ -978,7 +982,10 @@ export async function previewInvestDraft(formData: FormData): Promise<{ error?: 
   if (raw) {
     try { invest = sanitizeInvestContent(JSON.parse(raw)); } catch { return { error: "The investor guide sections could not be read. Please review them and try again." }; }
   }
-  const hero = { type: "hero", heading: String(formData.get("heading") || "").trim(), text: String(formData.get("intro") || "").trim(), image: String(formData.get("image") || "").trim() };
+  const heroFields = { type: "hero", eyebrow: String(formData.get("eyebrow") || "").trim(), heading: String(formData.get("heading") || "").trim(), text: String(formData.get("intro") || "").trim(), image: String(formData.get("image") || "").trim(), ...(textStyleFromForm(formData, "pageHeading") ? { headingStyle: textStyleFromForm(formData, "pageHeading") } : {}), ...(textStyleFromForm(formData, "pageIntro") ? { textStyle: textStyleFromForm(formData, "pageIntro") } : {}) };
+  // A real save drops the hero block when every field is empty; mirror that so
+  // the preview shows the same delivered defaults the public page would.
+  const hero = heroFields.eyebrow || heroFields.heading || heroFields.text || heroFields.image ? heroFields : undefined;
   const key = siteDraftKey("invest", session.email);
   const value = newSiteDraft({ hero, saved: invest ? { type: "invest", ...invest } : undefined });
   await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });

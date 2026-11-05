@@ -15,6 +15,9 @@ export function AboutMain({ content }: { content: AboutContent }) {
   const sectionHeading = content.sectionHeading ?? "";
   const heroText = content.heroText ?? "";
   const heroImage = content.heroImage ?? "";
+  /// The philosophy picture follows the hero image only for rows saved before
+  /// the two fields were split (client feedback item 14).
+  const storyImage = content.storyImage === undefined ? heroImage : content.storyImage;
   const story = content.story?.filter(Boolean) ?? [];
   const mission = content.mission ?? "";
   const vision = content.vision ?? "";
@@ -32,7 +35,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
       <section className="page-reference-hero" aria-label="About Kasumigaseki Properties Development">
         {heroImage ? <img src={heroImage} alt="Real estate advisory model presentation" /> : null}
         <div className="page-reference-hero-copy motion-reveal">
-          <span>About</span>
+          {content.eyebrow === "" ? null : <span>{content.eyebrow ?? "About"}</span>}
           <h1 style={textStyleProps(content.headingStyle)}>{multiline(heading)}</h1>
           <p style={textStyleProps(content.heroTextStyle)}>{multiline(heroText)}</p>
         </div>
@@ -40,22 +43,22 @@ export function AboutMain({ content }: { content: AboutContent }) {
       <section className="about-story" id="about">
         <div className="about-story-grid">
           <div className="about-story-copy">
-            <h2 className="about-story-title">{multiline(sectionHeading)}</h2>
-            {story.map((paragraph, index) => <p key={index}>{multiline(paragraph)}</p>)}
+            <h2 className="about-story-title" style={textStyleProps(content.sectionHeadingStyle)}>{multiline(sectionHeading)}</h2>
+            {story.map((paragraph, index) => <p key={index} style={textStyleProps(content.storyStyle)}>{multiline(paragraph)}</p>)}
           </div>
           <div className="about-story-media">
-            {heroImage ? <img src={heroImage} alt="KPD office workspace" /> : null}
+            {storyImage ? <img src={storyImage} alt="KPD office workspace" /> : null}
           </div>
         </div>
       </section>
       <section className="about-mission-vision" id="mission">
-        <article className="about-mission-card"><h2>Our Mission</h2><p>{multiline(mission)}</p></article>
-        <article className="about-mission-card"><h2>Our Vision</h2><p>{multiline(vision)}</p></article>
+        <article className="about-mission-card"><h2>Our Mission</h2><p style={textStyleProps(content.missionVisionStyle)}>{multiline(mission)}</p></article>
+        <article className="about-mission-card"><h2>Our Vision</h2><p style={textStyleProps(content.missionVisionStyle)}>{multiline(vision)}</p></article>
       </section>
       <section className="about-chairman" id="chairman">
         <div className="about-chairman-media">{chairmanImage ? <img src={chairmanImage} alt="Chairman portrait" /> : null}</div>
         <div className="about-chairman-copy">
-          <p>{multiline(chairmanText)}</p>
+          <p style={textStyleProps(content.chairmanStyle)}>{multiline(chairmanText)}</p>
           <div className="about-chairman-signature"><strong>{chairmanName}</strong><span>{chairmanRole}</span></div>
         </div>
       </section>

@@ -454,3 +454,33 @@ body.home-development-page {
   .brochure-request__grid { grid-template-columns: 1fr; }
   .brochure-request__panel h2 { font-size: 32px; }
 }
+
+/* ── Homepage news section: button / text placement (CMS-era) ───────────────
+   The CMS can place the news button above, left or right of its supporting
+   text; the delivered default (below) renders no extra class at all. */
+.pdf-events-head--cta-above > div:last-child a {
+  margin-top: 0;
+  margin-bottom: 24px;
+}
+.pdf-events-head--cta-side > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.pdf-events-head--cta-side > div:last-child a {
+  margin-top: 0;
+  flex: 0 0 auto;
+}
+.pdf-events-head--cta-left > div:last-child {
+  flex-direction: row-reverse;
+}
+@media (max-width: 900px) {
+  .pdf-events-head--cta-side > div:last-child,
+  .pdf-events-head--cta-left > div:last-child {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .pdf-events-head--cta-side > div:last-child a {
+    margin-top: 24px;
+  }
+}

@@ -40,6 +40,8 @@ export type HomeSettings = {
   newsCta?: string;
   newsCtaUrl?: string;
   newsCtaVisible?: boolean;
+  /// Where the news button sits relative to the supporting text (item 15).
+  newsCtaPosition?: "below" | "above" | "left" | "right";
   contactHeading?: string;
   contactText?: string;
   contactCtaLabel?: string;

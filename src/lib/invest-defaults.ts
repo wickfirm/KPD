@@ -2,14 +2,17 @@
 /// invest-in-dubai.html). Single source of truth for the public page fallbacks
 /// and the admin investor-guide editor. Pure data - safe for client components.
 
+import { mortgageCalculatorDefaultCopy } from "@/lib/mortgage-calculator-html";
+import { cleanTextStyle, type TextStyle } from "@/lib/text-style";
+
 export type IconCard = { icon: string; title: string; text: string };
 export type YieldRow = { code: string; city: string; yieldLabel: string; yieldBar: string; trend: "up" | "down"; gainLabel: string; gainBar: string };
 export type FaqItem = { question: string; answer: string };
 export type FeaturedCard = { href: string; image: string; title: string; copy: string };
 export type Metric = { value: string; label: string };
 
-export type PanelSection = { eyebrow: string; heading: string; text: string; button: string; image: string; cards: IconCard[] };
-export type PaymentSection = { heading: string; text: string; image: string; cards: IconCard[] };
+export type PanelSection = { eyebrow: string; heading: string; text: string; button: string; image: string; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
+export type PaymentSection = { heading: string; text: string; image: string; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
 
 export const investSectionIds = ["benefits", "market", "payment", "residency", "pathway", "trust", "liquidity", "featured", "faq", "calculator"] as const;
 export type InvestSectionId = (typeof investSectionIds)[number];
@@ -28,16 +31,17 @@ export const investSectionLabels: Record<InvestSectionId, string> = {
 
 export type InvestContent = {
   metrics: Metric[];
-  benefits: { heading: string; text: string; items: IconCard[] };
-  market: { heading: string; text: string; source: string; rows: YieldRow[] };
+  benefits: { heading: string; text: string; items: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
+  market: { heading: string; text: string; source: string; rows: YieldRow[]; headingStyle?: TextStyle; textStyle?: TextStyle };
   payment: PaymentSection;
   paymentVisible: boolean;
   residency: PanelSection;
-  pathway: { heading: string; text: string; button: string; steps: IconCard[] };
+  pathway: { heading: string; text: string; button: string; steps: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
   trust: PanelSection;
-  liquidity: { heading: string; text: string; feature: IconCard; cards: IconCard[] };
-  featured: { heading: string; text: string; cards: FeaturedCard[] };
-  faq: { eyebrow: string; heading: string; text: string; items: FaqItem[] };
+  liquidity: { heading: string; text: string; feature: IconCard; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
+  featured: { heading: string; text: string; cards: FeaturedCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
+  calculator: { heading: string; text: string; headingStyle?: TextStyle; textStyle?: TextStyle };
+  faq: { eyebrow: string; heading: string; text: string; items: FaqItem[]; headingStyle?: TextStyle; textStyle?: TextStyle };
   contact: { eyebrow: string; heading: string; text: string; image: string; primaryLabel: string; secondaryLabel: string };
   sectionOrder: InvestSectionId[];
 };
@@ -53,6 +57,8 @@ export const investDefaults: InvestContent = {
     { value: "KPD", label: "Disciplined delivery" },
   ],
   benefits: {
+    headingStyle: undefined,
+    textStyle: undefined,
     heading: "Why Dubai remains investable",
     text: "A regulated ownership framework. International demand. Business mobility. Multiple entry routes. A city built to keep attracting people, capital and enterprise. These are the fundamentals to examine first.",
     items: [
@@ -67,6 +73,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   market: {
+    headingStyle: undefined,
+    textStyle: undefined,
     heading: "Rental Yield at a Glance",
     text: "A first-pass comparison of gross rental yield and capital appreciation across major global hubs.",
     source: "Source: Comparative market data compiled from the Savills World Cities Prime Residential Index and Knight Frank Global Research. Figures represent gross market averages and historical cyclical performance.",
@@ -80,6 +88,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   residency: {
+    headingStyle: undefined,
+    textStyle: undefined,
     eyebrow: "Golden Visa Through Property Investment",
     heading: "Residency planning, reviewed with the purchase.",
     text: "Residency is part of the ownership conversation. For some buyers, Dubai property is both an asset and part of a longer-term personal plan. We frame the discussion around qualifying asset value, ownership structure, documentation route and family intentions before commitment.",
@@ -92,6 +102,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   pathway: {
+    headingStyle: undefined,
+    textStyle: undefined,
     heading: "Investment pathway",
     text: "Understand the brief. Select the residence. Confirm the documents. Register the plan. Prepare for handover.",
     button: "Begin an enquiry",
@@ -104,6 +116,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   trust: {
+    headingStyle: undefined,
+    textStyle: undefined,
     eyebrow: "Developer Trust & Delivery",
     heading: "Review the platform behind the address.",
     text: "Behind every address, a public-company standard. Kasumigaseki Properties Development is backed by Kasumigaseki Capital, listed on the Tokyo Stock Exchange Prime Market. That institutional framework informs how projects are studied, documented, built and carried beyond handover.",
@@ -116,6 +130,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   liquidity: {
+    headingStyle: undefined,
+    textStyle: undefined,
     heading: "Market Liquidity & Exit",
     text: "Think about the exit before you enter. Dubai's active ownership market allows entry and exit to be considered together: demand depth, resale timing, rental readiness and future buyer appetite belong in the same review.",
     feature: { icon: "fi-tr-chart-mixed", title: "Liquidity is planned before purchase.", text: "Location, unit mix, handover date, price band and future tenant profile should be tested early so the asset has a clearer resale or leasing story later." },
@@ -127,6 +143,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   featured: {
+    headingStyle: undefined,
+    textStyle: undefined,
     heading: "Featured developments",
     text: "Current developments. Review the current residential collection, then move into a private conversation for availability, floor plans, pricing and payment terms.",
     cards: [
@@ -136,6 +154,8 @@ export const investDefaults: InvestContent = {
     ],
   },
   payment: {
+    headingStyle: undefined,
+    textStyle: undefined,
     heading: "Flexible Payment Plans.",
     text: "Investment structure should be clear before commitment. KPD reviews booking, construction, handover and post-handover obligations as one complete cash-flow path.",
     image: "/legacy/assets/images/library/luxury-downtown-of-dubai-2026-03-19-09-24-48-utc.jpg",
@@ -148,7 +168,10 @@ export const investDefaults: InvestContent = {
   },
   paymentVisible: true,
   sectionOrder: [...investSectionIds],
+  calculator: { ...mortgageCalculatorDefaultCopy, headingStyle: undefined, textStyle: undefined },
   faq: {
+    headingStyle: undefined,
+    textStyle: undefined,
     eyebrow: "Frequently Asked Questions",
     heading: "Answers for the first investment conversation.",
     text: "The first questions worth asking. Use these as a starting point before a private review of availability, payment terms, ownership route and documentation requirements.",
@@ -224,6 +247,11 @@ function sanitizeLike(template: unknown, value: unknown): unknown {
       if (key === "trend") return [key, source[key] === "down" ? "down" : "up"];
       return [key, sanitizeLike(child, source[key])];
     }));
+  }
+  if (template === undefined) {
+    /// Optional text-style objects (headingStyle/textStyle) have no delivered
+    /// value of their own; keep only a clean style, or nothing at all.
+    return cleanTextStyle(value);
   }
   return typeof value === "string" ? value.trim() : "";
 }

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "./mortgage-calculator-html";
+import { mortgageCalculatorDefaultCopy, mortgageCalculatorHtml, mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "./mortgage-calculator-html";
 
 const script = readFileSync(new URL("../../public/legacy/assets/js/mortgage-calculator.js", import.meta.url), "utf8");
 
@@ -37,5 +37,27 @@ describe("the client's mortgage calculator markup", () => {
   it("has the eligibility form posting to mailto, so the CMS script routes it to Messages and Salesforce", () => {
     expect(mortgageCalculatorHtml).toContain('class="mortgage-lead-form contact-adaptive-form" action="mailto:');
     expect(mortgageCalculatorHtml).toContain('name="Inquiry Type" value="Mortgage Eligibility Review"');
+  });
+
+  it("keeps every script hook when the CMS heading and intro are injected", () => {
+    const injected = mortgageCalculatorHtmlWith({ heading: "Test\nheading <1>", text: "Test intro" });
+    for (const id of hooks.ids) expect(injected, `#${id}`).toContain(`id="${id}"`);
+    const everything = `${injected} ${Object.keys(mortgageCalculatorSectionProps).join(" ")}`;
+    for (const name of hooks.data) expect(everything, `[${name}]`).toMatch(new RegExp(`\\b${name}\\b`));
+    expect(injected).toContain(`<h2 id="mortgage-calculator-title">Test<br>heading &lt;1&gt;</h2>`);
+    expect(injected).toContain(`<p>Test intro</p>`);
+  });
+
+  it("falls back to the delivered wording when the CMS values are empty", () => {
+    expect(mortgageCalculatorHtmlWith({ heading: "", text: "" })).toBe(mortgageCalculatorHtml);
+    expect(mortgageCalculatorHtmlWith()).toBe(mortgageCalculatorHtml);
+    expect(mortgageCalculatorDefaultCopy.heading).toContain("Plan the numbers");
+  });
+
+  it("applies the CMS text styles to the heading and intro only", () => {
+    const styled = mortgageCalculatorHtmlWith({ heading: "H", text: "T", headingStyle: { fontWeight: "300" }, textStyle: { fontSize: "20px" } });
+    expect(styled).toContain('<h2 id="mortgage-calculator-title" style="font-weight:300">H</h2>');
+    expect(styled).toContain('<p style="font-size:20px">T</p>');
+    expect(mortgageCalculatorHtmlWith({ heading: "H", text: "T" })).toContain('<h2 id="mortgage-calculator-title">H</h2>');
   });
 });
