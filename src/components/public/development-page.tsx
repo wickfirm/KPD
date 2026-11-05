@@ -1,11 +1,11 @@
 ﻿import type { ReactNode } from "react";
 import type { ProjectShell } from "@/lib/legacy-project";
 import type { ProjectChrome } from "@/lib/project-chrome";
-import { textStyleProps } from "@/lib/text-style";
+import { textStyleProps, type TextStyle } from "@/lib/text-style";
 import { DevelopmentModule } from "./development-template";
 import { BrochureRequest } from "./brochure-request";
 import { developmentSlots } from "@/lib/project-chrome";
-import { mortgageCalculatorHtml, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
+import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 
 export type DevelopmentProject = {
   id: string;
@@ -20,6 +20,10 @@ export type DevelopmentProject = {
   modules: { id: string; slug: string; title: string; kind: string; content: unknown }[];
   chrome?: ProjectChrome;
 };
+
+/// The calculator wording is shared with the investor guide's CMS record, so
+/// editing it there updates the calculator everywhere it appears (item 6).
+export type CalculatorCopy = { heading: string; text: string; headingStyle?: TextStyle; textStyle?: TextStyle };
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -52,7 +56,7 @@ function PrivateViewing({ chrome }: { chrome?: ProjectChrome }) {
 /// The development page <main>: hero and overview render from the project row,
 /// then each CMS module renders through DevelopmentModule. Content fields have
 /// no delivered fallback: deleting them in the CMS deletes them from the page.
-export function DevelopmentMain({ project, shell }: { project: DevelopmentProject; shell: ProjectShell }) {
+export function DevelopmentMain({ project, shell, calculator }: { project: DevelopmentProject; shell: ProjectShell; calculator?: CalculatorCopy }) {
   return (
     <main className="single-project-main" id="top">
       <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>
@@ -77,7 +81,7 @@ export function DevelopmentMain({ project, shell }: { project: DevelopmentProjec
       {developmentSlots(project.modules, project.chrome?.calculatorIndex).map((slot) => (
         slot === "calculator"
           ? <div key="calculator">
-            <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtml }} />
+            <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(calculator) }} />
             <PrivateViewing chrome={project.chrome} />
           </div>
           : <DevelopmentModule
