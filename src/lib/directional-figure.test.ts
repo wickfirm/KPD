@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { directionalFigure } from "./directional-figure";
+import { cmsDirectionalFigure, directionalFigure } from "./directional-figure";
 
 const delivered = `<figure class="single-project-calm-media single-project-directional-media" data-directional-media>
   <img src="assets/images/single-project/pdf/seven-x-seven-pool-hero.jpg" alt="Seven X Seven pool" data-directional-image>
@@ -39,5 +39,19 @@ describe("directionalFigure", () => {
     const result = directionalFigure(delivered, ['/x.jpg" onerror="alert(1)'], "alt");
     expect(result).not.toContain('onerror="alert(1)"');
     expect(result).toContain("/x.jpg&quot; onerror=&quot;alert(1)");
+  });
+});
+
+describe("cmsDirectionalFigure", () => {
+  it("builds a full delivered-shaped slider from CMS images", () => {
+    const figure = cmsDirectionalFigure(["/a.jpg", "/b.jpg"], "Alt text");
+    expect(figure).toContain('class="single-project-calm-media single-project-directional-media" data-directional-media');
+    expect(figure).toContain('<img src="/a.jpg" alt="Alt text" data-directional-image>');
+    expect(figure).toContain("data-directional-prev");
+    expect((figure.match(/data-directional-slide/g) ?? []).length).toBe(2);
+  });
+
+  it("renders nothing without images", () => {
+    expect(cmsDirectionalFigure([], "alt")).toBe("");
   });
 });
