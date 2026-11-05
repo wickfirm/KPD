@@ -10,8 +10,12 @@ const delivered = `<figure class="single-project-calm-media single-project-direc
 </figure>`;
 
 describe("directionalFigure", () => {
-  it("keeps the delivered figure untouched when the editor has no images", () => {
-    expect(directionalFigure(delivered, [], "alt")).toBe(delivered);
+  it("keeps the delivered figure untouched when the editor never saved a list", () => {
+    expect(directionalFigure(delivered, undefined, "alt")).toBe(delivered);
+  });
+
+  it("removes the figure entirely when the CMS list is explicitly emptied", () => {
+    expect(directionalFigure(delivered, [], "alt")).toBe("");
   });
 
   it("drives the visible image and every hidden slide from the CMS list", () => {

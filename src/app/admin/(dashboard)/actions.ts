@@ -332,7 +332,10 @@ function moduleContentFromForm(formData: FormData) {
 
   return {
     ...(text ? { text } : {}),
-    ...(images.length ? { images } : {}),
+    // Stored even when empty: an explicit empty list means the editor removed
+    // every image, which the delivered-figure renderer must honour instead of
+    // falling back to the delivered slides.
+    ...(images.length ? { images } : { images: [] }),
     ...(items.length ? { items } : {}),
     ...(url ? { url } : {}),
     ...(ctaLabel ? { ctaLabel } : {}),
@@ -942,6 +945,7 @@ function homeSettingsFromForm(formData: FormData) {
     newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
     newsCtaVisible: formData.get("newsCtaVisible") === "on",
     newsCtaPosition: ["above", "left", "right"].includes(String(formData.get("newsCtaPosition") || "")) ? formData.get("newsCtaPosition") as "above" | "left" | "right" : "below",
+    developmentCtaPosition: ["above", "left", "right"].includes(String(formData.get("developmentCtaPosition") || "")) ? formData.get("developmentCtaPosition") as "above" | "left" | "right" : "below",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
     contactText: String(formData.get("contactText") || "").trim(),
     contactCtaLabel: String(formData.get("contactCtaLabel") || "").trim(),

@@ -522,3 +522,33 @@ body.home-development-page {
     grid-column: 1 / -1;
   }
 }
+
+/* ── Homepage developments banner (CMS-era, round two) ──────────────────────
+   The content box is shrink-to-fit inside the centering grid, which wrapped
+   the banner line early (a lone word dropping to its own line). Give it a
+   definite, wider measure; the button and the line on the image can also be
+   placed as a pair above, below, or beside each other. */
+.pdf-development-content {
+  width: min(1560px, 92%);
+}
+.pdf-development-banner--cta-row .pdf-development-cta-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: clamp(20px, 2.5vw, 44px);
+}
+.pdf-development-banner--cta-row .pdf-development-cta-row .pdf-development-button,
+.pdf-development-banner--cta-above .pdf-development-button {
+  margin-top: 0;
+}
+.pdf-development-banner--cta-above .pdf-development-button {
+  margin-bottom: clamp(16px, 2vw, 28px);
+}
+
+/* ── Development page section buttons (CMS-era, round two) ─────────────────
+   Keep the section CTA off the copy above it. */
+.single-project-page .single-project-calm-copy .btn-pill,
+.single-project-page .single-project-section-copy .btn-pill {
+  margin-top: clamp(28px, 3vw, 44px);
+}
