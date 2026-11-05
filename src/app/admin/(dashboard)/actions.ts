@@ -326,12 +326,7 @@ function moduleContentFromForm(formData: FormData) {
   const ctaVisible = formData.get("ctaVisible") === "on";
   const mapUrl = String(formData.get("mapUrl") || "").trim();
   const presentation = formData.get("presentation") === "calm" ? "calm" : undefined;
-  const style = (prefix: string) => {
-    const fontSize = String(formData.get(`${prefix}FontSize`) || "").trim();
-    const fontWeight = formData.get(`${prefix}FontWeight`) === "bold" ? "bold" : undefined;
-    const fontStyle = formData.get(`${prefix}FontStyle`) === "italic" ? "italic" : undefined;
-    return fontSize || fontWeight || fontStyle ? { ...(fontSize ? { fontSize } : {}), ...(fontWeight ? { fontWeight } : {}), ...(fontStyle ? { fontStyle } : {}) } : undefined;
-  };
+  const style = (prefix: string) => textStyleFromForm(formData, prefix);
   const titleStyle = style("title");
   const bodyTextStyle = style("text");
 
@@ -341,7 +336,10 @@ function moduleContentFromForm(formData: FormData) {
     ...(items.length ? { items } : {}),
     ...(url ? { url } : {}),
     ...(ctaLabel ? { ctaLabel } : {}),
-    ...(!ctaVisible ? { ctaVisible: false } : {}),
+    // Stored faithfully: the payment-plan section only shows its button when
+    // ctaVisible is explicitly true (feedback item 11), so a ticked box used to
+    // vanish here and the button could never appear.
+    ...(ctaVisible ? { ctaVisible: true } : { ctaVisible: false }),
     ...(mapUrl ? { mapUrl } : {}),
     ...(presentation ? { presentation } : {}),
     ...(titleStyle ? { titleStyle } : {}),
