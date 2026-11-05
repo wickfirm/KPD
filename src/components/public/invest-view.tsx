@@ -7,8 +7,9 @@ import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/del
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId } from "@/lib/invest-defaults";
+import { textStyleProps, type TextStyle } from "@/lib/text-style";
 
-export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string };
+export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string; headingStyle?: TextStyle; textStyle?: TextStyle };
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -41,13 +42,13 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
     <SiteShellHeader /><main className="invest-main page-reference-main" id="top">
       <section className="page-reference-hero invest-hero" aria-label="Invest in Dubai">
         {hero?.image ? <img src={hero.image} alt="Dubai skyline with Burj Khalifa" /> : null}
-        <div className="page-reference-hero-copy motion-reveal">{hero?.eyebrow === "" ? null : <span>{hero?.eyebrow ?? "Invest in Dubai"}</span>}<h1>{multiline(hero?.heading ?? "")}</h1><p>{hero?.text ?? ""}</p></div>
+        <div className="page-reference-hero-copy motion-reveal">{hero?.eyebrow === "" ? null : <span>{hero?.eyebrow ?? "Invest in Dubai"}</span>}<h1 style={textStyleProps(hero?.headingStyle)}>{multiline(hero?.heading ?? "")}</h1><p style={textStyleProps(hero?.textStyle)}>{hero?.text ?? ""}</p></div>
         <div className="invest-hero-metrics motion-reveal" style={delay("120ms")} aria-label="Investment highlights">{c.metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>
       </section>
 
       <div className="invest-section-stack">
       <section className="invest-benefits kpd-section kpd-section--compact" aria-label="Investor benefits" style={stackOrder(c.sectionOrder, "benefits")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.benefits.heading}</h2><div className="single-project-section-copy"><p>{c.benefits.text}</p></div></div>
+        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.benefits.headingStyle)}>{c.benefits.heading}</h2><div className="single-project-section-copy"><p style={textStyleProps(c.benefits.textStyle)}>{c.benefits.text}</p></div></div>
         <div className="invest-benefit-carousel motion-reveal" data-invest-carousel>
           <div className="invest-benefit-track">
             {c.benefits.items.map((item, index) => <article className="invest-benefit-card" key={`${item.title}-${index}`}>{icon(item.icon)}<h3>{item.title}</h3><p>{item.text}</p></article>)}
@@ -57,7 +58,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
       </section>
 
       <section className="invest-market kpd-section kpd-section--compact" aria-label="Dubai comparison lens" style={stackOrder(c.sectionOrder, "market")}>
-        <div className="invest-editorial-grid invest-editorial-grid--top"><h2 className="motion-reveal">{c.market.heading}</h2><div className="invest-copy motion-reveal" style={delay("80ms")}><p>{c.market.text}</p></div></div>
+        <div className="invest-editorial-grid invest-editorial-grid--top"><h2 className="motion-reveal" style={textStyleProps(c.market.headingStyle)}>{c.market.heading}</h2><div className="invest-copy motion-reveal" style={delay("80ms")}><p style={textStyleProps(c.market.textStyle)}>{c.market.text}</p></div></div>
         <div className="invest-yield-board motion-reveal">
           <div className="invest-yield-head"><span>City / Market</span><span>Rental Gross Yield</span><span>Capital Appreciation</span></div>
           {c.market.rows.map((row, index) => (
@@ -75,7 +76,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
       <section {...mortgageCalculatorSectionProps} style={stackOrder(c.sectionOrder, "calculator")} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(c.calculator) }} />
 
       {c.paymentVisible === false ? null : <section className="invest-payment-plan kpd-section" aria-label="Flexible payment plans" style={stackOrder(c.sectionOrder, "payment")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.payment.heading}</h2><div className="single-project-section-copy">{c.payment.text ? <p>{c.payment.text}</p> : null}</div></div>
+        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.payment.headingStyle)}>{c.payment.heading}</h2><div className="single-project-section-copy">{c.payment.text ? <p style={textStyleProps(c.payment.textStyle)}>{c.payment.text}</p> : null}</div></div>
         <div className="invest-payment-layout">
           {c.payment.image ? <figure className="invest-payment-media motion-reveal"><img src={c.payment.image} alt="" /></figure> : null}
           <div className="invest-payment-cards">
@@ -88,8 +89,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         <div className="invest-residency-panel motion-reveal">
           {icon("fi-tr-passport", "invest-residency-icon")}
           <span className="kpd-eyebrow">{c.residency.eyebrow}</span>
-          <h2>{c.residency.heading}</h2>
-          <p>{c.residency.text}</p>
+          <h2 style={textStyleProps(c.residency.headingStyle)}>{c.residency.heading}</h2>
+          <p style={textStyleProps(c.residency.textStyle)}>{c.residency.text}</p>
           <button className="btn-pill" type="button" data-booking-open>{c.residency.button}</button>
         </div>
         <div className="invest-residency-support">
@@ -102,8 +103,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
 
       <section className="invest-pathway kpd-section" id="investment-pathway" aria-label="Investment pathway" style={stackOrder(c.sectionOrder, "pathway")}>
         <div className="single-project-section-head invest-section-head motion-reveal">
-          <h2>{c.pathway.heading}</h2>
-          <div className="single-project-section-copy"><p>{c.pathway.text}</p><button className="btn-pill" type="button" data-booking-open>{c.pathway.button}</button></div>
+          <h2 style={textStyleProps(c.pathway.headingStyle)}>{c.pathway.heading}</h2>
+          <div className="single-project-section-copy"><p style={textStyleProps(c.pathway.textStyle)}>{c.pathway.text}</p><button className="btn-pill" type="button" data-booking-open>{c.pathway.button}</button></div>
         </div>
         <div className="invest-process-carousel motion-reveal" data-invest-scroll-carousel>
           <div className="invest-process-cards" data-invest-scroll-track>
@@ -120,8 +121,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
         <div className="invest-residency-panel invest-trust-copy motion-reveal">
           {icon("fi-tr-building-shield")}
           <span className="kpd-eyebrow">{c.trust.eyebrow}</span>
-          <h2>{c.trust.heading}</h2>
-          <p>{c.trust.text}</p>
+          <h2 style={textStyleProps(c.trust.headingStyle)}>{c.trust.heading}</h2>
+          <p style={textStyleProps(c.trust.textStyle)}>{c.trust.text}</p>
           <button className="btn-pill" type="button" data-booking-open>{c.trust.button}</button>
         </div>
         <div className="invest-residency-support invest-trust-support">
@@ -133,7 +134,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
       </section>
 
       <section className="invest-liquidity kpd-section" aria-label="Market liquidity and exit" style={stackOrder(c.sectionOrder, "liquidity")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.liquidity.heading}</h2><div className="single-project-section-copy"><p>{c.liquidity.text}</p></div></div>
+        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.liquidity.headingStyle)}>{c.liquidity.heading}</h2><div className="single-project-section-copy"><p style={textStyleProps(c.liquidity.textStyle)}>{c.liquidity.text}</p></div></div>
         <div className="invest-liquidity-grid">
           <article className="invest-liquidity-feature motion-reveal">{icon(c.liquidity.feature.icon)}<h3>{c.liquidity.feature.title}</h3><p>{c.liquidity.feature.text}</p></article>
           {c.liquidity.cards.map((item, index) => card(item, index, 70, 70))}
@@ -141,7 +142,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
       </section>
 
       <section className="invest-featured kpd-section" aria-label="Featured developments" style={stackOrder(c.sectionOrder, "featured")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2>{c.featured.heading}</h2><div className="single-project-section-copy"><p>{c.featured.text}</p></div></div>
+        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.featured.headingStyle)}>{c.featured.heading}</h2><div className="single-project-section-copy"><p style={textStyleProps(c.featured.textStyle)}>{c.featured.text}</p></div></div>
         <div className={`pdf-development-cards invest-development-cards${c.featured.cards.length < 3 ? ` pdf-development-cards--count-${c.featured.cards.length}` : ""}`}>
           {c.featured.cards.map((item, index) => <Link className="pdf-dev-card motion-reveal" style={index ? delay(`${index * 80}ms`) : undefined} href={item.href || "/"} key={`${item.href}-${index}`}><img src={item.image} alt={`${item.title} exterior`} /><div className="pdf-dev-card-body"><h3>{item.title}</h3><p>{item.copy}</p><span>Explore</span></div></Link>)}
         </div>
@@ -152,8 +153,8 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
           <aside className="invest-faq-aside motion-reveal">
             {icon("fi-tr-question")}
             <span className="kpd-eyebrow">{c.faq.eyebrow}</span>
-            <h2>{c.faq.heading}</h2>
-            <p>{c.faq.text}</p>
+            <h2 style={textStyleProps(c.faq.headingStyle)}>{c.faq.heading}</h2>
+            <p style={textStyleProps(c.faq.textStyle)}>{c.faq.text}</p>
           </aside>
           <div className="faq-list invest-faq-list">
             {c.faq.items.map((item, index) => <details className="invest-faq-item motion-reveal" key={`${item.question}-${index}`} open={index === 0}><summary>{item.question}</summary><p>{item.answer}</p></details>)}

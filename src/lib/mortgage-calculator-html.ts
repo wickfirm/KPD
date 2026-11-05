@@ -4,6 +4,8 @@
 /// Do not edit it by hand. When the client sends a new version, paste the new inner markup here.
 /// public/legacy/assets/js/mortgage-calculator.js (also delivered) drives every id and data-attribute
 /// below, and mortgage-calculator.test.ts checks that they all still exist.
+import { textStyleAttribute, type TextStyle } from "@/lib/text-style";
+
 /// The section's own attributes (its opening tag), as delivered. The inner markup follows.
 export const mortgageCalculatorSectionProps = {
   className: "mortgage-calculator kpd-section kpd-section--compact",
@@ -175,12 +177,13 @@ function escapeHtmlValue(value: string) {
 /// The delivered inner markup with the heading and intro replaced by CMS values.
 /// Empty or missing values keep the delivered wording, so the section title
 /// referenced by aria-labelledby always renders. Line breaks render as <br>
-/// like every other multiline CMS field. The regexes survive future verbatim
-/// pastes of the client's markup with different wording.
-export function mortgageCalculatorHtmlWith(copy?: { heading?: string; text?: string }): string {
+/// like every other multiline CMS field, and optional text styles ride on the
+/// two elements. The regexes survive future verbatim pastes of the client's
+/// markup with different wording.
+export function mortgageCalculatorHtmlWith(copy?: { heading?: string; text?: string; headingStyle?: TextStyle; textStyle?: TextStyle }): string {
   const heading = escapeHtmlValue((copy?.heading ?? "").trim() || mortgageCalculatorDefaultCopy.heading).replaceAll("\n", "<br>");
   const text = escapeHtmlValue((copy?.text ?? "").trim() || mortgageCalculatorDefaultCopy.text).replaceAll("\n", "<br>");
   return mortgageCalculatorHtml
-    .replace(/(<h2 id="mortgage-calculator-title">)[\s\S]*?(<\/h2>)/, `$1${heading}$2`)
-    .replace(/(<div class="invest-copy motion-reveal"[^>]*>\s*<p>)[\s\S]*?(<\/p>)/, `$1${text}$2`);
+    .replace(/<h2 id="mortgage-calculator-title">[\s\S]*?<\/h2>/, `<h2 id="mortgage-calculator-title"${textStyleAttribute(copy?.headingStyle)}>${heading}</h2>`)
+    .replace(/(<div class="invest-copy motion-reveal"[^>]*>\s*)<p>[\s\S]*?<\/p>/, `$1<p${textStyleAttribute(copy?.textStyle)}>${text}</p>`);
 }
