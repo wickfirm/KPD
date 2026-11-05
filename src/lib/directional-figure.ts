@@ -5,10 +5,16 @@
 /// CMS, so editors could not remove or add a different image (client feedback
 /// items 12 and 13). directionalFigure rewrites such a figure so the CMS image
 /// list drives the whole slider: the first image shows on load and every hidden
-/// slide is replaced in order. An empty list keeps the delivered figure exactly
-/// as delivered, so pages the editor has not touched stay byte-identical.
-export function directionalFigure(figureHtml: string, images: string[], alt: string) {
-  if (!images.length) return figureHtml;
+/// slide is replaced in order.
+///
+/// images === undefined (the editor never saved a list) keeps the delivered
+/// figure exactly as delivered, so pages the editor has not touched stay
+/// byte-identical. An explicit empty list means the CMS owns the section and
+/// the editor removed every image, so the figure is not served at all - no
+/// delivered image may resurface behind the CMS (round two).
+export function directionalFigure(figureHtml: string, images: string[] | undefined, alt: string): string {
+  if (images === undefined) return figureHtml;
+  if (!images.length) return "";
   const attr = (value: string) => value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const slides = images.map((image) => `<span hidden data-directional-slide data-image="${attr(image)}" data-alt="${attr(alt)}"></span>`).join("");
   return figureHtml

@@ -4,9 +4,9 @@ import { RawFigure } from "./raw-figure";
 import { moduleSectionId } from "@/lib/module-section-id";
 import { htmlLf } from "@/lib/html-lf";
 import { directionalFigure } from "@/lib/directional-figure";
+import type { TextStyle } from "@/lib/text-style";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
-type TextStyle = { fontSize?: string; fontWeight?: "normal" | "bold"; fontStyle?: "normal" | "italic" };
 type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyle; textStyle?: TextStyle };
 
 /// Delivered markup fragments (directional-media figures, travel timeline)
@@ -19,7 +19,7 @@ function content(value: unknown) {
 
 function styleOf(value?: TextStyle) {
   if (!value) return undefined;
-  return { fontSize: value.fontSize || undefined, fontWeight: value.fontWeight || undefined, fontStyle: value.fontStyle || undefined };
+  return { fontSize: value.fontSize || undefined, fontWeight: value.fontWeight || undefined, fontStyle: value.fontStyle || undefined, lineHeight: value.lineHeight || undefined };
 }
 
 /// Newlines in module titles render as <br>, matching the delivered markup
@@ -54,12 +54,12 @@ export function DevelopmentModule({ module, projectName, shell }: { module: { sl
     // The delivered directional figure rides through verbatim with the CMS
     // image list driving its slider (see directionalFigure).
     const figureHtml = shell?.calmFigure
-      ? directionalFigure(shell.calmFigure, images, `${projectName} — ${module.title}`)
+      ? directionalFigure(shell.calmFigure, data.images, `${projectName} — ${module.title}`)
       : images[0] ? `<figure class="single-project-calm-media"><img src="${escapeAttr(images[0])}" alt="${escapeAttr(`${projectName} — ${module.title}`)}"></figure>` : "";
     return <section className="single-project-calm kpd-section" id={id} aria-label={module.title}><div className="single-project-calm-grid"><div className="single-project-calm-copy"><h2 style={titleStyle}>{multiline(module.title)}</h2>{data.text ? <p style={bodyStyle}>{multiline(data.text)}</p> : null}{data.url && data.ctaVisible !== false ? <Link className="btn-pill" href={data.url}>{data.ctaLabel || "Brochure"}</Link> : null}</div>{figureHtml ? <RawFigure html={figureHtml} /> : null}</div></section>;
   }
 
-  if (module.slug === "payment-plan") return <section className="single-project-payment kpd-section" id={id} aria-label={module.title}><div className="single-project-section-head"><h2 style={titleStyle}>{module.title}</h2><div className="single-project-section-copy">{data.text ? <p style={bodyStyle}>{multiline(data.text)}</p> : null}{data.url && data.ctaVisible === true ? <a className="btn-pill" href={data.url}>{data.ctaLabel || "Download Payment Plan"}</a> : null}</div></div><div className="single-project-payment-grid">{items.map((item, index) => <article key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span>{item.text && item.label ? <p>{item.text}</p> : null}</article>)}</div></section>;
+  if (module.slug === "payment-plan") return <section className="single-project-payment kpd-section" id={id} aria-label={module.title}><div className="single-project-section-head"><h2 style={titleStyle}>{module.title}</h2><div className="single-project-section-copy">{data.text ? <p style={bodyStyle}>{multiline(data.text)}</p> : null}{data.url && data.ctaVisible !== false ? <a className="btn-pill" href={data.url}>{data.ctaLabel || "Download Payment Plan"}</a> : null}</div></div><div className="single-project-payment-grid">{items.map((item, index) => <article key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span>{item.text && item.label ? <p>{item.text}</p> : null}</article>)}</div></section>;
 
-  return <section className="single-project-meydan kpd-section" id={id} aria-label={module.title}><div className="single-project-meydan-grid"><div className="single-project-meydan-copy"><h2 style={titleStyle}>{module.title}</h2>{data.text ? <p style={bodyStyle}>{multiline(data.text)}</p> : null}{items.length ? <div className="single-project-meydan-stats" aria-label={`${module.title} travel highlights`}>{items.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></div>)}</div> : null}{data.url && data.ctaVisible !== false ? <a className="btn-pill" href={data.url}>{data.ctaLabel || "Explore"}</a> : null}</div>{shell?.meydanFigure ? <RawFigure html={directionalFigure(shell.meydanFigure, images, `${projectName} — ${module.title}`)} /> : images[0] ? <figure className="single-project-meydan-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null}</div></section>;
+  return <section className="single-project-meydan kpd-section" id={id} aria-label={module.title}><div className="single-project-meydan-grid"><div className="single-project-meydan-copy"><h2 style={titleStyle}>{module.title}</h2>{data.text ? <p style={bodyStyle}>{multiline(data.text)}</p> : null}{items.length ? <div className="single-project-meydan-stats" aria-label={`${module.title} travel highlights`}>{items.map((item, index) => <div key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label ?? item.text}</span></div>)}</div> : null}{data.url && data.ctaVisible !== false ? <a className="btn-pill" href={data.url}>{data.ctaLabel || "Explore"}</a> : null}</div>{(() => { const figure = shell?.meydanFigure ? directionalFigure(shell.meydanFigure, data.images, `${projectName} — ${module.title}`) : ""; return figure ? <RawFigure html={figure} /> : images[0] ? <figure className="single-project-meydan-media"><img src={images[0]} alt={`${projectName} — ${module.title}`} /></figure> : null; })()}</div></section>;
 }

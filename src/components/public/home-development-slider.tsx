@@ -8,7 +8,7 @@ import type { TextStyle } from "@/lib/text-style";
 /// The delivered script runs before React has hydrated on some homepage loads.
 /// Own this CMS-rendered carousel in React so autoplay and the dot controls are
 /// reliable regardless of load timing or client-side navigation.
-export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: TextStyle; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle }) {
+export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle, ctaPosition = "below" }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: TextStyle; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle; ctaPosition?: "below" | "above" | "left" | "right" }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
     <>
       {headingPosition === "above" ? outsideHeading : null}
       {captionPosition === "above" ? captionBlock : null}
-      <section className="pdf-section pdf-development-banner" id="developments" aria-roledescription="carousel" aria-label="Featured developments">
+      <section className={`pdf-section pdf-development-banner${ctaPosition === "above" ? " pdf-development-banner--cta-above" : ctaPosition === "left" || ctaPosition === "right" ? " pdf-development-banner--cta-row" : ""}`} id="developments" aria-roledescription="carousel" aria-label="Featured developments">
         <div className="pdf-development-slides" aria-hidden="true">
           {slides.map((slide, index) => (
             <div className={`pdf-development-slide${index === activeIndex ? " active" : ""}`} key={`${slide.image}-${index}`}><img src={slide.image} alt="" /></div>
@@ -40,8 +40,14 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
         </div>
         <div className="pdf-development-content">
           {headingPosition === "overlay" ? <h2 style={headingStyle}>{multiline(heading)}</h2> : null}
-          {bannerText?.trim() ? <p>{multiline(bannerText)}</p> : null}
-          {ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel}</Link> : null}
+          {(() => {
+            const button = ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel}</Link> : null;
+            const text = bannerText?.trim() ? <p>{multiline(bannerText)}</p> : null;
+            if (ctaPosition === "left" || ctaPosition === "right") {
+              return <div className="pdf-development-cta-row">{ctaPosition === "left" ? <>{button}{text}</> : <>{text}{button}</>}</div>;
+            }
+            return <>{ctaPosition === "above" ? <>{button}{text}</> : <>{text}{button}</>}</>;
+          })()}
           <div className="pdf-development-dots" aria-label="Choose a development slide">
             {slides.map((slide, index) => (
               <button className={index === activeIndex ? "active" : undefined} type="button" onClick={() => setActiveIndex(index)} aria-label={`Show ${slide.label}`} aria-pressed={index === activeIndex} key={`${slide.label}-${index}`} />
