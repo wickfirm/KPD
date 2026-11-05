@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeLineBreaks } from "./line-breaks";
+import { normalizeLineBreaks, preserveLineBreaks } from "./line-breaks";
 
 describe("normalizeLineBreaks", () => {
   it("keeps a single line as it is", () => {
@@ -19,5 +19,17 @@ describe("normalizeLineBreaks", () => {
     expect(normalizeLineBreaks("")).toBe("");
     expect(normalizeLineBreaks(null)).toBe("");
     expect(normalizeLineBreaks(undefined)).toBe("");
+  });
+});
+
+describe("preserveLineBreaks (body copy, feedback items 4 and 16)", () => {
+  it("keeps blank lines so editors can add vertical spacing", () => {
+    expect(preserveLineBreaks("Line one\r\n\r\nLine two")).toBe("Line one\n\nLine two");
+    expect(preserveLineBreaks("Line one\n\n\n\nLine two")).toBe("Line one\n\n\n\nLine two");
+  });
+  it("still tidies line endings and trailing whitespace", () => {
+    expect(preserveLineBreaks("Line one  \r\nLine two\t")).toBe("Line one\nLine two");
+    expect(preserveLineBreaks("\n\nLine one\n\n")).toBe("Line one");
+    expect(preserveLineBreaks(null)).toBe("");
   });
 });

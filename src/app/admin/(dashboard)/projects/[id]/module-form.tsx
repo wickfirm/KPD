@@ -73,7 +73,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
         <label className="cms-field"><span>Visibility</span><select name="profile" defaultValue={defaults?.profile ?? "FULL"}><option value="FULL">Public site</option><option value="RESTRICTED">Restricted (not shown publicly)</option></select></label>
       </div>
     </details>
-    <label className="cms-field"><span>Text</span><textarea name="text" rows={5} defaultValue={defaults?.content?.text ?? ""} placeholder="The editorial copy shown in this section." /></label>
+    <label className="cms-field"><span>Text</span><textarea name="text" rows={5} defaultValue={defaults?.content?.text ?? ""} placeholder="The editorial copy shown in this section." /><small>Line breaks and blank lines render on the public page exactly as typed.</small></label>
     <TextStyleFields prefix="title" value={defaults?.content?.titleStyle} label="Section-title appearance" />
     <TextStyleFields prefix="text" value={defaults?.content?.textStyle} label="Section-copy appearance" />
     <input type="hidden" name="images" value={images.join("\n")} />

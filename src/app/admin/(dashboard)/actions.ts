@@ -26,7 +26,7 @@ import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-previe
 import { applySxsSettings } from "./seven-x-seven/actions";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
-import { normalizeLineBreaks } from "@/lib/line-breaks";
+import { normalizeLineBreaks, preserveLineBreaks } from "@/lib/line-breaks";
 import { textStyleFromForm } from "@/lib/text-style";
 import { developmentSlots, parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
@@ -917,7 +917,7 @@ function homeSettingsFromForm(formData: FormData) {
     introHeading: normalizeLineBreaks(formData.get("introHeading") as string | null),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
     developmentHeading: normalizeLineBreaks(formData.get("developmentHeading") as string | null),
-    developmentBannerText: normalizeLineBreaks(formData.get("developmentBannerText") as string | null),
+    developmentBannerText: preserveLineBreaks(formData.get("developmentBannerText") as string | null),
     developmentHeadingPosition: formData.get("developmentHeadingPosition") === "below" ? "below" : formData.get("developmentHeadingPosition") === "above" ? "above" : "overlay",
     developmentHeadingStyle: textStyleFromForm(formData, "developmentHeading"),
     introHeadingStyle: textStyleFromForm(formData, "introHeading"),
@@ -934,9 +934,9 @@ function homeSettingsFromForm(formData: FormData) {
     developmentCtaVisible: formData.get("developmentCtaVisible") === "on",
     developmentTextVisible: formData.get("developmentTextVisible") === "on",
     developmentTextPosition: formData.get("developmentTextPosition") === "above" ? "above" : "below",
-    developmentText: normalizeLineBreaks(formData.get("developmentText") as string | null),
+    developmentText: preserveLineBreaks(formData.get("developmentText") as string | null),
     newsHeading: normalizeLineBreaks(formData.get("newsHeading") as string | null),
-    newsText: normalizeLineBreaks(formData.get("newsText") as string | null),
+    newsText: preserveLineBreaks(formData.get("newsText") as string | null),
     newsCta: String(formData.get("newsCta") || "").trim(),
     newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
     newsCtaVisible: formData.get("newsCtaVisible") === "on",
