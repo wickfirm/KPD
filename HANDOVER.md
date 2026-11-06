@@ -80,3 +80,21 @@ Delivered files are the source of truth; no copy changes. Archive/Unpublish take
 - Saving a Published article rewrites its `publishedAt`.
 - Page-level `openGraph` replaces the root one entirely: always go through `pageMetadata()` so siteName, type and the default image survive.
 - `AGENTS.md` previously said there was no role system; it is corrected now. Keep it and this file in step with the code.
+
+## 10. Client acceptance feedback round (Nov 2026)
+
+Four rounds of CMS-editability feedback, all implemented and merged through the `cms-editability-feedback` branch (kept for rollback; last main `bc35136`):
+
+- **Fixed-page heroes:** eyebrows on About/Legacy/Investor Guide/Contact are CMS fields (undefined = delivered label, empty = hidden).
+- **Typography:** `src/lib/text-style.ts` gained numeric weights 300–800, `lineHeight`, and a mobile cap — every CMS font size renders as `min(size, 10vw)` (client-approved option A). Appearance groups exist on homepage sections, investor-guide sections (via `investJson`), About, development modules, and site-wide settings.
+- **Homepage:** news + banner buttons have below/above/left/right position settings; banner content measure `min(1800px, 94%)`; as-of note is linkable (`statsNoteUrl`); key figures have value/caption appearance styles; hero accepts an image (poster for the video) and the video loops.
+- **About:** philosophy image split from the hero (`storyImage`); chairman column capped ≥1440px so the portrait never crops.
+- **Development pages:** `src/lib/directional-figure.ts` — CMS image list drives the delivered Meydan/calm sliders (`undefined` = delivered untouched, `[]` = figure removed; `moduleContentFromForm` stores `images: []` explicitly). Floor Plans and Payment Plan render Media uploads (cards / slider); every section button follows one rule: visible unless switched off, link → navigate, no link → booking form.
+- **Legacy page:** end-of-page CTA (`legacyCtaLabel/Url/Visible`), defaults to https://map.kasumigaseki.ae/.
+- **Footer:** every word editable in Site settings → Footer (blank keeps delivered wording).
+- **seven-x-seven residence page (`/seven-x-seven`):** floor plans rebuilt — tabs 1/2/3/**Penthouse** + per-tab type chips; layouts stored as `floorplans.layouts` lists (`plansJson` = `{one:[],two:[],three:[],penthouse:[]}`; legacy single-object drafts still load). Seeded from `public/uploads/seven-x-seven-floor-plan-previews/`. The location section's light Google-map takeover (flat gray screen) was removed — dark map stays for the whole phase and the live map never loads. Logos were already CMS-editable (Brand section).
+- **Homepage tail:** `getHomeStaticTail()` serves only the delivered `pdf-section` bands — the old hidden homepage (second H1, internal "quiet luxury" note) is no longer shipped to browsers (test-guarded in `legacy-home.test.ts`).
+- **Uploads:** every prominent AssetUrlField states recommended dimensions/weight; the real production ceiling is Vercel's ~4.5 MB request body, not the 250 MB the old help text claimed.
+- **Mortgage calculator:** heading/intro are investor-guide CMS fields (`mortgageCalculatorHtmlWith`), applied on the invest page AND development pages; fallback keeps delivered wording (test-guarded).
+
+**Salesforce (working against UAT):** client-credentials flow verified end-to-end; test Leads `00QWF00000OtI8C2AV` (created, safe to delete) and one rejected Unit-lookup probe. Mapping in `SALESFORCE_PROJECT_RECORD_IDS`: seven x seven → `a08WF00000oCRm3YAG` (Kasumigaseki Residences) is an agreed UAT placeholder. `Property_Interest__c` rejects Unit IDs (tested — FIELD_INTEGRITY_EXCEPTION). Outstanding: villa mapping decision (Project records vs new Unit field vs Description-only), Vercel env mirror of `SALESFORCE_CLIENT_ID` + `SALESFORCE_PROJECT_RECORD_IDS`, IP-policy answer for Vercel dynamic egress.
