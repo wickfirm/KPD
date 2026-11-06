@@ -3,7 +3,7 @@ import { sxsDefaults } from "./sxs-defaults";
 import { applySxsMediaMap, mergeSxsContent, readFloorPlans, type SxsFloorPlan } from "./sxs-content";
 import mediaMap from "./sxs-r2-map.json";
 
-const plans = sxsDefaults.floorplans.plans as Record<"one" | "two" | "three", SxsFloorPlan>;
+const plans = sxsDefaults.floorplans.plans as Record<"one" | "two" | "three" | "penthouse", SxsFloorPlan>;
 
 describe("seven x seven content", () => {
   it("keeps the designed copy when a saved field is blank", () => {
