@@ -529,7 +529,7 @@ body.home-development-page {
    definite, wider measure; the button and the line on the image can also be
    placed as a pair above, below, or beside each other. */
 .pdf-development-content {
-  width: min(1560px, 92%);
+  width: min(1800px, 94%);
 }
 .pdf-development-banner--cta-row .pdf-development-cta-row {
   display: flex;

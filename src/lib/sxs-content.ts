@@ -82,10 +82,13 @@ function legendOf(value: unknown, fallback: readonly (readonly [string, string, 
   return rows.length ? rows : fallback;
 }
 
-export function readFloorPlans(value: unknown, fallback: Record<"one" | "two" | "three", SxsFloorPlan>) {
+export type FloorPlanKey = "one" | "two" | "three" | "penthouse";
+
+export function readFloorPlans(value: unknown, fallback: Record<FloorPlanKey, SxsFloorPlan>): Record<FloorPlanKey, SxsFloorPlan> {
   const source = sectionRecord(value);
-  const one = (key: "one" | "two" | "three"): SxsFloorPlan => {
+  const one = (key: FloorPlanKey): SxsFloorPlan => {
     const row = sectionRecord(source[key]);
+    const empty = fallback[key];
     return {
       image: textOf(row.image, fallback[key].image),
       alt: textOf(row.alt, fallback[key].alt),
@@ -100,7 +103,7 @@ export function readFloorPlans(value: unknown, fallback: Record<"one" | "two" | 
       legend: legendOf(row.legend, fallback[key].legend),
     };
   };
-  return { one: one("one"), two: one("two"), three: one("three") };
+  return { one: one("one"), two: one("two"), three: one("three"), penthouse: one("penthouse") };
 }
 
 export type SxsMilestone = { percent: number; title: string; detail: string; phase: "calendar" | "construction" | "handover" };

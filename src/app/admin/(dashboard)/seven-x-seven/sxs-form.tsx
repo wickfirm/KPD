@@ -53,9 +53,17 @@ export default function SxsForm({ content }: { content: SxsContent }) {
   const [places, setPlaces] = useState<Place[]>(() => Array.isArray(content.location.places) ? content.location.places as Place[] : []);
   const [milestones, setMilestones] = useState<Milestone[]>(() => Array.isArray(content.payment.milestones) ? content.payment.milestones as Milestone[] : []);
   const plans = asRecord(content.floorplans.plans);
-  const [one, setOne] = useState<Plan>(() => planOf(plans.one));
-  const [two, setTwo] = useState<Plan>(() => planOf(plans.two));
-  const [three, setThree] = useState<Plan>(() => planOf(plans.three));
+  const savedLayouts = asRecord(content.floorplans.layouts);
+  const layoutList = (key: string, fallbackKey: string): Plan[] => {
+    const saved = savedLayouts[key];
+    if (Array.isArray(saved) && saved.length) return saved.map((item) => planOf(item));
+    const single = plans[fallbackKey];
+    return [planOf(single)];
+  };
+  const [one, setOne] = useState<Plan[]>(() => layoutList("one", "one"));
+  const [two, setTwo] = useState<Plan[]>(() => layoutList("two", "two"));
+  const [three, setThree] = useState<Plan[]>(() => layoutList("three", "three"));
+  const [penthouse, setPenthouse] = useState<Plan[]>(() => layoutList("penthouse", "penthouse"));
 
   async function preview() {
     if (!formRef.current) return;
@@ -82,7 +90,7 @@ export default function SxsForm({ content }: { content: SxsContent }) {
     <input type="hidden" name="communityJson" value={JSON.stringify(community)} />
     <input type="hidden" name="placesJson" value={JSON.stringify(places)} />
     <input type="hidden" name="milestonesJson" value={JSON.stringify(milestones)} />
-    <input type="hidden" name="plansJson" value={JSON.stringify({ one, two, three })} />
+    <input type="hidden" name="plansJson" value={JSON.stringify({ one, two, three, penthouse })} />
 
     <section className="cms-editor-section">
       <h2 className="cms-form-heading">Search appearance</h2>
@@ -164,9 +172,10 @@ export default function SxsForm({ content }: { content: SxsContent }) {
       <div className="cms-field"><span>Mobile map</span><AssetUrlField name="mapImage" defaultValue={asText(content.brand.map)} accept="image/*" fileLabel="location map" specs="Mobile portrait, about 900 × 1400px, under 4 MB." /></div>
     </section>
 
-    <FloorPlanEditor title="One bedroom" plan={one} onChange={setOne} tabName="tabOne" tabDefault={asText(content.floorplans.tabOne)} />
-    <FloorPlanEditor title="Two bedrooms" plan={two} onChange={setTwo} tabName="tabTwo" tabDefault={asText(content.floorplans.tabTwo)} />
-    <FloorPlanEditor title="Three bedrooms" plan={three} onChange={setThree} tabName="tabThree" tabDefault={asText(content.floorplans.tabThree)} />
+    <FloorPlanLayoutsEditor title="One bedroom" layouts={one} onChange={setOne} tabName="tabOne" tabDefault={asText(content.floorplans.tabOne)} />
+    <FloorPlanLayoutsEditor title="Two bedrooms" layouts={two} onChange={setTwo} tabName="tabTwo" tabDefault={asText(content.floorplans.tabTwo)} />
+    <FloorPlanLayoutsEditor title="Three bedrooms" layouts={three} onChange={setThree} tabName="tabThree" tabDefault={asText(content.floorplans.tabThree)} />
+    <FloorPlanLayoutsEditor title="Penthouse" layouts={penthouse} onChange={setPenthouse} tabName="tabPenthouse" tabDefault={asText(content.floorplans.tabPenthouse)} />
     <label className="cms-field"><span>Floor plans label</span><input name="floorHeadline" defaultValue={asText(content.floorplans.headline)} /></label>
 
     <section className="cms-editor-section">
@@ -219,24 +228,31 @@ function MilestoneFields({ item, update }: { item: Milestone; update: (changes: 
   </div>;
 }
 
-function FloorPlanEditor({ title, plan, onChange, tabName, tabDefault }: { title: string; plan: Plan; onChange: (plan: Plan) => void; tabName: string; tabDefault: string }) {
-  const update = (changes: Partial<Plan>) => onChange({ ...plan, ...changes });
+function FloorPlanLayoutsEditor({ title, layouts, onChange, tabName, tabDefault }: { title: string; layouts: Plan[]; onChange: (layouts: Plan[]) => void; tabName: string; tabDefault: string }) {
   return <section className="cms-editor-section">
     <h2 className="cms-form-heading">{title}</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Tab label</span><input name={tabName} defaultValue={tabDefault} /></label>
-      <label className="cms-field"><span>Heading</span><input value={plan.title} onChange={(event) => update({ title: event.target.value })} /></label>
-      <label className="cms-field"><span>Unit</span><input value={plan.unit} onChange={(event) => update({ unit: event.target.value })} /></label>
-      <label className="cms-field"><span>Alt text</span><input value={plan.alt} onChange={(event) => update({ alt: event.target.value })} /></label>
-      <label className="cms-field"><span>Total sq ft</span><input value={plan.totalSqft} onChange={(event) => update({ totalSqft: event.target.value })} /></label>
-      <label className="cms-field"><span>Total sq m</span><input value={plan.totalSqm} onChange={(event) => update({ totalSqm: event.target.value })} /></label>
-      <label className="cms-field"><span>Suite sq ft</span><input value={plan.suiteSqft} onChange={(event) => update({ suiteSqft: event.target.value })} /></label>
-      <label className="cms-field"><span>Suite sq m</span><input value={plan.suiteSqm} onChange={(event) => update({ suiteSqm: event.target.value })} /></label>
-      <label className="cms-field"><span>Balcony sq ft</span><input value={plan.balconySqft} onChange={(event) => update({ balconySqft: event.target.value })} /></label>
-      <label className="cms-field"><span>Balcony sq m</span><input value={plan.balconySqm} onChange={(event) => update({ balconySqm: event.target.value })} /></label>
     </div>
-    <div className="cms-field"><span>Plan image</span><AssetUrlField value={plan.image} onChange={(image) => update({ image })} accept="image/*" fileLabel={`${title} plan`} /></div>
-    <ListEditor items={plan.legend} onChange={(legend) => update({ legend })} addLabel="Add legend row" newItem={() => ({ number: "", name: "", size: "" })} itemLabel={(item, index) => item.name || `Row ${index + 1}`}
-      renderItem={(item, change) => <div className="cms-grid"><label className="cms-field"><span>Number</span><input value={item.number} onChange={(event) => change({ number: event.target.value })} /></label><label className="cms-field"><span>Room</span><input value={item.name} onChange={(event) => change({ name: event.target.value })} /></label><label className="cms-field"><span>Size</span><input value={item.size} onChange={(event) => change({ size: event.target.value })} /></label></div>} />
+    <p className="cms-muted">Each layout becomes a chip on the public page under the tab. The first one shows by default.</p>
+    <ListEditor items={layouts} onChange={onChange} addLabel="Add layout" newItem={() => ({ image: "", alt: "", title: "", unit: "", totalSqft: "", totalSqm: "", suiteSqft: "", suiteSqm: "", balconySqft: "", balconySqm: "", legend: [] })} itemLabel={(item, index) => item.title || `Layout ${index + 1}`}
+      renderItem={(plan, update) => <>
+        <div className="cms-grid">
+          <label className="cms-field"><span>Chip label / heading</span><input value={plan.title} onChange={(event) => update({ title: event.target.value })} /></label>
+          <label className="cms-field"><span>Unit</span><input value={plan.unit} onChange={(event) => update({ unit: event.target.value })} /></label>
+          <label className="cms-field"><span>Alt text</span><input value={plan.alt} onChange={(event) => update({ alt: event.target.value })} /></label>
+        </div>
+        <div className="cms-field"><span>Plan image</span><AssetUrlField value={plan.image} onChange={(image) => update({ image })} accept="image/*" fileLabel="plan" specs="Wide, about 1600 x 1200px, under 4 MB." /></div>
+        <div className="cms-grid">
+          <label className="cms-field"><span>Total sq ft</span><input value={plan.totalSqft} onChange={(event) => update({ totalSqft: event.target.value })} /></label>
+          <label className="cms-field"><span>Total sq m</span><input value={plan.totalSqm} onChange={(event) => update({ totalSqm: event.target.value })} /></label>
+          <label className="cms-field"><span>Suite sq ft</span><input value={plan.suiteSqft} onChange={(event) => update({ suiteSqft: event.target.value })} /></label>
+          <label className="cms-field"><span>Suite sq m</span><input value={plan.suiteSqm} onChange={(event) => update({ suiteSqm: event.target.value })} /></label>
+          <label className="cms-field"><span>Balcony sq ft</span><input value={plan.balconySqft} onChange={(event) => update({ balconySqft: event.target.value })} /></label>
+          <label className="cms-field"><span>Balcony sq m</span><input value={plan.balconySqm} onChange={(event) => update({ balconySqm: event.target.value })} /></label>
+        </div>
+        <ListEditor items={plan.legend} onChange={(legend) => update({ legend })} addLabel="Add legend row" newItem={() => ({ number: "", name: "", size: "" })} itemLabel={(item, index) => item.name || `Row ${index + 1}`}
+          renderItem={(item, change) => <div className="cms-grid"><label className="cms-field"><span>Number</span><input value={item.number} onChange={(event) => change({ number: event.target.value })} /></label><label className="cms-field"><span>Room</span><input value={item.name} onChange={(event) => change({ name: event.target.value })} /></label><label className="cms-field"><span>Size</span><input value={item.size} onChange={(event) => change({ size: event.target.value })} /></label></div>} />
+      </>} />
   </section>;
 }

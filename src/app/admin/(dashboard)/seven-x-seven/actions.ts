@@ -54,8 +54,23 @@ function planFrom(value: unknown, fallback: Record<string, unknown>) {
 }
 
 function sxsContentFromForm(formData: FormData): SxsContent {
-  const plans = json<Record<string, unknown>>(formData, "plansJson", sxsDefaults.floorplans.plans as Record<string, unknown>);
+  // plansJson now carries the per-tab layout lists (round three); a single
+  // object from an older draft is accepted and treated as one layout per tab.
+  const rawPlans = json<Record<string, unknown>>(formData, "plansJson", {} as Record<string, unknown>);
   const fallbackPlans = sxsDefaults.floorplans.plans as Record<string, Record<string, unknown>>;
+  const layoutKeys = ["one", "two", "three", "penthouse"] as const;
+  const layouts = layoutKeys.reduce<Record<string, Record<string, unknown>[]>>((map, key) => {
+    const value = rawPlans[key];
+    const list = Array.isArray(value) && value.length
+      ? value.map((row) => planFrom(row, fallbackPlans[key]))
+      : Array.isArray(value) && !value.length ? [] : [planFrom(value, fallbackPlans[key])];
+    map[key] = list;
+    return map;
+  }, {});
+  const plans = layoutKeys.reduce<Record<string, unknown>>((map, key) => {
+    map[key] = layouts[key][0] ?? fallbackPlans[key];
+    return map;
+  }, {});
   const content: SxsContent = {
     ...sxsDefaults,
     seo: { title: text(formData, "seoTitle", String(sxsDefaults.seo.title)), description: text(formData, "seoDescription", String(sxsDefaults.seo.description)) },
@@ -91,11 +106,9 @@ function sxsContentFromForm(formData: FormData): SxsContent {
       tabOne: text(formData, "tabOne"),
       tabTwo: text(formData, "tabTwo"),
       tabThree: text(formData, "tabThree"),
-      plans: {
-        one: planFrom(plans.one, fallbackPlans.one),
-        two: planFrom(plans.two, fallbackPlans.two),
-        three: planFrom(plans.three, fallbackPlans.three),
-      },
+      tabPenthouse: text(formData, "tabPenthouse"),
+      plans,
+      layouts,
     },
     payment: {
       headline: text(formData, "paymentHeadline"),

@@ -192,6 +192,19 @@ const defaultFloorPlans = {
       ["04", "laundry", "1.40m x 1.00m"],
       ["05", "store room", "2.40m x 1.90m"]
     ]
+  },
+  penthouse: {
+    image: "/uploads/seven-x-seven-floor-plan-previews/4-bedroom-apartment---type-ph-1.jpg",
+    alt: "Rendered penthouse floor plan",
+    title: "penthouse",
+    unit: "4 bhk penthouse",
+    totalSqft: "",
+    totalSqm: "",
+    suiteSqft: "",
+    suiteSqm: "",
+    balconySqft: "",
+    balconySqm: "",
+    legend: []
   }
 } as const;
 
@@ -199,7 +212,8 @@ type FloorPlanKey = keyof typeof defaultFloorPlans;
 const floorPlanTabLabels: Record<FloorPlanKey, string> = {
   one: "1 bedroom",
   two: "2 bedrooms",
-  three: "3 bedrooms"
+  three: "3 bedrooms",
+  penthouse: "penthouse"
 };
 
 const defaultPaymentMilestones = [
@@ -305,12 +319,22 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   const submitCta = text("cta", "submit", primaryCta);
   const consentCopy = text("register", "consent", "By submitting this form you agree to share your details so the sales team can contact you and accept our privacy policy.").replace(/privacy policy\.?$/i, "").trim();
   const liveFloorPlans = readFloorPlans(content.floorplans?.plans, defaultFloorPlans);
+  // Layouts per tab (client round three): an explicit list of plans switches
+  // the tab through type chips; without one the tab keeps its single plan.
+  const savedLayouts = content.floorplans?.layouts as Partial<Record<FloorPlanKey, unknown[]>> | undefined;
+  const floorPlanLayouts = (Object.keys(floorPlanTabLabels) as FloorPlanKey[]).reduce((map, key) => {
+    const list = savedLayouts?.[key];
+    const valid = Array.isArray(list) && list.length && list.every((item) => item && typeof item === "object") ? list : [liveFloorPlans[key]];
+    map[key] = valid as (typeof liveFloorPlans)[FloorPlanKey][];
+    return map;
+  }, {} as Record<FloorPlanKey, (typeof liveFloorPlans)[FloorPlanKey][]>);
   const livePaymentMilestones = readMilestones(content.payment?.milestones, defaultPaymentMilestones);
   const liveDistancePlaces = readPlaces(content.location?.places, defaultDistancePlaces);
   const floorPlanTabs: Record<FloorPlanKey, string> = {
     one: text("floorplans", "tabOne", floorPlanTabLabels.one),
     two: text("floorplans", "tabTwo", floorPlanTabLabels.two),
     three: text("floorplans", "tabThree", floorPlanTabLabels.three),
+    penthouse: text("floorplans", "tabPenthouse", floorPlanTabLabels.penthouse),
   };
   const logoWhite = media("brand", "logoWhite", "/assets/brand/logo-stacked-white.png");
   const logoBlack = media("brand", "logoBlack", "/assets/brand/logo-stacked-black.png");
@@ -326,6 +350,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   const [heroSlides, setHeroSlides] = useState({ current: 0, previous: heroScenes.length - 1 });
   const [activeCommunitySlide, setActiveCommunitySlide] = useState(0);
   const [activeFloorPlan, setActiveFloorPlan] = useState<FloorPlanKey>("three");
+  const [activeFloorType, setActiveFloorType] = useState(0);
   const [selectedPaymentMilestone, setSelectedPaymentMilestone] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [activeAmenity, setActiveAmenity] = useState(0);
@@ -400,7 +425,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
   const userScrollIntentRef = useRef(false);
   const scrollAnimationFrameRef = useRef<number | null>(null);
   const menuTransitionTimerRef = useRef<number | null>(null);
-  const floorPlan = liveFloorPlans[activeFloorPlan];
+  const activeTabLayouts = floorPlanLayouts[activeFloorPlan];
+  const floorPlan = activeTabLayouts[Math.min(activeFloorType, activeTabLayouts.length - 1)] ?? activeTabLayouts[0];
   useLayoutEffect(() => {
     const query = window.matchMedia("(max-width: 720px)");
     const update = () => setIsMobile(query.matches);
@@ -1729,13 +1755,30 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                       type="button"
                       role="tab"
                       aria-selected={key === activeFloorPlan}
-                      onClick={() => setActiveFloorPlan(key)}
+                      onClick={() => { setActiveFloorPlan(key); setActiveFloorType(0); }}
                       key={key}
                     >
                       {floorPlanTabs[key]}
                     </button>
                   ))}
                 </div>
+
+                {activeTabLayouts.length > 1 ? (
+                  <div className="floor-plan-tabs floor-plan-types" role="tablist" aria-label="Select a layout">
+                    {activeTabLayouts.map((layout, index) => (
+                      <button
+                        className={index === Math.min(activeFloorType, activeTabLayouts.length - 1) ? "is-active" : ""}
+                        type="button"
+                        role="tab"
+                        aria-selected={index === activeFloorType}
+                        onClick={() => setActiveFloorType(index)}
+                        key={`${layout.title}-${index}`}
+                      >
+                        {String(layout.title || `Type ${index + 1}`)}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
 
                 <div className="floor-plan-areas">
                   <div className="floor-plan-area-head">

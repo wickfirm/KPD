@@ -5,6 +5,16 @@ const planImage = "/assets/plans/rendered-floorplan.png";
 /// The residence page as it is published today. The CMS record starts as this
 /// object, then editors change any field. Local /assets paths are rewritten to
 /// R2 when a migrated file exists.
+const planPreview = (file: string) => `/uploads/seven-x-seven-floor-plan-previews/${file}`;
+
+/// A floor-plan layout seeded from the client's uploaded preview: the image and
+/// name are known, the areas and legend are filled in through the CMS.
+const planSeed = (file: string, title: string, unit: string, image?: string) => ({
+  image: image ?? planPreview(file), alt: `${title} floor plan`, title, unit,
+  totalSqft: "", totalSqm: "", suiteSqft: "", suiteSqm: "", balconySqft: "", balconySqm: "",
+  legend: [] as string[][],
+});
+
 export const sxsDefaults: SxsContent = {
   navigation: {
     items: [
@@ -124,6 +134,7 @@ export const sxsDefaults: SxsContent = {
     tabOne: "1 bedroom",
     tabTwo: "2 bedrooms",
     tabThree: "3 bedrooms",
+    tabPenthouse: "penthouse",
     plans: {
       one: {
         image: planImage, alt: "Rendered one bedroom residence floor plan", title: "one-bedroom residences", unit: "1 bhk apartment",
@@ -140,6 +151,33 @@ export const sxsDefaults: SxsContent = {
         totalSqft: "2560 sqft", totalSqm: "237.83 sqm", suiteSqft: "1900 sqft", suiteSqm: "176.52 sqm", balconySqft: "660 sqft", balconySqm: "61.32 sqm",
         legend: [["01", "powder room", "2.48m x 1.60m"], ["02", "kitchen", "3.40m x 3.90m"], ["03", "living & dining area", "7.65m x 3.90m"], ["04", "laundry", "1.40m x 1.00m"], ["05", "store room", "2.40m x 1.90m"]],
       },
+      penthouse: {
+        image: planPreview("4-bedroom-apartment---type-ph-1.jpg"), alt: "Rendered penthouse floor plan", title: "penthouse", unit: "4 bhk penthouse",
+        totalSqft: "", totalSqm: "", suiteSqft: "", suiteSqm: "", balconySqft: "", balconySqm: "",
+        legend: [],
+      },
+    },
+    /// Every layout the editor can switch between, grouped by tab. Seeded from
+    /// the client's uploaded plan previews; areas and legends are filled in the
+    /// CMS. The first layout of each tab mirrors `plans` above.
+    layouts: {
+      one: [planSeed("1-bedroom-apartment---type-a-1.jpg", "type a", "1 bhk apartment", planImage)],
+      two: [
+        planSeed("2-bedroom-apartment---type-a-1.jpg", "type a", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-aa-1.jpg", "type aa", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-b-1.jpg", "type b", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-bb-1.jpg", "type bb", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-c-1.jpg", "type c", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-cc-1.jpg", "type cc", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-d-1.jpg", "type d", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-e-1.jpg", "type e", "2 bhk apartment"),
+        planSeed("2-bedroom-apartment---type-f-1.jpg", "type f", "2 bhk apartment"),
+      ],
+      three: [
+        planSeed("3-bedroom-apartment---type-a-1.jpg", "type a", "3 bhk apartment"),
+        planSeed("3-bedroom-apartment---type-b-1.jpg", "type b", "3 bhk apartment"),
+      ],
+      penthouse: [planSeed("4-bedroom-apartment---type-ph-1.jpg", "penthouse", "4 bhk penthouse")],
     },
   },
   payment: {
