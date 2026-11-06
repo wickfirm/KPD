@@ -371,7 +371,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       const fullName = String(formData.get("FullName") || "").trim();
       const email = String(formData.get("Email") || "").trim();
       const phone = String(formData.get("PhoneNumber") || "").trim();
-      const interest = String(interestSelect?.selectedOptions[0]?.text ?? formData.get("TypeOfLead") ?? "seven x seven");
+      const interest = String(interestSelect?.selectedOptions[0]?.text ?? formData.get("TypeOfLead") ?? "");
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -380,7 +380,10 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
           email,
           phone,
           message: `seven x seven residence enquiry from the ${source}. Interest: ${interest}.`,
-          interest,
+          // The interest field must stay the project label so the Salesforce
+          // Project lookup resolves (SALESFORCE_PROJECT_RECORD_IDS); the
+          // visitor's actual choice is kept in the message and Interest detail.
+          interest: "seven x seven",
           sourcePage: "/seven-x-seven",
           inquiryType: "seven x seven residence",
           details: [

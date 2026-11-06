@@ -64,7 +64,10 @@ export function ContactInquiry({ email = "", phone = "", website = "", content }
     const form = event.currentTarget;
     const data = new FormData(form);
     const get = (key: string) => String(data.get(key) || "").trim();
-    const name = [get("Title"), get("First Name"), get("Last Name")].filter(Boolean).join(" ");
+    // First + last only: Salesforce splits the name on whitespace, so a Title
+    // prefix would become the Lead's FirstName ("Mr." / "Ms."). The title
+    // travels as a labelled detail instead.
+    const name = [get("First Name"), get("Last Name")].filter(Boolean).join(" ");
     const interestByPane: Record<PaneKey, string> = {
       sales: get("Project of Interest") || plannerProject || "General enquiry",
       customer: get("Related Project") || "General enquiry",
@@ -104,6 +107,7 @@ export function ContactInquiry({ email = "", phone = "", website = "", content }
       // Every field the visitor filled in for the active inquiry, in form order, so the
       // Messages screen shows the form's own fields rather than one flattened note.
       const answers: [string, string][] = [
+        ["Title", get("Title")],
         ...byPane[activePane],
         ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF, DOC or DOCX" ? cvName : "")] as [string, string]] : []),
         ["Marketing consent", data.get("Marketing") === "on" ? "Yes" : "No"],

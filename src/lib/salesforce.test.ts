@@ -88,7 +88,16 @@ describe("Salesforce lead mapping", () => {
     expect(projectRecordIds("[]")).toEqual({});
   });
 
-  it("keeps a single name in LastName and omits an empty phone", () => {
+  it("keeps the villas Description-only with Property_Interest__c blank (client decision, Nov 2026)", () => {
+    delete process.env.SALESFORCE_PROJECT_RECORD_IDS;
+    for (const villa of ["Villa 174", "Dubai Hills Mansion"]) {
+      const record = buildSalesforceLeadRecord({ ...lead, interest: villa });
+      expect(record.Property_Interest__c).toBeUndefined();
+      expect(record.Description).toContain(`Property interest: ${villa}`);
+    }
+  });
+
+  it("keeps a single name in LastName; phone is optional and omitted when blank", () => {
     delete process.env.SALESFORCE_PROJECT_RECORD_IDS;
     delete process.env.SALESFORCE_LEAD_OWNER_ID;
     const record = buildSalesforceLeadRecord({ ...lead, name: "Prince", phone: "  " });
@@ -96,7 +105,7 @@ describe("Salesforce lead mapping", () => {
     expect(record.LastName).toBe("Prince");
     expect(record.Status).toBe("New");
     expect(record).not.toHaveProperty("Phone");
-    expect(missingSalesforceLeadFields({ ...lead, phone: " " })).toMatch(/phone/i);
+    expect(missingSalesforceLeadFields({ ...lead, phone: " " })).toBeNull();
     expect(missingSalesforceLeadFields({ ...lead, email: " " })).toMatch(/email/i);
     expect(missingSalesforceLeadFields({ ...lead, name: " " })).toMatch(/last name/i);
   });
@@ -248,16 +257,29 @@ describe("duplicate lead rule", () => {
     expect(urls.some((url) => url.includes("/query?"))).toBe(false);
   });
 
-  it("refuses a lead with no phone before calling Salesforce", async () => {
+  it("creates a lead without a phone — phone is optional (client note, Nov 2026)", async () => {
     process.env.SALESFORCE_CLIENT_ID = "client";
     process.env.SALESFORCE_CLIENT_SECRET = "secret";
     process.env.SALESFORCE_LOGIN_URL = "https://login.example.test";
     delete process.env.SALESFORCE_USERNAME;
     delete process.env.SALESFORCE_PASSWORD;
-    const fetchMock = vi.fn();
-    vi.stubGlobal("fetch", fetchMock);
-    await expect(pushLeadToSalesforce({ ...lead, phone: " " })).rejects.toThrow(/phone/i);
-    expect(fetchMock).not.toHaveBeenCalled();
+    delete process.env.SALESFORCE_LEAD_OWNER_ID;
+    delete process.env.SALESFORCE_PROJECT_RECORD_IDS;
+    let created: Record<string, unknown> | undefined;
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      if (String(url).endsWith("/services/oauth2/token")) {
+        return new Response(JSON.stringify({ access_token: "token", instance_url: "https://uat.example.test" }), { status: 200 });
+      }
+      if (init?.method === "POST") {
+        created = JSON.parse(String(init.body)) as Record<string, unknown>;
+        return new Response(JSON.stringify({ id: "00Qxx0000000002AAA" }), { status: 201 });
+      }
+      return new Response("unexpected", { status: 500 });
+    }));
+
+    await expect(pushLeadToSalesforce({ ...lead, phone: " " })).resolves.toBe("00Qxx0000000002AAA");
+    expect(created).not.toHaveProperty("Phone");
+    expect(created).toMatchObject({ FirstName: "Jane", LastName: "Doe", Company: "KPD Website Enquiry" });
   });
 
   it("uses client credentials when no username or password is set", async () => {

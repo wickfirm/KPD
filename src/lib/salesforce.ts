@@ -4,13 +4,21 @@
 // enquiry types confirmed in the org review. Newsletter, job, and
 // customer-service forms stay in Messages until that list is confirmed.
 //
-// Lead mapping from the org review:
-//   FirstName, LastName, Email, Phone
+// Lead mapping (org review, revised by the client's Nov 2026 UAT feedback):
+//   FirstName, LastName, Email — the client-required set. Phone is optional and
+//     sent when a form collects it.
 //   Company "KPD Website Enquiry"
 //   Status "New"
 //   LeadSource "Website" (the value already exists; do not send LeadSourceDetail__c)
-//   Description — message plus the extra form detail
-//   Property_Interest__c — Salesforce Project record id only (lookup). Never ProductInterest__c.
+//   Description — message plus the labelled Inquiry type / Property interest /
+//     Source page details
+//   Property_Interest__c — Salesforce Project record id only (lookup). Never
+//     ProductInterest__c — the inventory doc's ProductInterest__c and
+//     LeadSourceDetail__c are obsolete. Villa 174 and Dubai Hills Mansion are
+//     intentionally unmapped: they stay in the Description with
+//     Property_Interest__c left blank (client decision, Nov 2026). Seven x seven
+//     uses the Kasumigaseki Residences placeholder until the production mapping
+//     is confirmed before go-live.
 //   OwnerId — the website_leads queue, until each enquiry type has its own owner.
 //
 // The org blocks a second Lead when Email or Phone exactly matches an existing
@@ -155,13 +163,13 @@ function propertyInterestId(lead: LeadPayload): string | null {
   );
 }
 
-/// Phone, email, and last name are required before Salesforce will accept the Lead.
+/// First/last name and email are required before Salesforce will accept the
+/// Lead (client note, Nov 2026). Phone is optional — sent when a form collects it.
 export function missingSalesforceLeadFields(lead: LeadPayload): string | null {
   const parts = lead.name.trim().split(/\s+/).filter(Boolean);
   const lastName = parts.slice(1).join(" ") || parts[0] || "";
   if (!lastName) return "A Salesforce Lead needs a last name.";
   if (!lead.email.trim()) return "A Salesforce Lead needs an email address.";
-  if (!lead.phone?.trim()) return "A Salesforce Lead needs a phone number.";
   return null;
 }
 
