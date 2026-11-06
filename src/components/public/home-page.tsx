@@ -34,10 +34,12 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
 
-export function HomeHero({ video }: { video: string }) {
+export function HomeHero({ video, image }: { video?: string; image?: string }) {
   return (
     <section className="pdf-section pdf-hero">
-      <video src={video} autoPlay muted playsInline preload="auto" aria-label="KPD Experience Center presentation gallery" />
+      {video
+        ? <video src={video} poster={image || undefined} autoPlay muted loop playsInline preload="auto" aria-label="KPD Experience Center presentation gallery" />
+        : image ? <img src={image} alt="KPD Experience Center presentation gallery" /> : null}
     </section>
   );
 }
@@ -126,7 +128,7 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
   return (
     <main className="development-pdf-home" id="top">
-      {settings.heroVideo?.trim() ? <HomeHero video={settings.heroVideo} /> : null}
+      {settings.heroVideo?.trim() || settings.heroImage?.trim() ? <HomeHero video={settings.heroVideo?.trim() || undefined} image={settings.heroImage?.trim() || undefined} /> : null}
       {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} ctaPosition={settings.developmentCtaPosition} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />

@@ -567,3 +567,14 @@ body.home-development-page {
     grid-template-columns: minmax(0, clamp(420px, 30vw, 560px)) 1fr;
   }
 }
+
+/* ── Homepage hero banner (CMS-era) ──────────────────────────────────────────
+   The banner accepts an image as well as the video; the image fills the same
+   box with the same treatment as the delivered video. */
+.pdf-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The delivered rule tints its own hero image; a CMS upload shows as-is. */
+  filter: none;
+}

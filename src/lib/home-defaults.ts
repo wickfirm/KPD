@@ -19,6 +19,9 @@ export type HomeSettings = {
   bannerSlides?: BannerSlide[];
   developmentCards?: DevelopmentCard[];
   heroVideo?: string;
+  /// Hero banner image: the poster while the video plays, or the banner itself
+  /// when no video is set (client request).
+  heroImage?: string;
   introHeading?: string;
   introParagraphs?: string[];
   developmentHeading?: string;

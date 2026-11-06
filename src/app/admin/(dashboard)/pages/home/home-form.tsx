@@ -43,6 +43,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero video</h2>
     <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4,video/webm" placeholder="https://…" fileLabel="hero video" specs="MP4 H.264, 1080p or smaller, under 4 MB (larger videos fail to upload — use an existing file link for big videos)." />
+    <div className="cms-field"><span>Hero image</span><AssetUrlField name="heroImage" defaultValue={settings.heroImage ?? ""} accept="image/*" placeholder="https://…" fileLabel="hero image" specs="Wide landscape, about 2400 × 1200px, under 4 MB." /><small>The opening frame of the video, and the banner itself when no video is set.</small></div>
     <h2 className="cms-form-heading">Introduction</h2>
     <label className="cms-field"><span>Introduction heading</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
     <TextStyleFields prefix="introHeading" value={settings.introHeadingStyle} label="Introduction heading appearance" preserveDefault />
