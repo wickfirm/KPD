@@ -14,9 +14,15 @@ function escapeHtml(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+/// Mono section captions from the "Gallery light" uplift concept. Only the
+/// uplift variant renders them, so the delivered "/" markup stays unchanged.
+function Kicker({ children, light = false }: { children: ReactNode; light?: boolean }) {
+  return <p className={light ? "pdf-kicker pdf-kicker--light" : "pdf-kicker"}>{children}</p>;
+}
+
 /// Replaces the one CMS-managed band inside the otherwise delivered static
 /// homepage tail. Values are escaped before the tail is rendered as HTML.
-function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
+function withHomeNewsHeader(staticTail: string, settings: HomeSettings, kicker?: string) {
   const heading = settings.newsHeading?.trim() ?? "";
   const text = settings.newsText?.trim() ?? "";
   const cta = settings.newsCtaVisible === false ? "" : settings.newsCta?.trim() ?? "";
@@ -26,10 +32,11 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   const sectionClass = position === "below" ? "pdf-section pdf-events-head" : `pdf-section pdf-events-head pdf-events-head--cta-${position === "above" ? "above" : "side"}${position === "left" ? " pdf-events-head--cta-left" : ""}`;
   const copy = text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : "";
   const button = cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : "";
+  const cap = kicker ? `<p class="pdf-kicker">${escapeHtml(kicker)}</p>` : "";
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
-    ? `<section class="${sectionClass}" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
+    ? `<section class="${sectionClass}" id="events">${cap}${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
@@ -44,10 +51,11 @@ export function HomeHero({ video, image }: { video?: string; image?: string }) {
   );
 }
 
-export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle, valueStyle, labelStyle }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"] }) {
+export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle, valueStyle, labelStyle, kicker }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"]; kicker?: string }) {
   return (
     <section className="pdf-section pdf-intro" id="about">
       <div className="pdf-intro-grid">
+        {kicker ? <Kicker>{kicker}</Kicker> : null}
         <h1 style={textStyleProps(headingStyle)}>{multiline(heading)}</h1>
         <div className="pdf-intro-copy">
           {paragraphs.map((paragraph, index) => <p key={index} style={textStyleProps(bodyStyle)}>{multiline(paragraph)}</p>)}
@@ -69,11 +77,12 @@ export function HomeDevelopmentText({ text, bodyStyle, position = "below" }: { t
   return <section className={`pdf-section pdf-development-text pdf-development-text--${position}`} aria-label="Our development standard"><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
 }
 
-export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible = true }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean }) {
+export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible = true, kicker }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean; kicker?: string }) {
   if (!cards.length) return null;
   const countClass = cards.length < 3 ? ` pdf-development-cards--count-${cards.length}` : "";
   return (
     <section className={`pdf-section pdf-development-cards${countClass}`} id="development-cards" aria-label="Our developments">
+      {kicker ? <Kicker>{kicker}</Kicker> : null}
       {cards.map((card, index) => (
         <a className="pdf-dev-card" href={card.href} key={`${card.href}-${index}`}>
           {card.image ? <img src={card.image} alt={card.title} /> : null}
@@ -88,9 +97,10 @@ export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible =
   );
 }
 
-export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"] }) {
+export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle, kicker }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"]; kicker?: string }) {
   return (
     <section className="pdf-section pdf-contact-block" id="contact">
+      {kicker ? <Kicker>{kicker}</Kicker> : null}
       <div><h2 style={textStyleProps(headingStyle)}>{multiline(heading)}</h2></div>
       <div className="pdf-contact-copy">
         <p style={textStyleProps(bodyStyle)}>{multiline(text)}</p>
@@ -102,13 +112,14 @@ export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible =
 
 /// The delivered gallery uses exactly five panels; the CMS editor enforces the
 /// same count, so CMS images replace all five together.
-export function HomeExperienceGallery({ images, captions }: { images?: string[]; captions?: string[] }) {
+export function HomeExperienceGallery({ images, captions, kicker }: { images?: string[]; captions?: string[]; kicker?: string }) {
   const panels: GalleryPanel[] = images?.length === 5
     ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: captions?.[index]?.trim() ?? "" }))
     : [];
   if (!panels.length) return null;
   return (
     <section className="pdf-section pdf-vertical-gallery pdf-gallery-flex" id="experience-center" aria-label="Experience Center gallery" data-gallery-flex>
+      {kicker ? <Kicker>{kicker}</Kicker> : null}
       {panels.map((panel) => (
         <button className="pdf-gallery-panel" type="button" data-gallery-panel={panel.key} data-lightbox-src={panel.image} data-lightbox-caption={panel.caption} key={panel.key}>
           <img src={panel.image} alt={panel.caption} />
@@ -120,7 +131,10 @@ export function HomeExperienceGallery({ images, captions }: { images?: string[];
 
 /// The homepage <main>: CMS content is authoritative. The delivered static
 /// tail only supplies structural markup; editable text is replaced above.
-export function HomeMain({ settings, staticTail, developmentCards }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[] }) {
+/// variant "uplift" adds the Gallery-light mono kickers and nothing else —
+/// the default markup is the delivered homepage, byte for byte.
+export function HomeMain({ settings, staticTail, developmentCards, variant }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[]; variant?: "uplift" }) {
+  const uplift = variant === "uplift";
   const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
   const introStats = settings.introStats ?? [];
   const bannerSlides = settings.bannerSlides ?? [];
@@ -129,12 +143,12 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   return (
     <main className="development-pdf-home" id="top">
       {settings.heroVideo?.trim() || settings.heroImage?.trim() ? <HomeHero video={settings.heroVideo?.trim() || undefined} image={settings.heroImage?.trim() || undefined} /> : null}
-      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
-      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} ctaPosition={settings.developmentCtaPosition} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
-      <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
-      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}
-      <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} />
-      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
+      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} kicker={uplift ? "About KPD" : undefined} /> : null}
+      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} ctaPosition={settings.developmentCtaPosition} kicker={uplift ? "Latest Development" : undefined} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
+      <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} kicker={uplift ? "The Collection" : undefined} />
+      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={uplift ? "Contact" : undefined} /> : null}
+      <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} kicker={uplift ? "Experience Centre" : undefined} />
+      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings, uplift ? "Media" : undefined)) }} />
     </main>
   );
 }

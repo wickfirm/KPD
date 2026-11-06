@@ -1,0 +1,678 @@
+/* ── Homepage uplift — "Gallery light" (Option 2.1 concept, Nov 2026) ─────────
+   The client's design concept re-set the current homepage content like an
+   architecture monograph: white walls, ink type in Manrope at extreme weights,
+   IBM Plex Mono captions, hairline rules, one job per section.
+
+   This layer is imported ONLY by /(homepage)/uplift and every rule is scoped
+   under body.home-uplift-page, so "/" and every other page render exactly as
+   delivered. The delivered header and footer are deliberately untouched —
+   all rules target main.development-pdf-home or elements inside it.
+   site.css stays byte-frozen; this file is the only new stylesheet. */
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ── tokens (uplift-prefixed so delivered variables are never clobbered) ── */
+body.home-uplift-page main.development-pdf-home {
+  --up-wall: #FAFAF7;
+  --up-card: #FFFFFF;
+  --up-ink: #0F1011;
+  --up-ink-hover: #34373A;
+  --up-graphite: #55595E;
+  --up-hair: #E3E3DE;
+  --up-stone: #D6D3CB;
+  --up-pine-soft: #EDEDEA;
+  --up-night: #0D0F10;
+  --up-font: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --up-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --up-max: 1440px;
+  --up-g: clamp(20px, 4vw, 64px);
+  --up-xl: clamp(41.6px, 6.88vw, 112px);
+  --up-l: clamp(28.8px, 3.84vw, 60.8px);
+  --up-m: clamp(19.2px, 2.08vw, 32px);
+  --up-body: clamp(13px, 0.88vw, 14.4px);
+  --up-ease: cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+/* ── preview ribbon ── */
+.uplift-ribbon {
+  background: var(--up-ink, #0F1011);
+  color: #fff;
+  text-align: center;
+  font: 500 10.5px/1 var(--up-mono, ui-monospace, Menlo, monospace);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+}
+
+/* ── page surface: the wall ── */
+body.home-uplift-page main.development-pdf-home {
+  display: block;
+  background: var(--up-wall);
+  color: var(--up-ink);
+  font: 400 var(--up-body)/1.6 var(--up-font);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+  padding-top: 1px; /* keep the wall behind the hero's rounded corners */
+}
+
+body.home-uplift-page main.development-pdf-home h1,
+body.home-uplift-page main.development-pdf-home h2,
+body.home-uplift-page main.development-pdf-home h3 {
+  margin: 0;
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-wrap: balance;
+  color: var(--up-ink);
+}
+
+body.home-uplift-page main.development-pdf-home :focus-visible {
+  outline: 2px solid var(--up-ink);
+  outline-offset: 3px;
+}
+
+/* container measure: the concept's 1440px wrap */
+body.home-uplift-page main.development-pdf-home .pdf-section {
+  width: min(100% - clamp(40px, 8vw, 128px), var(--up-max));
+}
+
+/* ── section kickers (mono caps — uplift variant only renders these) ── */
+body.home-uplift-page .pdf-kicker {
+  display: block;
+  width: 100%;
+  grid-column: 1 / -1;
+  margin: 0 0 clamp(24px, 3vw, 40px);
+  font: 500 10.5px/1.4 var(--up-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .pdf-kicker--light {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* ── hero: clean full-bleed media, night fade ── */
+body.home-uplift-page .pdf-hero {
+  width: 100%;
+  height: clamp(560px, 86vh, 940px);
+  min-height: clamp(560px, 86vh, 940px);
+  border-radius: 0 0 20px 20px;
+  background: var(--up-night);
+  overflow: hidden;
+}
+
+body.home-uplift-page .pdf-hero img,
+body.home-uplift-page .pdf-hero video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+}
+
+body.home-uplift-page .pdf-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 15, 16, 0.08) 40%, rgba(13, 15, 16, 0.55) 100%);
+}
+
+/* ── intro: display heading + copy on the 12-col grid ── */
+body.home-uplift-page .pdf-intro {
+  padding: clamp(88px, 10vw, 160px) 0 clamp(64px, 7vw, 120px);
+}
+
+body.home-uplift-page .pdf-intro-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+body.home-uplift-page .pdf-intro-grid .pdf-kicker {
+  padding-top: 14px;
+}
+
+body.home-uplift-page .pdf-intro-grid h1 {
+  grid-column: 1 / 8;
+  font-size: var(--up-xl);
+  font-weight: 200;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+}
+
+body.home-uplift-page .pdf-intro-copy {
+  grid-column: 8 / -1;
+  padding-top: 14px;
+  display: grid;
+  gap: 22px;
+  align-content: start;
+}
+
+body.home-uplift-page .pdf-intro-copy p {
+  margin: 0;
+  font-size: clamp(14.4px, 1.1vw, 16.8px);
+  line-height: 1.7;
+  color: var(--up-graphite);
+}
+
+/* stats: the concept's numbers treatment */
+body.home-uplift-page .pdf-stat-grid {
+  margin-top: clamp(64px, 8vw, 120px);
+  padding-block: clamp(48px, 6vw, 88px);
+  border-block: 1px solid var(--up-hair);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+body.home-uplift-page .pdf-stat {
+  border-top: 1px solid var(--up-ink);
+  padding-top: 22px;
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+body.home-uplift-page .pdf-stat strong {
+  font-size: clamp(28.8px, 3.2vw, 48px);
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+body.home-uplift-page .pdf-stat strong a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body.home-uplift-page .pdf-stat span {
+  margin: 0;
+  font: 500 10.5px/1.4 var(--up-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .stats-as-of {
+  grid-column: 1 / -1;
+  margin: 0;
+  font: 400 12px/1.6 var(--up-mono);
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .stats-as-of a {
+  color: inherit;
+}
+
+/* ── development banner: framed panel with a white card ── */
+body.home-uplift-page .pdf-development-banner {
+  height: clamp(520px, 82vh, 880px);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  text-align: left;
+  color: var(--up-ink);
+}
+
+body.home-uplift-page .pdf-development-banner::after {
+  content: none;
+}
+
+body.home-uplift-page .pdf-development-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  width: min(560px, calc(100% - clamp(24px, 4vw, 48px)));
+  margin: 0 0 clamp(16px, 2.4vw, 28px) clamp(16px, 2.4vw, 28px);
+  padding: clamp(22px, 2.6vw, 36px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.4);
+  gap: 10px;
+}
+
+body.home-uplift-page .pdf-development-content .pdf-kicker--light {
+  color: var(--up-graphite);
+  margin-bottom: 0;
+}
+
+body.home-uplift-page .pdf-development-content h2 {
+  font-size: clamp(27.2px, 3.2vw, 48px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+body.home-uplift-page .pdf-development-content p {
+  margin: 0;
+  font-size: 14.4px;
+  line-height: 1.6;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .pdf-development-button {
+  width: auto;
+  min-height: 50px;
+  padding: 0 24px;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--up-ink);
+  border-radius: 999px;
+  background: var(--up-ink);
+  color: #fff;
+  font: 600 13px/1 var(--up-font);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+body.home-uplift-page .pdf-development-button:hover,
+body.home-uplift-page .pdf-development-button:focus-visible {
+  background: var(--up-ink-hover);
+  border-color: var(--up-ink-hover);
+  color: #fff;
+}
+
+body.home-uplift-page .pdf-development-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+body.home-uplift-page .pdf-development-dots button {
+  background: rgba(15, 16, 17, 0.3);
+}
+
+body.home-uplift-page .pdf-development-dots button.active,
+body.home-uplift-page .pdf-development-dots button:hover,
+body.home-uplift-page .pdf-development-dots button:focus-visible {
+  background: var(--up-ink);
+}
+
+body.home-uplift-page .pdf-development-heading-outside {
+  font-size: var(--up-l);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+}
+
+body.home-uplift-page .pdf-development-text {
+  padding: clamp(40px, 5vw, 72px) 0;
+}
+
+body.home-uplift-page .pdf-development-text p {
+  margin: 0;
+  font-size: clamp(19.2px, 2.32vw, 36.8px);
+  font-weight: 300;
+  line-height: 1.22;
+  letter-spacing: -0.025em;
+  color: var(--up-ink);
+}
+
+/* ── the collection: white post cards ── */
+body.home-uplift-page .pdf-development-cards {
+  padding: clamp(48px, 6vw, 88px) 0 clamp(64px, 7vw, 110px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+
+body.home-uplift-page .pdf-dev-card {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--up-card);
+  border: 1px solid var(--up-hair);
+  border-radius: 14px;
+  overflow: hidden;
+  color: var(--up-ink);
+  transition: border-color 0.25s, transform 0.4s var(--up-ease);
+}
+
+body.home-uplift-page .pdf-dev-card::after {
+  content: none;
+}
+
+body.home-uplift-page .pdf-dev-card img {
+  position: static;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  filter: grayscale(1) contrast(1.05) brightness(1.02);
+  transition: filter 0.6s, transform 1.2s var(--up-ease);
+}
+
+body.home-uplift-page .pdf-dev-card:hover {
+  border-color: var(--up-ink);
+  transform: translateY(-4px);
+}
+
+body.home-uplift-page .pdf-dev-card:hover img {
+  filter: none;
+  transform: scale(1.04);
+}
+
+body.home-uplift-page .pdf-dev-card-body {
+  position: static;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 12px;
+  padding: 22px 22px 24px;
+}
+
+body.home-uplift-page .pdf-dev-card h3 {
+  margin: 0;
+  font-size: clamp(17.6px, 1.44vw, 22.4px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+body.home-uplift-page .pdf-dev-card p {
+  margin: 0;
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .pdf-dev-card span {
+  width: 100%;
+  min-height: 0;
+  border: 0;
+  border-top: 1px solid var(--up-hair);
+  padding: 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--up-ink);
+  text-transform: none;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ── contact block ── */
+body.home-uplift-page .pdf-contact-block {
+  padding: clamp(64px, 8vw, 120px) 0;
+  display: grid;
+  grid-template-columns: 1fr 0.9fr;
+  gap: clamp(24px, 5vw, 96px);
+  align-items: end;
+}
+
+body.home-uplift-page .pdf-contact-block h2 {
+  font-size: var(--up-l);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+body.home-uplift-page .pdf-contact-copy p {
+  margin: 0 0 28px;
+  max-width: 34em;
+  font-size: clamp(14.4px, 1.1vw, 16.8px);
+  line-height: 1.7;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .pdf-contact-copy a {
+  width: auto;
+  margin: 0;
+  min-height: 50px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--up-ink);
+  border-radius: 999px;
+  background: var(--up-ink);
+  color: #fff;
+  text-transform: none;
+  font: 600 13px/1 var(--up-font);
+  letter-spacing: 0.02em;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+body.home-uplift-page .pdf-contact-copy a:hover,
+body.home-uplift-page .pdf-contact-copy a:focus-visible {
+  background: var(--up-ink-hover);
+  border-color: var(--up-ink-hover);
+  color: #fff;
+}
+
+/* ── experience centre: the concept's accordion panels ── */
+body.home-uplift-page .pdf-vertical-gallery.pdf-gallery-flex {
+  flex-wrap: wrap;
+  gap: 10px;
+  height: auto;
+  min-height: clamp(380px, 46vw, 620px);
+  padding: 0 0 clamp(64px, 8vw, 120px);
+}
+
+body.home-uplift-page .pdf-vertical-gallery.pdf-gallery-flex .pdf-gallery-panel {
+  height: clamp(380px, 46vw, 620px);
+  border-radius: 14px;
+}
+
+body.home-uplift-page .pdf-vertical-gallery.pdf-gallery-flex .pdf-gallery-panel::after {
+  font: 500 10.5px/1.5 var(--up-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 92px 16px 14px;
+}
+
+/* ── news: sec-top head + white post cards ── */
+body.home-uplift-page .pdf-events-head {
+  padding: clamp(48px, 6vw, 88px) 0 clamp(36px, 4vw, 56px);
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: clamp(24px, 5vw, 96px);
+  align-items: end;
+}
+
+body.home-uplift-page .pdf-events-head h2 {
+  font-size: var(--up-l);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+body.home-uplift-page .pdf-events-head p {
+  margin: 0;
+  max-width: 40em;
+  font-size: clamp(14.4px, 1.1vw, 16.8px);
+  line-height: 1.7;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .pdf-events-head a {
+  width: auto;
+  margin: 0;
+  min-height: 50px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--up-ink);
+  border-radius: 999px;
+  background: none;
+  color: var(--up-ink);
+  text-transform: none;
+  font: 600 13px/1 var(--up-font);
+  letter-spacing: 0.02em;
+  transition: background 0.25s, color 0.25s;
+}
+
+body.home-uplift-page .pdf-events-head a:hover,
+body.home-uplift-page .pdf-events-head a:focus-visible {
+  background: var(--up-ink);
+  color: #fff;
+}
+
+body.home-uplift-page .pdf-events-grid {
+  padding: 0 0 clamp(64px, 8vw, 120px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+
+body.home-uplift-page .pdf-event-card {
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--up-card);
+  border: 1px solid var(--up-hair);
+  border-radius: 14px;
+  overflow: hidden;
+  color: var(--up-ink);
+  transition: border-color 0.25s, transform 0.4s var(--up-ease);
+}
+
+body.home-uplift-page .pdf-event-card::after {
+  content: none;
+}
+
+body.home-uplift-page .pdf-event-card img {
+  position: static;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  filter: grayscale(1) contrast(1.05) brightness(1.02);
+  transition: filter 0.6s, transform 1.2s var(--up-ease);
+}
+
+body.home-uplift-page .pdf-event-card:hover {
+  border-color: var(--up-ink);
+  transform: translateY(-4px);
+}
+
+body.home-uplift-page .pdf-event-card:hover img {
+  filter: none;
+  transform: scale(1.04);
+}
+
+body.home-uplift-page .pdf-event-card h3 {
+  position: static;
+  margin: 22px 22px 0;
+  font-size: clamp(17.6px, 1.44vw, 22.4px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+body.home-uplift-page .pdf-event-card p {
+  position: static;
+  margin: 12px 22px 18px;
+  min-height: 0;
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--up-graphite);
+}
+
+body.home-uplift-page .pdf-event-card a {
+  position: static;
+  width: auto;
+  margin: auto 22px 24px;
+  min-height: 0;
+  border: 0;
+  border-top: 1px solid var(--up-hair);
+  border-radius: 0;
+  padding: 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--up-ink);
+  text-transform: none;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ── responsive (mirrors the concept breakpoints) ── */
+@media (max-width: 900px) {
+  body.home-uplift-page .pdf-intro-grid h1 {
+    grid-column: 1 / -1;
+  }
+
+  body.home-uplift-page .pdf-intro-copy {
+    grid-column: 1 / -1;
+    padding-top: 8px;
+  }
+
+  body.home-uplift-page .pdf-stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.home-uplift-page .pdf-development-cards,
+  body.home-uplift-page .pdf-events-grid {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: minmax(78%, 1fr);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+
+  body.home-uplift-page .pdf-dev-card,
+  body.home-uplift-page .pdf-event-card {
+    scroll-snap-align: start;
+  }
+
+  body.home-uplift-page .pdf-contact-block,
+  body.home-uplift-page .pdf-events-head {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  body.home-uplift-page .pdf-vertical-gallery.pdf-gallery-flex {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 82%;
+    grid-template-columns: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    min-height: 0;
+    padding-bottom: 6px;
+  }
+
+  body.home-uplift-page .pdf-vertical-gallery.pdf-gallery-flex .pdf-gallery-panel {
+    height: auto;
+    aspect-ratio: 4 / 5;
+    scroll-snap-align: start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home-uplift-page main.development-pdf-home *,
+  body.home-uplift-page main.development-pdf-home *::before,
+  body.home-uplift-page main.development-pdf-home *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

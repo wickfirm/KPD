@@ -8,7 +8,7 @@ import type { TextStyle } from "@/lib/text-style";
 /// The delivered script runs before React has hydrated on some homepage loads.
 /// Own this CMS-rendered carousel in React so autoplay and the dot controls are
 /// reliable regardless of load timing or client-side navigation.
-export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle, ctaPosition = "below" }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: TextStyle; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle; ctaPosition?: "below" | "above" | "left" | "right" }) {
+export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingPosition = "overlay", headingStyle, caption, captionVisible = false, captionPosition = "below", captionStyle, ctaPosition = "below", kicker }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingPosition?: "overlay" | "above" | "below"; headingStyle?: TextStyle; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle; ctaPosition?: "below" | "above" | "left" | "right"; kicker?: string }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -39,6 +39,7 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
           ))}
         </div>
         <div className="pdf-development-content">
+          {kicker ? <p className="pdf-kicker pdf-kicker--light">{kicker}</p> : null}
           {headingPosition === "overlay" ? <h2 style={headingStyle}>{multiline(heading)}</h2> : null}
           {(() => {
             const button = ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel}</Link> : null;
