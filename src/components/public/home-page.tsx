@@ -1,8 +1,9 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
-import { homeDefaults, type DevelopmentCard, type GalleryPanel, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { homeDefaults, type DevelopmentCard, type GalleryPanel, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
 import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
+import { emphasisNodes } from "@/lib/emphasis";
 import { HomeDevelopmentSlider } from "./home-development-slider";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -34,25 +35,63 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
 }
 
-export function HomeHero({ video, image }: { video?: string; image?: string }) {
+/// Gallery-light hero: full-bleed media with the page headline, a supporting
+/// line, the CTA and a pause control overlaid at the bottom. The headline is
+/// the page's single <h1>; when the CMS clears the hero media it falls back
+/// into the intro so a heading always exists.
+export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headingStyle }: { video?: string; image?: string; heading?: string; text?: string; ctaLabel?: string; ctaUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"] }) {
+  const hasContent = Boolean(heading?.trim() || text?.trim() || ctaLabel?.trim());
   return (
     <section className="pdf-section pdf-hero">
       {video
         ? <video src={video} poster={image || undefined} autoPlay muted loop playsInline preload="auto" aria-label="KPD Experience Center presentation gallery" />
         : image ? <img src={image} alt="KPD Experience Center presentation gallery" /> : null}
+      {hasContent ? (
+        <div className="pdf-hero-content">
+          {heading?.trim() ? <h1 className="pdf-hero-title" style={textStyleProps(headingStyle)}>{emphasisNodes(heading)}</h1> : null}
+          <div className="pdf-hero-row">
+            {text?.trim() ? <p className="pdf-hero-text">{emphasisNodes(text)}</p> : null}
+            <div className="pdf-hero-actions">
+              {ctaLabel?.trim() ? <Link className="pdf-hero-cta" href={ctaUrl || "#developments"}>{ctaLabel} <span className="pdf-hero-arrow" aria-hidden="true">→</span></Link> : null}
+              {video ? (
+                <button className="pdf-hero-toggle" type="button" data-hero-toggle aria-label="Pause video">
+                  <svg className="pdf-hero-icon-pause" width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" y="1" width="3" height="12" fill="currentColor" /><rect x="8" y="1" width="3" height="12" fill="currentColor" /></svg>
+                  <svg className="pdf-hero-icon-play" width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M2 1l9 6-9 6z" fill="currentColor" /></svg>
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
 
-export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle, valueStyle, labelStyle }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"] }) {
+export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle, valueStyle, labelStyle, kicker, values }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"]; kicker?: string; values?: HomeValue[] }) {
+  /// The headline normally lives in the hero; the parameter only fills again
+  /// when the hero media is cleared, so the page keeps exactly one <h1>.
+  const [statement, ...extraParagraphs] = paragraphs;
   return (
     <section className="pdf-section pdf-intro" id="about">
+      {heading ? <h1 className="pdf-intro-heading" style={textStyleProps(headingStyle)}>{multiline(heading)}</h1> : null}
       <div className="pdf-intro-grid">
-        <h1 style={textStyleProps(headingStyle)}>{multiline(heading)}</h1>
+        {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
         <div className="pdf-intro-copy">
-          {paragraphs.map((paragraph, index) => <p key={index} style={textStyleProps(bodyStyle)}>{multiline(paragraph)}</p>)}
+          {statement !== undefined ? <p className="pdf-statement" style={textStyleProps(bodyStyle)}>{emphasisNodes(statement)}</p> : null}
+          {extraParagraphs.map((paragraph, index) => <p className="pdf-intro-note" key={index}>{emphasisNodes(paragraph)}</p>)}
         </div>
       </div>
+      {values?.length ? (
+        <div className="pdf-values">
+          {values.filter((value) => value.title.trim() || value.body.trim()).map((value, index) => (
+            <div className="pdf-value" key={`${value.title}-${index}`}>
+              <p className="pdf-value-cap">Value</p>
+              <h3>{value.title}</h3>
+              {value.body.trim() ? <p>{value.body}</p> : null}
+            </div>
+          ))}
+        </div>
+      ) : null}
       <div className="pdf-stat-grid">
         {stats.map((stat, index) => (
           <div className="pdf-stat" key={`${stat.label}-${index}`}><strong><Link href="/about" style={textStyleProps(valueStyle)}>{stat.value}</Link></strong><span style={textStyleProps(labelStyle)}>{stat.label}</span></div>
@@ -126,10 +165,20 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const bannerSlides = settings.bannerSlides ?? [];
   const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || introStats.length || settings.statsNote?.trim());
   const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
+  const heroMedia = settings.heroVideo?.trim() || settings.heroImage?.trim();
+  /// The page headline renders in the hero; empty-string CMS values override
+  /// the defaults, undefined falls back to them.
+  const heroHeading = settings.introHeading ?? "";
+  const headingInHero = Boolean(heroMedia && heroHeading.trim());
+  const heroText = settings.heroText ?? homeDefaults.heroText;
+  const heroCtaLabel = settings.heroCtaLabel ?? homeDefaults.heroCtaLabel;
+  const heroCtaUrl = settings.heroCtaUrl ?? homeDefaults.heroCtaUrl;
+  const introKicker = settings.introKicker ?? homeDefaults.introKicker;
+  const introValues = settings.introValues ?? homeDefaults.introValues;
   return (
     <main className="development-pdf-home" id="top">
-      {settings.heroVideo?.trim() || settings.heroImage?.trim() ? <HomeHero video={settings.heroVideo?.trim() || undefined} image={settings.heroImage?.trim() || undefined} /> : null}
-      {hasIntroduction ? <HomeIntro heading={settings.introHeading ?? ""} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
+      {heroMedia ? <HomeHero video={settings.heroVideo?.trim() || undefined} image={settings.heroImage?.trim() || undefined} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
+      {hasIntroduction ? <HomeIntro heading={headingInHero ? "" : heroHeading} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} kicker={introKicker} values={introValues} /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} ctaPosition={settings.developmentCtaPosition} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
       {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}

@@ -7,6 +7,7 @@ import type { TextStyle } from "@/lib/text-style";
 export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
 export type StatItem = { value: string; label: string };
 export type BannerSlide = { image: string; label: string; text?: string };
+export type HomeValue = { title: string; body: string };
 
 export type HomeSettings = {
   introStats?: StatItem[];
@@ -22,8 +23,17 @@ export type HomeSettings = {
   /// Hero banner image: the poster while the video plays, or the banner itself
   /// when no video is set (client request).
   heroImage?: string;
+  /// Gallery-light hero (section batch 1): supporting line + CTA under the
+  /// headline. Supports **bold** and [[soft]] emphasis like the statement.
+  heroText?: string;
+  heroCtaLabel?: string;
+  heroCtaUrl?: string;
   introHeading?: string;
+  /// Mono caption above the About statement (section batch 1).
+  introKicker?: string;
   introParagraphs?: string[];
+  /// The three-column value trio under the statement (section batch 1).
+  introValues?: HomeValue[];
   developmentHeading?: string;
   developmentBannerText?: string;
   developmentHeadingPosition?: "overlay" | "above" | "below";
@@ -87,6 +97,15 @@ export const homeDefaults = {
     { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/library/high-rise-apartment-buildings-in-downtown-vancouve-2026-03-20-04-35-07-utc.jpg", title: "Villa 24", copy: "A mansion-scale residence where garden arrival, private wellness and long-horizon family living are composed as one." },
   ] as DevelopmentCard[],
   heroVideo: "/videos/hero-experience-center.mp4",
+  heroText: "Every decision begins with understanding. Japanese discipline and long-term thinking, brought to the places we create in the UAE.",
+  heroCtaLabel: "Explore the residences",
+  heroCtaUrl: "#developments",
+  introKicker: "About KPD",
+  introValues: [
+    { title: "Quality", body: "An uncompromising standard across every material, detail and development." },
+    { title: "Peace of mind", body: "Care and accountability from the first conversation to long after handover." },
+    { title: "Innovation", body: "The continuous pursuit of better ways to design, build and serve." },
+  ] as HomeValue[],
   introHeading: "Turning Challenge\nInto Value",
   introParagraphs: [
     "As the first Japanese developer in the UAE, Kasumigaseki Properties Development is the development arm of Kasumigaseki Capital, a public Tokyo-listed company. It introduces a distinctive approach to real estate: a promise of a higher standard of life. Driven by a commitment to superior quality, we believe meaningful developments begin with a deep respect for their environment, context, and community.",
