@@ -628,7 +628,8 @@ body.home-development-page {
   position: absolute;
   inset: auto 0 0;
   z-index: 2;
-  width: min(100% - clamp(40px, 8vw, 128px), 1440px);
+  /* Same measure as the delivered .pdf-section (93%, set late in site.css). */
+  width: var(--container);
   margin-inline: auto;
   /* Clears the delivered floating enquiry widget in the bottom-right corner. */
   padding-bottom: clamp(88px, 9vw, 132px);
@@ -880,7 +881,10 @@ body.home-development-page {
 }
 
 .development-pdf-home .pdf-numbers-inner {
-  width: min(100% - clamp(40px, 8vw, 128px), 1440px);
+  /* Same measure as the delivered .pdf-section (93%, set late in site.css)
+     so the band's content aligns with the About statement and every other
+     homepage section. */
+  width: var(--container);
   margin-inline: auto;
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
