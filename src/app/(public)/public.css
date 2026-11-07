@@ -970,3 +970,25 @@ body.home-development-page {
     gap: clamp(32px, 6vw, 48px);
   }
 }
+
+/* ── Gallery-light container (section batches 1–2) ───────────────────────────
+   The concept centres every section in one wrap (~1440px) instead of the
+   delivered near-full-width 93%. The hero overlay and the numbers band inner
+   use the same wrap, so hero, About, values and the numbers band share one
+   left/right edge. Later batches inherit it automatically. */
+.development-pdf-home .pdf-section {
+  width: min(100% - clamp(40px, 8vw, 128px), 1440px);
+}
+
+.development-pdf-home .pdf-hero-content,
+.development-pdf-home .pdf-numbers-inner {
+  width: min(100% - clamp(40px, 8vw, 128px), 1440px);
+}
+
+/* The hero and the numbers band stay full-bleed; only their content sits in
+   the wrap. Placed after the container rule so it wins the cascade — both
+   carry .pdf-section and would otherwise be narrowed twice. */
+.development-pdf-home .pdf-hero,
+.development-pdf-home .pdf-numbers {
+  width: 100%;
+}
