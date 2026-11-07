@@ -587,13 +587,15 @@ body.home-development-page {
    page face (--font-main above); IBM Plex Mono carries the small captions. */
 
 .development-pdf-home {
+  /* Colours kept as custom properties (plain values survive the bundler);
+     every clamp()/font token was inlined at its usage because the bundler
+     drops clamp()-valued custom-property definitions. */
   --up-ink: #0F1011;
   --up-ink-hover: #34373A;
   --up-graphite: #55595E;
   --up-hair: #E3E3DE;
   --up-stone: #D6D3CB;
   --up-night: #0D0F10;
-  --up-soft: #9A9C98;
   --up-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --up-ease: cubic-bezier(0.22, 0.8, 0.16, 1);
 }
@@ -604,7 +606,7 @@ body.home-development-page {
   height: clamp(560px, 86vh, 940px);
   min-height: clamp(560px, 86vh, 940px);
   border-radius: 0 0 20px 20px;
-  background: var(--up-night);
+  background: #0D0F10;
   color: #fff;
   overflow: hidden;
 }
@@ -681,7 +683,7 @@ body.home-development-page {
   border-radius: 999px;
   border: 1px solid #fff;
   background: #fff;
-  color: var(--up-ink);
+  color: #0F1011;
   font: 600 13px/1 var(--font-main);
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -695,7 +697,7 @@ body.home-development-page {
 }
 
 .development-pdf-home .pdf-hero-arrow {
-  transition: transform 0.3s var(--up-ease);
+  transition: transform 0.3s cubic-bezier(0.22,0.8,0.16,1);
 }
 
 .development-pdf-home .pdf-hero-cta:hover .pdf-hero-arrow {
@@ -718,7 +720,7 @@ body.home-development-page {
 
 .development-pdf-home .pdf-hero-toggle:hover {
   background: #fff;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-hero-icon-play {
@@ -744,7 +746,7 @@ body.home-development-page {
   font-weight: 300;
   letter-spacing: -0.05em;
   line-height: 0.95;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-intro-grid {
@@ -758,10 +760,10 @@ body.home-development-page {
   grid-column: 1 / 4;
   margin: 0;
   padding-top: 14px;
-  font: 500 10.5px/1.4 var(--up-mono);
+  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 .development-pdf-home .pdf-intro-copy {
@@ -777,7 +779,7 @@ body.home-development-page {
   font-weight: 300;
   line-height: 1.22;
   letter-spacing: -0.025em;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-statement strong,
@@ -786,7 +788,7 @@ body.home-development-page {
 }
 
 .development-pdf-home .soft {
-  color: var(--up-soft);
+  color: #9A9C98;
 }
 
 .development-pdf-home .pdf-intro-note {
@@ -794,7 +796,7 @@ body.home-development-page {
   max-width: 46em;
   font-size: 15px;
   line-height: 1.7;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 /* value trio */
@@ -806,7 +808,7 @@ body.home-development-page {
 }
 
 .development-pdf-home .pdf-value {
-  border-top: 1px solid var(--up-ink);
+  border-top: 1px solid #0F1011;
   padding-top: 22px;
   display: grid;
   gap: 12px;
@@ -815,10 +817,10 @@ body.home-development-page {
 
 .development-pdf-home .pdf-value-cap {
   margin: 0;
-  font: 500 10.5px/1.4 var(--up-mono);
+  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 .development-pdf-home .pdf-value h3 {
@@ -827,7 +829,7 @@ body.home-development-page {
   font-weight: 400;
   letter-spacing: -0.03em;
   line-height: 1.1;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-value p:not(.pdf-value-cap) {
@@ -835,7 +837,7 @@ body.home-development-page {
   max-width: 26em;
   font-size: 14.4px;
   line-height: 1.6;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 @media (max-width: 900px) {
@@ -876,7 +878,7 @@ body.home-development-page {
 .development-pdf-home .pdf-numbers {
   width: 100%;
   background: #fff;
-  border-block: 1px solid var(--up-hair);
+  border-block: 1px solid #E3E3DE;
   padding-block: clamp(64px, 7vw, 112px);
 }
 
@@ -898,7 +900,7 @@ body.home-development-page {
 }
 
 .development-pdf-home .pdf-numbers .pdf-stat {
-  border-top: 1px solid var(--up-hair);
+  border-top: 1px solid #E3E3DE;
   padding-top: 14px;
   display: grid;
   gap: 8px;
@@ -918,7 +920,7 @@ body.home-development-page {
   letter-spacing: -0.06em;
   line-height: 0.85;
   font-variant-numeric: tabular-nums;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-stat-suffix {
@@ -926,7 +928,7 @@ body.home-development-page {
   font-weight: 400;
   letter-spacing: -0.02em;
   margin-left: 6px;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-legend {
@@ -937,10 +939,10 @@ body.home-development-page {
 
 .development-pdf-home .pdf-legend .pdf-stat span {
   margin: 0;
-  font: 500 10.5px/1.4 var(--up-mono);
+  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 .development-pdf-home .pdf-legend .pdf-stat strong {
@@ -949,15 +951,15 @@ body.home-development-page {
   letter-spacing: -0.04em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-numbers .stats-as-of {
   margin: 20px 0 0;
-  font: 400 11px/1.6 var(--up-mono);
+  font: 400 11px/1.6 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 .development-pdf-home .pdf-numbers .stats-as-of a {
@@ -1018,13 +1020,13 @@ body.home-development-page {
   padding-top: 0;
 }
 
-.development-pdf-home .pdf-sec-top h2 {
+.home-development-page .development-pdf-home .pdf-sec-top h2 {
   margin: 0;
-  font-size: var(--up-l);
+  font-size: clamp(28.8px,3.84vw,60.8px);
   font-weight: 300;
   letter-spacing: -0.035em;
   line-height: 1.02;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-dev-all {
@@ -1033,13 +1035,13 @@ body.home-development-page {
   gap: 8px;
   padding-bottom: 3px;
   border-bottom: 1px solid currentColor;
-  color: var(--up-ink);
+  color: #0F1011;
   font: 600 13px/1.4 var(--font-main);
   text-decoration: none;
 }
 
 .development-pdf-home .pdf-dev-all-arrow {
-  transition: transform 0.3s var(--up-ease);
+  transition: transform 0.3s cubic-bezier(0.22,0.8,0.16,1);
 }
 
 .development-pdf-home .pdf-dev-all:hover .pdf-dev-all-arrow,
@@ -1052,7 +1054,7 @@ body.home-development-page {
   border-radius: 20px;
   overflow: hidden;
   height: clamp(520px, 82vh, 880px);
-  background: var(--up-night);
+  background: #0D0F10;
 }
 
 .development-pdf-home .pdf-dev-tag {
@@ -1066,14 +1068,14 @@ body.home-development-page {
 }
 
 .development-pdf-home .pdf-chip {
-  font: 500 10.5px/1 var(--up-mono);
+  font: 500 10.5px/1 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 8px 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(10px);
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-development-content {
@@ -1093,7 +1095,7 @@ body.home-development-page {
   border-radius: 14px;
   box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.4);
   text-align: left;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-dev-card-title {
@@ -1102,14 +1104,14 @@ body.home-development-page {
   font-weight: 300;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  color: var(--up-ink);
+  color: #0F1011;
 }
 
 .development-pdf-home .pdf-development-content p {
   margin: 0;
   font-size: 14.4px;
   line-height: 1.6;
-  color: var(--up-graphite);
+  color: #55595E;
 }
 
 /* .btn-pill is repeated in the selector to out-rank the delivered uppercase
@@ -1122,9 +1124,9 @@ body.home-development-page {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  border: 1px solid var(--up-ink);
+  border: 1px solid #0F1011;
   border-radius: 999px;
-  background: var(--up-ink);
+  background: #0F1011;
   color: #fff;
   font: 600 13px/1 var(--font-main);
   letter-spacing: 0.02em;
@@ -1134,13 +1136,13 @@ body.home-development-page {
 
 .development-pdf-home .pdf-development-button:hover,
 .development-pdf-home .pdf-development-button:focus-visible {
-  background: var(--up-ink-hover);
-  border-color: var(--up-ink-hover);
+  background: #34373A;
+  border-color: #34373A;
   color: #fff;
 }
 
 .development-pdf-home .pdf-dev-btn-arrow {
-  transition: transform 0.3s var(--up-ease);
+  transition: transform 0.3s cubic-bezier(0.22,0.8,0.16,1);
 }
 
 .development-pdf-home .pdf-development-button:hover .pdf-dev-btn-arrow {
@@ -1160,7 +1162,7 @@ body.home-development-page {
 .development-pdf-home .pdf-development-dots button.active,
 .development-pdf-home .pdf-development-dots button:hover,
 .development-pdf-home .pdf-development-dots button:focus-visible {
-  background: var(--up-ink);
+  background: #0F1011;
 }
 
 @media (max-width: 600px) {
@@ -1192,25 +1194,25 @@ body.home-development-page {
 
 .development-pdf-home .pdf-contact-block .pdf-contact-arrow {
   display: inline-block;
-  transition: transform 0.3s var(--up-ease);
+  transition: transform 0.3s cubic-bezier(0.22,0.8,0.16,1);
 }
 
 .development-pdf-home .pdf-contact-copy a:hover .pdf-contact-arrow {
   transform: translateX(4px);
 }
 
-.development-pdf-home .pdf-vertical-gallery.pdf-gallery-flex {
+.home-development-page .development-pdf-home .pdf-vertical-gallery.pdf-gallery-flex {
   flex-wrap: nowrap;
   height: clamp(380px, 46vw, 620px);
   min-height: 0;
 }
 
 /* the delivered ::after captions move into the real .pdf-gallery-lab bar */
-.development-pdf-home .pdf-vertical-gallery.pdf-gallery-flex .pdf-gallery-panel::after {
+.home-development-page .development-pdf-home .pdf-vertical-gallery.pdf-gallery-flex .pdf-gallery-panel::after {
   content: none;
 }
 
-.development-pdf-home .pdf-gallery-panel::before {
+.home-development-page .development-pdf-home .pdf-gallery-panel::before {
   content: "";
   position: absolute;
   inset: auto 0 0;
@@ -1222,18 +1224,18 @@ body.home-development-page {
   z-index: 1;
 }
 
-.development-pdf-home .pdf-gallery-index {
+.home-development-page .development-pdf-home .pdf-gallery-index {
   position: absolute;
   top: 14px;
   left: 16px;
   z-index: 2;
   color: #fff;
-  font: 500 10.5px/1.4 var(--up-mono);
+  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.08em;
   opacity: 0.8;
 }
 
-.development-pdf-home .pdf-gallery-lab {
+.home-development-page .development-pdf-home .pdf-gallery-lab {
   position: absolute;
   left: 16px;
   right: 16px;
@@ -1244,7 +1246,7 @@ body.home-development-page {
   align-items: center;
   gap: 12px;
   color: #fff;
-  font: 500 10.5px/1.4 var(--up-mono);
+  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: left;
@@ -1254,41 +1256,256 @@ body.home-development-page {
 }
 
 /* expanded states: hovered/focused panel, or the first panel at rest */
-.development-pdf-home .pdf-gallery-panel.is-active .pdf-gallery-lab,
+.home-development-page .development-pdf-home .pdf-gallery-panel.is-active .pdf-gallery-lab,
 .development-pdf-home .pdf-gallery-panel:hover .pdf-gallery-lab,
 .development-pdf-home .pdf-gallery-panel:focus-visible .pdf-gallery-lab,
-.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child .pdf-gallery-lab {
+.home-development-page .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child .pdf-gallery-lab {
   opacity: 1;
   transform: none;
 }
 
-.development-pdf-home .pdf-gallery-panel.is-active::before,
+.home-development-page .development-pdf-home .pdf-gallery-panel.is-active::before,
 .development-pdf-home .pdf-gallery-panel:hover::before,
 .development-pdf-home .pdf-gallery-panel:focus-visible::before,
-.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child::before {
+.home-development-page .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child::before {
   opacity: 1;
 }
 
-.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child {
+.home-development-page .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child {
   flex-grow: 7.8;
 }
 
-.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) {
+.home-development-page .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) {
   flex-grow: 0.5;
 }
 
-.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) img {
+.home-development-page .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) img {
   filter: brightness(0.7);
 }
 
 @media (max-width: 900px) {
   .development-pdf-home .pdf-gallery-lab,
-  .development-pdf-home .pdf-gallery-panel::before {
+  .home-development-page .development-pdf-home .pdf-gallery-panel::before {
     opacity: 1;
     transform: none;
   }
 
-  .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) img {
+  .home-development-page .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) img {
     filter: none;
+  }
+}
+
+/* ── Homepage news band (section batch 5) ────────────────────────────────────
+   The concept's news treatment: breathing room above, compact heading row
+   with the pill link, and white post cards (grayscale images that gain
+   colour on hover). Scoped to main.development-pdf-home. */
+
+.home-development-page .development-pdf-home .pdf-events-head {
+  padding: clamp(88px, 10vw, 160px) 0 clamp(36px, 4vw, 56px);
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: clamp(24px, 5vw, 96px);
+  align-items: end;
+}
+
+.home-development-page .home-development-page .development-pdf-home .pdf-events-head h2 {
+  margin: 0;
+  font-size: clamp(28.8px, 3.84vw, 60.8px);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: #0F1011;
+}
+
+.home-development-page .development-pdf-home .pdf-events-head p {
+  margin: 0;
+  max-width: 40em;
+  font-size: clamp(14.4px, 1.1vw, 16.8px);
+  line-height: 1.7;
+  color: #55595E;
+}
+
+.home-development-page .development-pdf-home .pdf-events-head a {
+  width: auto;
+  margin: 0;
+  min-height: 50px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #0F1011;
+  border-radius: 999px;
+  background: none;
+  color: #0F1011;
+  text-transform: none;
+  font: 600 13px/1 "Manrope", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0.02em;
+  transition: background 0.25s, color 0.25s;
+}
+
+.home-development-page .development-pdf-home .pdf-events-head a:hover,
+.home-development-page .development-pdf-home .pdf-events-head a:focus-visible {
+  background: #0F1011;
+  color: #fff;
+}
+
+.home-development-page .development-pdf-home .pdf-events-grid {
+  padding: 0 0 clamp(64px, 8vw, 120px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 28px);
+}
+
+.home-development-page .development-pdf-home .pdf-event-card {
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #E3E3DE;
+  border-radius: 14px;
+  overflow: hidden;
+  color: #0F1011;
+  transition: border-color 0.25s, transform 0.4s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+.home-development-page .development-pdf-home .pdf-event-card::after {
+  content: none;
+}
+
+.home-development-page .development-pdf-home .pdf-event-card img {
+  position: static;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  filter: grayscale(1) contrast(1.05) brightness(1.02);
+  transition: filter 0.6s, transform 1.2s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+.home-development-page .development-pdf-home .pdf-event-card:hover {
+  border-color: #0F1011;
+  transform: translateY(-4px);
+}
+
+.home-development-page .development-pdf-home .pdf-event-card:hover img {
+  filter: none;
+  transform: scale(1.04);
+}
+
+.home-development-page .development-pdf-home .pdf-event-card h3 {
+  position: static;
+  margin: 22px 22px 0;
+  font-size: clamp(17.6px, 1.44vw, 22.4px);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: #0F1011;
+}
+
+.home-development-page .development-pdf-home .pdf-event-card p {
+  position: static;
+  margin: 12px 22px 18px;
+  min-height: 0;
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #55595E;
+}
+
+.home-development-page .development-pdf-home .pdf-event-card a {
+  position: static;
+  width: auto;
+  margin: auto 22px 24px;
+  min-height: 0;
+  border: 0;
+  border-top: 1px solid #E3E3DE;
+  border-radius: 0;
+  padding: 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #0F1011;
+  text-transform: none;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .home-development-page .development-pdf-home .pdf-events-head {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+
+  .home-development-page .development-pdf-home .pdf-events-grid {
+    grid-auto-flow: column;
+    grid-template-columns: none;
+    grid-auto-columns: minmax(78%, 1fr);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 8px;
+  }
+
+  .home-development-page .development-pdf-home .pdf-event-card {
+    scroll-snap-align: start;
+  }
+}
+
+/* ── Contact/experience header block (section batch 4, completion) ───────────
+   The block's own restyle — without it the delivered 80px/65px heading rules
+   win and the headline collides with the copy column. Heading specificity is
+   bumped past the delivered body-scoped clamp rules. */
+.home-development-page .development-pdf-home .pdf-contact-block {
+  padding: clamp(64px, 8vw, 120px) 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: clamp(24px, 5vw, 96px);
+  align-items: end;
+}
+
+.home-development-page .development-pdf-home .pdf-contact-block h2 {
+  margin: 0;
+  font-size: clamp(28.8px, 3.84vw, 60.8px);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: #0F1011;
+}
+
+.development-pdf-home .pdf-contact-copy p {
+  margin: 0 0 28px;
+  max-width: 34em;
+  font-size: clamp(14.4px, 1.1vw, 16.8px);
+  line-height: 1.7;
+  color: #55595E;
+}
+
+.home-development-page .development-pdf-home .pdf-contact-copy a {
+  width: auto;
+  margin: 0;
+  min-height: 50px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #0F1011;
+  border-radius: 999px;
+  background: #0F1011;
+  color: #fff;
+  text-transform: none;
+  font: 600 13px/1 "Manrope", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0.02em;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.home-development-page .development-pdf-home .pdf-contact-copy a:hover,
+.development-pdf-home .pdf-contact-copy a:focus-visible {
+  background: #34373A;
+  border-color: #34373A;
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .home-development-page .development-pdf-home .pdf-contact-block {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
 }
