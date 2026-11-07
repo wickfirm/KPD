@@ -67,6 +67,8 @@ export type HomeSettings = {
   /// Same choice for the button on the developments banner (round two).
   developmentCtaPosition?: "below" | "above" | "left" | "right";
   contactHeading?: string;
+  /// Mono caption above the contact/experience heading (section batch 4).
+  contactKicker?: string;
   contactText?: string;
   contactCtaLabel?: string;
   contactCtaUrl?: string;
@@ -125,6 +127,7 @@ export const homeDefaults = {
   newsText: "Development updates, market notes and the thinking behind how we build.",
   newsCta: "Read News & Insights",
   contactHeading: "Visit the Experience Center",
+  contactKicker: "Experience Centre",
   contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",
   galleryPanels: [
     { key: "arrival", image: "/legacy/assets/images/experience-center/hq/1.jpg", caption: "Private Consultation" },

@@ -957,6 +957,7 @@ function homeSettingsFromForm(formData: FormData) {
     newsCtaPosition: ["above", "left", "right"].includes(String(formData.get("newsCtaPosition") || "")) ? formData.get("newsCtaPosition") as "above" | "left" | "right" : "below",
     developmentCtaPosition: ["above", "left", "right"].includes(String(formData.get("developmentCtaPosition") || "")) ? formData.get("developmentCtaPosition") as "above" | "left" | "right" : "below",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
+    contactKicker: String(formData.get("contactKicker") || "").trim(),
     contactText: String(formData.get("contactText") || "").trim(),
     contactCtaLabel: String(formData.get("contactCtaLabel") || "").trim(),
     contactCtaUrl: String(formData.get("contactCtaUrl") || "").trim(),

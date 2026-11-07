@@ -167,13 +167,14 @@ export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible =
   );
 }
 
-export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"] }) {
+export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle, kicker }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"]; kicker?: string }) {
   return (
     <section className="pdf-section pdf-contact-block" id="contact">
+      {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
       <div><h2 style={textStyleProps(headingStyle)}>{multiline(heading)}</h2></div>
       <div className="pdf-contact-copy">
         <p style={textStyleProps(bodyStyle)}>{multiline(text)}</p>
-        {ctaVisible && ctaLabel ? <Link href={ctaUrl || "/contact#experience-center"}>{ctaLabel}</Link> : null}
+        {ctaVisible && ctaLabel ? <Link href={ctaUrl || "/contact#experience-center"}>{ctaLabel} <span className="pdf-contact-arrow" aria-hidden="true">→</span></Link> : null}
       </div>
     </section>
   );
@@ -181,16 +182,26 @@ export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible =
 
 /// The delivered gallery uses exactly five panels; the CMS editor enforces the
 /// same count, so CMS images replace all five together.
+/// The delivered gallery uses exactly five panels; the CMS editor enforces the
+/// same count, so CMS images replace all five together. Gallery-light batch 4
+/// adds the "01 / 05" index and the caption + "View" label bar; the delivered
+/// hover/active accordion and lightbox bindings are untouched.
 export function HomeExperienceGallery({ images, captions }: { images?: string[]; captions?: string[] }) {
   const panels: GalleryPanel[] = images?.length === 5
     ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: captions?.[index]?.trim() ?? "" }))
     : [];
   if (!panels.length) return null;
+  const total = String(panels.length).padStart(2, "0");
   return (
     <section className="pdf-section pdf-vertical-gallery pdf-gallery-flex" id="experience-center" aria-label="Experience Center gallery" data-gallery-flex>
-      {panels.map((panel) => (
+      {panels.map((panel, index) => (
         <button className="pdf-gallery-panel" type="button" data-gallery-panel={panel.key} data-lightbox-src={panel.image} data-lightbox-caption={panel.caption} key={panel.key}>
           <img src={panel.image} alt={panel.caption} />
+          <span className="pdf-gallery-index" aria-hidden="true">{String(index + 1).padStart(2, "0")} / {total}</span>
+          <span className="pdf-gallery-lab" aria-hidden="true">
+            <span>{panel.caption}</span>
+            <span>View ↗</span>
+          </span>
         </button>
       ))}
     </section>
@@ -205,6 +216,9 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const bannerSlides = settings.bannerSlides ?? [];
   const introKicker = settings.introKicker ?? homeDefaults.introKicker;
   const introValues = settings.introValues ?? homeDefaults.introValues;
+  /// Delivered gallery fallback: the defaults' five panels (CMS images win).
+  const experienceImages = settings.experienceImages ?? homeDefaults.galleryPanels.map((panel) => panel.image);
+  const experienceCaptions = settings.experienceCaptions ?? homeDefaults.galleryPanels.map((panel) => panel.caption);
   const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || (introValues ?? []).some((value) => value.title.trim() || value.body.trim()));
   const hasNumbers = Boolean(introStats.length || settings.statsNote?.trim());
   const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
@@ -223,8 +237,8 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
       {hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingStyle={textStyleProps(settings.developmentHeadingStyle)} kicker={settings.developmentKicker ?? homeDefaults.developmentKicker} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
-      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}
-      <HomeExperienceGallery images={settings.experienceImages?.filter(Boolean)} captions={settings.experienceCaptions} />
+      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={settings.contactKicker ?? homeDefaults.contactKicker} /> : null}
+      <HomeExperienceGallery images={experienceImages.filter(Boolean)} captions={experienceCaptions} />
       <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
     </main>
   );

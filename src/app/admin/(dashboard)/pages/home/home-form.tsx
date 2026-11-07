@@ -107,6 +107,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="cardCtaVisible" defaultChecked={settings.cardCtaVisible !== false} /><span><strong>Show the card button</strong><small>The card still opens the development. This only shows or hides the label.</small></span></label><label className="cms-field"><span>Card button label</span><input name="cardCtaLabel" defaultValue={settings.cardCtaLabel ?? "Explore"} /></label></div>
     </section>
     <h2 className="cms-form-heading">Contact strip</h2>
+    <label className="cms-field"><span>Contact caption</span><input name="contactKicker" defaultValue={settings.contactKicker ?? homeDefaults.contactKicker ?? ""} /><small>The small mono caption above the heading, shown in capitals.</small></label>
     <div className="cms-grid">
       <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
       <label className="cms-field"><span>Contact copy</span><textarea name="contactText" rows={3} defaultValue={settings.contactText ?? ""} /></label>

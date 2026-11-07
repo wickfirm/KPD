@@ -1181,3 +1181,114 @@ body.home-development-page {
     box-shadow: none;
   }
 }
+
+/* ── Homepage experience centre (section batch 4) ────────────────────────────
+   The contact block becomes the section header (caption + display heading
+   left, copy + black-pill "Book a visit" right) and the five-panel gallery
+   becomes the concept accordion: the first panel sits expanded by default,
+   every panel carries an "01 / 05" index, and the expanded panel reveals a
+   mono caption + "View ↗" bar. Delivered hover/active/lightbox bindings are
+   untouched — this only adds the default state and the labels. */
+
+.development-pdf-home .pdf-contact-block .pdf-contact-arrow {
+  display: inline-block;
+  transition: transform 0.3s var(--up-ease);
+}
+
+.development-pdf-home .pdf-contact-copy a:hover .pdf-contact-arrow {
+  transform: translateX(4px);
+}
+
+.development-pdf-home .pdf-vertical-gallery.pdf-gallery-flex {
+  flex-wrap: nowrap;
+  height: clamp(380px, 46vw, 620px);
+  min-height: 0;
+}
+
+/* the delivered ::after captions move into the real .pdf-gallery-lab bar */
+.development-pdf-home .pdf-vertical-gallery.pdf-gallery-flex .pdf-gallery-panel::after {
+  content: none;
+}
+
+.development-pdf-home .pdf-gallery-panel::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 45%;
+  background: linear-gradient(180deg, transparent, rgba(13, 15, 16, 0.6));
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.development-pdf-home .pdf-gallery-index {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 2;
+  color: #fff;
+  font: 500 10.5px/1.4 var(--up-mono);
+  letter-spacing: 0.08em;
+  opacity: 0.8;
+}
+
+.development-pdf-home .pdf-gallery-lab {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  font: 500 10.5px/1.4 var(--up-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s 0.15s, transform 0.4s 0.15s;
+}
+
+/* expanded states: hovered/focused panel, or the first panel at rest */
+.development-pdf-home .pdf-gallery-panel.is-active .pdf-gallery-lab,
+.development-pdf-home .pdf-gallery-panel:hover .pdf-gallery-lab,
+.development-pdf-home .pdf-gallery-panel:focus-visible .pdf-gallery-lab,
+.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child .pdf-gallery-lab {
+  opacity: 1;
+  transform: none;
+}
+
+.development-pdf-home .pdf-gallery-panel.is-active::before,
+.development-pdf-home .pdf-gallery-panel:hover::before,
+.development-pdf-home .pdf-gallery-panel:focus-visible::before,
+.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child::before {
+  opacity: 1;
+}
+
+.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:first-child {
+  flex-grow: 7.8;
+}
+
+.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) {
+  flex-grow: 0.5;
+}
+
+.development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) img {
+  filter: brightness(0.7);
+}
+
+@media (max-width: 900px) {
+  .development-pdf-home .pdf-gallery-lab,
+  .development-pdf-home .pdf-gallery-panel::before {
+    opacity: 1;
+    transform: none;
+  }
+
+  .development-pdf-home .pdf-gallery-flex:not(.has-active) .pdf-gallery-panel:not(:first-child) img {
+    filter: none;
+  }
+}
