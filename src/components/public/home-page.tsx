@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
 import { homeDefaults, type DevelopmentCard, type GalleryPanel, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
+
 import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
 import { HomeDevelopmentSlider } from "./home-development-slider";
@@ -67,7 +68,7 @@ export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headin
   );
 }
 
-export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl, headingStyle, bodyStyle, valueStyle, labelStyle, kicker, values }: { heading: string; paragraphs: string[]; stats: StatItem[]; statsNote: string; statsNoteUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"]; kicker?: string; values?: HomeValue[] }) {
+export function HomeIntro({ heading, paragraphs, headingStyle, bodyStyle, kicker, values }: { heading: string; paragraphs: string[]; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; kicker?: string; values?: HomeValue[] }) {
   /// The headline normally lives in the hero; the parameter only fills again
   /// when the hero media is cleared, so the page keeps exactly one <h1>.
   const [statement, ...extraParagraphs] = paragraphs;
@@ -92,20 +93,59 @@ export function HomeIntro({ heading, paragraphs, stats, statsNote, statsNoteUrl,
           ))}
         </div>
       ) : null}
-      <div className="pdf-stat-grid">
-        {stats.map((stat, index) => (
-          <div className="pdf-stat" key={`${stat.label}-${index}`}><strong><Link href="/about" style={textStyleProps(valueStyle)}>{stat.value}</Link></strong><span style={textStyleProps(labelStyle)}>{stat.label}</span></div>
-        ))}
-        {statsNote ? <p className="stats-as-of">{statsNoteUrl
-          ? <a href={statsNoteUrl} target={/^https?:/i.test(statsNoteUrl) ? "_blank" : undefined} rel={/^https?:/i.test(statsNoteUrl) ? "noreferrer" : undefined}>{statsNote}</a>
-          : statsNote}</p> : null}
-      </div>
     </section>
   );
 }
 
 export function HomeDevelopmentText({ text, bodyStyle, position = "below" }: { text: string; bodyStyle?: HomeSettings["developmentTextStyle"]; position?: "above" | "below" }) {
   return <section className={`pdf-section pdf-development-text pdf-development-text--${position}`} aria-label="Our development standard"><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
+}
+
+/// "$7.69B" -> { main: "$7.69", suffix: "B" }. The suffix renders beside the
+/// big figure instead of inside the <strong>, so the delivered count-up (which
+/// rewrites the strong's text) keeps working untouched.
+function splitStatValue(value: string): { main: string; suffix: string } {
+  const match = value.trim().match(/^([^A-Za-z]*[0-9.,]*[0-9])([A-Za-z]*)$/);
+  return match ? { main: match[1], suffix: match[2] } : { main: value.trim(), suffix: "" };
+}
+
+/// Gallery-light numbers band: the first CMS figure is the large headline
+/// number, the rest form the breakdown columns beside it. The band keeps the
+/// pdf-stat classes so the delivered count-up and reveal animations bind.
+export function HomeNumbers({ kicker, stats, note, noteUrl, valueStyle, labelStyle }: { kicker?: string; stats: StatItem[]; note: string; noteUrl?: string; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"] }) {
+  const [headline, ...legend] = stats;
+  if (!headline && !note.trim()) return null;
+  const headlineValue = splitStatValue(headline?.value ?? "");
+  return (
+    <section className="pdf-section pdf-numbers" id="numbers" aria-label="Kasumigaseki Capital figures">
+      <div className="pdf-numbers-inner">
+        <div className="pdf-numbers-head">
+          {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
+          {headline ? (
+            <div className="pdf-stat pdf-stat-big">
+              <strong style={textStyleProps(valueStyle)}>{headlineValue.main}</strong>
+              {headlineValue.suffix ? <small className="pdf-stat-suffix" style={textStyleProps(valueStyle)}>{headlineValue.suffix}</small> : null}
+            </div>
+          ) : null}
+        </div>
+        <div className="pdf-numbers-side">
+          {legend.length ? (
+            <div className="pdf-legend">
+              {legend.map((stat, index) => (
+                <div className="pdf-stat pdf-legend-item" key={`${stat.label}-${index}`}>
+                  <span style={textStyleProps(labelStyle)}>{stat.label}</span>
+                  <strong style={textStyleProps(valueStyle)}>{stat.value}</strong>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {note.trim() ? <p className="stats-as-of">{noteUrl
+            ? <a href={noteUrl} target={/^https?:/i.test(noteUrl) ? "_blank" : undefined} rel={/^https?:/i.test(noteUrl) ? "noreferrer" : undefined}>{note}</a>
+            : note}</p> : null}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible = true }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean }) {
@@ -163,7 +203,10 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
   const introStats = settings.introStats ?? [];
   const bannerSlides = settings.bannerSlides ?? [];
-  const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || introStats.length || settings.statsNote?.trim());
+  const introKicker = settings.introKicker ?? homeDefaults.introKicker;
+  const introValues = settings.introValues ?? homeDefaults.introValues;
+  const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || (introValues ?? []).some((value) => value.title.trim() || value.body.trim()));
+  const hasNumbers = Boolean(introStats.length || settings.statsNote?.trim());
   const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
   const heroMedia = settings.heroVideo?.trim() || settings.heroImage?.trim();
   /// The page headline renders in the hero; empty-string CMS values override
@@ -173,12 +216,11 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const heroText = settings.heroText ?? homeDefaults.heroText;
   const heroCtaLabel = settings.heroCtaLabel ?? homeDefaults.heroCtaLabel;
   const heroCtaUrl = settings.heroCtaUrl ?? homeDefaults.heroCtaUrl;
-  const introKicker = settings.introKicker ?? homeDefaults.introKicker;
-  const introValues = settings.introValues ?? homeDefaults.introValues;
   return (
     <main className="development-pdf-home" id="top">
       {heroMedia ? <HomeHero video={settings.heroVideo?.trim() || undefined} image={settings.heroImage?.trim() || undefined} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
-      {hasIntroduction ? <HomeIntro heading={headingInHero ? "" : heroHeading} paragraphs={introParagraphs} stats={introStats} statsNote={settings.statsNote ?? ""} statsNoteUrl={settings.statsNoteUrl} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} kicker={introKicker} values={introValues} /> : null}
+      {hasIntroduction ? <HomeIntro heading={headingInHero ? "" : heroHeading} paragraphs={introParagraphs} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} kicker={introKicker} values={introValues} /> : null}
+      {hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingPosition={settings.developmentHeadingPosition ?? "overlay"} headingStyle={textStyleProps(settings.developmentHeadingStyle)} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} ctaPosition={settings.developmentCtaPosition} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
       <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
       {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} /> : null}

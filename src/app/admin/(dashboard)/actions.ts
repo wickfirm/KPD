@@ -913,6 +913,7 @@ const text = (value: unknown) => String(value ?? "").trim();
 function homeSettingsFromForm(formData: FormData) {
   return Object.fromEntries(Object.entries({
     introStats: parseJsonList(formData.get("introStatsJson"), (item) => (text(item.value) || text(item.label) ? { value: text(item.value), label: text(item.label) } : null)),
+    statsKicker: String(formData.get("statsKicker") || "").trim(),
     statsNote: String(formData.get("statsNote") ?? "").trim(),
     statsNoteUrl: String(formData.get("statsNoteUrl") || "").trim(),
     statsValueStyle: textStyleFromForm(formData, "statsValue"),

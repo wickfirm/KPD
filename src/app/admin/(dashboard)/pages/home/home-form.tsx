@@ -65,7 +65,8 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     </section>
     <section className="cms-editor-section">
       <h3>Key figures</h3>
-      <p className="cms-muted">The figures strip under the introduction. Each figure links to the About page.</p>
+      <p className="cms-muted">The numbers band under the introduction. The first figure renders as the large headline number; the rest form the smaller breakdown columns beside it.</p>
+      <label className="cms-field"><span>Band caption</span><input name="statsKicker" defaultValue={settings.statsKicker ?? homeDefaults.statsKicker ?? ""} /><small>The small mono caption above the large figure, shown in capitals.</small></label>
       <input type="hidden" name="introStatsJson" value={JSON.stringify(stats)} />
       <ListEditor items={stats} onChange={setStats} newItem={() => ({ value: "", label: "" })} addLabel="Add figure" itemLabel={(item, index) => `Figure ${index + 1}${item.label ? ` — ${item.label}` : ""}`}
         renderItem={(item, update) => <div className="cms-grid">

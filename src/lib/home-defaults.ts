@@ -11,6 +11,8 @@ export type HomeValue = { title: string; body: string };
 
 export type HomeSettings = {
   introStats?: StatItem[];
+  /// Mono caption above the large headline figure (numbers band, batch 2).
+  statsKicker?: string;
   statsNote?: string;
   /// Optional link on the "as of" note (batch 3, item 1).
   statsNoteUrl?: string;
@@ -75,6 +77,7 @@ export type GalleryPanel = { key: string; image: string; caption: string };
 
 export const homeDefaults = {
   /// The delivered AUM stat strip.
+  statsKicker: "Kasumigaseki Capital · Global AUM",
   introStats: [
     { value: "$4.4B", label: "Global AUM" },
     { value: "$320M", label: "Dubai Real Estate" },
