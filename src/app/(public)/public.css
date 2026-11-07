@@ -992,3 +992,192 @@ body.home-development-page {
 .development-pdf-home .pdf-numbers {
   width: 100%;
 }
+
+/* ── Homepage developments banner (section batch 3) ──────────────────────────
+   The concept's "Now launching" section: mono kicker + display heading with
+   an "All developments" text link, above a framed slide panel carrying a
+   white card (development name, copy, CTA, dots) and a district chip.
+   Scoped to main.development-pdf-home; the carousel stays React-owned and
+   the delivered count-up/reveal bindings are untouched. */
+
+.development-pdf-home .pdf-latest {
+  padding: clamp(64px, 8vw, 120px) 0 clamp(24px, 3vw, 40px);
+}
+
+.development-pdf-home .pdf-sec-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: clamp(36px, 4vw, 56px);
+}
+
+.development-pdf-home .pdf-sec-top .pdf-kicker {
+  margin: 0 0 14px;
+  padding-top: 0;
+}
+
+.development-pdf-home .pdf-sec-top h2 {
+  margin: 0;
+  font-size: var(--up-l);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  color: var(--up-ink);
+}
+
+.development-pdf-home .pdf-dev-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid currentColor;
+  color: var(--up-ink);
+  font: 600 13px/1.4 var(--font-main);
+  text-decoration: none;
+}
+
+.development-pdf-home .pdf-dev-all-arrow {
+  transition: transform 0.3s var(--up-ease);
+}
+
+.development-pdf-home .pdf-dev-all:hover .pdf-dev-all-arrow,
+.development-pdf-home .pdf-dev-all:focus-visible .pdf-dev-all-arrow {
+  transform: translateX(4px);
+}
+
+.development-pdf-home .pdf-dev-frame {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  height: clamp(520px, 82vh, 880px);
+  background: var(--up-night);
+}
+
+.development-pdf-home .pdf-dev-tag {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.development-pdf-home .pdf-chip {
+  font: 500 10.5px/1 var(--up-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  color: var(--up-ink);
+}
+
+.development-pdf-home .pdf-development-content {
+  position: absolute;
+  z-index: 2;
+  left: 20px;
+  bottom: 20px;
+  width: min(560px, calc(100% - 40px));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: clamp(22px, 2.6vw, 36px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  border-radius: 14px;
+  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.4);
+  text-align: left;
+  color: var(--up-ink);
+}
+
+.development-pdf-home .pdf-dev-card-title {
+  margin: 0;
+  font-size: clamp(27.2px, 3.2vw, 48px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--up-ink);
+}
+
+.development-pdf-home .pdf-development-content p {
+  margin: 0;
+  font-size: 14.4px;
+  line-height: 1.6;
+  color: var(--up-graphite);
+}
+
+/* .btn-pill is repeated in the selector to out-rank the delivered uppercase
+   pill style no matter how the import chain resolves. */
+.development-pdf-home .pdf-development-button.btn-pill {
+  width: auto;
+  min-height: 50px;
+  padding: 0 24px;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--up-ink);
+  border-radius: 999px;
+  background: var(--up-ink);
+  color: #fff;
+  font: 600 13px/1 var(--font-main);
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.development-pdf-home .pdf-development-button:hover,
+.development-pdf-home .pdf-development-button:focus-visible {
+  background: var(--up-ink-hover);
+  border-color: var(--up-ink-hover);
+  color: #fff;
+}
+
+.development-pdf-home .pdf-dev-btn-arrow {
+  transition: transform 0.3s var(--up-ease);
+}
+
+.development-pdf-home .pdf-development-button:hover .pdf-dev-btn-arrow {
+  transform: translateX(4px);
+}
+
+.development-pdf-home .pdf-development-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.development-pdf-home .pdf-development-dots button {
+  background: rgba(15, 16, 17, 0.3);
+}
+
+.development-pdf-home .pdf-development-dots button.active,
+.development-pdf-home .pdf-development-dots button:hover,
+.development-pdf-home .pdf-development-dots button:focus-visible {
+  background: var(--up-ink);
+}
+
+@media (max-width: 600px) {
+  .development-pdf-home .pdf-dev-frame {
+    height: auto;
+  }
+
+  .development-pdf-home .pdf-development-slides {
+    position: relative;
+    inset: auto;
+    aspect-ratio: 4 / 5;
+  }
+
+  .development-pdf-home .pdf-development-content {
+    position: static;
+    width: auto;
+    margin: 12px;
+    box-shadow: none;
+  }
+}

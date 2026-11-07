@@ -6,7 +6,7 @@ import type { TextStyle } from "@/lib/text-style";
 
 export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
 export type StatItem = { value: string; label: string };
-export type BannerSlide = { image: string; label: string; text?: string };
+export type BannerSlide = { image: string; label: string; text?: string; tag?: string };
 export type HomeValue = { title: string; body: string };
 
 export type HomeSettings = {
@@ -37,6 +37,8 @@ export type HomeSettings = {
   /// The three-column value trio under the statement (section batch 1).
   introValues?: HomeValue[];
   developmentHeading?: string;
+  /// Mono caption above the developments heading (section batch 3).
+  developmentKicker?: string;
   developmentBannerText?: string;
   developmentHeadingPosition?: "overlay" | "above" | "below";
   developmentHeadingStyle?: TextStyle;
@@ -87,9 +89,9 @@ export const homeDefaults = {
   statsNote: "(As of August 2026)",
   /// The delivered development banner slides (the first slide shows on load).
   bannerSlides: [
-    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "seven x seven Meydan Horizon Residences" },
-    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Villa 174" },
-    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Villa 24" },
+    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "seven x seven Meydan Horizon Residences", tag: "Meydan Horizon" },
+    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Villa 174", tag: "Dubai Hills" },
+    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Villa 24", tag: "Dubai Hills" },
     { image: "/legacy/assets/images/library/modern-apartment-buildings-with-balconies-on-sunny-2026-03-19-09-29-37-utc.jpg", label: "Residential development" },
     { image: "/legacy/assets/images/library/dubai-marina-skyline-with-modern-skyscrapers-and-w-2026-03-05-11-49-49-utc.jpg", label: "Dubai skyline" },
   ] as BannerSlide[],
@@ -115,6 +117,7 @@ export const homeDefaults = {
     "From refined craftsmanship and forward-thinking innovation to thoughtful guardianship, we uphold rigorous standards at every stage, creating spaces that stand the test of time.",
   ],
   developmentHeading: "Different places. One standard.",
+  developmentKicker: "Latest Development",
   developmentBannerText: "Three addresses. One standard. Residences, villas and mansions across Dubai's most considered districts.",
   developmentTextVisible: true,
   developmentText: "Quality, peace of mind and innovation are not a tier we reserve for certain projects. They are the standard every Kasumigaseki development is held to, whatever its form or price.",
