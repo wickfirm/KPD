@@ -1,5 +1,7 @@
-﻿import type { AboutContent } from "@/lib/about-defaults";
+import type { AboutContent } from "@/lib/about-defaults";
 import { textStyleProps } from "@/lib/text-style";
+import Link from "next/link";
+import { emphasisNodes } from "@/lib/emphasis";
 import { pickLegacyGalleryLight, type LegacyContent, type LegacyMilestone } from "@/lib/legacy-defaults";
 import type { ContactDetails, StaticBlock } from "@/lib/static-blocks";
 import { AboutMain } from "./about-page";
@@ -61,7 +63,26 @@ export function ContactView({ blocks, contact, previewNote }: { blocks: StaticBl
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page kpd-page contact-page" />
     <SiteShellHeader />
-<main id="top" className="contact-main page-reference-main"><section className="page-reference-hero" aria-label="Contact">{hero.image ? <img src={hero.image as string} alt="KPD Experience Center reception lounge" /> : null}<div className="page-reference-hero-copy motion-reveal">{hero.eyebrow ? <span>{hero.eyebrow as string}</span> : null}<h1 style={textStyleProps(hero.headingStyle as AboutContent["headingStyle"])}>{hero.heading as string ?? ""}</h1><p style={textStyleProps(hero.textStyle as AboutContent["heroTextStyle"])}>{hero.text as string ?? ""}</p></div></section><section className="contact-inquiry" id="experience-center" aria-label="Contact inquiry"><div className="contact-inquiry-shell"><ContactInquiry email={contact.email} phone={contact.phone} website={contact.website} content={inquiryForm} /></div></section></main>
+<main id="top" className="contact-main g21">
+      <section className="g21-hero" aria-labelledby="g21-contact-title">
+        <div className="g21-wrap">
+          <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">{(hero.eyebrow as string) || "Contact"}</span></nav>
+          <div className="g21-title g21-title--contact">
+            <h1 id="g21-contact-title" style={textStyleProps(hero.headingStyle as AboutContent["headingStyle"])}>{emphasisNodes((hero.heading as string) || "Contact")}</h1>
+            <div>
+              {hero.text ? <p className="g21-lede" style={textStyleProps(hero.textStyle as AboutContent["heroTextStyle"])}>{hero.text as string}</p> : null}
+              {contact.phone || contact.email ? <div className="g21-quick">
+                {contact.phone ? <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}><span className="g21-cap">Call</span><b>{contact.phone}</b></a> : null}
+                {contact.email ? <a href={`mailto:${contact.email}`}><span className="g21-cap">Email</span><b>{contact.email}</b></a> : null}
+              </div> : null}
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="g21-contact-sec" id="experience-center" aria-label="Contact inquiry">
+        <ContactInquiry email={contact.email} phone={contact.phone} website={contact.website} image={hero.image as string | undefined} content={inquiryForm} />
+      </section>
+    </main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page kpd-page contact-page" />

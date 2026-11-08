@@ -1520,3 +1520,398 @@ main.g21 .g21-calc .mortgage-result-primary strong {
     transition: none;
   }
 }
+
+/* ── Contact ───────────────────────────────────────────────────────────────── */
+
+main.g21 .g21-title--contact {
+  padding-bottom: clamp(32px, 4vw, 56px);
+}
+
+main.g21 .g21-quick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+main.g21 .g21-lede + .g21-quick {
+  margin-top: 22px;
+}
+
+main.g21 .g21-title > div > .g21-quick:first-child {
+  margin-top: 0;
+}
+
+main.g21 .g21-quick a {
+  display: grid;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid #E3E3DE;
+  border-radius: 14px;
+  background: #F6F6F3;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+main.g21 .g21-quick a:hover {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-quick b {
+  font-size: clamp(16px, 1.4vw, 20px);
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+main.g21 .g21-contact-sec {
+  padding-bottom: clamp(72px, 8vw, 128px);
+}
+
+main.g21 .g21-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: start;
+}
+
+main.g21 .g21-ec-card {
+  position: sticky;
+  top: calc(var(--g21-header-offset, 78px) + 18px);
+  overflow: hidden;
+  border: 1px solid #E3E3DE;
+  border-radius: 18px;
+  background: #F6F6F3;
+}
+
+main.g21 .g21-ec-card .g21-ph {
+  border-radius: 0;
+}
+
+main.g21 .g21-ec-card .g21-ph img {
+  aspect-ratio: 16 / 10;
+}
+
+main.g21 .g21-ec-body {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  padding: clamp(20px, 2.4vw, 32px);
+}
+
+main.g21 .g21-ec-body address {
+  font-size: clamp(22px, 2vw, 30px);
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+main.g21 .g21-ec-body .g21-ctas {
+  margin-top: 8px;
+}
+
+main.g21 .g21-ec-map {
+  border-top: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-ec-card .g21-ec-map img {
+  aspect-ratio: 16 / 7;
+  object-position: 50% 100%;
+  filter: grayscale(1) contrast(1.05);
+}
+
+main.g21 .g21-cform,
+main.g21 .g21-form {
+  display: grid;
+  gap: 22px;
+}
+
+main.g21 .g21-cf-h {
+  font-size: clamp(24px, 2.4vw, 36px);
+  font-weight: 300;
+}
+
+main.g21 .g21-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  border-radius: 999px;
+  background: #E3E3DE;
+  scrollbar-width: none;
+}
+
+main.g21 .g21-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+main.g21 .g21-tabs button {
+  flex: 1 0 auto;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #0F1011;
+  font: 500 13px/1 "Manrope", "Helvetica Neue", Arial, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+main.g21 .g21-tabs button[aria-selected="true"] {
+  background: #0F1011;
+  color: #fff;
+}
+
+main.g21 .g21-grp {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+main.g21 .g21-grp[hidden],
+main.g21 .g21-row[hidden] {
+  display: none;
+}
+
+main.g21 .g21-grp legend {
+  margin-bottom: 14px;
+  padding: 0;
+}
+
+main.g21 .g21-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+main.g21 .g21-row--title {
+  grid-template-columns: 110px 1fr 1fr;
+}
+
+main.g21 .g21-fld {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+main.g21 .g21-fld > span:first-child {
+  font: 500 10.5px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #55595E;
+}
+
+main.g21 .g21-fld input,
+main.g21 .g21-fld select,
+main.g21 .g21-fld textarea {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  border: 1px solid #D6D3CB;
+  border-radius: 12px;
+  background: #fff;
+  color: #0F1011;
+  font: 400 16px/1.4 "Manrope", "Helvetica Neue", Arial, sans-serif;
+  box-shadow: none;
+}
+
+main.g21 .g21-fld textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+main.g21 .g21-fld select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, #0F1011 50%), linear-gradient(135deg, #0F1011 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 15px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+main.g21 .g21-fld input:focus,
+main.g21 .g21-fld select:focus,
+main.g21 .g21-fld textarea:focus {
+  outline: none;
+  border-color: #0F1011;
+}
+
+main.g21 .g21-phone {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid #D6D3CB;
+  border-radius: 12px;
+  background: #fff;
+}
+
+main.g21 .g21-phone:focus-within {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-phone b {
+  display: flex;
+  align-items: center;
+  padding: 0 12px 0 14px;
+  border-right: 1px solid #E3E3DE;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+main.g21 .g21-fld .g21-phone input {
+  border: 0;
+  border-radius: 0;
+}
+
+main.g21 .g21-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+main.g21 .g21-pills label {
+  position: relative;
+  cursor: pointer;
+}
+
+main.g21 .g21-pills input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+main.g21 .g21-pills span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #D6D3CB;
+  border-radius: 999px;
+  background: #fff;
+  color: #0F1011;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+main.g21 .g21-pills label:hover span {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-pills input:checked + span {
+  background: #0F1011;
+  border-color: #0F1011;
+  color: #fff;
+}
+
+main.g21 .g21-pills input:focus-visible + span {
+  outline: 2px solid #0F1011;
+  outline-offset: 2px;
+}
+
+main.g21 .g21-file {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px dashed #D6D3CB;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+main.g21 .g21-file input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+main.g21 .g21-file b {
+  flex: none;
+  padding: 9px 16px;
+  border: 1px solid #0F1011;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+main.g21 .g21-file span {
+  overflow: hidden;
+  font-size: 13px;
+  color: #55595E;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+main.g21 .g21-file:focus-within {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-consent {
+  display: grid;
+  gap: 12px;
+}
+
+main.g21 .g21-chk {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #55595E;
+  cursor: pointer;
+}
+
+main.g21 .g21-chk input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: #0F1011;
+}
+
+main.g21 .g21-chk a {
+  color: #0F1011;
+}
+
+main.g21 .g21-submit {
+  justify-self: start;
+}
+
+main.g21 .g21-submit:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+main.g21 .g21-form-status {
+  font-size: 14px;
+  color: #0F1011;
+}
+
+@media (max-width: 900px) {
+  main.g21 .g21-contact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-ec-card {
+    position: static;
+  }
+
+  main.g21 .g21-cform {
+    order: -1;
+  }
+}
+
+@media (max-width: 600px) {
+  main.g21 .g21-row,
+  main.g21 .g21-row--title,
+  main.g21 .g21-quick {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

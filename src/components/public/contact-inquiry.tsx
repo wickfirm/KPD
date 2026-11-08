@@ -1,20 +1,20 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useState } from "react";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 
-/// The delivered contact inquiry (public/legacy/contact.html): one adaptive
-/// form with five inquiry panes switched by tabs, a Client/Broker segment on
-/// the sales pane, conditional broker fields, CV upload, and consent
-/// checkboxes. The delivered DOM is reproduced 1:1; the deliberate deviations
-/// are functional — the form submits to /api/contact (local store + Salesforce
-/// dual-write) instead of the delivered mailto action, and pane/disabled state
-/// is React state instead of the delivered inline script.
+/// The contact inquiry in the client-approved Option 2.1 "Gallery light"
+/// layout: the Experience Centre card beside one adaptive form with five
+/// inquiry panes switched by tabs, a Client/Broker choice on the sales pane,
+/// conditional broker fields, CV upload, and consent checkboxes. Field names,
+/// pane ids and the submission (/api/contact: local store + Salesforce
+/// dual-write) are unchanged from the delivered form; the select lists are
+/// shown as pill choices, which post the same names and values.
 
 type PaneKey = "sales" | "customer" | "channel" | "job" | "press";
 type ContactWindow = Window & { __KPD_CONTACT?: { email?: string; recipients?: Record<string, string | undefined> } };
 
-export function ContactInquiry({ email = "", phone = "", website = "", content }: { email?: string; phone?: string; website?: string; content?: unknown }) {
+export function ContactInquiry({ phone = "", website = "", image = "", content }: { email?: string; phone?: string; website?: string; image?: string; content?: unknown }) {
   const c = mergeContactInquiryContent(content);
   const panes = [
     { key: "sales" as const, label: c.salesLabel, id: "sales" },
@@ -52,10 +52,6 @@ export function ContactInquiry({ email = "", phone = "", website = "", content }
     const brokerFields = document.querySelector("[data-sales-broker-fields]");
     brokerFields?.querySelectorAll("input, select, textarea").forEach((field) => { (field as HTMLInputElement).disabled = !brokerVisible; });
   }, [activePane, brokerVisible]);
-
-  function paneSubtitle(prefix: string, tag: string) {
-    return <p className="contact-form-subtitle">{prefix} <span>{tag}</span></p>;
-  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -131,194 +127,108 @@ export function ContactInquiry({ email = "", phone = "", website = "", content }
     }
   }
 
-  const websiteHost = (() => { try { return new URL(website).hostname; } catch { return website; } })();
+  const tel = phone.replace(/[^\d+]/g, "");
+  /// Remounts when the preselected value changes (the Ownership Cost Planner
+  /// hands over a project after hydration), so defaultChecked applies again.
+  const pills = (name: string, options: string[], selected?: string) => <div className="g21-pills" key={`${name}-${selected ?? ""}`}>
+    {options.map((option, index) => <label key={option}><input type="radio" name={name} value={option} defaultChecked={selected ? option === selected : index === 0} /><span>{option}</span></label>)}
+  </div>;
 
-  return <>
-    <div className="contact-inquiry-tabs" role="tablist" aria-label="Inquiry type">
-      {panes.map(({ key, label }) => (
-        <button key={key} className={activePane === key ? "is-active" : ""} id={`contact-tab-${key}`} type="button" role="tab" aria-selected={activePane === key} aria-controls={`contact-pane-${key}`} data-contact-tab data-contact-pane={key} onClick={() => setActivePane(key)}>{label}</button>
-      ))}
-    </div>
-    <div className="contact-inquiry-grid">
-      <div className="contact-map-column">
-        <figure className="contact-map-card">
-          <img src="/legacy/assets/images/contact/pdf/contact-pdf-01.png" alt="Experience Center location map" />
-        </figure>
-        <address className="contact-address">
-          <strong>Experience Center Address</strong>
-          <span>Bay Gate Tower,</span>
-          <span>Floor 36,</span>
-          <span>Business Bay, Dubai, AE</span>
-          <a href={`tel:${phone.replace(/\s/g, "")}`}>{phone}</a>
-          <a href={`mailto:${email}`}>{email}</a>
-          <a href={website}>{websiteHost}</a>
-        </address>
+  return <div className="g21-wrap g21-contact">
+    <aside className="g21-ec-card">
+      {image ? <figure className="g21-ph"><img src={image} alt="KPD Experience Centre reception lounge" /></figure> : null}
+      <div className="g21-ec-body">
+        <span className="g21-cap">Experience Centre address</span>
+        <address>Bay Gate Tower, Floor 36<br />Business Bay, Dubai, AE</address>
+        <div className="g21-ctas">
+          <a className="g21-btn" href="https://www.google.com/maps/search/?api=1&query=Bay+Gate+Tower+Business+Bay+Dubai" target="_blank" rel="noopener">Get directions <span className="g21-ar" aria-hidden="true">↗</span></a>
+          {tel ? <a className="g21-btn g21-btn--line" href={`tel:${tel}`}>Call</a> : null}
+        </div>
+        {website ? <a className="g21-txt-link" href={website}>{(() => { try { return new URL(website).hostname; } catch { return website; } })()}</a> : null}
       </div>
-      <div className="contact-inquiry-panel">
-        <form className="contact-dark-form contact-adaptive-form" onSubmit={submit}>
-          <input type="hidden" name="Inquiry Type" id="contactInquiryType" value={panes.find((pane) => pane.key === activePane)!.label} />
+      <figure className="g21-ph g21-ec-map"><img src="/legacy/assets/images/contact/pdf/contact-pdf-01.png" alt="Map showing the Experience Centre in Bay Gate Tower, Business Bay" loading="lazy" /></figure>
+    </aside>
 
-          <p className="contact-form-subtitle">Your details</p>
-          <div className="contact-adaptive-row contact-adaptive-row-three">
-            <label className="contact-adaptive-field">
-              <span>Title</span>
-              <select name="Title" aria-label="Title">
-                <option>Mr.</option>
-                <option>Ms.</option>
-                <option>Mrs.</option>
-                <option>Dr.</option>
-              </select>
-            </label>
-            <label className="contact-adaptive-field">
-              <span>First name</span>
-              <input name="First Name" type="text" autoComplete="given-name" required />
-            </label>
-            <label className="contact-adaptive-field">
-              <span>Last name</span>
-              <input name="Last Name" type="text" autoComplete="family-name" required />
-            </label>
-          </div>
-          <div className="contact-adaptive-row contact-adaptive-row-two">
-            <label className="contact-adaptive-field">
-              <span>Email</span>
-              <input name="Email" type="email" autoComplete="email" required />
-            </label>
-            <label className="contact-adaptive-field contact-phone-field">
-              <span>Phone</span>
-              <span className="contact-phone-input"><span className="contact-phone-prefix"><span className="contact-flag" aria-hidden="true"></span> +971</span><input name="Phone" type="tel" autoComplete="tel" required /></span>
-            </label>
-          </div>
-
-          <div className={activePane === "sales" ? "contact-pane is-active" : "contact-pane"} id="contact-pane-sales" role="tabpanel" aria-labelledby="contact-tab-sales" data-contact-pane-panel="sales" hidden={activePane !== "sales"}>
-            {paneSubtitle("About your interest", "Sales")}
-            <div className="contact-segment" role="group" aria-label="Enquirer type">
-              <button type="button" className={segment === "client" ? "is-active" : ""} data-contact-segment="client" onClick={() => setSegment("client")}>Client</button>
-              <button type="button" className={segment === "broker" ? "is-active" : ""} data-contact-segment="broker" onClick={() => setSegment("broker")}>Broker</button>
-            </div>
-            <div className="contact-adaptive-row contact-adaptive-row-two">
-              <label className="contact-adaptive-field">
-                <span>Project of interest</span>
-                <select name="Project of Interest" value={plannerProject || undefined} onChange={(event) => setPlannerProject(event.target.value)}>
-                  {c.salesProjects.map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-            </div>
-            <div className={brokerVisible ? "contact-adaptive-row contact-adaptive-row-two sales-broker" : "contact-adaptive-row contact-adaptive-row-two sales-broker is-hidden"} data-sales-broker-fields>
-              <label className="contact-adaptive-field">
-                <span>Agency / company</span>
-                <input name="Agency" type="text" />
-              </label>
-              <label className="contact-adaptive-field">
-                <span>RERA / ORN no.</span>
-                <input name="RERA / ORN" type="text" />
-              </label>
-            </div>
-            <label className="contact-adaptive-field contact-adaptive-field-wide">
-              <span>Message</span>
-              <textarea name="Sales Message" placeholder={c.salesMessagePrompt}></textarea>
-            </label>
-          </div>
-
-          <div className="contact-pane" id="contact-pane-customer" role="tabpanel" aria-labelledby="contact-tab-customer" data-contact-pane-panel="customer" hidden={activePane !== "customer"}>
-            {paneSubtitle("Your request", "Customer")}
-            <div className="contact-adaptive-row contact-adaptive-row-two">
-              <label className="contact-adaptive-field">
-                <span>Related project</span>
-                <select name="Related Project">
-                  {c.customerProjects.map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-              <label className="contact-adaptive-field">
-                <span>Nature of inquiry</span>
-                <select name="Customer Inquiry Nature">
-                  {c.customerNatures.map((option) => <option key={option}>{option}</option>)}
-                </select>
-              </label>
-            </div>
-            <label className="contact-adaptive-field contact-adaptive-field-wide">
-              <span>Message</span>
-              <textarea name="Customer Message" placeholder={c.customerMessagePrompt}></textarea>
-            </label>
-          </div>
-
-          <div className="contact-pane" id="contact-pane-channel" role="tabpanel" aria-labelledby="contact-tab-channel" data-contact-pane-panel="channel" hidden={activePane !== "channel"}>
-            {paneSubtitle("Company details", "Channel Partner")}
-            <div className="contact-adaptive-row contact-adaptive-row-two">
-              <label className="contact-adaptive-field">
-                <span>Company / agency</span>
-                <input name="Company / Agency" type="text" />
-              </label>
-              <label className="contact-adaptive-field">
-                <span>RERA / ORN no.</span>
-                <input name="Partner RERA / ORN" type="text" />
-              </label>
-            </div>
-            <div className="contact-adaptive-row contact-adaptive-row-two">
-              <label className="contact-adaptive-field">
-                <span>Market / country</span>
-                <input name="Market / Country" type="text" />
-              </label>
-              <label className="contact-adaptive-field">
-                <span>Website</span>
-                <input name="Website" type="url" placeholder="https://" />
-              </label>
-            </div>
-            <label className="contact-adaptive-field contact-adaptive-field-wide">
-              <span>Message</span>
-              <textarea name="Partner Message" placeholder={c.channelMessagePrompt}></textarea>
-            </label>
-          </div>
-
-          <div className="contact-pane" id="contact-pane-job" role="tabpanel" aria-labelledby="contact-tab-job" data-contact-pane-panel="job" hidden={activePane !== "job"}>
-            {paneSubtitle("Application", "Careers")}
-            <div className="contact-adaptive-row contact-adaptive-row-two">
-              <label className="contact-adaptive-field">
-                <span>Role / department</span>
-                <input name="Role / Department" type="text" placeholder="e.g. Marketing, Development" />
-              </label>
-              <label className="contact-adaptive-field">
-                <span>LinkedIn / portfolio</span>
-                <input name="LinkedIn / Portfolio" type="url" placeholder="https://" />
-              </label>
-            </div>
-            <label className="contact-filebox">
-              <span className="contact-file-label">Upload CV</span>
-              <span id="contactCvName">{cvName}</span>
-              <b>Choose file</b>
-              <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF, DOC or DOCX")} />
-            </label>
-            <label className="contact-adaptive-field contact-adaptive-field-wide">
-              <span>Message</span>
-              <textarea name="Job Message" placeholder={c.jobMessagePrompt}></textarea>
-            </label>
-          </div>
-
-          <div className="contact-pane" id="contact-pane-press" role="tabpanel" aria-labelledby="contact-tab-press" data-contact-pane-panel="press" hidden={activePane !== "press"}>
-            {paneSubtitle("Media request", "Press")}
-            <div className="contact-adaptive-row contact-adaptive-row-two">
-              <label className="contact-adaptive-field">
-                <span>Publication / outlet</span>
-                <input name="Publication / Outlet" type="text" />
-              </label>
-              <label className="contact-adaptive-field">
-                <span>Deadline</span>
-                <input name="Deadline" type="date" />
-              </label>
-            </div>
-            <label className="contact-adaptive-field contact-adaptive-field-wide">
-              <span>Message</span>
-              <textarea name="Press Message" placeholder={c.pressMessagePrompt}></textarea>
-            </label>
-          </div>
-
-          <div className="contact-consents">
-            <label><input type="checkbox" name="Terms" required /> <span>I have read and agree to Kasumigaseki Properties Development&apos;s <a href="/terms">Terms and Conditions</a> and <a href="/privacy-policy">Privacy Policy</a>.</span></label>
-            <label><input type="checkbox" name="Marketing" /> <span>I consent to receive marketing communications from Kasumigaseki Properties Development in accordance with the Privacy Policy. I can unsubscribe at any time.</span></label>
-          </div>
-          <button className="contact-submit" type="submit" disabled={pending}>Send enquiry</button>
-          {status ? <p className="contact-form-subtitle" role="status">{status}</p> : null}
-        </form>
+    <div className="g21-cform">
+      <h2 className="g21-cf-h">How can we help?</h2>
+      <div className="g21-tabs" role="tablist" aria-label="Inquiry type">
+        {panes.map(({ key, label }) => (
+          <button key={key} id={`contact-tab-${key}`} type="button" role="tab" aria-selected={activePane === key} aria-controls={`contact-pane-${key}`} tabIndex={activePane === key ? 0 : -1} onClick={() => setActivePane(key)}>{label}</button>
+        ))}
       </div>
+      <form className="g21-form" onSubmit={submit}>
+        <input type="hidden" name="Inquiry Type" value={panes.find((pane) => pane.key === activePane)!.label} />
+
+        <fieldset className="g21-grp"><legend className="g21-cap">Your details</legend>
+          <div className="g21-row g21-row--title">
+            <label className="g21-fld"><span>Title</span><select name="Title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></label>
+            <label className="g21-fld"><span>First name</span><input name="First Name" type="text" autoComplete="given-name" required /></label>
+            <label className="g21-fld"><span>Last name</span><input name="Last Name" type="text" autoComplete="family-name" required /></label>
+          </div>
+          <div className="g21-row">
+            <label className="g21-fld"><span>Email</span><input name="Email" type="email" autoComplete="email" required /></label>
+            <label className="g21-fld"><span>Phone</span><span className="g21-phone"><b>+971</b><input name="Phone" type="tel" autoComplete="tel" required /></span></label>
+          </div>
+        </fieldset>
+
+        <fieldset className="g21-grp" id="contact-pane-sales" role="tabpanel" aria-labelledby="contact-tab-sales" hidden={activePane !== "sales"}><legend className="g21-cap">About your interest</legend>
+          <div className="g21-fld"><span>I am a</span><div className="g21-pills" role="group" aria-label="Enquirer type">
+            <label><input type="radio" name="Enquirer" value="Client" checked={segment === "client"} onChange={() => setSegment("client")} /><span>Client</span></label>
+            <label><input type="radio" name="Enquirer" value="Broker" checked={segment === "broker"} onChange={() => setSegment("broker")} /><span>Broker</span></label>
+          </div></div>
+          <div className="g21-fld"><span>Project of interest</span>{pills("Project of Interest", c.salesProjects, plannerProject || undefined)}</div>
+          <div className="g21-row" data-sales-broker-fields hidden={!brokerVisible}>
+            <label className="g21-fld"><span>Agency / company</span><input name="Agency" type="text" /></label>
+            <label className="g21-fld"><span>RERA / ORN no.</span><input name="RERA / ORN" type="text" /></label>
+          </div>
+          <label className="g21-fld"><span>Message</span><textarea name="Sales Message" placeholder={c.salesMessagePrompt}></textarea></label>
+        </fieldset>
+
+        <fieldset className="g21-grp" id="contact-pane-customer" role="tabpanel" aria-labelledby="contact-tab-customer" hidden={activePane !== "customer"}><legend className="g21-cap">Your request</legend>
+          <div className="g21-fld"><span>Related project</span>{pills("Related Project", c.customerProjects)}</div>
+          <div className="g21-fld"><span>Nature of inquiry</span>{pills("Customer Inquiry Nature", c.customerNatures)}</div>
+          <label className="g21-fld"><span>Message</span><textarea name="Customer Message" placeholder={c.customerMessagePrompt}></textarea></label>
+        </fieldset>
+
+        <fieldset className="g21-grp" id="contact-pane-channel" role="tabpanel" aria-labelledby="contact-tab-channel" hidden={activePane !== "channel"}><legend className="g21-cap">Company details</legend>
+          <div className="g21-row">
+            <label className="g21-fld"><span>Company / agency</span><input name="Company / Agency" type="text" /></label>
+            <label className="g21-fld"><span>RERA / ORN no.</span><input name="Partner RERA / ORN" type="text" /></label>
+          </div>
+          <div className="g21-row">
+            <label className="g21-fld"><span>Market / country</span><input name="Market / Country" type="text" /></label>
+            <label className="g21-fld"><span>Website</span><input name="Website" type="url" placeholder="https://" /></label>
+          </div>
+          <label className="g21-fld"><span>Message</span><textarea name="Partner Message" placeholder={c.channelMessagePrompt}></textarea></label>
+        </fieldset>
+
+        <fieldset className="g21-grp" id="contact-pane-job" role="tabpanel" aria-labelledby="contact-tab-job" hidden={activePane !== "job"}><legend className="g21-cap">Application</legend>
+          <div className="g21-row">
+            <label className="g21-fld"><span>Role / department</span><input name="Role / Department" type="text" placeholder="e.g. Marketing, Development" /></label>
+            <label className="g21-fld"><span>LinkedIn / portfolio</span><input name="LinkedIn / Portfolio" type="url" placeholder="https://" /></label>
+          </div>
+          <div className="g21-fld"><span>Upload CV</span><label className="g21-file">
+            <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF, DOC or DOCX")} />
+            <b>Choose file</b><span id="contactCvName">{cvName}</span>
+          </label></div>
+          <label className="g21-fld"><span>Message</span><textarea name="Job Message" placeholder={c.jobMessagePrompt}></textarea></label>
+        </fieldset>
+
+        <fieldset className="g21-grp" id="contact-pane-press" role="tabpanel" aria-labelledby="contact-tab-press" hidden={activePane !== "press"}><legend className="g21-cap">Media request</legend>
+          <div className="g21-row">
+            <label className="g21-fld"><span>Publication / outlet</span><input name="Publication / Outlet" type="text" /></label>
+            <label className="g21-fld"><span>Deadline</span><input name="Deadline" type="date" /></label>
+          </div>
+          <label className="g21-fld"><span>Message</span><textarea name="Press Message" placeholder={c.pressMessagePrompt}></textarea></label>
+        </fieldset>
+
+        <div className="g21-consent">
+          <label className="g21-chk"><input type="checkbox" name="Terms" required /><span>I have read and agree to Kasumigaseki Properties Development&apos;s <a href="/terms">Terms and Conditions</a> and <a href="/privacy-policy">Privacy Policy</a>.</span></label>
+          <label className="g21-chk"><input type="checkbox" name="Marketing" /><span>I consent to receive marketing communications from Kasumigaseki Properties Development in accordance with the Privacy Policy. I can unsubscribe at any time.</span></label>
+        </div>
+        <button className="g21-btn g21-submit" type="submit" disabled={pending}>Send enquiry <span className="g21-ar" aria-hidden="true">→</span></button>
+        {status ? <p className="g21-form-status" role="status">{status}</p> : null}
+      </form>
     </div>
-  </>;
+  </div>;
 }
