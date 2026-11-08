@@ -12,8 +12,8 @@
 @import "./redesign-pages.css";
 
 /* Local fonts: Google Fonts is blocked/unreliable on some client networks
-   (same reason figtree-local.css exists). Manrope is the page face; IBM Plex
-   Mono carries the small captions. */
+   (same reason figtree-local.css exists). Manrope is the only face on the
+   site, captions included. */
 @font-face {
   font-family: "Manrope";
   font-style: normal;
@@ -29,22 +29,6 @@
   font-display: swap;
   src: url("/fonts/manrope-latin-ext-var.woff2") format("woff2");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "IBM Plex Mono";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/ibm-plex-mono-latin-500.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 
@@ -623,7 +607,7 @@ body.home-development-page {
    Every rule is scoped under main.development-pdf-home — the element that
    exists on the homepage alone — so the delivered header/footer and every
    other page are untouched. site.css stays byte-frozen. Manrope stays the
-   page face (--font-main above); IBM Plex Mono carries the small captions. */
+   page face (--font-main above); the small captions use Manrope too (Manrope only, per the client). */
 
 .development-pdf-home {
   /* Colours kept as custom properties (plain values survive the bundler);
@@ -635,7 +619,7 @@ body.home-development-page {
   --up-hair: #E3E3DE;
   --up-stone: #D6D3CB;
   --up-night: #0D0F10;
-  --up-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --up-mono: Manrope, "Helvetica Neue", Arial, sans-serif;
   --up-ease: cubic-bezier(0.22, 0.8, 0.16, 1);
 }
 
@@ -799,7 +783,7 @@ body.home-development-page {
   grid-column: 1 / 4;
   margin: 0;
   padding-top: 14px;
-  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #55595E;
@@ -856,7 +840,7 @@ body.home-development-page {
 
 .development-pdf-home .pdf-value-cap {
   margin: 0;
-  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #55595E;
@@ -978,7 +962,7 @@ body.home-development-page {
 
 .development-pdf-home .pdf-legend .pdf-stat span {
   margin: 0;
-  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #55595E;
@@ -995,7 +979,7 @@ body.home-development-page {
 
 .development-pdf-home .pdf-numbers .stats-as-of {
   margin: 20px 0 0;
-  font: 400 11px/1.6 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 400 11px/1.6 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #55595E;
@@ -1107,7 +1091,7 @@ body.home-development-page {
 }
 
 .development-pdf-home .pdf-chip {
-  font: 500 10.5px/1 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 500 10.5px/1 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 8px 12px;
@@ -1269,7 +1253,7 @@ body.home-development-page {
   left: 16px;
   z-index: 2;
   color: #fff;
-  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   opacity: 0.8;
 }
@@ -1285,7 +1269,7 @@ body.home-development-page {
   align-items: center;
   gap: 12px;
   color: #fff;
-  font: 500 10.5px/1.4 "IBM Plex Mono",ui-monospace,Menlo,monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: left;
