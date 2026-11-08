@@ -954,3 +954,569 @@ main.g21 .g21-press-links b {
     font-size: 16px;
   }
 }
+
+/* ── Investor Guide ────────────────────────────────────────────────────────── */
+
+/* sections keep the editor's order through flex order */
+main.g21 .g21-stack {
+  display: flex;
+  flex-direction: column;
+}
+
+main.g21 .g21-stack > section {
+  scroll-margin-top: 134px;
+}
+
+main.g21 .g21-hero + .g21-subnav {
+  margin-top: clamp(28px, 3vw, 48px);
+  border-top: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-sub-cta {
+  flex: none;
+  min-height: 38px;
+  margin-left: auto;
+  padding: 0 18px;
+}
+
+main.g21 .g21-night {
+  background: #0D0F10;
+  color: #fff;
+}
+
+main.g21 .g21-night .g21-cap {
+  color: #8F9497;
+}
+
+main.g21 .g21-night-note {
+  color: #B9BCBF;
+}
+
+main.g21 .g21-grid8 {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid #0F1011;
+}
+
+main.g21 .g21-grid8 li {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 24px 24px 32px 0;
+  border-bottom: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-grid8 li:not(:nth-child(4n + 1)) {
+  padding-left: 24px;
+  border-left: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-grid8 h3,
+main.g21 .g21-steps h3,
+main.g21 .g21-path h3,
+main.g21 .g21-exit h3 {
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+main.g21 .g21-grid8 p,
+main.g21 .g21-steps p,
+main.g21 .g21-path p {
+  color: #55595E;
+  font-size: 14px;
+}
+
+main.g21 .g21-ytable {
+  border-top: 1px solid #0F1011;
+}
+
+main.g21 .g21-yr-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid #E3E3DE;
+  font-size: clamp(17px, 1.5vw, 22px);
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+
+main.g21 .g21-yr-row span:not(:first-child) {
+  text-align: right;
+}
+
+main.g21 .g21-yr-row i {
+  display: inline-block;
+  width: 40px;
+  font: 500 10.5px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  color: #55595E;
+}
+
+main.g21 .g21-yr-head {
+  padding: 14px 0;
+  font: 500 10.5px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #55595E;
+}
+
+main.g21 .g21-yr-row.is-hi {
+  margin-inline: -18px;
+  padding-inline: 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #0F1011;
+  color: #fff;
+  font-weight: 500;
+}
+
+main.g21 .g21-yr-row.is-hi i {
+  color: #9A9DA1;
+}
+
+main.g21 .g21-yr-row .is-down {
+  color: #55595E;
+}
+
+main.g21 .g21-fine-src {
+  max-width: 60em;
+  margin-top: 18px;
+  font-size: 12px;
+  color: #55595E;
+}
+
+main.g21 .g21-split {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(28px, 6vw, 110px);
+  align-items: center;
+}
+
+main.g21 .g21-split--rev {
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+}
+
+main.g21 .g21-split--solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+main.g21 .g21-split-copy {
+  display: grid;
+  gap: 18px;
+  align-content: center;
+  justify-items: start;
+  max-width: 34em;
+}
+
+main.g21 .g21-split-copy h2,
+main.g21 .g21-faq h2 {
+  font-size: clamp(28px, 3.4vw, 54px);
+  font-weight: 300;
+}
+
+main.g21 .g21-ph {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #D6D3CB;
+}
+
+main.g21 .g21-ph img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+main.g21 .g21-ph--tall img {
+  aspect-ratio: 4 / 5;
+}
+
+main.g21 .g21-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 24px);
+  margin: clamp(36px, 4vw, 64px) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+main.g21 .g21-steps li {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding-top: 18px;
+  border-top: 1px solid #0F1011;
+}
+
+main.g21 .g21-steps li::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #0F1011;
+}
+
+main.g21 .g21-ticks {
+  display: grid;
+  width: 100%;
+  margin: 6px 0;
+  padding: 0;
+  list-style: none;
+}
+
+main.g21 .g21-ticks li {
+  position: relative;
+  padding: 14px 0 14px 28px;
+  border-top: 1px solid #E3E3DE;
+  color: #55595E;
+  font-size: 14px;
+}
+
+main.g21 .g21-ticks li::before {
+  content: "";
+  position: absolute;
+  top: 21px;
+  left: 2px;
+  width: 10px;
+  height: 5px;
+  border-left: 1.5px solid #0F1011;
+  border-bottom: 1.5px solid #0F1011;
+  transform: rotate(-45deg);
+}
+
+main.g21 .g21-ticks b {
+  color: #0F1011;
+  font-weight: 600;
+}
+
+main.g21 .g21-path {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: clamp(10px, 1.2vw, 18px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+main.g21 .g21-path li {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-height: 240px;
+  padding: clamp(18px, 1.8vw, 26px);
+  border: 1px solid #E3E3DE;
+  border-radius: 14px;
+  background: #fff;
+}
+
+main.g21 .g21-path b {
+  padding-bottom: 28px;
+  font-size: clamp(44px, 4.4vw, 72px);
+  font-weight: 200;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+main.g21 .g21-path-cta {
+  margin-top: 36px;
+}
+
+main.g21 .g21-exit {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+main.g21 .g21-exit article {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: clamp(20px, 2.2vw, 32px);
+  background: #0D0F10;
+}
+
+main.g21 .g21-exit article p {
+  color: #B9BCBF;
+  font-size: 14px;
+}
+
+main.g21 .g21-exit .g21-exit-lead {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  align-items: end;
+  gap: 24px;
+}
+
+main.g21 .g21-exit .g21-exit-lead h3 {
+  font-size: clamp(26px, 2.8vw, 44px);
+  font-weight: 300;
+}
+
+main.g21 .g21-exit .g21-exit-lead p {
+  font-size: clamp(15px, 1.2vw, 18px);
+}
+
+main.g21 .g21-devs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 28px);
+}
+
+main.g21 .g21-dev {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  color: inherit;
+  text-decoration: none;
+}
+
+main.g21 .g21-dev .g21-ph {
+  margin-bottom: 6px;
+}
+
+main.g21 .g21-dev .g21-ph img {
+  aspect-ratio: 4 / 5;
+  transition: transform 0.8s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+main.g21 .g21-dev:hover .g21-ph img {
+  transform: scale(1.04);
+}
+
+main.g21 .g21-dev h3 {
+  font-size: clamp(20px, 1.8vw, 28px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+}
+
+main.g21 .g21-dev:focus-visible {
+  outline: 2px solid #0F1011;
+  outline-offset: 4px;
+  border-radius: 16px;
+}
+
+main.g21 .g21-faq {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(28px, 5vw, 96px);
+  align-items: start;
+}
+
+main.g21 .g21-faq > div:first-child {
+  display: grid;
+  gap: 16px;
+}
+
+main.g21 .g21-qa details {
+  border-top: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-qa details:last-child {
+  border-bottom: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-qa summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 0;
+  list-style: none;
+  cursor: pointer;
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+main.g21 .g21-qa summary::-webkit-details-marker {
+  display: none;
+}
+
+main.g21 .g21-qa summary::after {
+  content: "+";
+  font-size: 28px;
+  font-weight: 200;
+  line-height: 0.8;
+  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+main.g21 .g21-qa details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+main.g21 .g21-qa details p {
+  max-width: 40em;
+  padding: 0 48px 24px 0;
+  color: #55595E;
+}
+
+/* the client's calculator keeps its own markup and script; only its frame,
+   heading row and type are brought into the gallery-light language */
+main.g21 .g21-calc.kpd-section {
+  width: 100%;
+  margin: 0;
+  padding-inline: 0;
+}
+
+main.g21 .g21-calc-cap {
+  display: block;
+  margin-bottom: 16px;
+}
+
+main.g21 .g21-calc .invest-editorial-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: clamp(36px, 4vw, 56px);
+}
+
+main.g21 .g21-calc .invest-editorial-grid h2 {
+  font-size: clamp(28px, 3.4vw, 54px);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+main.g21 .g21-calc .invest-copy {
+  max-width: 34em;
+}
+
+main.g21 .g21-calc .invest-copy p {
+  margin: 0;
+  color: #55595E;
+  font-size: inherit;
+}
+
+main.g21 .g21-calc .mortgage-calculator-shell {
+  border: 1px solid #E3E3DE;
+  border-radius: 18px;
+}
+
+main.g21 .g21-calc .mortgage-calculator-controls {
+  background: #F6F6F3;
+}
+
+main.g21 .g21-calc .mortgage-control-group > label,
+main.g21 .g21-calc .mortgage-status-group legend,
+main.g21 .g21-calc .mortgage-label-row > :first-child {
+  font: 500 11px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+  color: #55595E;
+}
+
+main.g21 .g21-calc .mortgage-calculator-result {
+  background: #0F1011;
+}
+
+main.g21 .g21-calc .mortgage-result-primary strong {
+  font-weight: 200;
+  letter-spacing: -0.05em;
+}
+
+@media (max-width: 1100px) {
+  main.g21 .g21-grid8 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  main.g21 .g21-grid8 li:not(:nth-child(4n + 1)) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  main.g21 .g21-grid8 li:nth-child(even) {
+    padding-left: 24px;
+    border-left: 1px solid #E3E3DE;
+  }
+
+  main.g21 .g21-path {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  main.g21 .g21-split,
+  main.g21 .g21-split--rev,
+  main.g21 .g21-faq,
+  main.g21 .g21-devs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-split--rev .g21-ph {
+    order: -1;
+  }
+
+  main.g21 .g21-steps,
+  main.g21 .g21-path,
+  main.g21 .g21-exit {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  main.g21 .g21-exit .g21-exit-lead {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-path li {
+    min-height: 0;
+  }
+
+  main.g21 .g21-sub-cta {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  main.g21 .g21-grid8,
+  main.g21 .g21-steps,
+  main.g21 .g21-path,
+  main.g21 .g21-exit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-grid8 li,
+  main.g21 .g21-grid8 li:nth-child(even) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  main.g21 .g21-yr-row {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 12px;
+    font-size: 15px;
+  }
+
+  main.g21 .g21-yr-head {
+    font-size: 9.5px;
+    line-height: 1.3;
+  }
+
+  main.g21 .g21-yr-row i {
+    width: 28px;
+  }
+
+  main.g21 .g21-qa details p {
+    padding-right: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.g21 .g21-dev .g21-ph img,
+  main.g21 .g21-qa summary::after {
+    transition: none;
+  }
+}
