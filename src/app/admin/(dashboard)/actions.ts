@@ -425,6 +425,7 @@ export async function saveProject(
     enquireSecondaryLabel: String(formData.get("enquireSecondaryLabel") || "").trim(),
     enquireSecondaryUrl: String(formData.get("enquireSecondaryUrl") || "").trim(),
     showOnHomepage: formData.get("showOnHomepage") === "on",
+    keyFacts: formData.has("keyFacts") ? String(formData.get("keyFacts") || "") : previousChrome.keyFacts,
     calculatorIndex: previousChrome.calculatorIndex,
     nameStyle: textStyleFromForm(formData, "projectName"),
     taglineStyle: textStyleFromForm(formData, "projectTagline"),

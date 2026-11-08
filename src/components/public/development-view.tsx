@@ -1,4 +1,6 @@
 import { DevelopmentMain, type DevelopmentProject } from "./development-page";
+import { DevelopmentMainG21 } from "./development-g21";
+import { galleryLightDevelopments } from "@/lib/development-gallery-light";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
@@ -20,7 +22,7 @@ export async function DevelopmentView({ project, previewNote }: { project: Devel
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page single-project-page" />
     <SiteShellHeader />
-    <DevelopmentMain project={project} shell={shell} calculator={calculator} />
+    {galleryLightDevelopments.has(project.slug) ? <DevelopmentMainG21 project={project} calculator={calculator} /> : <DevelopmentMain project={project} shell={shell} calculator={calculator} />}
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page single-project-page" sources={["/legacy/assets/js/mortgage-calculator.js?v=20261005-2"]} />
