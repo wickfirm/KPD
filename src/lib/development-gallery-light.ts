@@ -6,7 +6,7 @@ export const galleryLightDevelopments = new Set(["seven-x-seven"]);
 /// Approved key facts under the hero (Option 2.1 mock), used until the
 /// editor saves its own list.
 const keyFactDefaults: Record<string, string> = {
-  "seven-x-seven": "Location | Meydan Horizon\nResidences | 155\nTypes | 1, 2 & 3 bed\nFrom | 889 sq ft\nPayment | 30 / 70",
+  "seven-x-seven": "Location | Meydan Horizon\nResidences | 155\nTypes | 1, 2, 3 bed & penthouse\nFrom | 889 sq ft\nPayment | 30 / 70",
 };
 
 export function defaultKeyFacts(slug: string): string {

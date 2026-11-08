@@ -14,7 +14,6 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
   const [state, formAction, pending] = useActionState(saveGlobalSettings, initialState);
   const global = settings.global ?? {};
   const recipients = global.recipients ?? {};
-  const newsListing = settings.newsListing ?? {};
   return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h1>Site settings</h1><p className="cms-muted">Shared contact details used across the site: the footer, the floating Enquiry / Call / WhatsApp buttons, the booking form and the Contact page. Leave a field empty to hide or disable that item. Homepage content lives under <strong>Pages → Homepage</strong>.</p>
     <h2 className="cms-form-heading">Contact</h2>
@@ -63,10 +62,6 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
     <div className="cms-grid"><label className="cms-field"><span>Heading</span><input name="popupTitle" defaultValue={global.popupTitle ?? "Start a conversation."} /></label><label className="cms-field"><span>Send button</span><input name="popupSubmitLabel" defaultValue={global.popupSubmitLabel ?? "Send enquiry"} /></label></div>
     <label className="cms-field"><span>Introduction</span><textarea name="popupIntro" rows={2} defaultValue={global.popupIntro ?? "Tell us about your property enquiry."} /></label>
     <label className="cms-field"><span>Confirmation note</span><textarea name="popupNote" rows={3} defaultValue={global.popupNote ?? "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally."} /></label>
-    <h2 className="cms-form-heading">News &amp; Blogs page</h2>
-    <p className="cms-muted">The hero title and introduction shown on the public News &amp; Blogs page.</p>
-    <div className="cms-grid"><label className="cms-field"><span>Label</span><input name="newsEyebrow" defaultValue={newsListing.eyebrow ?? ""} placeholder="Media" /></label><label className="cms-field"><span>Page title</span><textarea name="newsListingHeading" rows={2} defaultValue={newsListing.heading ?? ""} placeholder="News and updates" /></label></div>
-    <label className="cms-field"><span>Introduction</span><textarea name="newsListingIntro" rows={3} defaultValue={newsListing.intro ?? ""} /></label>
     <h2 className="cms-form-heading">Footer</h2>
     <p className="cms-muted">Every word of the footer can be changed here. Leave a field empty to keep the delivered wording; the links themselves stay on their pages.</p>
     <div className="cms-grid"><label className="cms-field"><span>Newsletter heading</span><input name="newsletterHeading" defaultValue={global.newsletterHeading ?? "Stay informed"} /></label><label className="cms-field"><span>Subscribe button text</span><input name="newsletterSubmitLabel" defaultValue={global.newsletterSubmitLabel ?? "Subscribe"} /><small>This is the button beside the email field. The design shows it in capitals.</small></label></div>
