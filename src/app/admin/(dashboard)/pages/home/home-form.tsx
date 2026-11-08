@@ -5,7 +5,7 @@ import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
-import { homeDefaults, type BannerSlide, type HomeSettings, type StatItem } from "@/lib/home-defaults";
+import { homeDefaults, type BannerSlide, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
 
 export type { HomeSettings };
@@ -40,18 +40,33 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
   const [experienceCaptions, setExperienceCaptions] = useState(settings.experienceCaptions ?? []);
   const [stats, setStats] = useState<StatItem[]>(() => settings.introStats ?? []);
   const [slides, setSlides] = useState<BannerSlide[]>(() => settings.bannerSlides ?? []);
+  const [values, setValues] = useState<HomeValue[]>(() => settings.introValues ?? homeDefaults.introValues ?? []);
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero video</h2>
     <AssetUrlField name="heroVideo" defaultValue={settings.heroVideo ?? ""} accept="video/mp4,video/webm" placeholder="https://…" fileLabel="hero video" specs="MP4 H.264, 1080p or smaller, under 4 MB (larger videos fail to upload — use an existing file link for big videos)." />
     <div className="cms-field"><span>Hero image</span><AssetUrlField name="heroImage" defaultValue={settings.heroImage ?? ""} accept="image/*" placeholder="https://…" fileLabel="hero image" specs="Wide landscape, about 2400 × 1200px, under 4 MB." /><small>The opening frame of the video, and the banner itself when no video is set.</small></div>
+    <label className="cms-field"><span>Hero line under the headline</span><textarea name="heroText" rows={2} defaultValue={settings.heroText ?? homeDefaults.heroText ?? ""} /><small>The short sentence in the hero, left of the button.</small></label>
+    <div className="cms-grid"><label className="cms-field"><span>Hero button label</span><input name="heroCtaLabel" defaultValue={settings.heroCtaLabel ?? homeDefaults.heroCtaLabel ?? ""} /></label><label className="cms-field"><span>Hero button link</span><input name="heroCtaUrl" defaultValue={settings.heroCtaUrl ?? homeDefaults.heroCtaUrl ?? ""} /><small>Leave empty to scroll to the developments section.</small></label></div>
     <h2 className="cms-form-heading">Introduction</h2>
-    <label className="cms-field"><span>Introduction heading</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
-    <TextStyleFields prefix="introHeading" value={settings.introHeadingStyle} label="Introduction heading appearance" preserveDefault />
-    <label className="cms-field"><span>Introduction paragraphs</span><textarea name="introParagraphs" rows={6} defaultValue={(settings.introParagraphs ?? []).join("\n\n")} /><small>Separate paragraphs with a blank line.</small></label>
-    <TextStyleFields prefix="introBody" value={settings.introBodyStyle} label="Introduction text appearance" preserveDefault />
+    <label className="cms-field"><span>Hero headline</span><textarea name="introHeading" rows={2} defaultValue={settings.introHeading ?? ""} /><small>The big headline on the hero. Wrap words in **double asterisks** for the bold emphasis. Line breaks render exactly as typed.</small></label>
+    <TextStyleFields prefix="introHeading" value={settings.introHeadingStyle} label="Headline appearance" preserveDefault />
+    <label className="cms-field"><span>About caption</span><input name="introKicker" defaultValue={settings.introKicker ?? homeDefaults.introKicker ?? ""} /><small>The small mono caption left of the statement, shown in capitals.</small></label>
+    <label className="cms-field"><span>About statement</span><textarea name="introParagraphs" rows={6} defaultValue={(settings.introParagraphs ?? []).join("\n\n")} /><small>One paragraph reads large on the page; anything after a blank line renders smaller. Wrap text in **double asterisks** for dark bold, or in [[double brackets]] for soft grey.</small></label>
+    <TextStyleFields prefix="introBody" value={settings.introBodyStyle} label="Statement appearance" preserveDefault />
+    <section className="cms-editor-section">
+      <h3>Value trio</h3>
+      <p className="cms-muted">The three columns under the About statement. Each has a small “Value” caption above its title.</p>
+      <input type="hidden" name="introValuesJson" value={JSON.stringify(values)} />
+      <ListEditor items={values} onChange={setValues} newItem={() => ({ title: "", body: "" })} addLabel="Add value" itemLabel={(item, index) => `Value ${index + 1}${item.title ? ` — ${item.title}` : ""}`}
+        renderItem={(item, update) => <div className="cms-grid">
+          <label className="cms-field"><span>Title</span><input value={item.title} onChange={(event) => update({ title: event.target.value })} placeholder="Quality" /></label>
+          <label className="cms-field"><span>Description</span><input value={item.body} onChange={(event) => update({ body: event.target.value })} placeholder="An uncompromising standard across every material." /></label>
+        </div>} />
+    </section>
     <section className="cms-editor-section">
       <h3>Key figures</h3>
-      <p className="cms-muted">The figures strip under the introduction. Each figure links to the About page.</p>
+      <p className="cms-muted">The numbers band under the introduction. The first figure renders as the large headline number; the rest form the smaller breakdown columns beside it.</p>
+      <label className="cms-field"><span>Band caption</span><input name="statsKicker" defaultValue={settings.statsKicker ?? homeDefaults.statsKicker ?? ""} /><small>The small mono caption above the large figure, shown in capitals.</small></label>
       <input type="hidden" name="introStatsJson" value={JSON.stringify(stats)} />
       <ListEditor items={stats} onChange={setStats} newItem={() => ({ value: "", label: "" })} addLabel="Add figure" itemLabel={(item, index) => `Figure ${index + 1}${item.label ? ` — ${item.label}` : ""}`}
         renderItem={(item, update) => <div className="cms-grid">
@@ -64,19 +79,20 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <TextStyleFields prefix="statsLabel" value={settings.statsLabelStyle} label="Key figure caption appearance" preserveDefault />
     </section>
     <h2 className="cms-form-heading">Developments image</h2>
-    <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
-    <label className="cms-field"><span>Line on the image</span><textarea name="developmentBannerText" rows={3} defaultValue={settings.developmentBannerText ?? homeDefaults.developmentBannerText ?? ""} /><small>Sits on the picture, between the heading and the button. Clear it and save to remove the line.</small></label>
-    <label className="cms-field"><span>Heading placement</span><select name="developmentHeadingPosition" defaultValue={settings.developmentHeadingPosition ?? "overlay"}><option value="overlay">Over the image</option><option value="above">Above the image</option><option value="below">Below the image</option></select><small>Above and below sit outside the picture. Over keeps the heading on the picture.</small></label>
+    <label className="cms-field"><span>Developments caption</span><input name="developmentKicker" defaultValue={settings.developmentKicker ?? homeDefaults.developmentKicker ?? ""} /><small>The small mono caption above the heading, shown in capitals.</small></label>
+    <label className="cms-field"><span>Developments heading</span><textarea name="developmentHeading" rows={2} defaultValue={settings.developmentHeading ?? ""} /><small>The large heading left of the “All developments” link. Line breaks render on the public page exactly as typed.</small></label>
+    <label className="cms-field"><span>Card line</span><textarea name="developmentBannerText" rows={3} defaultValue={settings.developmentBannerText ?? homeDefaults.developmentBannerText ?? ""} /><small>Sits in the white card on the picture, under the development name. Clear it and save to remove the line.</small></label>
     <TextStyleFields prefix="developmentHeading" value={settings.developmentHeadingStyle} label="Developments heading appearance" preserveDefault />
-    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="developmentCtaVisible" defaultChecked={settings.developmentCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the button on the developments image.</small></span></label><label className="cms-field"><span>Button label</span><input name="developmentCtaLabel" defaultValue={settings.developmentCtaLabel ?? "View all developments"} /></label><label className="cms-field"><span>Button link</span><input name="developmentCtaUrl" defaultValue={settings.developmentCtaUrl ?? "/#development-cards"} /></label><label className="cms-field"><span>Button position</span><select name="developmentCtaPosition" defaultValue={settings.developmentCtaPosition ?? "below"}><option value="below">Below the text</option><option value="above">Above the text</option><option value="right">Right of the text</option><option value="left">Left of the text</option></select><small>The button and the line on the image move as a pair.</small></label></div>
+    <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="developmentCtaVisible" defaultChecked={settings.developmentCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the button in the white card.</small></span></label><label className="cms-field"><span>Button label</span><input name="developmentCtaLabel" defaultValue={settings.developmentCtaLabel ?? "View all developments"} /></label><label className="cms-field"><span>Button link</span><input name="developmentCtaUrl" defaultValue={settings.developmentCtaUrl ?? "/#development-cards"} /></label></div>
     <section className="cms-editor-section">
       <h3>Banner slides</h3>
-      <p className="cms-muted">The full-width image slider above the cards. The first slide shows on load.</p>
+      <p className="cms-muted">The framed image slider. The first slide shows on load; each slide shows its own name and chip while active.</p>
       <input type="hidden" name="bannerSlidesJson" value={JSON.stringify(slides)} />
       <ListEditor items={slides} onChange={setSlides} newItem={() => ({ image: "", label: "", text: "" })} addLabel="Add slide" itemLabel={(item, index) => `Slide ${index + 1}${item.label ? ` — ${item.label}` : ""}`}
         renderItem={(item, update, index) => <>
-          <label className="cms-field"><span>Name (for screen readers)</span><input value={item.label} onChange={(event) => update({ label: event.target.value })} placeholder="Seven X Seven" /></label>
+          <label className="cms-field"><span>Card title</span><input value={item.label} onChange={(event) => update({ label: event.target.value })} placeholder="seven x seven residences" /><small>Shown as the title in the white card while this slide is active.</small></label>
           <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept={IMAGES} placeholder="https://…" fileLabel={`slide ${index + 1} image`} specs="Wide landscape, about 2400 × 1200px, under 4 MB." /></div>
+          <label className="cms-field"><span>Chip text</span><input value={item.tag ?? ""} onChange={(event) => update({ tag: event.target.value })} placeholder="Meydan Horizon" /><small>The small pill on the top-left of the picture. Leave blank to hide it.</small></label>
           <label className="cms-field"><span>Text for this slide</span><textarea rows={3} value={item.text ?? ""} onChange={(event) => update({ text: event.target.value })} placeholder="Leave blank to use the shared paragraph below." /><small>This text changes with the picture. A new slide can carry its own paragraph.</small></label>
         </>} />
     </section>
@@ -91,6 +107,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="cardCtaVisible" defaultChecked={settings.cardCtaVisible !== false} /><span><strong>Show the card button</strong><small>The card still opens the development. This only shows or hides the label.</small></span></label><label className="cms-field"><span>Card button label</span><input name="cardCtaLabel" defaultValue={settings.cardCtaLabel ?? "Explore"} /></label></div>
     </section>
     <h2 className="cms-form-heading">Contact strip</h2>
+    <label className="cms-field"><span>Contact caption</span><input name="contactKicker" defaultValue={settings.contactKicker ?? homeDefaults.contactKicker ?? ""} /><small>The small mono caption above the heading, shown in capitals.</small></label>
     <div className="cms-grid">
       <label className="cms-field"><span>Contact heading</span><textarea name="contactHeading" rows={2} defaultValue={settings.contactHeading ?? ""} /><small>Line breaks render on the public page exactly as typed.</small></label>
       <label className="cms-field"><span>Contact copy</span><textarea name="contactText" rows={3} defaultValue={settings.contactText ?? ""} /></label>

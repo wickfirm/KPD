@@ -6,10 +6,13 @@ import type { TextStyle } from "@/lib/text-style";
 
 export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
 export type StatItem = { value: string; label: string };
-export type BannerSlide = { image: string; label: string; text?: string };
+export type BannerSlide = { image: string; label: string; text?: string; tag?: string };
+export type HomeValue = { title: string; body: string };
 
 export type HomeSettings = {
   introStats?: StatItem[];
+  /// Mono caption above the large headline figure (numbers band, batch 2).
+  statsKicker?: string;
   statsNote?: string;
   /// Optional link on the "as of" note (batch 3, item 1).
   statsNoteUrl?: string;
@@ -22,9 +25,20 @@ export type HomeSettings = {
   /// Hero banner image: the poster while the video plays, or the banner itself
   /// when no video is set (client request).
   heroImage?: string;
+  /// Gallery-light hero (section batch 1): supporting line + CTA under the
+  /// headline. Supports **bold** and [[soft]] emphasis like the statement.
+  heroText?: string;
+  heroCtaLabel?: string;
+  heroCtaUrl?: string;
   introHeading?: string;
+  /// Mono caption above the About statement (section batch 1).
+  introKicker?: string;
   introParagraphs?: string[];
+  /// The three-column value trio under the statement (section batch 1).
+  introValues?: HomeValue[];
   developmentHeading?: string;
+  /// Mono caption above the developments heading (section batch 3).
+  developmentKicker?: string;
   developmentBannerText?: string;
   developmentHeadingPosition?: "overlay" | "above" | "below";
   developmentHeadingStyle?: TextStyle;
@@ -53,6 +67,8 @@ export type HomeSettings = {
   /// Same choice for the button on the developments banner (round two).
   developmentCtaPosition?: "below" | "above" | "left" | "right";
   contactHeading?: string;
+  /// Mono caption above the contact/experience heading (section batch 4).
+  contactKicker?: string;
   contactText?: string;
   contactCtaLabel?: string;
   contactCtaUrl?: string;
@@ -65,6 +81,7 @@ export type GalleryPanel = { key: string; image: string; caption: string };
 
 export const homeDefaults = {
   /// The delivered AUM stat strip.
+  statsKicker: "Kasumigaseki Capital · Global AUM",
   introStats: [
     { value: "$4.4B", label: "Global AUM" },
     { value: "$320M", label: "Dubai Real Estate" },
@@ -74,9 +91,9 @@ export const homeDefaults = {
   statsNote: "(As of August 2026)",
   /// The delivered development banner slides (the first slide shows on load).
   bannerSlides: [
-    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "seven x seven Meydan Horizon Residences" },
-    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Villa 174" },
-    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Villa 24" },
+    { image: "/legacy/assets/images/project-media/sxs/facade%20left%202.png", label: "seven x seven Meydan Horizon Residences", tag: "Meydan Horizon" },
+    { image: "/legacy/assets/images/project-media/Emerald%20Villa/tm2161_vp29_interior_3brmasterbedroom_rev06.jpg", label: "Villa 174", tag: "Dubai Hills" },
+    { image: "/legacy/assets/images/library/driveway-of-a-contemporary-house-with-a-garden-are-2026-01-08-00-24-21-utc.jpg", label: "Villa 24", tag: "Dubai Hills" },
     { image: "/legacy/assets/images/library/modern-apartment-buildings-with-balconies-on-sunny-2026-03-19-09-29-37-utc.jpg", label: "Residential development" },
     { image: "/legacy/assets/images/library/dubai-marina-skyline-with-modern-skyscrapers-and-w-2026-03-05-11-49-49-utc.jpg", label: "Dubai skyline" },
   ] as BannerSlide[],
@@ -87,12 +104,22 @@ export const homeDefaults = {
     { href: "/developments/dubai-hills-mansion", image: "/legacy/assets/images/library/high-rise-apartment-buildings-in-downtown-vancouve-2026-03-20-04-35-07-utc.jpg", title: "Villa 24", copy: "A mansion-scale residence where garden arrival, private wellness and long-horizon family living are composed as one." },
   ] as DevelopmentCard[],
   heroVideo: "/videos/hero-experience-center.mp4",
+  heroText: "Every decision begins with understanding. Japanese discipline and long-term thinking, brought to the places we create in the UAE.",
+  heroCtaLabel: "Explore the residences",
+  heroCtaUrl: "#developments",
+  introKicker: "About KPD",
+  introValues: [
+    { title: "Quality", body: "An uncompromising standard across every material, detail and development." },
+    { title: "Peace of mind", body: "Care and accountability from the first conversation to long after handover." },
+    { title: "Innovation", body: "The continuous pursuit of better ways to design, build and serve." },
+  ] as HomeValue[],
   introHeading: "Turning Challenge\nInto Value",
   introParagraphs: [
     "As the first Japanese developer in the UAE, Kasumigaseki Properties Development is the development arm of Kasumigaseki Capital, a public Tokyo-listed company. It introduces a distinctive approach to real estate: a promise of a higher standard of life. Driven by a commitment to superior quality, we believe meaningful developments begin with a deep respect for their environment, context, and community.",
     "From refined craftsmanship and forward-thinking innovation to thoughtful guardianship, we uphold rigorous standards at every stage, creating spaces that stand the test of time.",
   ],
   developmentHeading: "Different places. One standard.",
+  developmentKicker: "Latest Development",
   developmentBannerText: "Three addresses. One standard. Residences, villas and mansions across Dubai's most considered districts.",
   developmentTextVisible: true,
   developmentText: "Quality, peace of mind and innovation are not a tier we reserve for certain projects. They are the standard every Kasumigaseki development is held to, whatever its form or price.",
@@ -100,6 +127,7 @@ export const homeDefaults = {
   newsText: "Development updates, market notes and the thinking behind how we build.",
   newsCta: "Read News & Insights",
   contactHeading: "Visit the Experience Center",
+  contactKicker: "Experience Centre",
   contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",
   galleryPanels: [
     { key: "arrival", image: "/legacy/assets/images/experience-center/hq/1.jpg", caption: "Private Consultation" },

@@ -104,6 +104,26 @@
 
   initDelayedNavigationReveal();
 
+  // [KPD CMS patch] Gallery-light hero pause control: the round button in the
+  // hero toggles the video and swaps its icon/label via .is-paused.
+  document.querySelectorAll("[data-hero-toggle]").forEach((toggle) => {
+    const video = document.querySelector(".pdf-hero video");
+    if (!video || toggle.dataset.heroToggleBound === "1") return;
+    toggle.dataset.heroToggleBound = "1";
+    toggle.addEventListener("click", () => {
+      if (video.paused) {
+        const playPromise = video.play && video.play();
+        if (playPromise && typeof playPromise.catch === "function") playPromise.catch(() => {});
+        toggle.classList.remove("is-paused");
+        toggle.setAttribute("aria-label", "Pause video");
+      } else {
+        video.pause();
+        toggle.classList.add("is-paused");
+        toggle.setAttribute("aria-label", "Play video");
+      }
+    });
+  });
+
   function initSingleProjectHeroVideos() {
     document.querySelectorAll(".single-project-page .single-project-hero").forEach((hero) => {
       const video = hero.querySelector("video");
