@@ -755,3 +755,202 @@ main.g21 .g21-yr {
     display: block;
   }
 }
+
+/* ── News ──────────────────────────────────────────────────────────────────── */
+
+main.g21 .g21-pad--top-flush {
+  padding-top: 0;
+}
+
+main.g21 .g21-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 22px;
+}
+
+main.g21 .g21-filters button {
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid #D6D3CB;
+  border-radius: 999px;
+  background: transparent;
+  color: #0F1011;
+  font: 500 13px/1 "Manrope", "Helvetica Neue", Arial, sans-serif;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+main.g21 .g21-filters button:hover {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-filters button[aria-pressed="true"] {
+  background: #0F1011;
+  border-color: #0F1011;
+  color: #fff;
+}
+
+main.g21 .g21-news-sec {
+  padding: clamp(24px, 3vw, 40px) 0 clamp(64px, 8vw, 120px);
+}
+
+main.g21 .g21-feat {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(24px, 4vw, 72px);
+  align-items: center;
+  margin-bottom: clamp(36px, 4vw, 64px);
+  padding-bottom: clamp(36px, 4vw, 64px);
+  border-bottom: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-feat-img {
+  display: block;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #D6D3CB;
+}
+
+main.g21 .g21-feat-img img {
+  width: 100%;
+  aspect-ratio: 16 / 11;
+  object-fit: cover;
+  object-position: 50% 70%;
+  transition: transform 0.8s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+main.g21 .g21-feat-img:hover img {
+  transform: scale(1.03);
+}
+
+main.g21 .g21-feat-copy {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+}
+
+main.g21 .g21-feat-copy h2 {
+  font-size: clamp(32px, 4vw, 64px);
+  font-weight: 300;
+}
+
+main.g21 .g21-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(28px, 3vw, 44px) clamp(14px, 2vw, 28px);
+}
+
+main.g21 .g21-card > a {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  color: inherit;
+  text-decoration: none;
+}
+
+main.g21 .g21-card > a:focus-visible {
+  outline: 2px solid #0F1011;
+  outline-offset: 4px;
+  border-radius: 14px;
+}
+
+main.g21 .g21-card-img {
+  margin-bottom: 6px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #D6D3CB;
+}
+
+main.g21 .g21-card-img img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+main.g21 .g21-card:hover .g21-card-img img {
+  transform: scale(1.04);
+}
+
+main.g21 .g21-card h3 {
+  font-size: clamp(20px, 1.8vw, 28px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+main.g21 .g21-txt-link {
+  justify-self: start;
+  display: inline-flex;
+  gap: 8px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid currentColor;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+main.g21 .g21-empty {
+  padding-top: 24px;
+}
+
+main.g21 .g21-press {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 5vw, 96px);
+  align-items: end;
+}
+
+main.g21 .g21-press h2 {
+  margin: 14px 0;
+  font-size: clamp(28.8px, 3.84vw, 60.8px);
+}
+
+main.g21 .g21-press-links {
+  display: grid;
+  gap: 10px;
+}
+
+main.g21 .g21-press-links a {
+  display: grid;
+  grid-template-columns: 140px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+  border: 1px solid #E3E3DE;
+  border-radius: 14px;
+  background: #F6F6F3;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+
+main.g21 .g21-press-links a:hover {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-press-links b {
+  font-size: clamp(17px, 1.5vw, 22px);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 900px) {
+  main.g21 .g21-feat,
+  main.g21 .g21-cards,
+  main.g21 .g21-press {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-press-links a {
+    grid-template-columns: 1fr auto;
+  }
+
+  main.g21 .g21-press-links .g21-cap {
+    grid-column: 1 / -1;
+  }
+
+  main.g21 .g21-press-links b {
+    font-size: 16px;
+  }
+}
