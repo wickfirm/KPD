@@ -73,7 +73,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
     <main className="about-main g21" id="top">
       <section className="g21-hero" aria-labelledby="g21-about-title">
         <div className="g21-wrap">
-          {eyebrow ? <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">{eyebrow}</span></nav> : null}
+          <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">{eyebrow || "About"}</span></nav>
           <div className="g21-title">
             <h1 id="g21-about-title" style={textStyleProps(content.headingStyle)}>{emphasisNodes(heading)}</h1>
             <div>

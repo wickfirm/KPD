@@ -233,6 +233,7 @@ main.g21 .g21-keyfacts {
 main.g21 .g21-keyfacts div {
   display: grid;
   gap: 6px;
+  align-content: start;
   padding: 22px 0;
 }
 
