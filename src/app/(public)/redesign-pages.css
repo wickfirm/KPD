@@ -1,0 +1,556 @@
+/* ── Gallery light (Option 2.1) — inner pages ────────────────────────────────
+   Shared foundation for the redesigned inner pages (About first; History,
+   News, Investor Guide, Contact and seven x seven follow). Every rule is
+   scoped under main.g21 and every class is g21-prefixed, so the delivered
+   header/footer, the homepage and the pages not yet redesigned are untouched.
+   site.css stays byte-frozen.
+
+   Bundler note (HANDOVER §11): custom properties whose value contains clamp()
+   or other math functions are DROPPED by the Next CSS pipeline. Only plain
+   colour/font tokens live in variables; every clamp() is inlined at its use.
+   Fonts (Manrope, IBM Plex Mono) are self-hosted in public.css. */
+
+main.g21 {
+  --g21-ink: #0F1011;
+  --g21-ink-hover: #34373A;
+  --g21-graphite: #55595E;
+  --g21-hair: #E3E3DE;
+  --g21-stone: #D6D3CB;
+  --g21-wall: #F6F6F3;
+  --g21-night: #0D0F10;
+  --g21-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --g21-ease: cubic-bezier(0.22, 0.8, 0.16, 1);
+  display: block;
+  background: #fff;
+  color: #0F1011;
+  font-size: clamp(13px, 0.88vw, 14.4px);
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+main.g21 :where(h1, h2, h3, p, figure, blockquote, dl, dd, ul) {
+  margin: 0;
+}
+
+main.g21 :where(h1, h2, h3) {
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-wrap: balance;
+  color: inherit;
+  text-transform: none;
+}
+
+main.g21 :where(img) {
+  display: block;
+  max-width: 100%;
+}
+
+main.g21 .g21-wrap {
+  width: min(100% - clamp(40px, 8vw, 128px), 1440px);
+  margin-inline: auto;
+}
+
+main.g21 .g21-pad {
+  padding-block: clamp(88px, 10vw, 160px);
+}
+
+main.g21 .g21-pad--flush {
+  padding-top: 0;
+}
+
+main.g21 .g21-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+main.g21 .g21-cap {
+  display: inline-block;
+  font: 500 10.5px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #55595E;
+}
+
+main.g21 .g21-muted {
+  color: #55595E;
+}
+
+main.g21 strong {
+  font-weight: 600;
+}
+
+main.g21 .soft {
+  color: #9A9C98;
+}
+
+/* buttons: black pill, outline pill, white and ghost variants for dark bands */
+main.g21 .g21-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid #0F1011;
+  background: #0F1011;
+  color: #fff;
+  font: 600 13px/1 "Manrope", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+
+main.g21 .g21-btn:hover {
+  background: #34373A;
+  border-color: #34373A;
+  color: #fff;
+}
+
+main.g21 .g21-btn--line {
+  background: transparent;
+  color: #0F1011;
+}
+
+main.g21 .g21-btn--line:hover {
+  background: #0F1011;
+  border-color: #0F1011;
+  color: #fff;
+}
+
+main.g21 .g21-btn--white {
+  background: #fff;
+  border-color: #fff;
+  color: #0F1011;
+}
+
+main.g21 .g21-btn--white:hover {
+  background: #E6E6E3;
+  border-color: #E6E6E3;
+  color: #0F1011;
+}
+
+main.g21 .g21-btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #fff;
+}
+
+main.g21 .g21-btn--ghost:hover {
+  background: #fff;
+  border-color: #fff;
+  color: #0F1011;
+}
+
+main.g21 .g21-ar {
+  transition: transform 0.3s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+main.g21 .g21-btn:hover .g21-ar {
+  transform: translateX(4px);
+}
+
+main.g21 .g21-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+/* page hero: breadcrumb, title + lede, framed image, key facts */
+main.g21 .g21-hero {
+  padding-top: clamp(96px, 9vw, 132px);
+}
+
+main.g21 .g21-crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+main.g21 .g21-crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+main.g21 .g21-crumbs a:hover {
+  color: #0F1011;
+}
+
+main.g21 .g21-title {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: end;
+  padding-block: clamp(28px, 4vw, 56px) clamp(24px, 3vw, 40px);
+}
+
+main.g21 .g21-title h1 {
+  font-size: clamp(40px, 6.4vw, 104px);
+  font-weight: 200;
+  letter-spacing: -0.05em;
+  line-height: 0.92;
+}
+
+main.g21 .g21-title h1 strong {
+  font-weight: 600;
+}
+
+main.g21 .g21-lede {
+  max-width: 26em;
+  font-size: clamp(17px, 1.45vw, 22px);
+  font-weight: 300;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+main.g21 .g21-hero-img {
+  border-radius: 18px;
+  overflow: hidden;
+  aspect-ratio: 16 / 7;
+  background: #D6D3CB;
+}
+
+main.g21 .g21-hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 60%;
+}
+
+main.g21 .g21-keyfacts {
+  display: grid;
+  border-bottom: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-keyfacts div {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 22px 0;
+}
+
+main.g21 .g21-keyfacts div + div {
+  padding-left: 22px;
+  border-left: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-keyfacts dd {
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+/* section header row: kicker + heading left, note right */
+main.g21 .g21-sec-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: clamp(36px, 4vw, 56px);
+}
+
+main.g21 .g21-sec-top .g21-cap {
+  display: block;
+  margin-bottom: 16px;
+}
+
+main.g21 .g21-sec-top h2 {
+  font-size: clamp(28px, 3.4vw, 54px);
+  font-weight: 300;
+}
+
+main.g21 .g21-sec-note {
+  max-width: 30em;
+}
+
+main.g21 .g21-band {
+  background: #F6F6F3;
+  border-block: 1px solid #E3E3DE;
+}
+
+/* closing band over a dimmed image */
+main.g21 .g21-visit {
+  position: relative;
+  overflow: hidden;
+  background: #0D0F10;
+  color: #fff;
+}
+
+main.g21 .g21-visit > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  opacity: 0.45;
+}
+
+main.g21 .g21-visit-in {
+  position: relative;
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+  padding-block: clamp(88px, 10vw, 150px);
+}
+
+main.g21 .g21-visit-in .g21-cap {
+  color: #BBBBBB;
+}
+
+main.g21 .g21-visit-in h2 {
+  font-size: clamp(34px, 4.4vw, 70px);
+  font-weight: 200;
+  letter-spacing: -0.04em;
+}
+
+main.g21 .g21-visit-in p:not(.g21-cap) {
+  max-width: 34em;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* ── About ─────────────────────────────────────────────────────────────────── */
+
+main.g21 .g21-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 24px);
+}
+
+main.g21 .g21-val {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  min-height: 280px;
+  padding: clamp(22px, 2.6vw, 36px);
+  border: 1px solid #E3E3DE;
+  border-radius: 16px;
+  background: #F6F6F3;
+  transition: background 0.3s, color 0.3s;
+}
+
+main.g21 .g21-val h3 {
+  margin-top: auto;
+  padding-top: 40px;
+  font-size: clamp(34px, 3.8vw, 60px);
+  font-weight: 200;
+  letter-spacing: -0.045em;
+}
+
+main.g21 .g21-val p {
+  max-width: 26em;
+  color: #55595E;
+}
+
+main.g21 .g21-val:hover {
+  background: #0F1011;
+  color: #fff;
+}
+
+main.g21 .g21-val:hover p,
+main.g21 .g21-val:hover .g21-cap {
+  color: #B9BCBF;
+}
+
+main.g21 .g21-mv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 6vw, 110px);
+}
+
+main.g21 .g21-mv article {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+}
+
+main.g21 .g21-big {
+  font-size: clamp(24px, 2.6vw, 40px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+}
+
+main.g21 .g21-leaders {
+  display: grid;
+  gap: clamp(14px, 2vw, 28px);
+}
+
+main.g21 .g21-leader {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 7fr);
+  gap: clamp(24px, 4vw, 72px);
+  align-items: end;
+  padding-bottom: clamp(24px, 3vw, 40px);
+  border-bottom: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-leader-img {
+  grid-row: 1 / 3;
+  aspect-ratio: 4 / 5;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #2A2C2E;
+}
+
+main.g21 .g21-leader-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 20%;
+}
+
+main.g21 .g21-leader blockquote {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+main.g21 .g21-leader blockquote p {
+  font-size: clamp(19px, 1.9vw, 28px);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  text-indent: -0.4em;
+}
+
+main.g21 .g21-leader blockquote p::before {
+  content: "\201C";
+}
+
+main.g21 .g21-leader blockquote p::after {
+  content: "\201D";
+}
+
+main.g21 .g21-leader figcaption {
+  grid-column: 2;
+  display: grid;
+  gap: 4px;
+}
+
+main.g21 .g21-leader figcaption b {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+main.g21 .g21-team {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(18px, 2vw, 28px) clamp(12px, 1.6vw, 24px);
+  padding: 0;
+  list-style: none;
+}
+
+main.g21 .g21-team li {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+}
+
+main.g21 .g21-team img,
+main.g21 .g21-team-blank {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  background: #2A2C2E;
+  object-fit: cover;
+  object-position: 50% 15%;
+  filter: grayscale(1);
+  transition: filter 0.5s;
+}
+
+main.g21 .g21-team li:hover img {
+  filter: none;
+}
+
+main.g21 .g21-team b {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+main.g21 .g21-team span:not(.g21-team-blank) {
+  font-size: 13px;
+  color: #55595E;
+}
+
+/* ── Phones and small tablets ──────────────────────────────────────────────
+   Kept last so these stacking rules always follow the base declarations. */
+@media (max-width: 900px) {
+  main.g21 .g21-title,
+  main.g21 .g21-values,
+  main.g21 .g21-mv {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-hero-img {
+    aspect-ratio: 4 / 3;
+  }
+
+  main.g21 .g21-keyfacts {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  main.g21 .g21-keyfacts div,
+  main.g21 .g21-keyfacts div + div {
+    padding-left: 0;
+    border-left: 0;
+    border-top: 1px solid #E3E3DE;
+  }
+
+  main.g21 .g21-keyfacts div:nth-child(even) {
+    padding-left: 16px;
+    border-left: 1px solid #E3E3DE;
+  }
+
+  main.g21 .g21-val {
+    min-height: 0;
+  }
+
+  main.g21 .g21-val h3 {
+    padding-top: 20px;
+  }
+
+  main.g21 .g21-leader {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: start;
+  }
+
+  main.g21 .g21-leader blockquote {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+
+  main.g21 .g21-leader-img {
+    grid-row: auto;
+  }
+
+  main.g21 .g21-leader figcaption {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+  }
+
+  main.g21 .g21-team {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.g21 .g21-btn,
+  main.g21 .g21-ar,
+  main.g21 .g21-val,
+  main.g21 .g21-team img {
+    transition: none;
+  }
+}

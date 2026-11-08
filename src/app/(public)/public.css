@@ -8,6 +8,8 @@
 @import url("/legacy/assets/css/ownership-planner-top.css");
 @import url("/legacy/assets/css/site.css");
 @import url("/legacy/assets/css/ownership-planner-end.css");
+/* Gallery-light (Option 2.1) inner pages: scoped to main.g21, see the file header. */
+@import "./redesign-pages.css";
 
 /* Local fonts: Google Fonts is blocked/unreliable on some client networks
    (same reason figtree-local.css exists). Manrope is the page face; IBM Plex
