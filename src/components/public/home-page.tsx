@@ -170,8 +170,10 @@ export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible =
 export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle, kicker }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"]; kicker?: string }) {
   return (
     <section className="pdf-section pdf-contact-block" id="contact">
-      {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
-      <div><h2 style={textStyleProps(headingStyle)}>{multiline(heading)}</h2></div>
+      <div className="pdf-contact-heading">
+        {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
+        <h2 style={textStyleProps(headingStyle)}>{multiline(heading)}</h2>
+      </div>
       <div className="pdf-contact-copy">
         <p style={textStyleProps(bodyStyle)}>{multiline(text)}</p>
         {ctaVisible && ctaLabel ? <Link href={ctaUrl || "/contact#experience-center"}>{ctaLabel} <span className="pdf-contact-arrow" aria-hidden="true">→</span></Link> : null}
