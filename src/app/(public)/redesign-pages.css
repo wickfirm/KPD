@@ -20,6 +20,8 @@ main.g21 {
   --g21-night: #0D0F10;
   --g21-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   --g21-ease: cubic-bezier(0.22, 0.8, 0.16, 1);
+  /* the delivered header is fixed and 78px tall; sticky bars sit under it */
+  --g21-header-offset: 78px;
   display: block;
   background: #fff;
   color: #0F1011;
@@ -552,5 +554,204 @@ main.g21 .g21-team span:not(.g21-team-blank) {
   main.g21 .g21-val,
   main.g21 .g21-team img {
     transition: none;
+  }
+}
+
+/* ── History ───────────────────────────────────────────────────────────────── */
+
+main.g21 .g21-ar--down {
+  display: inline-block;
+}
+
+main.g21 .g21-btn:hover .g21-ar--down {
+  transform: translateY(3px);
+}
+
+main.g21 .g21-name {
+  display: grid;
+  gap: 22px;
+}
+
+main.g21 .g21-name h2 {
+  font-size: clamp(40px, 6vw, 96px);
+  font-weight: 200;
+  letter-spacing: -0.05em;
+}
+
+main.g21 .g21-name-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 5vw, 80px);
+  max-width: 1100px;
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.6;
+  color: #55595E;
+}
+
+/* sticky year bar; --g21-header-offset is set from the delivered header height */
+main.g21 .g21-subnav {
+  position: sticky;
+  top: var(--g21-header-offset, 0px);
+  z-index: 40;
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid #E3E3DE;
+}
+
+main.g21 .g21-subnav-in {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  height: 56px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+main.g21 .g21-subnav-in::-webkit-scrollbar {
+  display: none;
+}
+
+main.g21 .g21-subnav-in a {
+  position: relative;
+  padding-block: 6px;
+  color: #55595E;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+main.g21 .g21-subnav-in a:hover,
+main.g21 .g21-subnav-in a.is-on {
+  color: #0F1011;
+}
+
+main.g21 .g21-subnav-in a.is-on::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: #0F1011;
+}
+
+main.g21 .g21-tl-sec {
+  padding-top: clamp(48px, 6vw, 96px);
+}
+
+main.g21 .g21-tl {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+  gap: clamp(24px, 4vw, 64px);
+}
+
+main.g21 .g21-tl-rail {
+  position: sticky;
+  top: 180px;
+  align-self: start;
+  display: grid;
+  gap: 10px;
+}
+
+main.g21 .g21-tl-rail b {
+  font-size: clamp(56px, 7vw, 120px);
+  font-weight: 200;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+main.g21 .g21-tl-rail i {
+  position: relative;
+  display: block;
+  height: 2px;
+  margin-top: 8px;
+  background: #E3E3DE;
+}
+
+main.g21 .g21-tl-rail em {
+  position: absolute;
+  inset: 0;
+  background: #0F1011;
+  transform-origin: left;
+  transition: transform 0.3s;
+}
+
+main.g21 .g21-ms-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+main.g21 .g21-ms-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(20px, 3vw, 48px);
+  align-items: start;
+  padding-block: clamp(28px, 3.4vw, 52px);
+  border-top: 1px solid #E3E3DE;
+  scroll-margin-top: 160px;
+}
+
+main.g21 .g21-ms-list li:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+main.g21 .g21-ms-list li > div {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+main.g21 .g21-ms-img {
+  overflow: hidden;
+  border-radius: 16px;
+  background: #D6D3CB;
+}
+
+main.g21 .g21-ms-img img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+main.g21 .g21-ms-list h3 {
+  font-size: clamp(22px, 2.2vw, 34px);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+main.g21 .g21-ms-list li.is-now h3 {
+  font-weight: 500;
+}
+
+main.g21 .g21-ms-list p {
+  max-width: 34em;
+}
+
+main.g21 .g21-yr {
+  display: none;
+  font: 500 11px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 900px) {
+  main.g21 .g21-name-cols,
+  main.g21 .g21-tl,
+  main.g21 .g21-ms-list li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-tl-rail {
+    display: none;
+  }
+
+  main.g21 .g21-yr {
+    display: block;
   }
 }

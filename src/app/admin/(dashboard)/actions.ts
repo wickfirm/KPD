@@ -675,7 +675,21 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     visitLinkLabel: String(formData.get("aboutVisitLinkLabel") ?? "").trim(),
     visitLinkUrl: String(formData.get("aboutVisitLinkUrl") ?? "").trim(),
   } : null;
-  const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline, ctaLabel: String(formData.get("legacyCtaLabel") || "").trim(), ctaUrl: String(formData.get("legacyCtaUrl") || "").trim(), ctaVisible: formData.get("legacyCtaVisible") === "on" } : null;
+  const legacy = slug === "legacy" ? {
+    type: "legacy", timeline: legacyTimeline, ctaLabel: String(formData.get("legacyCtaLabel") || "").trim(), ctaUrl: String(formData.get("legacyCtaUrl") || "").trim(), ctaVisible: formData.get("legacyCtaVisible") === "on",
+    // Gallery-light (Option 2.1) fields: an empty value hides that element.
+    lede: normalizeLineBreaks(formData.get("legacyLede") as string | null),
+    mapLabel: String(formData.get("legacyMapLabel") ?? "").trim(),
+    nameKicker: String(formData.get("legacyNameKicker") ?? "").trim(),
+    nameHeading: normalizeLineBreaks(formData.get("legacyNameHeading") as string | null),
+    nameText: String(formData.get("legacyNameText") ?? "").replace(/\r\n/g, "\n").trim(),
+    bandKicker: String(formData.get("legacyBandKicker") ?? "").trim(),
+    bandHeading: normalizeLineBreaks(formData.get("legacyBandHeading") as string | null),
+    bandText: String(formData.get("legacyBandText") ?? "").trim(),
+    bandImage: String(formData.get("legacyBandImage") ?? "").trim(),
+    bandLinkLabel: String(formData.get("legacyBandLinkLabel") ?? "").trim(),
+    bandLinkUrl: String(formData.get("legacyBandLinkUrl") ?? "").trim(),
+  } : null;
   const contactForm = slug === "contact" ? {
     type: "contact-form",
     salesLabel: String(formData.get("contactSalesLabel") || "").trim() || contactInquiryDefaults.salesLabel,
