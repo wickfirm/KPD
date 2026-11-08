@@ -1650,71 +1650,8 @@ body.home-development-page {
   }
 }
 
-/* ── Concept type-scale enforcement (batches 1–6) ───────────────────────────
-   The client's saved per-section "Text appearance" values (Homepage editor)
-   apply as INLINE styles, which out-rank any stylesheet rule. The saved
-   values (40px/35px/30px/18px, weight normal) belong to the old delivered
-   design and break the Gallery-light scale, so the redesigned elements
-   enforce the concept type scale with !important. The appearance fields
-   remain editable in the CMS but size/weight changes to these elements are
-   visual no-ops while this block is in place. */
-.home-development-page .development-pdf-home .pdf-hero-title {
-  font-size: clamp(41.6px, 6.88vw, 112px) !important;
-  font-weight: 300 !important;
-  font-style: normal !important;
-  line-height: 0.95 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-sec-top h2 {
-  font-size: clamp(28.8px, 3.84vw, 60.8px) !important;
-  font-weight: 300 !important;
-  line-height: 1.02 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-contact-block h2 {
-  font-size: clamp(28.8px, 3.84vw, 60.8px) !important;
-  font-weight: 300 !important;
-  line-height: 1.02 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-events-head h2 {
-  font-size: clamp(28.8px, 3.84vw, 60.8px) !important;
-  font-weight: 300 !important;
-  line-height: 1.02 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-statement {
-  font-size: clamp(19.2px, 2.32vw, 36.8px) !important;
-  font-weight: 300 !important;
-  line-height: 1.22 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-stat-big strong {
-  font-size: clamp(57.6px, 8.8vw, 147.2px) !important;
-  font-weight: 200 !important;
-  line-height: 0.85 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-stat-big .pdf-stat-suffix {
-  font-size: 0.32em !important;
-  font-weight: 400 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-legend .pdf-stat strong {
-  font-size: clamp(22.4px, 2.4vw, 35.2px) !important;
-  font-weight: 300 !important;
-}
-
-.home-development-page .development-pdf-home .pdf-numbers .pdf-stat span {
-  font: 500 10.5px/1.4 var(--up-mono) !important;
-}
-
-.home-development-page .development-pdf-home .pdf-development-button,
-.home-development-page .development-pdf-home .pdf-contact-copy a,
-.home-development-page .development-pdf-home .pdf-events-head a,
-.home-development-page .development-pdf-home .pdf-event-card a,
-.home-development-page .development-pdf-home .pdf-dev-card span {
-  font-size: 13px !important;
-  font-weight: 600 !important;
-  font-style: normal !important;
-}
+/* Section headings (About statement, hero title, section h2s) use the
+   Gallery-light scale from the rules above. Saved CMS Text-appearance
+   values, where present, override them inline — blank those fields in the
+   Homepage editor ("Leave blank for the site default") to restore the
+   concept scale. */
