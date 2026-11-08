@@ -12,7 +12,7 @@ const COUNTRIES = [
 
 /// Gate in front of a development brochure. The lead is stored with the other
 /// enquiries, and the visitor is emailed the file set in the development editor.
-export function BrochureRequest({ projectName, projectSlug, label }: { projectName: string; projectSlug: string; label: string }) {
+export function BrochureRequest({ projectName, projectSlug, label, className = "btn-pill" }: { projectName: string; projectSlug: string; label: string; className?: string }) {
   const [open, setOpen] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [status, setStatus] = useState("");
@@ -67,7 +67,7 @@ export function BrochureRequest({ projectName, projectSlug, label }: { projectNa
   }
 
   return <>
-    <button className="btn-pill" type="button" onClick={() => { setOpen(true); setStatus(""); }}>{label}</button>
+    <button className={className} type="button" onClick={() => { setOpen(true); setStatus(""); }}>{label}</button>
     {open ? <div className="brochure-request" role="dialog" aria-modal="true" aria-labelledby="brochure-request-title">
       <button className="brochure-request__backdrop" type="button" aria-label="Close brochure form" onClick={() => setOpen(false)} />
       <form className="brochure-request__panel" onSubmit={submit}>

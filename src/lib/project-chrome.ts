@@ -19,6 +19,9 @@ export type ProjectChrome = {
   enquirePrimaryUrl?: string;
   enquireSecondaryLabel?: string;
   enquireSecondaryUrl?: string;
+  /// Gallery-light key facts under the hero, one "Label | value" per line.
+  /// Absent means the approved defaults; an empty string hides the row.
+  keyFacts?: string;
   /// Absent means the published development still appears in the homepage cards.
   showOnHomepage?: boolean;
   /// Slot of the shared calculator among the content sections. Missing means last.
@@ -56,6 +59,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
   const enquirePrimaryUrl = typeof source.enquirePrimaryUrl === "string" ? source.enquirePrimaryUrl.trim() : "";
   const enquireSecondaryLabel = typeof source.enquireSecondaryLabel === "string" ? source.enquireSecondaryLabel.trim() : "";
   const enquireSecondaryUrl = typeof source.enquireSecondaryUrl === "string" ? source.enquireSecondaryUrl.trim() : "";
+  const keyFacts = typeof source.keyFacts === "string" ? source.keyFacts.replace(/\r\n/g, "\n").trim() : undefined;
   const calculatorIndex = typeof source.calculatorIndex === "number" && Number.isInteger(source.calculatorIndex) ? source.calculatorIndex : undefined;
   return {
     ...(ctaLabel ? { ctaLabel } : {}),
@@ -73,6 +77,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
     ...(enquirePrimaryUrl ? { enquirePrimaryUrl } : {}),
     ...(enquireSecondaryLabel ? { enquireSecondaryLabel } : {}),
     ...(enquireSecondaryUrl ? { enquireSecondaryUrl } : {}),
+    ...(keyFacts !== undefined ? { keyFacts } : {}),
     ...(source.showOnHomepage === false ? { showOnHomepage: false } : {}),
     ...(calculatorIndex !== undefined && calculatorIndex >= 0 ? { calculatorIndex } : {}),
     ...(cleanTextStyle(source.nameStyle) ? { nameStyle: cleanTextStyle(source.nameStyle) } : {}),

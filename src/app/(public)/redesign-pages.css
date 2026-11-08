@@ -1915,3 +1915,461 @@ main.g21 .g21-form-status {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ── Development (seven x seven) ───────────────────────────────────────────── */
+
+main.g21 .g21-hero-img video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+main.g21 .g21-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(28px, 6vw, 110px);
+  align-items: end;
+}
+
+main.g21 .g21-overview .g21-cap {
+  display: block;
+  margin-bottom: 16px;
+}
+
+main.g21 .g21-overview h2 {
+  font-size: clamp(32px, 4vw, 64px);
+  font-weight: 300;
+}
+
+main.g21 .g21-overview-copy p {
+  max-width: 34em;
+  font-size: clamp(17px, 1.45vw, 22px);
+  font-weight: 300;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+
+main.g21 .g21-sec-sub {
+  max-width: 36em;
+  margin-top: 16px;
+}
+
+main.g21 .g21-trio {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin-top: 10px;
+}
+
+main.g21 .g21-trio div {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding-top: 14px;
+  border-top: 1px solid #0F1011;
+}
+
+main.g21 .g21-trio b {
+  font-size: clamp(40px, 4.6vw, 72px);
+  font-weight: 200;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+main.g21 .g21-scale {
+  position: relative;
+  height: 22px;
+  margin: 8px 72px 6px calc(min(40%, 420px) + 16px);
+  border-bottom: 1px solid #0F1011;
+}
+
+main.g21 .g21-scale span {
+  position: absolute;
+  bottom: 6px;
+  transform: translateX(-50%);
+  font: 500 10.5px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color: #55595E;
+  white-space: nowrap;
+}
+
+main.g21 .g21-scale span:first-child {
+  transform: none;
+}
+
+main.g21 .g21-scale span:last-child {
+  transform: translateX(-100%);
+}
+
+main.g21 .g21-drive {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+main.g21 .g21-drive li {
+  display: grid;
+  grid-template-columns: min(40%, 420px) minmax(0, 1fr) 56px;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #E3E3DE;
+  font-size: 15px;
+}
+
+main.g21 .g21-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: #E3E3DE;
+}
+
+main.g21 .g21-bar span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 3px;
+  background: #0F1011;
+}
+
+main.g21 .g21-drive em {
+  font: 500 11px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font-style: normal;
+  text-align: right;
+  white-space: nowrap;
+}
+
+main.g21 .g21-drive-note {
+  margin-top: 18px;
+}
+
+main.g21 .g21-tour {
+  position: relative;
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #0D0F10;
+}
+
+main.g21 .g21-tour > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+main.g21 .g21-tour-card {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  width: min(440px, calc(100% - 48px));
+  padding: clamp(20px, 2.4vw, 32px);
+  border-radius: 14px;
+  background: #F6F6F3;
+}
+
+main.g21 .g21-tour-card h2 {
+  font-size: clamp(26px, 2.8vw, 44px);
+  font-weight: 300;
+}
+
+main.g21 .g21-ec-head {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: clamp(24px, 5vw, 96px);
+  align-items: end;
+  margin-bottom: clamp(36px, 4vw, 56px);
+}
+
+main.g21 .g21-ec-head .g21-cap {
+  display: block;
+  margin-bottom: 16px;
+}
+
+main.g21 .g21-ec-head h2 {
+  font-size: clamp(28px, 3.4vw, 54px);
+  font-weight: 300;
+}
+
+main.g21 .g21-ec-head > p {
+  max-width: 34em;
+}
+
+main.g21 .g21-acc {
+  display: flex;
+  gap: 10px;
+  height: clamp(380px, 46vw, 620px);
+}
+
+main.g21 .g21-panel {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 14px;
+  background: #0D0F10;
+  cursor: pointer;
+  transition: flex-grow 0.7s cubic-bezier(0.22, 0.8, 0.16, 1);
+}
+
+main.g21 .g21-panel.is-on {
+  flex-grow: 4.2;
+}
+
+main.g21 .g21-panel img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  transition: filter 0.6s;
+}
+
+main.g21 .g21-panel:not(.is-on) img {
+  filter: brightness(0.7);
+}
+
+main.g21 .g21-panel-n,
+main.g21 .g21-panel-lab {
+  position: absolute;
+  left: 16px;
+  color: #fff;
+  font: 500 10.5px/1.3 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+main.g21 .g21-panel-n {
+  top: 14px;
+  opacity: 0.8;
+}
+
+main.g21 .g21-panel-lab {
+  right: 16px;
+  bottom: 14px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.4s 0.2s, transform 0.4s 0.2s;
+}
+
+main.g21 .g21-panel.is-on .g21-panel-lab {
+  opacity: 1;
+  transform: none;
+}
+
+main.g21 .g21-panel:focus-visible {
+  outline: 2px solid #0F1011;
+  outline-offset: 3px;
+}
+
+main.g21 .g21-plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 24px);
+}
+
+main.g21 .g21-plan {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: clamp(20px, 2.2vw, 30px);
+  border: 1px solid #E3E3DE;
+  border-radius: 14px;
+  background: #F6F6F3;
+  transition: border-color 0.2s;
+}
+
+main.g21 .g21-plan:hover {
+  border-color: #0F1011;
+}
+
+main.g21 .g21-plan img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 10px;
+}
+
+main.g21 .g21-plan-size {
+  font-size: clamp(28px, 3vw, 48px);
+  font-weight: 200;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+main.g21 .g21-plan .g21-txt-link {
+  margin-top: 10px;
+  padding: 0 0 3px;
+  border-width: 0 0 1px;
+  background: none;
+  color: #0F1011;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+main.g21 .g21-pay {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: clamp(28px, 5vw, 96px);
+  align-items: end;
+}
+
+main.g21 .g21-pay-copy {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
+}
+
+main.g21 .g21-pay-copy h2 {
+  font-size: clamp(28px, 3.4vw, 54px);
+  font-weight: 300;
+}
+
+main.g21 .g21-pay-copy > p {
+  max-width: 30em;
+}
+
+main.g21 .g21-milestones {
+  display: grid;
+  grid-template-columns: repeat(var(--g21-ms, 2), minmax(0, 1fr));
+  gap: 10px;
+}
+
+main.g21 .g21-milestones--two {
+  grid-template-columns: 3fr 7fr;
+}
+
+main.g21 .g21-ms {
+  display: grid;
+  gap: 8px;
+  align-content: end;
+  min-height: 220px;
+  padding: clamp(20px, 2.2vw, 30px);
+  border: 1px solid #E3E3DE;
+  border-radius: 14px;
+  background: #F6F6F3;
+}
+
+main.g21 .g21-ms:last-child {
+  border-color: #0F1011;
+  background: #0F1011;
+  color: #fff;
+}
+
+main.g21 .g21-ms:last-child .g21-cap {
+  color: #9A9DA1;
+}
+
+main.g21 .g21-ms b {
+  font-size: clamp(44px, 5vw, 80px);
+  font-weight: 200;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+main.g21 .g21-ms p {
+  font-size: 14px;
+  opacity: 0.75;
+}
+
+@media (max-width: 900px) {
+  main.g21 .g21-overview,
+  main.g21 .g21-ec-head,
+  main.g21 .g21-pay,
+  main.g21 .g21-plans {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  main.g21 .g21-scale {
+    display: none;
+  }
+
+  main.g21 .g21-drive li {
+    grid-template-columns: minmax(0, 1fr) 56px;
+    gap: 8px 12px;
+  }
+
+  main.g21 .g21-drive li > span:first-child {
+    grid-column: 1 / -1;
+  }
+
+  main.g21 .g21-tour {
+    display: grid;
+    aspect-ratio: auto;
+  }
+
+  main.g21 .g21-tour > img {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  main.g21 .g21-tour-card {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    border-radius: 0;
+  }
+
+  main.g21 .g21-acc {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 82%;
+    height: auto;
+    padding-bottom: 6px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  main.g21 .g21-panel {
+    aspect-ratio: 4 / 5;
+    scroll-snap-align: start;
+  }
+
+  main.g21 .g21-panel:not(.is-on) img {
+    filter: none;
+  }
+
+  main.g21 .g21-panel-lab {
+    opacity: 1;
+    transform: none;
+  }
+
+  main.g21 .g21-milestones,
+  main.g21 .g21-milestones--two {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  main.g21 .g21-ms {
+    min-height: 160px;
+  }
+}
+
+@media (max-width: 600px) {
+  main.g21 .g21-trio b {
+    font-size: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main.g21 .g21-panel,
+  main.g21 .g21-panel img,
+  main.g21 .g21-panel-lab {
+    transition: none;
+  }
+}
+
+main.g21 .g21-plans-note {
+  display: grid;
+  gap: 4px;
+  max-width: 34em;
+}
