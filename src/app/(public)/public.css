@@ -1655,3 +1655,32 @@ body.home-development-page {
    values, where present, override them inline — blank those fields in the
    Homepage editor ("Leave blank for the site default") to restore the
    concept scale. */
+
+/* ── Experience-centre header refinements (section batch 4 polish) ───────────
+   Kicker + heading share the left column, copy + pill the right — one
+   bottom-aligned row, per the concept ec-head. The heading column is capped
+   so the display heading wraps to its two display lines. */
+.home-development-page .development-pdf-home .pdf-contact-block {
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+}
+
+.home-development-page .development-pdf-home .pdf-contact-block .pdf-kicker {
+  grid-column: auto;
+  width: auto;
+  margin: 0 0 14px;
+  padding-top: 0;
+}
+
+.home-development-page .development-pdf-home .pdf-contact-heading h2 {
+  max-width: 92%;
+}
+
+/* Mobile stacking for the contact/experience header must come after the
+   block above (later appends re-declare the base 2-col rule). */
+@media (max-width: 900px) {
+  .home-development-page .development-pdf-home .pdf-contact-block {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+}
