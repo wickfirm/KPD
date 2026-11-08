@@ -1,6 +1,6 @@
-import type { AboutContent } from "@/lib/about-defaults";
+﻿import type { AboutContent } from "@/lib/about-defaults";
 import { textStyleProps } from "@/lib/text-style";
-import type { LegacyContent, LegacyMilestone } from "@/lib/legacy-defaults";
+import { pickLegacyGalleryLight, type LegacyContent, type LegacyMilestone } from "@/lib/legacy-defaults";
 import type { ContactDetails, StaticBlock } from "@/lib/static-blocks";
 import { AboutMain } from "./about-page";
 import { LegacyMain } from "./legacy-page";
@@ -42,7 +42,7 @@ export function AboutView({ blocks, previewNote }: { blocks: StaticBlock[]; prev
 export function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero");
   const timeline = blocks.find((block) => block.type === "legacy") as (StaticBlock & { timeline?: LegacyMilestone[] }) | undefined;
-  const content: LegacyContent = { eyebrow: hero?.eyebrow as string | undefined, heading: hero?.heading, text: hero?.text, image: hero?.image, headingStyle: hero?.headingStyle as LegacyContent["headingStyle"], textStyle: hero?.textStyle as LegacyContent["textStyle"], timeline: timeline?.timeline, ctaLabel: timeline?.ctaLabel as string | undefined, ctaUrl: timeline?.ctaUrl as string | undefined, ctaVisible: timeline?.ctaVisible as boolean | undefined };
+  const content: LegacyContent = { ...pickLegacyGalleryLight(timeline), eyebrow: hero?.eyebrow as string | undefined, heading: hero?.heading, text: hero?.text, image: hero?.image, headingStyle: hero?.headingStyle as LegacyContent["headingStyle"], textStyle: hero?.textStyle as LegacyContent["textStyle"], timeline: timeline?.timeline, ctaLabel: timeline?.ctaLabel as string | undefined, ctaUrl: timeline?.ctaUrl as string | undefined, ctaVisible: timeline?.ctaVisible as boolean | undefined };
   return <>
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page legacy-design-page" />
