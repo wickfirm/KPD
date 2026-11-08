@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { emphasisNodes } from "@/lib/emphasis";
-import { newsCaption, type NewsListItem, type NewsListingCopy } from "@/lib/news-listing";
+import { newsCaption, newsListingDefaults as d, type NewsListItem, type NewsListingCopy } from "@/lib/news-listing";
 import { NewsFilters } from "./news-filters";
 
 const FALLBACK_IMAGE = "/legacy/assets/images/library/modern-office-glasses-buildings-cityscape-under-bl-2026-03-10-02-05-10-utc.jpg";
@@ -12,10 +12,11 @@ const category = (item: NewsListItem) => (item.kind === "BLOG" ? "perspective" :
 /// The <main> content of /news in the Option 2.1 "Gallery light" layout:
 /// breadcrumb hero with filter tabs, the newest article as a feature, the rest
 /// as cards (each links to its /news/<slug> page), and a press band. Copy for
-/// the hero comes from Site settings → News listing.
+/// the page comes from Pages → News.
 export function NewsListingMain({ articles, copy, email }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string }) {
-  const eyebrow = copy.eyebrow?.trim() || "Media";
-  const heading = copy.heading?.trim() || "News\n**and updates.**";
+  const pick = (key: keyof typeof d) => (typeof copy[key] === "string" ? (copy[key] as string).trim() : "") || d[key];
+  const eyebrow = pick("eyebrow");
+  const heading = pick("heading");
   const intro = copy.intro?.trim() ?? "";
   const [feature, ...rest] = articles;
   const hasBoth = articles.some((item) => item.kind === "BLOG") && articles.some((item) => item.kind !== "BLOG");
@@ -42,9 +43,9 @@ export function NewsListingMain({ articles, copy, email }: { articles: NewsListI
               <p className="g21-cap">{newsCaption(feature)}</p>
               <h2>{feature.title}</h2>
               {feature.summary ? <p className="g21-muted">{feature.summary}</p> : null}
-              <Link className="g21-btn" href={`/news/${feature.slug}`}>Read the article <span className="g21-ar" aria-hidden="true">→</span></Link>
+              <Link className="g21-btn" href={`/news/${feature.slug}`}>{pick("featureCta")} <span className="g21-ar" aria-hidden="true">→</span></Link>
             </div>
-          </article> : <p className="g21-muted">New articles will appear here soon.</p>}
+          </article> : <p className="g21-muted">{pick("emptyText")}</p>}
           {rest.length ? <div className="g21-cards">
             {rest.map((item) => <article className="g21-card" key={item.slug} data-cat={category(item)}>
               <Link href={`/news/${item.slug}`}>
@@ -52,7 +53,7 @@ export function NewsListingMain({ articles, copy, email }: { articles: NewsListI
                 <span className="g21-cap">{newsCaption(item)}</span>
                 <h3>{item.title}</h3>
                 {item.summary ? <p className="g21-muted">{item.summary}</p> : null}
-                <span className="g21-txt-link">Read <span aria-hidden="true">→</span></span>
+                <span className="g21-txt-link">{pick("cardCta")} <span aria-hidden="true">→</span></span>
               </Link>
             </article>)}
           </div> : null}
@@ -60,19 +61,19 @@ export function NewsListingMain({ articles, copy, email }: { articles: NewsListI
         </div>
       </section>
 
-      <section className="g21-pad g21-pad--top-flush" aria-labelledby="g21-press-title">
+      {copy.pressVisible === false ? null : <section className="g21-pad g21-pad--top-flush" aria-labelledby="g21-press-title">
         <div className="g21-wrap g21-press">
           <div>
-            <span className="g21-cap">Press</span>
-            <h2 id="g21-press-title">Media enquiries.</h2>
-            <p className="g21-muted">For interviews, imagery and statements, contact the KPD media team.</p>
+            <span className="g21-cap">{pick("pressLabel")}</span>
+            <h2 id="g21-press-title">{emphasisNodes(pick("pressHeading"))}</h2>
+            <p className="g21-muted">{pick("pressText")}</p>
           </div>
           <div className="g21-press-links">
             {email ? <a href={`mailto:${email}`}><span className="g21-cap">Email</span><b>{email}</b><span className="g21-ar" aria-hidden="true">↗</span></a> : null}
-            <Link href="/contact"><span className="g21-cap">Press form</span><b>Send a media request</b><span className="g21-ar" aria-hidden="true">→</span></Link>
+            <Link href={pick("pressLinkUrl")}><span className="g21-cap">{pick("pressLinkLabel")}</span><b>{pick("pressLinkText")}</b><span className="g21-ar" aria-hidden="true">→</span></Link>
           </div>
         </div>
-      </section>
+      </section>}
     </main>
   );
 }

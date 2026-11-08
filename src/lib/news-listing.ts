@@ -17,7 +17,28 @@ export type NewsListItem = {
   minutes: number;
 };
 
-export type NewsListingCopy = { eyebrow?: string; heading?: string; intro?: string };
+/// Editable copy for /news (Pages → News). A blank field keeps the approved
+/// 2.1 wording; pressVisible false hides the press band.
+export type NewsListingCopy = {
+  eyebrow?: string; heading?: string; intro?: string;
+  featureCta?: string; cardCta?: string; emptyText?: string;
+  pressVisible?: boolean; pressLabel?: string; pressHeading?: string; pressText?: string;
+  pressLinkLabel?: string; pressLinkText?: string; pressLinkUrl?: string;
+};
+
+export const newsListingDefaults = {
+  eyebrow: "Media",
+  heading: "News\n**and updates.**",
+  featureCta: "Read the article",
+  cardCta: "Read",
+  emptyText: "New articles will appear here soon.",
+  pressLabel: "Press",
+  pressHeading: "Media enquiries.",
+  pressText: "For interviews, imagery and statements, contact the KPD media team.",
+  pressLinkLabel: "Press form",
+  pressLinkText: "Send a media request",
+  pressLinkUrl: "/contact",
+} as const;
 
 /// Reading time from the article body (string[] of paragraphs), at least 1 minute.
 export function readingMinutes(body: unknown): number {

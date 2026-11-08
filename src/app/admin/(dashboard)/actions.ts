@@ -889,16 +889,9 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     popupSubmitLabel: String(formData.get("popupSubmitLabel") || "").trim(),
     popupNote: String(formData.get("popupNote") || "").trim(),
   };
-  const newsListing = {
-    eyebrow: String(formData.get("newsEyebrow") || "").trim(),
-    heading: normalizeLineBreaks(formData.get("newsListingHeading") as string | null),
-    intro: String(formData.get("newsListingIntro") || "").trim(),
-  };
   try {
-    await db.$transaction([
-      db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } }),
-      db.siteSetting.upsert({ where: { key: "news_listing" }, update: { value: newsListing }, create: { key: "news_listing", value: newsListing } }),
-    ]);
+    // The News page copy (news_listing) is edited under Pages → News.
+    await db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } });
     return { label: "Site settings" };
   } catch {
     return { error: "Unable to save site settings." };
@@ -1042,6 +1035,41 @@ export async function previewInvestDraft(formData: FormData): Promise<{ error?: 
   const value = newSiteDraft({ hero, saved: invest ? { type: "invest", ...invest } : undefined });
   await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });
   return {};
+}
+
+/// The /news page copy lives in the "news_listing" settings record and is
+/// edited under Pages → News. Blank fields keep the approved wording.
+export async function saveNewsListing(
+  _prev: SiteSettingsFormState,
+  formData: FormData,
+): Promise<SiteSettingsFormState> {
+  const { session } = await requirePermission("content.editLive");
+  const field = (name: string) => String(formData.get(name) || "").trim();
+  const value = {
+    eyebrow: field("eyebrow"),
+    heading: normalizeLineBreaks(formData.get("heading") as string | null),
+    intro: field("intro"),
+    featureCta: field("featureCta"),
+    cardCta: field("cardCta"),
+    emptyText: field("emptyText"),
+    pressVisible: formData.get("pressVisible") === "on",
+    pressLabel: field("pressLabel"),
+    pressHeading: normalizeLineBreaks(formData.get("pressHeading") as string | null),
+    pressText: field("pressText"),
+    pressLinkLabel: field("pressLinkLabel"),
+    pressLinkText: field("pressLinkText"),
+    pressLinkUrl: field("pressLinkUrl"),
+  };
+  try {
+    await db.siteSetting.upsert({ where: { key: "news_listing" }, update: { value }, create: { key: "news_listing", value } });
+  } catch {
+    return { error: "Unable to save the News page." };
+  }
+  revalidatePath("/news");
+  revalidatePath("/admin/pages/news");
+  revalidatePublicContent();
+  await logActivity({ action: "content.save", session, entityType: "NEWS_LISTING", entityId: "news_listing", summary: "Saved News page content" });
+  redirect("/admin/pages/news?saved=1");
 }
 
 /// Homepage content is stored in the "home" settings record and edited from

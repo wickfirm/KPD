@@ -11,23 +11,27 @@ const legalKeys = new Set(["terms", "privacy-policy", "cookie-policy"]);
 /// page creation is intentionally not offered: new page templates require a
 /// developer.
 export default async function PagesPage() {
-  const [pages, homeSetting] = await Promise.all([
+  const [pages, homeSetting, newsSetting] = await Promise.all([
     db.staticPage.findMany({ orderBy: { updatedAt: "desc" } }),
     db.siteSetting.findUnique({ where: { key: "home" } }),
+    db.siteSetting.findUnique({ where: { key: "news_listing" } }),
   ]);
+  /// Settings-backed editors (Homepage, News) keep their content in a settings record.
+  const settingFor = (entry: EditablePage) => (entry.editor === "home" ? homeSetting : entry.editor === "news" ? newsSetting : undefined);
   const bySlug = new Map(pages.map((page) => [page.slug, page]));
   const registered = new Set(editablePages.map((page) => page.key));
   const extras = pages.filter((page) => !registered.has(page.slug));
 
   /// What a visitor sees right now, in plain words.
   function state(entry: EditablePage) {
-    const page = entry.editor === "home" ? null : bySlug.get(entry.key);
-    const updatedAt = entry.editor === "home" ? homeSetting?.updatedAt : page?.updatedAt;
+    const setting = settingFor(entry);
+    const page = setting !== undefined ? null : bySlug.get(entry.key);
+    const updatedAt = setting !== undefined ? setting?.updatedAt : page?.updatedAt;
     if (legalKeys.has(entry.key)) {
       const live = page?.status === "PUBLISHED";
       return { updatedAt, badge: live ? "PUBLISHED" : "DRAFT", label: live ? "Live — your text" : "Original text", note: live ? "Visitors see the text you saved." : "Visitors see the original legal text. Set the page to Published to show your edits." };
     }
-    const edited = entry.editor === "home" ? Boolean(homeSetting) : Array.isArray(page?.content) && page.content.length > 0;
+    const edited = setting !== undefined ? Boolean(setting) : Array.isArray(page?.content) && page.content.length > 0;
     return { updatedAt, badge: "PUBLISHED", label: "Live", note: edited ? "Showing your saved content." : "Showing the original content until you save changes." };
   }
 

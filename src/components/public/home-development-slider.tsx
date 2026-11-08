@@ -41,7 +41,7 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
             {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
             <h2 style={headingStyle}>{multiline(heading)}</h2>
           </div>
-          <Link className="pdf-dev-all" href="/developments">All developments <span className="pdf-dev-all-arrow" aria-hidden="true">→</span></Link>
+          <Link className="pdf-dev-all" href={ctaUrl || "/#development-cards"}>All developments <span className="pdf-dev-all-arrow" aria-hidden="true">→</span></Link>
         </div>
         <div className="pdf-dev-frame">
           <div className="pdf-development-slides" aria-hidden="true">
