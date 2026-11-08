@@ -1,28 +1,78 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
-import { InvestEnhancements } from "@/components/public/invest-enhancements";
 import { SiteShellHeader } from "@/components/public/site-shell-header";
 import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
-import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId } from "@/lib/invest-defaults";
+import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId, type PanelSection } from "@/lib/invest-defaults";
 import { textStyleProps, type TextStyle } from "@/lib/text-style";
+import { emphasisNodes } from "@/lib/emphasis";
 
-export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string; headingStyle?: TextStyle; textStyle?: TextStyle };
+export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string; ctaLabel?: string; ctaUrl?: string; headingStyle?: TextStyle; textStyle?: TextStyle };
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
   return value.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
+/// Anchor, sub-navigation label and small kicker for each section. The kicker
+/// is only used where the section has no eyebrow of its own in the editor.
+const sectionMeta: Record<InvestSectionId, { anchor: string; nav: string; cap: string }> = {
+  benefits: { anchor: "why", nav: "Why Dubai", cap: "Why Dubai" },
+  market: { anchor: "yield", nav: "Yields", cap: "Rental yield" },
+  calculator: { anchor: "calculator", nav: "Calculator", cap: "Mortgage calculator" },
+  payment: { anchor: "plans", nav: "Payment plans", cap: "Payment plans" },
+  residency: { anchor: "visa", nav: "Golden Visa", cap: "Golden Visa" },
+  pathway: { anchor: "pathway", nav: "Pathway", cap: "Investment pathway" },
+  trust: { anchor: "trust", nav: "Trust", cap: "Developer trust" },
+  liquidity: { anchor: "exit", nav: "Exit", cap: "Market liquidity and exit" },
+  featured: { anchor: "developments", nav: "Developments", cap: "Featured developments" },
+  faq: { anchor: "faq", nav: "FAQ", cap: "Frequently asked questions" },
+};
 
-const delay = (value: string) => ({ "--motion-delay": value } as React.CSSProperties);
-const stackOrder = (order: readonly InvestSectionId[], id: InvestSectionId) => ({ order: Math.max(0, order.indexOf(id)) }) as React.CSSProperties;
-const icon = (name: string, extra = "") => <i className={`fi ${name} invest-icon${extra ? ` ${extra}` : ""}`} aria-hidden="true"></i>;
+const order = (value: number) => ({ order: value }) as CSSProperties;
+const two = (index: number) => String(index + 1).padStart(2, "0");
+/// "Eligibility review" + text → "Eligibility review." as the bold lead-in of a tick line.
+const leadIn = (title: string) => (/[.!?:]$/.test(title) ? title : `${title}.`);
 
-/// The Invest in Dubai page (delivered invest-in-dubai.html design). Shared by the
-/// public route and the admin unsaved-changes preview so both render identically.
+/// A button that opens the booking form, or follows a link when one is set.
+function Cta({ url, className, children }: { url?: string; className: string; children: ReactNode }) {
+  if (!url) return <button className={className} type="button" data-booking-open>{children}</button>;
+  if (url.startsWith("/") && !url.startsWith("//")) return <Link className={className} href={url}>{children}</Link>;
+  return <a className={className} href={url}>{children}</a>;
+}
+
+function SecTop({ cap, heading, text, headingStyle, textStyle, id, dark }: { cap: string; heading: string; text?: string; headingStyle?: TextStyle; textStyle?: TextStyle; id: string; dark?: boolean }) {
+  return <div className="g21-sec-top">
+    <div>{cap ? <span className="g21-cap">{cap}</span> : null}{heading ? <h2 id={id} style={textStyleProps(headingStyle)}>{emphasisNodes(heading)}</h2> : null}</div>
+    {text ? <p className={dark ? "g21-sec-note g21-night-note" : "g21-sec-note g21-muted"} style={textStyleProps(textStyle)}>{multiline(text)}</p> : null}
+  </div>;
+}
+
+function Ticks({ items }: { items: IconCard[] }) {
+  if (!items.length) return null;
+  return <ul className="g21-ticks">{items.map((item, index) => <li key={`${item.title}-${index}`}>{item.title ? <b>{leadIn(item.title)}</b> : null} {item.text}</li>)}</ul>;
+}
+
+/// Residency and trust share one shape: image beside copy, tick list, button.
+function Split({ panel, id, reverse, cap, buttonClass, alt }: { panel: PanelSection; id: string; reverse?: boolean; cap: string; buttonClass: string; alt: string }) {
+  const copy = <div className="g21-split-copy">
+    <span className="g21-cap">{panel.eyebrow || cap}</span>
+    {panel.heading ? <h2 id={id} style={textStyleProps(panel.headingStyle)}>{emphasisNodes(panel.heading)}</h2> : null}
+    {panel.text ? <p className="g21-muted" style={textStyleProps(panel.textStyle)}>{multiline(panel.text)}</p> : null}
+    <Ticks items={panel.cards} />
+    {panel.ctaVisible === false || !panel.button ? null : <Cta url={panel.ctaUrl} className={buttonClass}>{panel.button} <span className="g21-ar" aria-hidden="true">→</span></Cta>}
+  </div>;
+  const image = panel.image ? <figure className={`g21-ph${reverse ? " g21-ph--tall" : ""}`}><img src={panel.image} alt={alt} loading="lazy" /></figure> : null;
+  return <div className={`g21-split${reverse ? " g21-split--rev" : ""}${image ? "" : " g21-split--solo"}`}>{reverse ? <>{copy}{image}</> : <>{image}{copy}</>}</div>;
+}
+
+/// The Investor Guide in the client-approved Option 2.1 "Gallery light" layout.
+/// Every section still reads the investor-guide editor (mergeInvestContent),
+/// keeps its editor-defined order, and the client's mortgage calculator markup
+/// and script are untouched. Shared by the public route and the admin
+/// unsaved-changes preview so both render identically.
 export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; saved?: unknown; previewNote?: string }) {
   const c = ensureInvestSections(mergeInvestContent(saved));
   const faqJsonLd = {
@@ -30,144 +80,153 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
     "@type": "FAQPage",
     mainEntity: c.faq.items.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })),
   };
-  const card = (item: IconCard, index: number, step: number, first = 140) => (
-    <article className="motion-reveal" style={delay(`${first + index * step}ms`)} key={`${item.title}-${index}`}>{icon(item.icon)}<h3>{item.title}</h3><p>{item.text}</p></article>
-  );
+  const visible = c.sectionOrder.filter((id) => (id === "payment" ? c.paymentVisible !== false : true));
+  /// Alternate white and stone bands down the page in whatever order the editor
+  /// set; the exit section is always the dark band.
+  const tone = (id: InvestSectionId) => (id === "liquidity" ? " g21-night" : visible.indexOf(id) % 2 === 1 ? " g21-band" : "");
+  const place = (id: InvestSectionId) => order(visible.indexOf(id));
+  const eyebrow = hero?.eyebrow ?? "Invest in Dubai";
+  const heading = hero?.heading?.trim() || "Investor Guide";
+  const lede = hero?.text?.trim() ?? "";
+  const metrics = c.metrics.filter((metric) => metric.value || metric.label);
+
+  const sections: Record<InvestSectionId, ReactNode> = {
+    benefits: <section className={`g21-pad${tone("benefits")}`} id="why" aria-labelledby="g21-why-title" style={place("benefits")} key="benefits">
+      <div className="g21-wrap">
+        <SecTop id="g21-why-title" cap={sectionMeta.benefits.cap} heading={c.benefits.heading} text={c.benefits.text} headingStyle={c.benefits.headingStyle} textStyle={c.benefits.textStyle} />
+        {c.benefits.items.length ? <ol className="g21-grid8">{c.benefits.items.map((item, index) => <li key={`${item.title}-${index}`}><span className="g21-cap">{two(index)}</span><h3>{item.title}</h3><p>{item.text}</p></li>)}</ol> : null}
+      </div>
+    </section>,
+
+    market: <section className={`g21-pad${tone("market")}`} id="yield" aria-labelledby="g21-yield-title" style={place("market")} key="market">
+      <div className="g21-wrap">
+        <SecTop id="g21-yield-title" cap={sectionMeta.market.cap} heading={c.market.heading} text={c.market.text} headingStyle={c.market.headingStyle} textStyle={c.market.textStyle} />
+        {c.market.rows.length ? <div className="g21-ytable" role="table" aria-label="Rental yield and capital appreciation by city">
+          <div className="g21-yr-row g21-yr-head" role="row"><span role="columnheader">City / market</span><span role="columnheader">Gross rental yield</span><span role="columnheader">Capital appreciation</span></div>
+          {c.market.rows.map((row, index) => <div className={`g21-yr-row${index === 0 ? " is-hi" : ""}`} role="row" key={`${row.city}-${index}`}>
+            <span role="cell">{row.code ? <i>{row.code.toUpperCase()}</i> : null}{row.city}</span>
+            <span role="cell">{row.yieldLabel}</span>
+            <span role="cell" className={row.trend === "down" ? "is-down" : undefined}>{row.gainLabel}</span>
+          </div>)}
+        </div> : null}
+        {c.market.source ? <p className="g21-fine-src">{c.market.source}</p> : null}
+      </div>
+    </section>,
+
+    /* The client's mortgage calculator (src/lib/mortgage-calculator-html.ts), driven by his mortgage-calculator.js; only the wrapper gains the g21 classes. */
+    calculator: <section {...mortgageCalculatorSectionProps} className={`${mortgageCalculatorSectionProps.className} g21-calc g21-pad${tone("calculator")}`} id="calculator" style={place("calculator")} key="calculator">
+      <div className="g21-wrap"><span className="g21-cap g21-calc-cap">{sectionMeta.calculator.cap}</span><div dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(c.calculator) }} /></div>
+    </section>,
+
+    payment: <section className={`g21-pad${tone("payment")}`} id="plans" aria-labelledby="g21-plans-title" style={place("payment")} key="payment">
+      <div className="g21-wrap">
+        <div className={`g21-split${c.payment.image ? "" : " g21-split--solo"}`}>
+          {c.payment.image ? <figure className="g21-ph"><img src={c.payment.image} alt="Downtown Dubai towers" loading="lazy" /></figure> : null}
+          <div className="g21-split-copy"><span className="g21-cap">{sectionMeta.payment.cap}</span>{c.payment.heading ? <h2 id="g21-plans-title" style={textStyleProps(c.payment.headingStyle)}>{emphasisNodes(c.payment.heading)}</h2> : null}{c.payment.text ? <p className="g21-muted" style={textStyleProps(c.payment.textStyle)}>{multiline(c.payment.text)}</p> : null}</div>
+        </div>
+        {c.payment.cards.length ? <ol className="g21-steps">{c.payment.cards.map((item, index) => <li key={`${item.title}-${index}`}><span className="g21-cap">{two(index)}</span><h3>{item.title}</h3><p>{item.text}</p></li>)}</ol> : null}
+      </div>
+    </section>,
+
+    residency: <section className={`g21-pad${tone("residency")}`} id="visa" aria-labelledby="g21-visa-title" style={place("residency")} key="residency">
+      <div className="g21-wrap"><Split panel={c.residency} id="g21-visa-title" reverse cap={sectionMeta.residency.cap} buttonClass="g21-btn" alt="Panoramic Dubai skyline" /></div>
+    </section>,
+
+    pathway: <section className={`g21-pad${tone("pathway")}`} id="pathway" aria-labelledby="g21-path-title" style={place("pathway")} key="pathway">
+      <div className="g21-wrap">
+        <SecTop id="g21-path-title" cap={sectionMeta.pathway.cap} heading={c.pathway.heading} text={c.pathway.text} headingStyle={c.pathway.headingStyle} textStyle={c.pathway.textStyle} />
+        {c.pathway.steps.length ? <ol className="g21-path">{c.pathway.steps.map((step, index) => <li key={`${step.title}-${index}`}><b>{index + 1}</b><h3>{step.title}</h3><p>{step.text}</p></li>)}</ol> : null}
+        {c.pathway.button ? <button className="g21-btn g21-path-cta" type="button" data-booking-open>{c.pathway.button} <span className="g21-ar" aria-hidden="true">→</span></button> : null}
+      </div>
+    </section>,
+
+    trust: <section className={`g21-pad${tone("trust")}`} id="trust" aria-labelledby="g21-trust-title" style={place("trust")} key="trust">
+      <div className="g21-wrap"><Split panel={c.trust} id="g21-trust-title" cap={sectionMeta.trust.cap} buttonClass="g21-btn g21-btn--line" alt="Modern financial district towers" /></div>
+    </section>,
+
+    liquidity: <section className={`g21-pad${tone("liquidity")}`} id="exit" aria-labelledby="g21-exit-title" style={place("liquidity")} key="liquidity">
+      <div className="g21-wrap">
+        <SecTop id="g21-exit-title" cap={sectionMeta.liquidity.cap} heading={c.liquidity.heading} text={c.liquidity.text} headingStyle={c.liquidity.headingStyle} textStyle={c.liquidity.textStyle} dark />
+        <div className="g21-exit">
+          {c.liquidity.feature.title || c.liquidity.feature.text ? <article className="g21-exit-lead"><h3>{c.liquidity.feature.title}</h3><p>{c.liquidity.feature.text}</p></article> : null}
+          {c.liquidity.cards.map((item, index) => <article key={`${item.title}-${index}`}><span className="g21-cap">{two(index)}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}
+        </div>
+      </div>
+    </section>,
+
+    featured: <section className={`g21-pad${tone("featured")}`} id="developments" aria-labelledby="g21-devs-title" style={place("featured")} key="featured">
+      <div className="g21-wrap">
+        <SecTop id="g21-devs-title" cap={sectionMeta.featured.cap} heading={c.featured.heading} text={c.featured.text} headingStyle={c.featured.headingStyle} textStyle={c.featured.textStyle} />
+        <div className="g21-devs">
+          {c.featured.cards.map((item, index) => <Link className="g21-dev" href={item.href || "/"} key={`${item.href}-${index}`}>
+            <figure className="g21-ph">{item.image ? <img src={item.image} alt={`${item.title} exterior`} loading="lazy" /> : null}</figure>
+            <h3>{item.title}</h3>
+            {item.copy ? <p className="g21-muted">{item.copy}</p> : null}
+            <span className="g21-txt-link">Explore <span aria-hidden="true">→</span></span>
+          </Link>)}
+        </div>
+      </div>
+    </section>,
+
+    faq: <section className={`g21-pad${tone("faq")}`} id="faq" aria-labelledby="g21-faq-title" style={place("faq")} key="faq">
+      <div className="g21-wrap g21-faq">
+        <div>
+          <span className="g21-cap">{c.faq.eyebrow || sectionMeta.faq.cap}</span>
+          {c.faq.heading ? <h2 id="g21-faq-title" style={textStyleProps(c.faq.headingStyle)}>{emphasisNodes(c.faq.heading)}</h2> : null}
+          {c.faq.text ? <p className="g21-muted" style={textStyleProps(c.faq.textStyle)}>{multiline(c.faq.text)}</p> : null}
+        </div>
+        <div className="g21-qa">
+          {c.faq.items.map((item, index) => <details key={`${item.question}-${index}`} open={index === 0}><summary>{item.question}</summary><p>{item.answer}</p></details>)}
+        </div>
+      </div>
+    </section>,
+  };
+
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page invest-dubai-page" />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.5.0/css/flag-icons.min.css" />
-    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/4.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css" />
-    <SiteShellHeader /><main className="invest-main page-reference-main" id="top">
-      <section className="page-reference-hero invest-hero" aria-label="Invest in Dubai">
-        {hero?.image ? <img src={hero.image} alt="Dubai skyline with Burj Khalifa" /> : null}
-        <div className="page-reference-hero-copy motion-reveal">{hero?.eyebrow === "" ? null : <span>{hero?.eyebrow ?? "Invest in Dubai"}</span>}<h1 style={textStyleProps(hero?.headingStyle)}>{multiline(hero?.heading ?? "")}</h1><p style={textStyleProps(hero?.textStyle)}>{hero?.text ?? ""}</p></div>
-        <div className="invest-hero-metrics motion-reveal" style={delay("120ms")} aria-label="Investment highlights">{c.metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><strong>{metric.value}</strong><span>{metric.label}</span></div>)}</div>
-      </section>
-
-      <div className="invest-section-stack">
-      <section className="invest-benefits kpd-section kpd-section--compact" aria-label="Investor benefits" style={stackOrder(c.sectionOrder, "benefits")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.benefits.headingStyle)}>{c.benefits.heading}</h2><div className="single-project-section-copy"><p style={textStyleProps(c.benefits.textStyle)}>{c.benefits.text}</p></div></div>
-        <div className="invest-benefit-carousel motion-reveal" data-invest-carousel>
-          <div className="invest-benefit-track">
-            {c.benefits.items.map((item, index) => <article className="invest-benefit-card" key={`${item.title}-${index}`}>{icon(item.icon)}<h3>{item.title}</h3><p>{item.text}</p></article>)}
-          </div>
-          <div className="invest-carousel-progress" aria-hidden="true"><span data-invest-carousel-progress></span></div>
-        </div>
-      </section>
-
-      <section className="invest-market kpd-section kpd-section--compact" aria-label="Dubai comparison lens" style={stackOrder(c.sectionOrder, "market")}>
-        <div className="invest-editorial-grid invest-editorial-grid--top"><h2 className="motion-reveal" style={textStyleProps(c.market.headingStyle)}>{c.market.heading}</h2><div className="invest-copy motion-reveal" style={delay("80ms")}><p style={textStyleProps(c.market.textStyle)}>{c.market.text}</p></div></div>
-        <div className="invest-yield-board motion-reveal">
-          <div className="invest-yield-head"><span>City / Market</span><span>Rental Gross Yield</span><span>Capital Appreciation</span></div>
-          {c.market.rows.map((row, index) => (
-            <div className="invest-yield-row" key={`${row.city}-${index}`} style={{ "--yield": row.yieldBar, "--gain": row.gainBar } as React.CSSProperties} data-trend={row.trend}>
-              <strong><span className="market-flag"><span className={`fi fi-${row.code.toLowerCase()}`} aria-hidden="true"></span><em>{row.code.toUpperCase()}</em></span>{` ${row.city}`}</strong>
-              <div className="invest-yield-meter"><span></span><em>{row.yieldLabel}</em></div>
-              <b><i className={`fi fi-tr-arrow-trend-${row.trend}`} aria-hidden="true"></i>{row.gainLabel}</b>
+    <SiteShellHeader /><main className="invest-main g21" id="top">
+      <section className="g21-hero" aria-labelledby="g21-invest-title">
+        <div className="g21-wrap">
+          <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link>{eyebrow ? <><span aria-hidden="true">/</span><span>{eyebrow}</span></> : null}<span aria-hidden="true">/</span><span aria-current="page">Investor Guide</span></nav>
+          <div className="g21-title">
+            <h1 id="g21-invest-title" style={textStyleProps(hero?.headingStyle)}>{emphasisNodes(heading)}</h1>
+            <div>
+              {lede ? <p className="g21-lede" style={textStyleProps(hero?.textStyle)}>{multiline(lede)}</p> : null}
+              <div className="g21-ctas">
+                <Cta url={hero?.ctaUrl?.trim() || undefined} className="g21-btn">{hero?.ctaLabel?.trim() || "Speak to advisory"} <span className="g21-ar" aria-hidden="true">→</span></Cta>
+                {visible.includes("calculator") ? <a className="g21-btn g21-btn--line" href="#calculator">Open the calculator</a> : null}
+              </div>
             </div>
-          ))}
-        </div>
-        {c.market.source ? <p className="invest-yield-source">{c.market.source}</p> : null}
-      </section>
-
-      {/* The client's mortgage calculator (src/lib/mortgage-calculator-html.ts), driven by his mortgage-calculator.js; the heading and intro line are CMS-editable. */}
-      <section {...mortgageCalculatorSectionProps} style={stackOrder(c.sectionOrder, "calculator")} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(c.calculator) }} />
-
-      {c.paymentVisible === false ? null : <section className="invest-payment-plan kpd-section" aria-label="Flexible payment plans" style={stackOrder(c.sectionOrder, "payment")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.payment.headingStyle)}>{c.payment.heading}</h2><div className="single-project-section-copy">{c.payment.text ? <p style={textStyleProps(c.payment.textStyle)}>{c.payment.text}</p> : null}</div></div>
-        <div className="invest-payment-layout">
-          {c.payment.image ? <figure className="invest-payment-media motion-reveal"><img src={c.payment.image} alt="" /></figure> : null}
-          <div className="invest-payment-cards">
-            {c.payment.cards.map((item, index) => <article className="invest-payment-card motion-reveal" style={delay(`${60 + index * 60}ms`)} key={`${item.title}-${index}`}>{icon(item.icon)}<h3>{item.title}</h3><p>{item.text}</p></article>)}
           </div>
-        </div>
-      </section>}
-
-      <section className="invest-residency kpd-section" aria-label="Residency through property investment" style={stackOrder(c.sectionOrder, "residency")}>
-        <div className="invest-residency-panel motion-reveal">
-          {icon("fi-tr-passport", "invest-residency-icon")}
-          <span className="kpd-eyebrow">{c.residency.eyebrow}</span>
-          <h2 style={textStyleProps(c.residency.headingStyle)}>{c.residency.heading}</h2>
-          <p style={textStyleProps(c.residency.textStyle)}>{c.residency.text}</p>
-          {c.residency.ctaVisible === false ? null : c.residency.ctaUrl
-            ? <Link className="btn-pill" href={c.residency.ctaUrl}>{c.residency.button}</Link>
-            : <button className="btn-pill" type="button" data-booking-open>{c.residency.button}</button>}
-        </div>
-        <div className="invest-residency-support">
-          <figure className="invest-residency-media motion-reveal" style={delay("90ms")}><img src={c.residency.image} alt="Panoramic Dubai skyline" /></figure>
-          <div className="invest-residency-cards" aria-label="Residency advisory points">
-            {c.residency.cards.map((item, index) => card(item, index, 60))}
-          </div>
+          {hero?.image ? <figure className="g21-hero-img"><img src={hero.image} alt="Dubai skyline with Burj Khalifa" style={{ objectPosition: "50% 55%" }} /></figure> : null}
+          {metrics.length ? <dl className="g21-keyfacts" style={{ gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}>{metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><dt className="g21-cap">{metric.label}</dt><dd>{metric.value}</dd></div>)}</dl> : null}
         </div>
       </section>
 
-      <section className="invest-pathway kpd-section" id="investment-pathway" aria-label="Investment pathway" style={stackOrder(c.sectionOrder, "pathway")}>
-        <div className="single-project-section-head invest-section-head motion-reveal">
-          <h2 style={textStyleProps(c.pathway.headingStyle)}>{c.pathway.heading}</h2>
-          <div className="single-project-section-copy"><p style={textStyleProps(c.pathway.textStyle)}>{c.pathway.text}</p><button className="btn-pill" type="button" data-booking-open>{c.pathway.button}</button></div>
+      <nav className="g21-subnav" aria-label="On this page">
+        <div className="g21-wrap g21-subnav-in">
+          {visible.map((id) => <a key={id} href={`#${sectionMeta[id].anchor}`}>{sectionMeta[id].nav}</a>)}
+          <button className="g21-btn g21-sub-cta" type="button" data-booking-open>Enquire</button>
         </div>
-        <div className="invest-process-carousel motion-reveal" data-invest-scroll-carousel>
-          <div className="invest-process-cards" data-invest-scroll-track>
-            {c.pathway.steps.map((step, index) => <article key={`${step.title}-${index}`}>{icon(step.icon)}<h3>{step.title}</h3><p>{step.text}</p></article>)}
-          </div>
-          <div className="invest-scroll-actions" aria-label="Investment pathway controls">
-            <button type="button" data-invest-scroll-prev aria-label="Previous pathway cards"></button>
-            <button type="button" data-invest-scroll-next aria-label="Next pathway cards"></button>
-          </div>
-        </div>
-      </section>
+      </nav>
 
-      <section className="invest-trust invest-residency kpd-section" aria-label="Developer trust and delivery" style={stackOrder(c.sectionOrder, "trust")}>
-        <div className="invest-residency-panel invest-trust-copy motion-reveal">
-          {icon("fi-tr-building-shield")}
-          <span className="kpd-eyebrow">{c.trust.eyebrow}</span>
-          <h2 style={textStyleProps(c.trust.headingStyle)}>{c.trust.heading}</h2>
-          <p style={textStyleProps(c.trust.textStyle)}>{c.trust.text}</p>
-          {c.trust.ctaVisible === false ? null : c.trust.ctaUrl
-            ? <Link className="btn-pill" href={c.trust.ctaUrl}>{c.trust.button}</Link>
-            : <button className="btn-pill" type="button" data-booking-open>{c.trust.button}</button>}
-        </div>
-        <div className="invest-residency-support invest-trust-support">
-          <figure className="invest-residency-media invest-trust-media motion-reveal" style={delay("90ms")}><img src={c.trust.image} alt="Modern financial district towers" /></figure>
-          <div className="invest-residency-cards invest-trust-cards" aria-label="Developer trust proof points">
-            {c.trust.cards.map((item, index) => card(item, index, 60))}
-          </div>
-        </div>
-      </section>
+      <div className="g21-stack">{visible.map((id) => sections[id])}</div>
 
-      <section className="invest-liquidity kpd-section" aria-label="Market liquidity and exit" style={stackOrder(c.sectionOrder, "liquidity")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.liquidity.headingStyle)}>{c.liquidity.heading}</h2><div className="single-project-section-copy"><p style={textStyleProps(c.liquidity.textStyle)}>{c.liquidity.text}</p></div></div>
-        <div className="invest-liquidity-grid">
-          <article className="invest-liquidity-feature motion-reveal">{icon(c.liquidity.feature.icon)}<h3>{c.liquidity.feature.title}</h3><p>{c.liquidity.feature.text}</p></article>
-          {c.liquidity.cards.map((item, index) => card(item, index, 70, 70))}
+      {c.contact.heading ? <section className="g21-visit" aria-labelledby="g21-invest-band-title">
+        {c.contact.image ? <img src={c.contact.image} alt="" loading="lazy" /> : null}
+        <div className="g21-wrap g21-visit-in">
+          {c.contact.eyebrow ? <p className="g21-cap">{c.contact.eyebrow}</p> : null}
+          <h2 id="g21-invest-band-title">{emphasisNodes(c.contact.heading)}</h2>
+          {c.contact.text ? <p>{multiline(c.contact.text)}</p> : null}
+          {c.contact.primaryLabel || c.contact.secondaryLabel ? <div className="g21-ctas">
+            {c.contact.primaryLabel ? <button className="g21-btn g21-btn--white" type="button" data-booking-open>{c.contact.primaryLabel} <span className="g21-ar" aria-hidden="true">→</span></button> : null}
+            {c.contact.secondaryLabel ? <Link className="g21-btn g21-btn--ghost" href="/contact">{c.contact.secondaryLabel}</Link> : null}
+          </div> : null}
         </div>
-      </section>
-
-      <section className="invest-featured kpd-section" aria-label="Featured developments" style={stackOrder(c.sectionOrder, "featured")}>
-        <div className="single-project-section-head invest-section-head motion-reveal"><h2 style={textStyleProps(c.featured.headingStyle)}>{c.featured.heading}</h2><div className="single-project-section-copy"><p style={textStyleProps(c.featured.textStyle)}>{c.featured.text}</p></div></div>
-        <div className={`pdf-development-cards invest-development-cards${c.featured.cards.length < 3 ? ` pdf-development-cards--count-${c.featured.cards.length}` : ""}`}>
-          {c.featured.cards.map((item, index) => <Link className="pdf-dev-card motion-reveal" style={index ? delay(`${index * 80}ms`) : undefined} href={item.href || "/"} key={`${item.href}-${index}`}><img src={item.image} alt={`${item.title} exterior`} /><div className="pdf-dev-card-body"><h3>{item.title}</h3><p>{item.copy}</p><span>Explore</span></div></Link>)}
-        </div>
-      </section>
-
-      <section className="invest-faq-section kpd-section kpd-section--compact" aria-label="Investor questions" style={stackOrder(c.sectionOrder, "faq")}>
-        <div className="invest-faq-shell">
-          <aside className="invest-faq-aside motion-reveal">
-            {icon("fi-tr-question")}
-            <span className="kpd-eyebrow">{c.faq.eyebrow}</span>
-            <h2 style={textStyleProps(c.faq.headingStyle)}>{c.faq.heading}</h2>
-            <p style={textStyleProps(c.faq.textStyle)}>{c.faq.text}</p>
-          </aside>
-          <div className="faq-list invest-faq-list">
-            {c.faq.items.map((item, index) => <details className="invest-faq-item motion-reveal" key={`${item.question}-${index}`} open={index === 0}><summary>{item.question}</summary><p>{item.answer}</p></details>)}
-          </div>
-        </div>
-      </section>
-      </div>
+      </section> : null}
     </main><SiteShellFooter />
-    <InvestEnhancements />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page invest-dubai-page" sources={["/legacy/assets/js/mortgage-calculator.js?v=20261005-2"]} />
   </>;

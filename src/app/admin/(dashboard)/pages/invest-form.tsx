@@ -221,6 +221,13 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <Appearance label="Heading appearance" value={content.faq.headingStyle} onChange={(changes) => patch("faq", { headingStyle: { ...content.faq.headingStyle, ...changes } })} />
     <Appearance label="Text appearance" value={content.faq.textStyle} onChange={(changes) => patch("faq", { textStyle: { ...content.faq.textStyle, ...changes } })} />
 
+    <h2 className="cms-form-heading">Closing band</h2>
+    <p className="cms-muted">The dark band at the end of the page. The first button opens the booking form; the second goes to the Contact page. Leave the heading empty to hide the band.</p>
+    <div className="cms-grid"><Text label="Eyebrow" value={content.contact.eyebrow} onChange={(eyebrow) => patch("contact", { eyebrow })} /><Text label="First button" value={content.contact.primaryLabel} onChange={(primaryLabel) => patch("contact", { primaryLabel })} /><Text label="Second button" value={content.contact.secondaryLabel} onChange={(secondaryLabel) => patch("contact", { secondaryLabel })} /></div>
+    <Area label="Heading" value={content.contact.heading} onChange={(heading) => patch("contact", { heading })} rows={2} help="Line breaks render on the public page exactly as typed. Wrap words in **double asterisks** to set them in bold." />
+    <Area label="Text" value={content.contact.text} onChange={(text) => patch("contact", { text })} />
+    <Picture label="Background image" value={content.contact.image} onChange={(image) => patch("contact", { image })} specs="Wide landscape, about 2400 × 1200px, under 4 MB." />
+
     <SeoFields defaults={seo} />
     <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save investor guide"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
