@@ -8,7 +8,7 @@
    Bundler note (HANDOVER §11): custom properties whose value contains clamp()
    or other math functions are DROPPED by the Next CSS pipeline. Only plain
    colour/font tokens live in variables; every clamp() is inlined at its use.
-   Fonts (Manrope, IBM Plex Mono) are self-hosted in public.css. */
+   Manrope is the only face (self-hosted in public.css). */
 
 main.g21 {
   --g21-ink: #0F1011;
@@ -18,7 +18,7 @@ main.g21 {
   --g21-stone: #D6D3CB;
   --g21-wall: #F6F6F3;
   --g21-night: #0D0F10;
-  --g21-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --g21-mono: Manrope, "Helvetica Neue", Arial, sans-serif;
   --g21-ease: cubic-bezier(0.22, 0.8, 0.16, 1);
   /* the delivered header is fixed and 78px tall; sticky bars sit under it */
   --g21-header-offset: 78px;
@@ -72,7 +72,7 @@ main.g21 .g21-sr {
 
 main.g21 .g21-cap {
   display: inline-block;
-  font: 500 10.5px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #55595E;
@@ -736,7 +736,7 @@ main.g21 .g21-ms-list p {
 
 main.g21 .g21-yr {
   display: none;
-  font: 500 11px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 11px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
 }
 
@@ -1053,7 +1053,7 @@ main.g21 .g21-yr-row span:not(:first-child) {
 main.g21 .g21-yr-row i {
   display: inline-block;
   width: 40px;
-  font: 500 10.5px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 10.5px/1 Manrope, "Helvetica Neue", Arial, sans-serif;
   font-style: normal;
   letter-spacing: 0.08em;
   color: #55595E;
@@ -1061,7 +1061,7 @@ main.g21 .g21-yr-row i {
 
 main.g21 .g21-yr-head {
   padding: 14px 0;
-  font: 500 10.5px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #55595E;
@@ -1415,7 +1415,7 @@ main.g21 .g21-calc .mortgage-calculator-controls {
 main.g21 .g21-calc .mortgage-control-group > label,
 main.g21 .g21-calc .mortgage-status-group legend,
 main.g21 .g21-calc .mortgage-label-row > :first-child {
-  font: 500 11px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 11px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   color: #55595E;
 }
@@ -1701,7 +1701,7 @@ main.g21 .g21-fld {
 }
 
 main.g21 .g21-fld > span:first-child {
-  font: 500 10.5px/1.4 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 10.5px/1.4 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #55595E;
@@ -1989,7 +1989,7 @@ main.g21 .g21-scale span {
   position: absolute;
   bottom: 6px;
   transform: translateX(-50%);
-  font: 500 10.5px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 10.5px/1 Manrope, "Helvetica Neue", Arial, sans-serif;
   color: #55595E;
   white-space: nowrap;
 }
@@ -2035,7 +2035,7 @@ main.g21 .g21-bar span {
 }
 
 main.g21 .g21-drive em {
-  font: 500 11px/1 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 11px/1 Manrope, "Helvetica Neue", Arial, sans-serif;
   font-style: normal;
   text-align: right;
   white-space: nowrap;
@@ -2141,7 +2141,7 @@ main.g21 .g21-panel-lab {
   position: absolute;
   left: 16px;
   color: #fff;
-  font: 500 10.5px/1.3 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  font: 500 10.5px/1.3 Manrope, "Helvetica Neue", Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: left;
