@@ -35,7 +35,30 @@ export type AboutContent = {
   ceoRole?: string;
   ceoImage?: string;
   management?: AboutPerson[];
+  /// Gallery-light (Option 2.1) additions. For every text field below,
+  /// undefined keeps the default from aboutDefaults, an empty string hides
+  /// that element, any other value replaces it.
+  heroCtaLabel?: string;
+  heroCtaUrl?: string;
+  heroSecondaryLabel?: string;
+  /// Empty URL = the secondary button opens the enquiry form.
+  heroSecondaryUrl?: string;
+  keyFacts?: AboutKeyFact[];
+  philosophyKicker?: string;
+  leadershipKicker?: string;
+  leadershipHeading?: string;
+  teamKicker?: string;
+  teamHeading?: string;
+  visitKicker?: string;
+  visitHeading?: string;
+  visitText?: string;
+  visitImage?: string;
+  visitCtaLabel?: string;
+  visitLinkLabel?: string;
+  visitLinkUrl?: string;
 };
+
+export type AboutKeyFact = { label?: string; value?: string };
 
 export const aboutDefaults = {
   heading: "Built on understanding.",
@@ -59,6 +82,28 @@ export const aboutDefaults = {
   ceoName: "",
   ceoRole: "Chief Executive Officer",
   ceoImage: "/legacy/assets/images/section/CEO%20Image.png",
+  heroCtaLabel: "Our history",
+  heroCtaUrl: "/legacy",
+  heroSecondaryLabel: "Talk to the team",
+  heroSecondaryUrl: "",
+  keyFacts: [
+    { label: "Parent company", value: "Kasumigaseki Capital" },
+    { label: "Listing", value: "TSE Prime Market" },
+    { label: "Governance", value: "Audited, publicly held" },
+    { label: "In the UAE", value: "First Japanese developer" },
+  ] as AboutKeyFact[],
+  philosophyKicker: "Philosophy",
+  leadershipKicker: "Leadership",
+  leadershipHeading: "In their words.",
+  teamKicker: "Executive management",
+  teamHeading: "The team behind the work.",
+  visitKicker: "Experience Centre",
+  visitHeading: "Meet us in Business Bay.",
+  visitText: "Bay Gate Tower, Floor 36. Visit the Experience Centre or start with a call.",
+  visitImage: "/legacy/assets/images/experience-center/hq/10.jpg",
+  visitCtaLabel: "Plan a visit",
+  visitLinkLabel: "Contact details",
+  visitLinkUrl: "/contact",
   management: [
     { name: "Tatsuya Suzuki", role: "Chief Executive Officer", bio: "", image: "/team/tatsuya-suzuki.jpg" },
     { name: "Kosuke Urasawa", role: "Managing Director", bio: "", image: "/team/kosuke-urasawa.jpg" },

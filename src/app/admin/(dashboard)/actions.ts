@@ -653,6 +653,27 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     ceoRole: String(formData.get("ceoRole") || "").trim(),
     ceoImage: String(formData.get("ceoImage") || "").trim(),
     management,
+    // Gallery-light (Option 2.1) fields: an empty value hides that element.
+    heroCtaLabel: String(formData.get("aboutHeroCtaLabel") ?? "").trim(),
+    heroCtaUrl: String(formData.get("aboutHeroCtaUrl") ?? "").trim(),
+    heroSecondaryLabel: String(formData.get("aboutHeroSecondaryLabel") ?? "").trim(),
+    heroSecondaryUrl: String(formData.get("aboutHeroSecondaryUrl") ?? "").trim(),
+    keyFacts: nonEmptyLines(formData.get("aboutKeyFacts")).map((line) => {
+      const [label = "", ...value] = line.split("|");
+      return { label: label.trim(), value: value.join("|").trim() };
+    }).filter((fact) => fact.label || fact.value),
+    philosophyKicker: String(formData.get("aboutPhilosophyKicker") ?? "").trim(),
+    leadershipKicker: String(formData.get("aboutLeadershipKicker") ?? "").trim(),
+    leadershipHeading: normalizeLineBreaks(formData.get("aboutLeadershipHeading") as string | null),
+    teamKicker: String(formData.get("aboutTeamKicker") ?? "").trim(),
+    teamHeading: normalizeLineBreaks(formData.get("aboutTeamHeading") as string | null),
+    visitKicker: String(formData.get("aboutVisitKicker") ?? "").trim(),
+    visitHeading: normalizeLineBreaks(formData.get("aboutVisitHeading") as string | null),
+    visitText: String(formData.get("aboutVisitText") ?? "").trim(),
+    visitImage: String(formData.get("aboutVisitImage") ?? "").trim(),
+    visitCtaLabel: String(formData.get("aboutVisitCtaLabel") ?? "").trim(),
+    visitLinkLabel: String(formData.get("aboutVisitLinkLabel") ?? "").trim(),
+    visitLinkUrl: String(formData.get("aboutVisitLinkUrl") ?? "").trim(),
   } : null;
   const legacy = slug === "legacy" ? { type: "legacy", timeline: legacyTimeline, ctaLabel: String(formData.get("legacyCtaLabel") || "").trim(), ctaUrl: String(formData.get("legacyCtaUrl") || "").trim(), ctaVisible: formData.get("legacyCtaVisible") === "on" } : null;
   const contactForm = slug === "contact" ? {
