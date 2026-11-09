@@ -18,13 +18,13 @@ const en = (publication: string, title: string, url = "", date = ""): PressItem 
 const ar = (publication: string, title: string, url = "", date = ""): PressItem => ({ publication, title, url, date, lang: "ar" });
 
 /// UAE launch coverage (list supplied 2026-11-09). Headlines are as each
-/// publication ran them (Zawya's "real rstate" typo corrected). Zawya Arabic
-/// has no link yet; only the 25h date is known (from its URL).
+/// publication ran them (Zawya's "real rstate" typo corrected). Only the 25h
+/// date is known (from its URL).
 export const pressCoverageDefaults: PressItem[] = [
   ar("Al Bayan", "«كاسوميغاسيكي» اليابانية تتوسع في الإمارات", "https://www.albayan.ae/economy/1557992"),
   en("Arab News Japan", "Kasumigaseki Properties Development Introduces Its Japanese Approach to Real Estate in the United Arab Emirates", "https://www.arabnews.jp/en/business/kasumigaseki-properties-development-introduces-its-japanese-approach-to-real-estate-in-the-united-arab-emirates-3000796"),
   en("Zawya", "Kasumigaseki Properties Development introduces its Japanese approach to real estate in the United Arab Emirates", "https://www.zawya.com/en/press-release/companies-news/kasumigaseki-properties-development-introduces-its-japanese-approach-to-real-rstate-in-the-united-arab-emirates-1591299"),
-  ar("Zawya", "كاسوميغاسيكي للتطوير العقاري تستعرض نهجها الياباني في قطاع العقارات في دولة الإمارات العربية المتحدة"),
+  ar("Zawya", "كاسوميغاسيكي للتطوير العقاري تستعرض نهجها الياباني في قطاع العقارات في دولة الإمارات العربية المتحدة", "https://www.zawya.com/ar/%D8%A8%D9%8A%D8%A7%D9%86%D8%A7-%D8%B5%D8%AD%D9%81%D9%8A%D8%A9/%D8%A7%D9%94%D8%AE%D8%A8%D8%A7%D8%B1-%D8%A7%D9%84%D8%B4%D8%B1%D9%83%D8%A7%D8%AA/%D9%83%D8%A7%D8%B3%D9%88%D9%85%D9%8A%D8%BA%D8%A7%D8%B3%D9%8A%D9%83%D9%8A-%D9%84%D9%84%D8%AA%D8%B7%D9%88%D9%8A%D8%B1-%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D9%8A-%D8%AA%D8%B3%D8%AA%D8%B9%D8%B1%D8%B6-%D9%86%D9%87%D8%AC%D9%87%D8%A7-%D8%A7%D9%84%D9%8A%D8%A7%D8%A8%D8%A7%D9%86%D9%8A-%D9%81%D9%8A-%D9%82%D8%B7%D8%A7%D8%B9-%D8%A7%D9%84%D8%B9%D9%82%D8%A7%D8%B1%D8%A7%D8%AA-%D9%81%D9%8A-%D8%AF%D9%88%D9%84%D8%A9-%D8%A7%D9%84%D8%A7%D9%95%D9%85%D8%A7%D8%B1%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9-%D8%A7%D9%84%D9%85%D8%AA%D8%AD%D8%AF%D8%A9-1590740"),
   en("Emirates 24/7", "Japanese developer Kasumigaseki expands UAE footprint with property development push", "https://www.emirates247.com/business/japanese-developer-kasumigaseki-expands-uae-footprint-with-property-development-push/6633"),
   en("MENA FN", "Kasumigaseki Properties Development Introduces Its Japanese Approach To Real Estate In The United Arab Emirates", "https://menafn.com/1111795409/Kasumigaseki-Properties-Development-Introduces-Its-Japanese-Approach-To-Real-Estate-In-The-United-Arab-Emirates"),
   en("Construction Business News Middle East (LinkedIn)", "Kasumigaseki Capital Moves From Investing To Developing In The UAE", "https://lnkd.in/p/d2T32Gsj"),

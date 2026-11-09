@@ -6,7 +6,7 @@ describe("press coverage", () => {
     expect(pressCoverageDefaults).toHaveLength(24);
     for (const item of pressCoverageDefaults) expect(item.lang).toBe(detectLang(item.title));
     expect(pressCoverageDefaults.filter((item) => item.lang === "ar")).toHaveLength(5);
-    expect(pressCoverageDefaults.filter((item) => !item.url).map((item) => item.publication)).toEqual(["Zawya"]);
+    expect(pressCoverageDefaults.every((item) => item.url.startsWith("https://"))).toBe(true);
   });
 
   it("uses the supplied list until the editor saves one, and keeps a saved empty list", () => {
