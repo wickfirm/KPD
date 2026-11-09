@@ -24,6 +24,10 @@ export type NewsListingCopy = {
   featureCta?: string; cardCta?: string; emptyText?: string;
   pressVisible?: boolean; pressLabel?: string; pressHeading?: string; pressText?: string;
   pressLinkLabel?: string; pressLinkText?: string; pressLinkUrl?: string;
+  /// "In the press" (outside coverage, see press-coverage.ts). coverage
+  /// undefined = the supplied launch coverage; coverageVisible false hides it.
+  coverageVisible?: boolean; coverageLabel?: string; coverageHeading?: string;
+  coverage?: unknown;
 };
 
 export const newsListingDefaults = {

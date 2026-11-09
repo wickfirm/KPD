@@ -3,6 +3,7 @@ import NewsForm from "./news-form";
 import { SavedBanner } from "@/components/admin/flash";
 import { EditorShell } from "@/components/admin/editor-shell";
 import { loadNewsListingCopy } from "@/lib/news-listing";
+import { resolvePressItems } from "@/lib/press-coverage";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +16,13 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
       <div>
         <span className="cms-eyebrow">/news</span>
         <h1>News</h1>
-        <p>The hero, button labels and press band around the article list. Articles are written under <Link href="/admin/articles">News &amp; Blog</Link>. Saving makes it live immediately.</p>
+        <p>The hero, button labels, press coverage and press band around the article list. Articles are written under <Link href="/admin/articles">News &amp; Blog</Link>. Saving makes it live immediately.</p>
       </div>
       <Link className="cms-btn cms-btn--ghost" href="/news" target="_blank">View page</Link>
     </div>
     <SavedBanner params={flash} />
     <EditorShell>
-      <div className="cms-card"><NewsForm copy={copy} /></div>
+      <div className="cms-card"><NewsForm copy={copy} coverage={resolvePressItems(copy.coverage)} /></div>
     </EditorShell>
   </>;
 }

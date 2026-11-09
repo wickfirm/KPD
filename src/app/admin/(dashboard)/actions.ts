@@ -32,6 +32,7 @@ import { developmentSlots, parseProjectChrome, projectChromeKey } from "@/lib/pr
 import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
 import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
 import { contactInquiryDefaults } from "@/lib/contact-inquiry-content";
+import { detectLang, normalizePressItems, resolvePressItems, splitGoogleNewsTitle, type PressItem } from "@/lib/press-coverage";
 
 function slugify(value: string) {
   return value
@@ -256,6 +257,30 @@ export async function reviewRssItem(formData: FormData) {
       data: { status: "REJECTED", reviewedBy: session.email, reviewedAt: new Date() },
     });
     await logActivity({ action: "rss.reject", session, entityType: "RSS_ITEM", entityId: id, summary: `Rejected RSS item “${String(formData.get("title") || id)}”` });
+  } else if (decision === "PRESS") {
+    // Outside coverage: list it under "In the press" (Pages → News) with a
+    // link to the publication instead of copying it into a KPD article.
+    const item = await db.rssItem.findUnique({ where: { id } });
+    if (!item) return;
+    const { title, publication } = item.source === "google-news" ? splitGoogleNewsTitle(item.title) : { title: item.title, publication: "" };
+    const entry: PressItem = {
+      publication: publication || hostLabel(item.url),
+      title,
+      url: item.url,
+      date: item.publishedAt ? item.publishedAt.toISOString().slice(0, 10) : "",
+      lang: detectLang(title),
+    };
+    await db.$transaction(async (tx) => {
+      const row = await tx.siteSetting.findUnique({ where: { key: "news_listing" } });
+      const listing = (row?.value && typeof row.value === "object" && !Array.isArray(row.value) ? row.value : {}) as Record<string, unknown>;
+      const coverage = resolvePressItems(listing.coverage).filter((existing) => existing.url !== entry.url);
+      const value = { ...listing, coverage: [entry, ...coverage] };
+      await tx.siteSetting.upsert({ where: { key: "news_listing" }, update: { value }, create: { key: "news_listing", value } });
+      await tx.rssItem.update({ where: { id }, data: { status: "APPROVED", reviewedBy: session.email, reviewedAt: new Date() } });
+    });
+    await logActivity({ action: "rss.approve", session, entityType: "RSS_ITEM", entityId: id, summary: `Added “${title}” to In the press` });
+    revalidatePath("/rss.xml");
+    revalidatePath("/admin/pages/news");
   } else if (decision === "APPROVE") {
     const item = await db.rssItem.findUnique({ where: { id } });
     if (!item) return;
@@ -289,6 +314,15 @@ export async function reviewRssItem(formData: FormData) {
   revalidatePath("/admin/rss");
   revalidatePath("/news");
   revalidatePublicContent();
+}
+
+/// "www.zawya.com" → "zawya.com", for coverage whose publication is unknown.
+function hostLabel(url: string) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
 }
 
 function projectStatus(value: FormDataEntryValue | null) {
@@ -1059,13 +1093,23 @@ export async function saveNewsListing(
     pressLinkLabel: field("pressLinkLabel"),
     pressLinkText: field("pressLinkText"),
     pressLinkUrl: field("pressLinkUrl"),
+    coverageVisible: formData.get("coverageVisible") === "on",
+    coverageLabel: field("coverageLabel"),
+    coverageHeading: normalizeLineBreaks(formData.get("coverageHeading") as string | null),
+    coverage: [] as PressItem[],
   };
+  try {
+    value.coverage = normalizePressItems(JSON.parse(String(formData.get("coverageJson") || "[]")));
+  } catch {
+    return { error: "The press coverage list could not be read. Reload the page and try again." };
+  }
   try {
     await db.siteSetting.upsert({ where: { key: "news_listing" }, update: { value }, create: { key: "news_listing", value } });
   } catch {
     return { error: "Unable to save the News page." };
   }
   revalidatePath("/news");
+  revalidatePath("/rss.xml");
   revalidatePath("/admin/pages/news");
   revalidatePublicContent();
   await logActivity({ action: "content.save", session, entityType: "NEWS_LISTING", entityId: "news_listing", summary: "Saved News page content" });

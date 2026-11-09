@@ -22,6 +22,8 @@ const matchTerms = [
   "fav hotel",
   "fork and knife hotel",
   "fork & knife hotel",
+  // Arabic coverage of the UAE launch spells the name this way.
+  "كاسوميغاسيكي",
 ];
 
 function normalize(value: string | null | undefined) {
@@ -41,6 +43,13 @@ function matchesKeywords(title: string, snippet?: string | null) {
 function buildGoogleFeedUrl() {
   const query = keywordLabels.map((k) => `"${k}"`).join(" OR ");
   const params = new URLSearchParams({ q: query, hl: "en-US", gl: "US", ceid: "US:en" });
+  return `https://news.google.com/rss/search?${params.toString()}`;
+}
+
+/// Arabic-language Google News (UAE edition): the English feed misses the
+/// Arabic press (Al Bayan, Zawya Arabic, Arqam…).
+function buildGoogleArabicFeedUrl() {
+  const params = new URLSearchParams({ q: "كاسوميغاسيكي", hl: "ar", gl: "AE", ceid: "AE:ar" });
   return `https://news.google.com/rss/search?${params.toString()}`;
 }
 
@@ -65,10 +74,10 @@ type Candidate = {
   publishedAt?: Date | null;
 };
 
-async function fetchGoogleNews(): Promise<Candidate[]> {
+async function fetchGoogleNews(feedUrl = buildGoogleFeedUrl()): Promise<Candidate[]> {
   // Timeout keeps a hung feed from pinning the cron function; an abort throws,
   // which the Promise.allSettled in ingestFeeds already isolates per source.
-  const res = await fetch(buildGoogleFeedUrl(), { cache: "no-store", signal: AbortSignal.timeout(10_000) });
+  const res = await fetch(feedUrl, { cache: "no-store", signal: AbortSignal.timeout(10_000) });
   if (!res.ok) return [];
   const xml = await res.text();
   const items: Candidate[] = [];
@@ -121,7 +130,7 @@ export type IngestResult = { inserted: number; considered: number };
 
 export async function ingestFeeds(): Promise<IngestResult> {
   const { db } = await import("./db");
-  const batches = await Promise.allSettled([fetchGoogleNews(), fetchGdelt()]);
+  const batches = await Promise.allSettled([fetchGoogleNews(), fetchGoogleNews(buildGoogleArabicFeedUrl()), fetchGdelt()]);
   const candidates = batches.flatMap((b) => (b.status === "fulfilled" ? b.value : []));
 
   let inserted = 0;

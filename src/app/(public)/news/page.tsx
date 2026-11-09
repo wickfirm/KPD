@@ -7,6 +7,7 @@ import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { NewsListingMain } from "@/components/public/news-listing";
 import { loadNewsArticles, loadNewsListingCopy } from "@/lib/news-listing";
 import { loadContactDetails } from "@/lib/static-blocks";
+import { resolvePressItems, sortPressItems } from "@/lib/press-coverage";
 
 export const metadata = pageMetadata(pageSeo.news);
 
@@ -22,7 +23,7 @@ export default async function NewsPage() {
     <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "News", path: pageSeo.news.path }])} />
     <DeliveredBodyClass bodyClass="home-development-page news-design-page" />
     <SiteShellHeader />
-    <NewsListingMain articles={articles} copy={copy} email={contact.email} />
+    <NewsListingMain articles={articles} copy={copy} email={contact.email} coverage={sortPressItems(resolvePressItems(copy.coverage))} />
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page" />

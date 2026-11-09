@@ -22,6 +22,8 @@ export const metadata: Metadata = {
     url: SITE_URL,
   },
   twitter: { card: "summary_large_image" },
+  /// Lets browsers and feed readers discover /rss.xml from any page.
+  alternates: { types: { "application/rss+xml": [{ url: "/rss.xml", title: "KPD news and press" }] } },
 };
 
 const websiteJsonLd = {
