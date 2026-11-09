@@ -2,6 +2,20 @@ import Link from "next/link";
 import { emphasisNodes } from "@/lib/emphasis";
 import { newsCaption, newsListingDefaults as d, type NewsListItem, type NewsListingCopy } from "@/lib/news-listing";
 import { NewsFilters } from "./news-filters";
+import { pressCoverageCopyDefaults, pressDateLabel, type PressItem } from "@/lib/press-coverage";
+
+/// Rows shown before the "Show all" toggle.
+const PRESS_VISIBLE_ROWS = 8;
+
+function PressRow({ item }: { item: PressItem }) {
+  const date = pressDateLabel(item.date);
+  const inner = <>
+    <span className="g21-cap">{item.publication}{date ? <> · <time dateTime={item.date}>{date}</time></> : null}</span>
+    <b lang={item.lang} dir={item.lang === "ar" ? "rtl" : "ltr"}>{item.title}</b>
+    {item.url ? <span className="g21-ar" aria-hidden="true">↗</span> : <span aria-hidden="true" />}
+  </>;
+  return <li>{item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer">{inner}</a> : <div>{inner}</div>}</li>;
+}
 
 const FALLBACK_IMAGE = "/legacy/assets/images/library/modern-office-glasses-buildings-cityscape-under-bl-2026-03-10-02-05-10-utc.jpg";
 
@@ -11,9 +25,10 @@ const category = (item: NewsListItem) => (item.kind === "BLOG" ? "perspective" :
 
 /// The <main> content of /news in the Option 2.1 "Gallery light" layout:
 /// breadcrumb hero with filter tabs, the newest article as a feature, the rest
-/// as cards (each links to its /news/<slug> page), and a press band. Copy for
+/// as cards (each links to its /news/<slug> page), outside press coverage
+/// ("In the press") and a press band. Copy for
 /// the page comes from Pages → News.
-export function NewsListingMain({ articles, copy, email }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string }) {
+export function NewsListingMain({ articles, copy, email, coverage = [] }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string; coverage?: PressItem[] }) {
   const pick = (key: keyof typeof d) => (typeof copy[key] === "string" ? (copy[key] as string).trim() : "") || d[key];
   const eyebrow = pick("eyebrow");
   const heading = pick("heading");
@@ -60,6 +75,22 @@ export function NewsListingMain({ articles, copy, email }: { articles: NewsListI
           <p className="g21-muted g21-empty" data-news-empty hidden>No articles in this category yet.</p>
         </div>
       </section>
+
+      {copy.coverageVisible === false || coverage.length === 0 ? null : <section className="g21-pad g21-pad--top-flush" id="press" aria-labelledby="g21-coverage-title">
+        <div className="g21-wrap g21-coverage">
+          <div>
+            <span className="g21-cap">{copy.coverageLabel?.trim() || pressCoverageCopyDefaults.coverageLabel}</span>
+            <h2 id="g21-coverage-title">{emphasisNodes(copy.coverageHeading?.trim() || pressCoverageCopyDefaults.coverageHeading)}</h2>
+          </div>
+          <div>
+            <ul className="g21-coverage-list">{coverage.slice(0, PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} key={i} />)}</ul>
+            {coverage.length > PRESS_VISIBLE_ROWS ? <details className="g21-coverage-more">
+              <summary className="g21-txt-link">Show all {coverage.length} <span aria-hidden="true">↓</span></summary>
+              <ul className="g21-coverage-list">{coverage.slice(PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} key={i} />)}</ul>
+            </details> : null}
+          </div>
+        </div>
+      </section>}
 
       {copy.pressVisible === false ? null : <section className="g21-pad g21-pad--top-flush" aria-labelledby="g21-press-title">
         <div className="g21-wrap g21-press">

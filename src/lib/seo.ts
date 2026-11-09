@@ -60,7 +60,8 @@ export function pageMetadata(input: MetadataInput): Metadata {
   return {
     title: { absolute: input.title },
     description,
-    alternates: { canonical: url },
+    // Page alternates replace the root layout's, so the feed link is repeated here.
+    alternates: { canonical: url, types: { "application/rss+xml": [{ url: "/rss.xml", title: "KPD news and press" }] } },
     openGraph: {
       type: input.type ?? "website",
       siteName: SITE_NAME,

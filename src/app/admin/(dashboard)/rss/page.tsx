@@ -16,7 +16,7 @@ export default async function RssQueuePage() {
         <div>
           <span className="cms-eyebrow">Audience</span>
           <h1>News inbox{items.length ? <span className="cms-section-count">{items.length} to review</span> : null}</h1>
-          <p>Press mentions found automatically (Google News &amp; GDELT, checked every 30 minutes). Approve to publish as a News article, or reject to file away.</p>
+          <p>Press mentions found automatically (Google News &amp; GDELT, checked every 30 minutes). Approve to publish as a News article, add outside coverage to the “In the press” list on /news (linked to the publication), or reject to file away.</p>
         </div>
       </div>
 
@@ -41,6 +41,11 @@ export default async function RssQueuePage() {
                 <input type="hidden" name="id" value={item.id} />
                 <input type="hidden" name="decision" value="APPROVE" />
                 <button className="cms-btn cms-btn--small" type="submit">Approve &amp; publish</button>
+              </form>
+              <form action={reviewRssItem}>
+                <input type="hidden" name="id" value={item.id} />
+                <input type="hidden" name="decision" value="PRESS" />
+                <button className="cms-btn cms-btn--outline cms-btn--small" type="submit">Add to In the press</button>
               </form>
               <form action={reviewRssItem}>
                 <input type="hidden" name="id" value={item.id} />

@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { ListEditor } from "@/components/admin/list-editor";
+import { detectLang, pressCoverageCopyDefaults as pd, type PressItem } from "@/lib/press-coverage";
 import { saveNewsListing, type SiteSettingsFormState } from "../../actions";
 import { newsListingDefaults as d, type NewsListingCopy } from "@/lib/news-listing";
 
@@ -8,8 +10,9 @@ const initialState: SiteSettingsFormState = {};
 
 /// Editor for the /news page copy. Every field shows the live wording; a field
 /// left blank falls back to the approved wording shown as its placeholder.
-export default function NewsForm({ copy }: { copy: NewsListingCopy }) {
+export default function NewsForm({ copy, coverage: initialCoverage }: { copy: NewsListingCopy; coverage: PressItem[] }) {
   const [state, formAction, pending] = useActionState(saveNewsListing, initialState);
+  const [coverage, setCoverage] = useState<PressItem[]>(initialCoverage);
   const value = (key: keyof typeof d) => copy[key] ?? d[key];
   return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero</h2>
@@ -26,6 +29,25 @@ export default function NewsForm({ copy }: { copy: NewsListingCopy }) {
       <label className="cms-field"><span>Card link text</span><input name="cardCta" defaultValue={value("cardCta")} placeholder={d.cardCta} /></label>
     </div>
     <label className="cms-field"><span>Text when no articles are published</span><input name="emptyText" defaultValue={value("emptyText")} placeholder={d.emptyText} /></label>
+
+    <h2 className="cms-form-heading">In the press</h2>
+    <p className="cms-muted">Articles about KPD in other publications. They list newest first (undated ones last, in the order below) on /news and in the RSS feed at /rss.xml. The first 8 show; the rest open with “Show all”.</p>
+    <label className="cms-check"><input type="checkbox" name="coverageVisible" defaultChecked={copy.coverageVisible !== false} /><span><strong>Show “In the press” on /news</strong><small>Hiding it also keeps the items out of the RSS feed.</small></span></label>
+    <div className="cms-grid">
+      <label className="cms-field"><span>Caption</span><input name="coverageLabel" defaultValue={copy.coverageLabel ?? pd.coverageLabel} placeholder={pd.coverageLabel} /></label>
+      <label className="cms-field"><span>Heading</span><textarea name="coverageHeading" rows={2} defaultValue={copy.coverageHeading ?? pd.coverageHeading} placeholder={pd.coverageHeading} /></label>
+    </div>
+    <input type="hidden" name="coverageJson" value={JSON.stringify(coverage)} />
+    <ListEditor items={coverage} onChange={setCoverage} addLabel="Add press article" newItem={(): PressItem => ({ publication: "", title: "", url: "", date: "", lang: "en" })}
+      itemLabel={(item, index) => item.publication || `Article ${index + 1}`}
+      renderItem={(item, update) => <>
+        <div className="cms-grid">
+          <label className="cms-field"><span>Publication</span><input value={item.publication} onChange={(e) => update({ publication: e.target.value })} placeholder="e.g. Zawya" /></label>
+          <label className="cms-field"><span>Date</span><input type="date" value={item.date} onChange={(e) => update({ date: e.target.value })} /><small>Optional. Undated items list last.</small></label>
+        </div>
+        <label className="cms-field"><span>Headline</span><textarea rows={2} dir="auto" value={item.title} onChange={(e) => update({ title: e.target.value, lang: detectLang(e.target.value) })} /><small>As the publication ran it. Arabic headlines are detected and shown right-to-left.</small></label>
+        <label className="cms-field"><span>Link</span><input type="url" value={item.url} onChange={(e) => update({ url: e.target.value })} placeholder="https://" /><small>Leave empty to show the headline without a link.</small></label>
+      </>} />
 
     <h2 className="cms-form-heading">Press band</h2>
     <label className="cms-check"><input type="checkbox" name="pressVisible" defaultChecked={copy.pressVisible !== false} /><span><strong>Show the press band</strong><small>The media enquiries block at the bottom of the page. The email shown is the site email from Site settings.</small></span></label>
