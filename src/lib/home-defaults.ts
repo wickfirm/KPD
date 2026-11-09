@@ -22,6 +22,9 @@ export type HomeSettings = {
   bannerSlides?: BannerSlide[];
   developmentCards?: DevelopmentCard[];
   heroVideo?: string;
+  /// Which hero media the CMS chose to show. Unset keeps the original
+  /// behaviour (video, with the image as its poster).
+  heroMediaType?: "video" | "image";
   /// Hero banner image: the poster while the video plays, or the banner itself
   /// when no video is set (client request).
   heroImage?: string;
@@ -137,3 +140,13 @@ export const homeDefaults = {
     { key: "advisory", image: "/legacy/assets/images/experience-center/hq/17.jpg", caption: "Platform Note" },
   ],
 };
+
+/// Resolves what the homepage hero shows from the CMS choice. The chosen media
+/// wins; when it is missing the other one fills in, so the hero never goes
+/// blank just because the chosen field is empty.
+export function resolveHeroMedia(settings: Pick<HomeSettings, "heroMediaType" | "heroVideo" | "heroImage">): { video?: string; image?: string } {
+  const video = settings.heroVideo?.trim() || undefined;
+  const image = settings.heroImage?.trim() || undefined;
+  if (settings.heroMediaType === "image") return image ? { image } : video ? { video } : {};
+  return video ? { video, image } : image ? { image } : {};
+}

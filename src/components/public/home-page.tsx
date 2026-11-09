@@ -1,7 +1,7 @@
 ﻿import type { ReactNode } from "react";
 import Link from "next/link";
 import { htmlLf } from "@/lib/html-lf";
-import { homeDefaults, type DevelopmentCard, type GalleryPanel, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
+import { homeDefaults, resolveHeroMedia, type DevelopmentCard, type GalleryPanel, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
 
 import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
@@ -224,7 +224,8 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const hasIntroduction = Boolean(settings.introHeading?.trim() || introParagraphs.length || (introValues ?? []).some((value) => value.title.trim() || value.body.trim()));
   const hasNumbers = Boolean(introStats.length || settings.statsNote?.trim());
   const hasContact = Boolean(settings.contactHeading?.trim() || settings.contactText?.trim());
-  const heroMedia = settings.heroVideo?.trim() || settings.heroImage?.trim();
+  const hero = resolveHeroMedia(settings);
+  const heroMedia = hero.video || hero.image;
   /// The page headline renders in the hero; empty-string CMS values override
   /// the defaults, undefined falls back to them.
   const heroHeading = settings.introHeading ?? "";
@@ -234,7 +235,7 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const heroCtaUrl = settings.heroCtaUrl ?? homeDefaults.heroCtaUrl;
   return (
     <main className="development-pdf-home" id="top">
-      {heroMedia ? <HomeHero video={settings.heroVideo?.trim() || undefined} image={settings.heroImage?.trim() || undefined} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
+      {heroMedia ? <HomeHero video={hero.video} image={hero.image} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
       {hasIntroduction ? <HomeIntro heading={headingInHero ? "" : heroHeading} paragraphs={introParagraphs} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} kicker={introKicker} values={introValues} /> : null}
       {hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
       {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingStyle={textStyleProps(settings.developmentHeadingStyle)} kicker={settings.developmentKicker ?? homeDefaults.developmentKicker} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
