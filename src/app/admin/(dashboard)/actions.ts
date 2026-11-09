@@ -983,6 +983,7 @@ function homeSettingsFromForm(formData: FormData) {
     statsLabelStyle: textStyleFromForm(formData, "statsLabel"),
     bannerSlides: parseJsonList(formData.get("bannerSlidesJson"), (item) => (text(item.image) ? { image: text(item.image), label: text(item.label) || "Development", ...(text(item.text) ? { text: text(item.text) } : {}), ...(text(item.tag) ? { tag: text(item.tag) } : {}) } : null)),
     developmentCards: parseJsonList(formData.get("developmentCardsJson"), (item) => (text(item.title) || text(item.image) ? { href: text(item.href), image: text(item.image), title: text(item.title), copy: text(item.copy) } : null)),
+    heroMediaType: formData.get("heroMediaType") === "image" ? "image" : "video",
     heroVideo: String(formData.get("heroVideo") || "").trim(),
     heroImage: String(formData.get("heroImage") || "").trim(),
     heroText: preserveLineBreaks(formData.get("heroText") as string | null),
