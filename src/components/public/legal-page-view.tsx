@@ -6,7 +6,7 @@ import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
 import { DeliveredBodyClass } from "./delivered-body-class";
 import { LegalTabs } from "./legal-tabs";
 
-type Block = { type?: string; image?: string; headingStyle?: TextStyle };
+type Block = { type?: string; image?: string; headingStyle?: TextStyle; heading?: string; text?: string; email?: string };
 
 const legalHeroes: Record<string, string> = {
   terms: "/legacy/assets/images/library/view-of-dubai-skyline-including-the-burj-khalifa-2026-03-18-08-25-37-utc.jpg",
@@ -28,7 +28,7 @@ export function LegalPageView({ slug, page, previewNote }: { slug: string; page:
     <DeliveredBodyClass bodyClass={bodyClass} />
     <SiteShellHeader />
     <main id="top">
-      <LegalTabs initialTab={legalTabForSlug(slug)} image={hero?.image || legalHeroes[slug]} headingStyle={hero?.headingStyle} />
+      <LegalTabs initialTab={legalTabForSlug(slug)} image={hero?.image || legalHeroes[slug]} headingStyle={hero?.headingStyle} contact={blocks.find((block) => block.type === "legal-contact")} />
     </main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />

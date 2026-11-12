@@ -45,6 +45,11 @@ export type AboutContent = {
   heroSecondaryUrl?: string;
   keyFacts?: AboutKeyFact[];
   philosophyKicker?: string;
+  /// Captions on the value cards, in card order. A blank entry keeps the
+  /// caption read from the paragraph (“01 · Quality”).
+  valueCaps?: string[];
+  missionKicker?: string;
+  visionKicker?: string;
   leadershipKicker?: string;
   leadershipHeading?: string;
   teamKicker?: string;
@@ -93,6 +98,8 @@ export const aboutDefaults = {
     { label: "In the UAE", value: "First Japanese developer" },
   ] as AboutKeyFact[],
   philosophyKicker: "Philosophy",
+  missionKicker: "Our mission",
+  visionKicker: "Our vision",
   leadershipKicker: "Leadership",
   leadershipHeading: "In their words.",
   teamKicker: "Executive management",

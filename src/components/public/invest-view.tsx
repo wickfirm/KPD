@@ -5,7 +5,7 @@ import { SiteShellFooter } from "@/components/public/site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "@/components/public/delivered-scripts";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
-import { ensureInvestSections, mergeInvestContent, type IconCard, type InvestSectionId, type PanelSection } from "@/lib/invest-defaults";
+import { ensureInvestSections, investLabel, mergeInvestContent, type IconCard, type InvestSectionId, type PanelSection } from "@/lib/invest-defaults";
 import { textStyleProps, type TextStyle } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
 
@@ -93,16 +93,16 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
   const sections: Record<InvestSectionId, ReactNode> = {
     benefits: <section className={`g21-pad${tone("benefits")}`} id="why" aria-labelledby="g21-why-title" style={place("benefits")} key="benefits">
       <div className="g21-wrap">
-        <SecTop id="g21-why-title" cap={sectionMeta.benefits.cap} heading={c.benefits.heading} text={c.benefits.text} headingStyle={c.benefits.headingStyle} textStyle={c.benefits.textStyle} />
+        <SecTop id="g21-why-title" cap={investLabel(c.labels, "benefits")} heading={c.benefits.heading} text={c.benefits.text} headingStyle={c.benefits.headingStyle} textStyle={c.benefits.textStyle} />
         {c.benefits.items.length ? <ol className="g21-grid8">{c.benefits.items.map((item, index) => <li key={`${item.title}-${index}`}><span className="g21-cap">{two(index)}</span><h3>{item.title}</h3><p>{item.text}</p></li>)}</ol> : null}
       </div>
     </section>,
 
     market: <section className={`g21-pad${tone("market")}`} id="yield" aria-labelledby="g21-yield-title" style={place("market")} key="market">
       <div className="g21-wrap">
-        <SecTop id="g21-yield-title" cap={sectionMeta.market.cap} heading={c.market.heading} text={c.market.text} headingStyle={c.market.headingStyle} textStyle={c.market.textStyle} />
+        <SecTop id="g21-yield-title" cap={investLabel(c.labels, "market")} heading={c.market.heading} text={c.market.text} headingStyle={c.market.headingStyle} textStyle={c.market.textStyle} />
         {c.market.rows.length ? <div className="g21-ytable" role="table" aria-label="Rental yield and capital appreciation by city">
-          <div className="g21-yr-row g21-yr-head" role="row"><span role="columnheader">City / market</span><span role="columnheader">Gross rental yield</span><span role="columnheader">Capital appreciation</span></div>
+          <div className="g21-yr-row g21-yr-head" role="row"><span role="columnheader">{investLabel(c.labels, "yieldCity")}</span><span role="columnheader">{investLabel(c.labels, "yieldGross")}</span><span role="columnheader">{investLabel(c.labels, "yieldGain")}</span></div>
           {c.market.rows.map((row, index) => <div className={`g21-yr-row${index === 0 ? " is-hi" : ""}`} role="row" key={`${row.city}-${index}`}>
             <span role="cell">{row.code ? <i>{row.code.toUpperCase()}</i> : null}{row.city}</span>
             <span role="cell">{row.yieldLabel}</span>
@@ -115,14 +115,14 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
 
     /* The client's mortgage calculator (src/lib/mortgage-calculator-html.ts), driven by his mortgage-calculator.js; only the wrapper gains the g21 classes. */
     calculator: <section {...mortgageCalculatorSectionProps} className={`${mortgageCalculatorSectionProps.className} g21-calc g21-pad${tone("calculator")}`} id="calculator" style={place("calculator")} key="calculator">
-      <div className="g21-wrap"><span className="g21-cap g21-calc-cap">{sectionMeta.calculator.cap}</span><div dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(c.calculator) }} /></div>
+      <div className="g21-wrap"><span className="g21-cap g21-calc-cap">{investLabel(c.labels, "calculator")}</span><div dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(c.calculator) }} /></div>
     </section>,
 
     payment: <section className={`g21-pad${tone("payment")}`} id="plans" aria-labelledby="g21-plans-title" style={place("payment")} key="payment">
       <div className="g21-wrap">
         <div className={`g21-split${c.payment.image ? "" : " g21-split--solo"}`}>
           {c.payment.image ? <figure className="g21-ph"><img src={c.payment.image} alt="Downtown Dubai towers" loading="lazy" /></figure> : null}
-          <div className="g21-split-copy"><span className="g21-cap">{sectionMeta.payment.cap}</span>{c.payment.heading ? <h2 id="g21-plans-title" style={textStyleProps(c.payment.headingStyle)}>{emphasisNodes(c.payment.heading)}</h2> : null}{c.payment.text ? <p className="g21-muted" style={textStyleProps(c.payment.textStyle)}>{multiline(c.payment.text)}</p> : null}</div>
+          <div className="g21-split-copy"><span className="g21-cap">{investLabel(c.labels, "payment")}</span>{c.payment.heading ? <h2 id="g21-plans-title" style={textStyleProps(c.payment.headingStyle)}>{emphasisNodes(c.payment.heading)}</h2> : null}{c.payment.text ? <p className="g21-muted" style={textStyleProps(c.payment.textStyle)}>{multiline(c.payment.text)}</p> : null}</div>
         </div>
         {c.payment.cards.length ? <ol className="g21-steps">{c.payment.cards.map((item, index) => <li key={`${item.title}-${index}`}><span className="g21-cap">{two(index)}</span><h3>{item.title}</h3><p>{item.text}</p></li>)}</ol> : null}
       </div>
@@ -134,7 +134,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
 
     pathway: <section className={`g21-pad${tone("pathway")}`} id="pathway" aria-labelledby="g21-path-title" style={place("pathway")} key="pathway">
       <div className="g21-wrap">
-        <SecTop id="g21-path-title" cap={sectionMeta.pathway.cap} heading={c.pathway.heading} text={c.pathway.text} headingStyle={c.pathway.headingStyle} textStyle={c.pathway.textStyle} />
+        <SecTop id="g21-path-title" cap={investLabel(c.labels, "pathway")} heading={c.pathway.heading} text={c.pathway.text} headingStyle={c.pathway.headingStyle} textStyle={c.pathway.textStyle} />
         {c.pathway.steps.length ? <ol className="g21-path">{c.pathway.steps.map((step, index) => <li key={`${step.title}-${index}`}><b>{index + 1}</b><h3>{step.title}</h3><p>{step.text}</p></li>)}</ol> : null}
         {c.pathway.button ? <button className="g21-btn g21-path-cta" type="button" data-booking-open>{c.pathway.button} <span className="g21-ar" aria-hidden="true">→</span></button> : null}
       </div>
@@ -146,7 +146,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
 
     liquidity: <section className={`g21-pad${tone("liquidity")}`} id="exit" aria-labelledby="g21-exit-title" style={place("liquidity")} key="liquidity">
       <div className="g21-wrap">
-        <SecTop id="g21-exit-title" cap={sectionMeta.liquidity.cap} heading={c.liquidity.heading} text={c.liquidity.text} headingStyle={c.liquidity.headingStyle} textStyle={c.liquidity.textStyle} dark />
+        <SecTop id="g21-exit-title" cap={investLabel(c.labels, "liquidity")} heading={c.liquidity.heading} text={c.liquidity.text} headingStyle={c.liquidity.headingStyle} textStyle={c.liquidity.textStyle} dark />
         <div className="g21-exit">
           {c.liquidity.feature.title || c.liquidity.feature.text ? <article className="g21-exit-lead"><h3>{c.liquidity.feature.title}</h3><p>{c.liquidity.feature.text}</p></article> : null}
           {c.liquidity.cards.map((item, index) => <article key={`${item.title}-${index}`}><span className="g21-cap">{two(index)}</span><h3>{item.title}</h3><p>{item.text}</p></article>)}
@@ -156,13 +156,13 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
 
     featured: <section className={`g21-pad${tone("featured")}`} id="developments" aria-labelledby="g21-devs-title" style={place("featured")} key="featured">
       <div className="g21-wrap">
-        <SecTop id="g21-devs-title" cap={sectionMeta.featured.cap} heading={c.featured.heading} text={c.featured.text} headingStyle={c.featured.headingStyle} textStyle={c.featured.textStyle} />
+        <SecTop id="g21-devs-title" cap={investLabel(c.labels, "featured")} heading={c.featured.heading} text={c.featured.text} headingStyle={c.featured.headingStyle} textStyle={c.featured.textStyle} />
         <div className="g21-devs">
           {c.featured.cards.map((item, index) => <Link className="g21-dev" href={item.href || "/"} key={`${item.href}-${index}`}>
             <figure className="g21-ph">{item.image ? <img src={item.image} alt={`${item.title} exterior`} loading="lazy" /> : null}</figure>
             <h3>{item.title}</h3>
             {item.copy ? <p className="g21-muted">{item.copy}</p> : null}
-            <span className="g21-txt-link">Explore <span aria-hidden="true">→</span></span>
+            <span className="g21-txt-link">{investLabel(c.labels, "featuredCta")} <span aria-hidden="true">→</span></span>
           </Link>)}
         </div>
       </div>
@@ -196,7 +196,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
               {lede ? <p className="g21-lede" style={textStyleProps(hero?.textStyle)}>{multiline(lede)}</p> : null}
               <div className="g21-ctas">
                 <Cta url={hero?.ctaUrl?.trim() || undefined} className="g21-btn">{hero?.ctaLabel?.trim() || "Speak to advisory"} <span className="g21-ar" aria-hidden="true">→</span></Cta>
-                {visible.includes("calculator") ? <a className="g21-btn g21-btn--line" href="#calculator">Open the calculator</a> : null}
+                {visible.includes("calculator") ? <a className="g21-btn g21-btn--line" href="#calculator">{investLabel(c.labels, "calculatorButton")}</a> : null}
               </div>
             </div>
           </div>
@@ -208,7 +208,7 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
       <nav className="g21-subnav" aria-label="On this page">
         <div className="g21-wrap g21-subnav-in">
           {visible.map((id) => <a key={id} href={`#${sectionMeta[id].anchor}`}>{sectionMeta[id].nav}</a>)}
-          <button className="g21-btn g21-sub-cta" type="button" data-booking-open>Enquire</button>
+          <button className="g21-btn g21-sub-cta" type="button" data-booking-open>{investLabel(c.labels, "subnavCta")}</button>
         </div>
       </nav>
 

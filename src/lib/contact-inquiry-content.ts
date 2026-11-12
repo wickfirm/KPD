@@ -15,6 +15,18 @@ export type ContactInquiryContent = {
   channelMessagePrompt: string;
   jobMessagePrompt: string;
   pressMessagePrompt: string;
+  /// Page wording around the form (Nov 2026 batch 2). Blank keeps the default.
+  formHeading: string;
+  addressLabel: string;
+  address: string;
+  directionsLabel: string;
+  directionsUrl: string;
+  callLabel: string;
+  termsText: string;
+  marketingText: string;
+  submitLabel: string;
+  quickCallLabel: string;
+  quickEmailLabel: string;
 };
 
 export const contactInquiryDefaults: ContactInquiryContent = {
@@ -31,6 +43,17 @@ export const contactInquiryDefaults: ContactInquiryContent = {
   channelMessagePrompt: "Tell us about your agency and the markets you cover.",
   jobMessagePrompt: "A short note on why you would like to join Kasumigaseki Properties Development.",
   pressMessagePrompt: "Tell us what you are working on and what you need from us.",
+  formHeading: "How can we help?",
+  addressLabel: "Experience Centre address",
+  address: "Bay Gate Tower, Floor 36\nBusiness Bay, Dubai, AE",
+  directionsLabel: "Get directions",
+  directionsUrl: "https://www.google.com/maps/search/?api=1&query=Bay+Gate+Tower+Business+Bay+Dubai",
+  callLabel: "Call",
+  termsText: "I have read and agree to Kasumigaseki Properties Development's [Terms and Conditions](/terms) and [Privacy Policy](/privacy-policy).",
+  marketingText: "I consent to receive marketing communications from Kasumigaseki Properties Development in accordance with the Privacy Policy. I can unsubscribe at any time.",
+  submitLabel: "Send enquiry",
+  quickCallLabel: "Call",
+  quickEmailLabel: "Email",
 };
 
 function text(value: unknown, fallback: string) {
@@ -61,5 +84,16 @@ export function mergeContactInquiryContent(value: unknown): ContactInquiryConten
     channelMessagePrompt: text(source.channelMessagePrompt, contactInquiryDefaults.channelMessagePrompt),
     jobMessagePrompt: text(source.jobMessagePrompt, contactInquiryDefaults.jobMessagePrompt),
     pressMessagePrompt: text(source.pressMessagePrompt, contactInquiryDefaults.pressMessagePrompt),
+    formHeading: text(source.formHeading, contactInquiryDefaults.formHeading),
+    addressLabel: text(source.addressLabel, contactInquiryDefaults.addressLabel),
+    address: text(source.address, contactInquiryDefaults.address),
+    directionsLabel: text(source.directionsLabel, contactInquiryDefaults.directionsLabel),
+    directionsUrl: text(source.directionsUrl, contactInquiryDefaults.directionsUrl),
+    callLabel: text(source.callLabel, contactInquiryDefaults.callLabel),
+    termsText: text(source.termsText, contactInquiryDefaults.termsText),
+    marketingText: text(source.marketingText, contactInquiryDefaults.marketingText),
+    submitLabel: text(source.submitLabel, contactInquiryDefaults.submitLabel),
+    quickCallLabel: text(source.quickCallLabel, contactInquiryDefaults.quickCallLabel),
+    quickEmailLabel: text(source.quickEmailLabel, contactInquiryDefaults.quickEmailLabel),
   };
 }

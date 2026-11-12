@@ -34,6 +34,7 @@ const icons = {
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // The sign-in check and the sidebar's page list are independent: run them together.
   const extraPagesQuery = db.staticPage.findMany({ select: { id: true, slug: true, title: true } }).catch(() => null);
+  const projectsQuery = db.project.findMany({ where: { status: { not: "ARCHIVED" } }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true, name: true } }).catch(() => null);
   const user = await requireUser();
   const isAdmin = user.user.role === "ADMIN";
 
@@ -53,17 +54,35 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // If the database is unreachable the sidebar still lists the fixed pages.
   const rows = await extraPagesQuery;
   if (rows) extraPages = rows.filter((row) => !registeredSlugs.has(row.slug));
-  const pageLinks: NavGroup["links"] = [
-    ...editablePages.map((entry) => ({
-      href: entry.href,
-      label: entry.title,
-      hint: entry.description,
-      icon: entry.editor === "home" ? icons.home : entry.editor === "about" ? icons.user : icons.pages,
-    })),
-    ...extraPages.map((page) => ({
-      href: `/admin/pages/${page.id}`,
-      label: page.title,
-      hint: `Additional page — /${page.slug}`,
+  const projects = (await projectsQuery) ?? [];
+
+  /// The sidebar follows the website: Home, Developments (each development
+  /// under it), About, History, Media, Investor guide, Contact. The separate
+  /// seven x seven landing page and the legal pages sit in their own groups.
+  const page = (key: string, label?: string): NavGroup["links"][number] => {
+    const entry = editablePages.find((item) => item.key === key)!;
+    return { href: entry.href, label: label ?? entry.title, hint: entry.description, icon: entry.editor === "home" ? icons.home : entry.editor === "about" ? icons.user : icons.pages };
+  };
+  const websiteLinks: NavGroup["links"] = [
+    page("home"),
+    { href: "/admin/projects", label: "Developments", hint: "All development pages: copy, galleries, floor plans", icon: icons.building, exact: true },
+    ...projects.map((project) => ({ href: `/admin/projects/${project.id}`, label: project.name, hint: `${project.name}: development page and its sections`, icon: icons.building, sub: true })),
+    page("about"),
+    page("legacy"),
+    page("news", "Media: News page"),
+    { href: "/admin/articles", label: "News & Blog articles", hint: "Write and publish articles", icon: icons.doc, sub: true },
+    { href: "/admin/rss", label: "Press inbox", hint: "Press mentions pending review", icon: icons.rss, sub: true },
+    page("invest-in-dubai"),
+    { href: "/admin/calculator", label: "Calculator figures", hint: "Fees, rates and payment plans for the public calculator", icon: icons.calculator, sub: true },
+    page("contact"),
+  ];
+  const legalKeys = new Set(["terms", "privacy-policy", "cookie-policy"]);
+  const otherPageLinks: NavGroup["links"] = [
+    ...editablePages.filter((entry) => legalKeys.has(entry.key)).map((entry) => page(entry.key)),
+    ...extraPages.map((extra) => ({
+      href: `/admin/pages/${extra.id}`,
+      label: extra.title,
+      hint: `Additional page — /${extra.slug}`,
       icon: icons.pages,
     })),
     { href: "/admin/pages", label: "All pages", hint: "Overview of every page: status and last update", icon: icons.list, exact: true },
@@ -75,22 +94,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       links: [{ href: "/admin", label: "Dashboard", hint: "What needs your attention today", icon: icons.grid }],
     },
     {
-      title: "Pages",
-      links: pageLinks,
+      title: "Website pages",
+      links: websiteLinks,
     },
     {
-      title: "Content",
-      links: [
-        { href: "/admin/projects", label: "Developments", hint: "Project pages: copy, galleries, floor plans", icon: icons.building },
-        { href: "/admin/articles", label: "News & Blog", hint: "Write and publish articles", icon: icons.doc },
-        { href: "/admin/calculator", label: "Calculator", hint: "Fees, rates and payment plans for the public calculator", icon: icons.calculator },
-      ],
+      title: "Landing pages",
+      links: [page("seven-x-seven")],
+    },
+    {
+      title: "Legal and other pages",
+      links: otherPageLinks,
     },
     {
       title: "Audience",
       links: [
         { href: "/admin/submissions", label: "Messages", hint: "Enquiries from the website forms", icon: icons.inbox },
-        { href: "/admin/rss", label: "News inbox", hint: "Press mentions pending review", icon: icons.rss },
       ],
     },
     {

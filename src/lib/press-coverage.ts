@@ -12,6 +12,8 @@ export type PressItem = {
   /// YYYY-MM-DD. Empty = undated (sorted last, no date in the feed).
   date: string;
   lang: "en" | "ar";
+  /// Optional picture for the press card layout on /news (Pages → News).
+  image?: string;
 };
 
 const en = (publication: string, title: string, url = "", date = ""): PressItem => ({ publication, title, url, date, lang: "en" });
@@ -81,7 +83,8 @@ export function normalizePressItems(raw: unknown): PressItem[] {
     const publication = typeof r.publication === "string" ? r.publication.trim() : "";
     if (!title) return [];
     const lang = r.lang === "ar" || r.lang === "en" ? r.lang : detectLang(title);
-    return [{ publication, title, url: cleanUrl(r.url), date: cleanDate(r.date), lang }];
+    const image = typeof r.image === "string" ? r.image.trim() : "";
+    return [{ publication, title, url: cleanUrl(r.url), date: cleanDate(r.date), lang, ...(image && (image.startsWith("/") || /^https?:\/\//i.test(image)) ? { image } : {}) }];
   });
 }
 
