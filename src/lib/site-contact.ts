@@ -2,7 +2,7 @@ import { cache } from "react";
 import { db } from "@/lib/db";
 import { cleanTextStyle, type TextStyle } from "@/lib/text-style";
 
-export type FormRecipientKey = "enquiry" | "booking" | "floorPlan" | "calculator" | "newsletter" | "contactSales" | "contactCustomer" | "contactChannel" | "contactCareers" | "contactPress";
+export type FormRecipientKey = "enquiry" | "booking" | "floorPlan" | "calculator" | "newsletter" | "brochure" | "sevenXSeven" | "contactSales" | "contactCustomer" | "contactChannel" | "contactCareers" | "contactPress";
 export type FormRecipients = Partial<Record<FormRecipientKey, string>>;
 export type SiteTextStyle = TextStyle;
 export type SiteTypography = { headings?: SiteTextStyle; body?: SiteTextStyle; ctas?: SiteTextStyle };
@@ -45,6 +45,8 @@ export type GlobalSettings = {
   popupEnabled?: boolean;
   typography?: SiteTypography;
   recipients?: FormRecipients;
+  /// Email the team a copy of each form submission (Resend). Absent means on.
+  formEmailsEnabled?: boolean;
   popupTitle?: string;
   popupIntro?: string;
   popupSubmitLabel?: string;
@@ -62,8 +64,8 @@ export const globalDefaults: GlobalSettings = {};
 
 const STRING_KEYS = ["email", "phone", "whatsapp", "newsletterNote", "newsletterHeading", "newsletterSubmitLabel", "footerDevelopmentsTitle", "footerCompanyTitle", "footerMediaTitle", "footerAboutLabel", "footerHistoryLabel", "footerInvestorLabel", "footerNewsLabel", "footerContactLabel", "footerTermsLabel", "footerPrivacyLabel", "footerCookiesLabel", "footerCopyright", "facebook", "x", "instagram", "youtube", "linkedin", "enquiryLabel", "callLabel", "whatsappLabel", "headerCtaLabel", "popupTitle", "popupIntro", "popupSubmitLabel", "popupNote"] as const;
 const POPUP_FREQUENCIES = ["every-page", "session", "day"] as const;
-const BOOLEAN_KEYS = ["enquiryEnabled", "callEnabled", "whatsappEnabled", "popupEnabled", "headerCtaVisible"] as const;
-const RECIPIENT_KEYS = ["enquiry", "booking", "floorPlan", "calculator", "newsletter", "contactSales", "contactCustomer", "contactChannel", "contactCareers", "contactPress"] as const;
+const BOOLEAN_KEYS = ["enquiryEnabled", "callEnabled", "whatsappEnabled", "popupEnabled", "headerCtaVisible", "formEmailsEnabled"] as const;
+const RECIPIENT_KEYS = ["enquiry", "booking", "floorPlan", "calculator", "newsletter", "brochure", "sevenXSeven", "contactSales", "contactCustomer", "contactChannel", "contactCareers", "contactPress"] as const;
 const TYPE_KEYS = ["headings", "body", "ctas"] as const;
 
 /// Parses the editable global settings without filling any missing values.

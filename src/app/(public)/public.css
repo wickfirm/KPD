@@ -473,6 +473,41 @@ body.home-development-page {
   letter-spacing: 0;
   text-transform: none;
 }
+.brochure-request__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+}
+.brochure-request__close:hover,
+.brochure-request__close:focus-visible { background: rgba(20, 24, 28, 0.08); }
+.brochure-request__panel h2 { padding-right: 40px; }
+.brochure-request__panel--done { width: min(520px, 100%); }
+.brochure-request__done {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 22px;
+  padding: 18px 20px;
+  border: 0;
+  background: #1c1c1c;
+  color: #fff;
+  font-size: 14px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
 @media (max-width: 700px) {
   .brochure-request__grid { grid-template-columns: 1fr; }
   .brochure-request__panel h2 { font-size: 32px; }

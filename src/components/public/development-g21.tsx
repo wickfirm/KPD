@@ -55,6 +55,8 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
   const facts = parseKeyFacts(chrome.keyFacts ?? defaultKeyFacts(project.slug));
   const slots = developmentSlots(project.modules, chrome.calculatorIndex);
   const primaryLabel = chrome.enquirePrimaryLabel || "Book a viewing";
+  const bookLabel = chrome.bookLabel || primaryLabel;
+  const bookUrl = chrome.bookUrl || chrome.enquirePrimaryUrl;
 
   /// Background bands: split sections and the calculator sit on stone,
   /// everything else is white (split images alternate sides). A white section that
@@ -203,7 +205,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
             <h1 id="g21-dev-title" style={textStyleProps(chrome.nameStyle)}>{emphasisNodes(project.name)}</h1>
             <div>
               <div className="g21-ctas">
-                <Cta className="g21-btn" url={chrome.enquirePrimaryUrl}>{primaryLabel} {arrow()}</Cta>
+                <Cta className="g21-btn" url={bookUrl} external={isExternal(bookUrl)}>{bookLabel} {arrow()}</Cta>
                 {chrome.brochureVisible === false ? null : <BrochureRequest className="g21-btn g21-btn--line" projectName={project.name} projectSlug={project.slug} label={chrome.brochureLabel || "Download brochure"} />}
               </div>
             </div>
