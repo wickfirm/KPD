@@ -9,6 +9,8 @@ import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { SectionVisibilityPanel } from "@/components/admin/section-visibility-panel";
+import { isFixedSectionPage, pageSections } from "@/lib/section-visibility";
 import { editorSeoDefaults } from "@/lib/seo-store";
 import { fixedPageSeoDefaults, seoKey } from "@/lib/seo-overrides";
 import { applyTermsCopyOnce } from "@/lib/terms-restore";
@@ -69,6 +71,7 @@ export default async function EditPage({
       </div>
       <SavedBanner params={flash} />
       <EditorShell>
+      {entry && isFixedSectionPage(entry.key) ? <SectionVisibilityPanel page={entry.key} sections={pageSections[entry.key]} returnTo={entry.href} /> : null}
       <div className="cms-card">
         {page.slug === "invest-in-dubai"
           ? <InvestForm defaults={{ id: page.id, slug: page.slug, title: page.title, content: page.content as ContentBlock[] }} seo={seo} />

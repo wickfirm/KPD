@@ -5,6 +5,8 @@ import StaticPageForm from "../pages/page-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { SectionVisibilityPanel } from "@/components/admin/section-visibility-panel";
+import { pageSections } from "@/lib/section-visibility";
 import { editorSeoDefaults } from "@/lib/seo-store";
 import { seoKey } from "@/lib/seo-overrides";
 import { pageSeo } from "@/lib/seo";
@@ -33,6 +35,7 @@ export default async function AdminAboutPage({ searchParams }: { searchParams: P
     </div>
     <SavedBanner params={flash} />
     <EditorShell>
+      <SectionVisibilityPanel page="about" sections={pageSections.about} returnTo="/admin/about" />
       <div className="cms-card"><StaticPageForm defaults={defaults} lockedSlug seo={seo} /></div>
       {page ? <VersionHistory entityType="STATIC_PAGE" entityId={page.id} entityLabel="About us" /> : null}
     </EditorShell>

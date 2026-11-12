@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { legacyGalleryDefaults, type LegacyContent, type LegacyGalleryLight } from "@/lib/legacy-defaults";
 import { textStyleProps } from "@/lib/text-style";
+import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { LegacyTimelineRail } from "./legacy-timeline-rail";
 
@@ -25,7 +26,9 @@ function ButtonLink({ href, className, children }: { href: string; className: st
 /// Option 2.1 "Gallery light" layout over the same CMS timeline. Classes are
 /// g21-prefixed and every rule is scoped under main.g21 (redesign-pages.css),
 /// so the delivered timeline script and styles no longer touch this page.
-export function LegacyMain({ content }: { content: LegacyContent }) {
+export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden?: readonly string[] }) {
+  /// Sections the editor switched off under "Sections on this page".
+  const shown = sectionFilter(hidden);
   const heading = content.heading ?? "";
   const lede = content.text?.trim() ? content.text : pick(content, "lede");
   const image = content.image ?? "";
@@ -55,7 +58,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
 
   return (
     <main className="legacy-main g21" id="top">
-      <section className="g21-hero" aria-labelledby="g21-history-title">
+      {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-history-title">
         <div className="g21-wrap">
           <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/about">About</Link><span aria-hidden="true">/</span><span aria-current="page">{content.eyebrow || "History"}</span></nav>
           <div className="g21-title">
@@ -70,9 +73,9 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
           </div>
           {image ? <figure className="g21-hero-img"><img src={image} alt="Tokyo alleyway and Japanese hospitality context" style={{ objectPosition: "50% 45%" }} /></figure> : null}
         </div>
-      </section>
+      </section> : null}
 
-      {nameHeading || nameText.length ? <section className="g21-pad g21-band" aria-labelledby="g21-name-title">
+      {shown("name") && (nameHeading || nameText.length) ? <section className="g21-pad g21-band" aria-labelledby="g21-name-title">
         <div className="g21-wrap g21-name">
           {nameKicker ? <p className="g21-cap">{nameKicker}</p> : null}
           {nameHeading ? <h2 id="g21-name-title">{emphasisNodes(nameHeading)}</h2> : null}
@@ -80,7 +83,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
         </div>
       </section> : null}
 
-      {milestones.length ? <>
+      {shown("timeline") && milestones.length ? <>
         {years.length > 1 ? <nav className="g21-subnav" aria-label="Years"><div className="g21-wrap g21-subnav-in">
           {years.map((entry) => <a key={entry.anchor} href={`#${entry.anchor}`}>{entry.year}</a>)}
         </div></nav> : null}
@@ -105,7 +108,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
         </section>
       </> : null}
 
-      {bandHeading ? <section className="g21-visit" aria-labelledby="g21-history-band-title">
+      {shown("band") && bandHeading ? <section className="g21-visit" aria-labelledby="g21-history-band-title">
         {bandImage ? <img src={bandImage} alt="" loading="lazy" /> : null}
         <div className="g21-wrap g21-visit-in">
           {bandKicker ? <p className="g21-cap">{bandKicker}</p> : null}

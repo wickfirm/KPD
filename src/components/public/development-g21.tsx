@@ -10,6 +10,7 @@ import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/li
 import { defaultKeyFacts, driveMinutes, mapsLink, parseKeyFacts } from "@/lib/development-gallery-light";
 import { textStyleProps, type TextStyle } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
+import { sectionFilter } from "@/lib/section-visibility";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
 type ModuleContent = { eyebrow?: string; text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyle; textStyle?: TextStyle };
@@ -51,10 +52,12 @@ function kindOf(module: Module, data: ModuleContent): Kind {
 /// light" layout. Same data as DevelopmentMain: the project row, its chrome
 /// and its CMS modules in their saved order (with the shared calculator in
 /// its slot); each module renders by kind.
-export function DevelopmentMainG21({ project, calculator }: { project: DevelopmentProject; calculator?: CalculatorCopy }) {
+export function DevelopmentMainG21({ project, calculator, hidden }: { project: DevelopmentProject; calculator?: CalculatorCopy; hidden?: readonly string[] }) {
+  /// Sections the editor switched off under "Sections on this page".
+  const shown = sectionFilter(hidden);
   const chrome = project.chrome ?? {};
   const facts = parseKeyFacts(chrome.keyFacts ?? defaultKeyFacts(project.slug));
-  const slots = developmentSlots(project.modules, chrome.calculatorIndex);
+  const slots = developmentSlots(project.modules, chrome.calculatorIndex).filter((slot) => (slot === "calculator" ? shown("calculator") : shown(`module:${slot.id}`)));
   const primaryLabel = chrome.enquirePrimaryLabel || "Book a viewing";
   const bookLabel = chrome.bookLabel || primaryLabel;
   const bookUrl = chrome.bookUrl || chrome.enquirePrimaryUrl;
@@ -191,7 +194,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
     </section>;
   });
 
-  const nav = [{ href: "#overview", label: "Overview" }, ...slots.flatMap((slot) => {
+  const nav = [...(shown("overview") ? [{ href: "#overview", label: "Overview" }] : []), ...slots.flatMap((slot) => {
     if (slot === "calculator") return [{ href: "#calculator", label: "Calculator" }];
     const label = slot.slug in navFor ? navFor[slot.slug] : slot.title;
     return label ? [{ href: `#${moduleSectionId(slot.slug)}`, label }] : [];
@@ -201,7 +204,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
 
   return (
     <main className="single-project-main g21" id="top">
-      <section className="g21-hero" aria-labelledby="g21-dev-title">
+      {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-dev-title">
         <div className="g21-wrap">
           <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span>Developments</span><span aria-hidden="true">/</span><span aria-current="page">{project.name}</span></nav>
           <div className="g21-title">
@@ -218,7 +221,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
           </figure> : null}
           {facts.length ? <dl className="g21-keyfacts" style={{ gridTemplateColumns: `repeat(${facts.length}, minmax(0, 1fr))` }}>{facts.map((fact, index) => <div key={`${fact.label}-${index}`}><dt className="g21-cap">{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl> : null}
         </div>
-      </section>
+      </section> : null}
 
       <nav className="g21-subnav" aria-label="On this page">
         <div className="g21-wrap g21-subnav-in">
@@ -227,7 +230,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
         </div>
       </nav>
 
-      <section className="g21-pad" id="overview" aria-labelledby="g21-overview-title">
+      {shown("overview") ? <section className="g21-pad" id="overview" aria-labelledby="g21-overview-title">
         <div className="g21-wrap g21-overview">
           <div>{pageLabel("overview") ? <span className="g21-cap">{pageLabel("overview")}</span> : null}{project.tagline ? <h2 id="g21-overview-title" style={textStyleProps(chrome.taglineStyle)}>{multiline(project.tagline)}</h2> : null}</div>
           <div className="g21-overview-copy">
@@ -235,7 +238,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
             {chrome.ctaVisible === false ? null : <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={chrome.ctaUrl || "#amenities"}>{chrome.ctaLabel || "Explore"} {arrow()}</Cta></div>}
           </div>
         </div>
-      </section>
+      </section> : null}
 
       <div className="g21-stack">{sections}</div>
 

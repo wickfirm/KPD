@@ -8,6 +8,8 @@ import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/li
 import { ensureInvestSections, investLabel, mergeInvestContent, type IconCard, type InvestSectionId, type PanelSection } from "@/lib/invest-defaults";
 import { textStyleProps, type TextStyle } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
+import { sectionFilter } from "@/lib/section-visibility";
+import { loadHiddenSections } from "@/lib/section-visibility-store";
 
 export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string; ctaLabel?: string; ctaUrl?: string; headingStyle?: TextStyle; textStyle?: TextStyle };
 
@@ -73,14 +75,16 @@ function Split({ panel, id, reverse, cap, buttonClass, alt }: { panel: PanelSect
 /// keeps its editor-defined order, and the client's mortgage calculator markup
 /// and script are untouched. Shared by the public route and the admin
 /// unsaved-changes preview so both render identically.
-export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; saved?: unknown; previewNote?: string }) {
+export async function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; saved?: unknown; previewNote?: string }) {
   const c = ensureInvestSections(mergeInvestContent(saved));
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
     mainEntity: c.faq.items.map((item) => ({ "@type": "Question", name: item.question, acceptedAnswer: { "@type": "Answer", text: item.answer } })),
   };
-  const visible = c.sectionOrder.filter((id) => (id === "payment" ? c.paymentVisible !== false : true));
+  /// Sections the editor switched off under "Sections on this page".
+  const shown = sectionFilter(await loadHiddenSections("invest-in-dubai"));
+  const visible = c.sectionOrder.filter((id) => (id === "payment" ? c.paymentVisible !== false : true) && shown(id));
   /// Alternate white and stone bands down the page in whatever order the editor
   /// set; the exit section is always the dark band.
   const tone = (id: InvestSectionId) => (id === "liquidity" ? " g21-night" : visible.indexOf(id) % 2 === 1 ? " g21-band" : "");
@@ -185,9 +189,9 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page invest-dubai-page" />
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+    {visible.includes("faq") ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} /> : null}
     <SiteShellHeader /><main className="invest-main g21" id="top">
-      <section className="g21-hero" aria-labelledby="g21-invest-title">
+      {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-invest-title">
         <div className="g21-wrap">
           <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link>{eyebrow ? <><span aria-hidden="true">/</span><span>{eyebrow}</span></> : null}<span aria-hidden="true">/</span><span aria-current="page">Investor Guide</span></nav>
           <div className="g21-title">
@@ -203,18 +207,18 @@ export function InvestView({ hero, saved, previewNote }: { hero?: InvestHero; sa
           {hero?.image ? <figure className="g21-hero-img"><img src={hero.image} alt="Dubai skyline with Burj Khalifa" style={{ objectPosition: "50% 55%" }} /></figure> : null}
           {metrics.length ? <dl className="g21-keyfacts" style={{ gridTemplateColumns: `repeat(${metrics.length}, minmax(0, 1fr))` }}>{metrics.map((metric, index) => <div key={`${metric.label}-${index}`}><dt className="g21-cap">{metric.label}</dt><dd>{metric.value}</dd></div>)}</dl> : null}
         </div>
-      </section>
+      </section> : null}
 
-      <nav className="g21-subnav" aria-label="On this page">
+      {shown("subnav") ? <nav className="g21-subnav" aria-label="On this page">
         <div className="g21-wrap g21-subnav-in">
           {visible.map((id) => <a key={id} href={`#${sectionMeta[id].anchor}`}>{sectionMeta[id].nav}</a>)}
           <button className="g21-btn g21-sub-cta" type="button" data-booking-open>{investLabel(c.labels, "subnavCta")}</button>
         </div>
-      </nav>
+      </nav> : null}
 
       <div className="g21-stack">{visible.map((id) => sections[id])}</div>
 
-      {c.contact.heading ? <section className="g21-visit" aria-labelledby="g21-invest-band-title">
+      {shown("contact") && c.contact.heading ? <section className="g21-visit" aria-labelledby="g21-invest-band-title">
         {c.contact.image ? <img src={c.contact.image} alt="" loading="lazy" /> : null}
         <div className="g21-wrap g21-visit-in">
           {c.contact.eyebrow ? <p className="g21-cap">{c.contact.eyebrow}</p> : null}

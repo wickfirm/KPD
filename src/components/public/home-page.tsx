@@ -6,6 +6,7 @@ import { homeDefaults, resolveHeroMedia, type DevelopmentCard, type GalleryPanel
 import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
 import { HomeDevelopmentSlider } from "./home-development-slider";
+import { sectionFilter } from "@/lib/section-visibility";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -34,6 +35,13 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
     ? `<section class="${sectionClass}" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
   return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings);
+}
+
+/// "Latest news" switched off: drop its heading band and card grid.
+function withoutHomeNews(tail: string) {
+  return tail
+    .replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, "")
+    .replace(/<section class="pdf-section pdf-events-grid"[^>]*>[\s\S]*?<\/section>/, "");
 }
 
 /// The news grid under the band: CMS cards when saved (an empty list removes
@@ -224,7 +232,9 @@ export function HomeExperienceGallery({ images, captions }: { images?: string[];
 
 /// The homepage <main>: CMS content is authoritative. The delivered static
 /// tail only supplies structural markup; editable text is replaced above.
-export function HomeMain({ settings, staticTail, developmentCards }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[] }) {
+export function HomeMain({ settings, staticTail, developmentCards, hidden }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[]; hidden?: readonly string[] }) {
+  /// Sections the editor switched off under "Sections on this page".
+  const shown = sectionFilter(hidden);
   const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
   const introStats = settings.introStats ?? [];
   const bannerSlides = settings.bannerSlides ?? [];
@@ -247,14 +257,14 @@ export function HomeMain({ settings, staticTail, developmentCards }: { settings:
   const heroCtaUrl = settings.heroCtaUrl ?? homeDefaults.heroCtaUrl;
   return (
     <main className="development-pdf-home" id="top">
-      {heroMedia ? <HomeHero video={hero.video} image={hero.image} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
-      {hasIntroduction ? <HomeIntro heading={headingInHero ? "" : heroHeading} paragraphs={introParagraphs} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} kicker={introKicker} values={introValues} /> : null}
-      {hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
-      {bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingStyle={textStyleProps(settings.developmentHeadingStyle)} kicker={settings.developmentKicker ?? homeDefaults.developmentKicker} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
-      <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} />
-      {hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={settings.contactKicker ?? homeDefaults.contactKicker} /> : null}
-      <HomeExperienceGallery images={experienceImages.filter(Boolean)} captions={experienceCaptions} />
-      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(withHomeNewsHeader(staticTail, settings)) }} />
+      {shown("hero") && heroMedia ? <HomeHero video={hero.video} image={hero.image} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
+      {shown("intro") && hasIntroduction ? <HomeIntro heading={headingInHero && shown("hero") ? "" : heroHeading} paragraphs={introParagraphs} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} kicker={introKicker} values={introValues} /> : null}
+      {shown("numbers") && hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
+      {!shown("developments") ? null : bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingStyle={textStyleProps(settings.developmentHeadingStyle)} kicker={settings.developmentKicker ?? homeDefaults.developmentKicker} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
+      {shown("cards") ? <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} /> : null}
+      {shown("contact") && hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={settings.contactKicker ?? homeDefaults.contactKicker} /> : null}
+      {shown("gallery") ? <HomeExperienceGallery images={experienceImages.filter(Boolean)} captions={experienceCaptions} /> : null}
+      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(shown("news") ? withHomeNewsHeader(staticTail, settings) : withoutHomeNews(staticTail)) }} />
     </main>
   );
 }
