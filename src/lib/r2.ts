@@ -75,6 +75,35 @@ export async function r2PresignedUpload(key: string): Promise<string> {
   return `https://${hostname}${signed.path}${query ? `?${query}` : ""}`;
 }
 
+/// Short-lived signed GET link for one object. R2 answers it with
+/// Content-Disposition: attachment, so the browser saves the file instead of
+/// navigating to it (used for the brochure download after the pop-up form).
+export async function r2PresignedDownload(key: string, fileName: string, expiresIn = 600): Promise<string> {
+  const accountId = process.env.R2_ACCOUNT_ID;
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+  const bucket = process.env.R2_BUCKET;
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucket) throw new Error("R2 is not configured.");
+  const hostname = `${accountId}.r2.cloudflarestorage.com`;
+  const safeName = fileName.replace(/[^A-Za-z0-9._-]+/g, "-");
+  // S3 signs the path as sent, so encode each key segment once here and tell the signer not to escape it again.
+  const signer = new SignatureV4({ credentials: { accessKeyId, secretAccessKey }, region: "auto", service: "s3", sha256: Sha256, uriEscapePath: false });
+  const signed = await signer.presign({
+    method: "GET",
+    protocol: "https:",
+    hostname,
+    path: `/${bucket}/${key.split("/").map(encodeURIComponent).join("/")}`,
+    // Presigned S3 links carry UNSIGNED-PAYLOAD as the payload hash; the marker
+    // header only selects it and is left out of the signed headers.
+    headers: { host: hostname, "x-amz-content-sha256": "UNSIGNED-PAYLOAD" },
+    query: { "response-content-disposition": `attachment; filename="${safeName}"` },
+  }, { expiresIn, unsignableHeaders: new Set(["x-amz-content-sha256"]), unhoistableHeaders: new Set(["x-amz-content-sha256"]) });
+  // Encode the query exactly as SigV4 canonicalises it (%20, never "+").
+  const rfc3986 = (value: string) => encodeURIComponent(value).replace(/[!'()*]/g, (character) => `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
+  const query = Object.entries(signed.query ?? {}).flatMap(([name, value]) => (Array.isArray(value) ? value : [value ?? ""]).map((item) => `${rfc3986(name)}=${rfc3986(item)}`)).join("&");
+  return `https://${hostname}${signed.path}${query ? `?${query}` : ""}`;
+}
+
 /// Vercel rejects request bodies above 4.5 MB before a route can process them.
 /// These helpers let the authenticated CMS stream larger (up to 250 MB) files
 /// through several small route requests without exposing R2 credentials.
