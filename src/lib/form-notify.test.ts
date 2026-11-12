@@ -36,6 +36,14 @@ describe("Resend", () => {
     vi.stubEnv("RESEND_API_KEY", "");
     expect(resendConfigured()).toBe(false);
   });
+  it("falls back to Resend's default sender", async () => {
+    vi.stubEnv("RESEND_API_KEY", "re_test");
+    vi.stubEnv("RESEND_FROM", "");
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ id: "m2" }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await sendWithResend({ to: ["info@kpd.ae"], subject: "s", html: "h", text: "t" });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).from).toContain("onboarding@resend.dev");
+  });
   it("posts to the Resend API", async () => {
     vi.stubEnv("RESEND_API_KEY", "re_test");
     vi.stubEnv("RESEND_FROM", "KPD <noreply@kpd.ae>");

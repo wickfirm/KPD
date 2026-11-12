@@ -32,8 +32,12 @@ export function notificationRecipients(settings: GlobalSettings, key: FormRecipi
   return [...new Set(list)].slice(0, 10);
 }
 
+/// Resend's shared test sender, used until kpd.ae is verified in Resend and
+/// RESEND_FROM is set. It can only deliver to the Resend account's own address.
+export const RESEND_DEFAULT_FROM = "Kasumigaseki Properties Development <onboarding@resend.dev>";
+
 export function resendConfigured() {
-  return Boolean(process.env.RESEND_API_KEY && (process.env.RESEND_FROM || process.env.EMAIL_FROM));
+  return Boolean(process.env.RESEND_API_KEY);
 }
 
 export type NotificationInput = {
@@ -85,8 +89,8 @@ export function buildNotificationEmail(input: NotificationInput) {
 /// Sends one email through the Resend API. Throws on failure.
 export async function sendWithResend(input: { to: string[]; subject: string; html: string; text: string; replyTo?: string }) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM || process.env.EMAIL_FROM;
-  if (!apiKey || !from) throw new Error("Resend is not configured.");
+  const from = process.env.RESEND_FROM || RESEND_DEFAULT_FROM;
+  if (!apiKey) throw new Error("Resend is not configured.");
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
