@@ -3,6 +3,8 @@ import HomeForm, { type HomeSettings } from "./home-form";
 import VersionHistory from "@/components/admin/version-history";
 import { SavedBanner } from "@/components/admin/flash";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { SectionVisibilityPanel } from "@/components/admin/section-visibility-panel";
+import { pageSections } from "@/lib/section-visibility";
 import { editorSeoDefaults } from "@/lib/seo-store";
 import { seoKey } from "@/lib/seo-overrides";
 import { pageSeo } from "@/lib/seo";
@@ -29,6 +31,7 @@ export default async function AdminHomePage({ searchParams }: { searchParams: Pr
     </div>
     <SavedBanner params={flash} />
     <EditorShell>
+      <SectionVisibilityPanel page="home" sections={pageSections.home} returnTo="/admin/pages/home" />
       <div className="cms-card"><HomeForm settings={home} seo={seo} /></div>
       <VersionHistory entityType="HOME_SETTINGS" entityId="home" entityLabel="the homepage" />
     </EditorShell>

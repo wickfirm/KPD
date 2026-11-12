@@ -2,6 +2,8 @@ import Link from "next/link";
 import NewsForm from "./news-form";
 import { SavedBanner } from "@/components/admin/flash";
 import { EditorShell } from "@/components/admin/editor-shell";
+import { SectionVisibilityPanel } from "@/components/admin/section-visibility-panel";
+import { pageSections } from "@/lib/section-visibility";
 import { loadNewsListingCopy } from "@/lib/news-listing";
 import { resolvePressItems } from "@/lib/press-coverage";
 
@@ -22,6 +24,7 @@ export default async function AdminNewsPage({ searchParams }: { searchParams: Pr
     </div>
     <SavedBanner params={flash} />
     <EditorShell>
+      <SectionVisibilityPanel page="news" sections={pageSections.news} returnTo="/admin/pages/news" />
       <div className="cms-card"><NewsForm copy={copy} coverage={resolvePressItems(copy.coverage)} /></div>
     </EditorShell>
   </>;

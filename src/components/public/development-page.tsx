@@ -2,6 +2,7 @@
 import type { ProjectShell } from "@/lib/legacy-project";
 import type { ProjectChrome } from "@/lib/project-chrome";
 import { textStyleProps, type TextStyle } from "@/lib/text-style";
+import { sectionFilter } from "@/lib/section-visibility";
 import { DevelopmentModule } from "./development-template";
 import { BrochureRequest } from "./brochure-request";
 import { developmentSlots } from "@/lib/project-chrome";
@@ -56,7 +57,10 @@ function PrivateViewing({ chrome }: { chrome?: ProjectChrome }) {
 /// The development page <main>: hero and overview render from the project row,
 /// then each CMS module renders through DevelopmentModule. Content fields have
 /// no delivered fallback: deleting them in the CMS deletes them from the page.
-export function DevelopmentMain({ project, shell, calculator }: { project: DevelopmentProject; shell: ProjectShell; calculator?: CalculatorCopy }) {
+export function DevelopmentMain({ project, shell, calculator, hidden }: { project: DevelopmentProject; shell: ProjectShell; calculator?: CalculatorCopy; hidden?: readonly string[] }) {
+  /// Sections the editor switched off under "Sections on this page". The
+  /// private viewing band has its own switch, so it stays when the calculator is hidden.
+  const shown = sectionFilter(hidden);
   return (
     <main className="single-project-main" id="top">
       <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>
@@ -78,10 +82,10 @@ export function DevelopmentMain({ project, shell, calculator }: { project: Devel
         </div>
       </section>
 
-      {developmentSlots(project.modules, project.chrome?.calculatorIndex).map((slot) => (
+      {developmentSlots(project.modules, project.chrome?.calculatorIndex).filter((slot) => slot === "calculator" || shown(`module:${slot.id}`)).map((slot) => (
         slot === "calculator"
           ? <div key="calculator">
-            <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(calculator) }} />
+            {shown("calculator") ? <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(calculator) }} /> : null}
             <PrivateViewing chrome={project.chrome} />
           </div>
           : <DevelopmentModule

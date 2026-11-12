@@ -2,6 +2,8 @@ import type { AboutContent } from "@/lib/about-defaults";
 import { textStyleProps } from "@/lib/text-style";
 import Link from "next/link";
 import { emphasisNodes } from "@/lib/emphasis";
+import { sectionFilter } from "@/lib/section-visibility";
+import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { pickLegacyGalleryLight, type LegacyContent, type LegacyMilestone } from "@/lib/legacy-defaults";
 import type { ContactDetails, StaticBlock } from "@/lib/static-blocks";
 import { AboutMain } from "./about-page";
@@ -18,7 +20,7 @@ import { DeliveredBodyClass } from "./delivered-body-class";
 
 const preview = (note?: string) => note ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{note}</div> : null;
 
-export function AboutView({ blocks, previewNote }: { blocks: StaticBlock[]; previewNote?: string }) {
+export async function AboutView({ blocks, previewNote }: { blocks: StaticBlock[]; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero");
   const about = blocks.find((block) => block.type === "about") as (StaticBlock & AboutContent) | undefined;
   const content: AboutContent = {
@@ -35,14 +37,14 @@ export function AboutView({ blocks, previewNote }: { blocks: StaticBlock[]; prev
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page about-design-page" />
     <SiteShellHeader />
-    <AboutMain content={content} />
+    <AboutMain content={content} hidden={await loadHiddenSections("about")} />
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page about-design-page" />
   </>;
 }
 
-export function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; previewNote?: string }) {
+export async function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero");
   const timeline = blocks.find((block) => block.type === "legacy") as (StaticBlock & { timeline?: LegacyMilestone[] }) | undefined;
   const content: LegacyContent = { ...pickLegacyGalleryLight(timeline), eyebrow: hero?.eyebrow as string | undefined, heading: hero?.heading, text: hero?.text, image: hero?.image, headingStyle: hero?.headingStyle as LegacyContent["headingStyle"], textStyle: hero?.textStyle as LegacyContent["textStyle"], timeline: timeline?.timeline, ctaLabel: timeline?.ctaLabel as string | undefined, ctaUrl: timeline?.ctaUrl as string | undefined, ctaVisible: timeline?.ctaVisible as boolean | undefined };
@@ -50,23 +52,24 @@ export function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; pre
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page legacy-design-page" />
     <SiteShellHeader />
-    <LegacyMain content={content} />
+    <LegacyMain content={content} hidden={await loadHiddenSections("legacy")} />
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page legacy-design-page" />
   </>;
 }
 
-export function ContactView({ blocks, contact, previewNote }: { blocks: StaticBlock[]; contact: ContactDetails; previewNote?: string }) {
+export async function ContactView({ blocks, contact, previewNote }: { blocks: StaticBlock[]; contact: ContactDetails; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero") ?? {};
   const inquiryForm = blocks.find((block) => block.type === "contact-form");
   const inquiryCopy = mergeContactInquiryContent(inquiryForm);
+  const shown = sectionFilter(await loadHiddenSections("contact"));
   return <>
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page kpd-page contact-page" />
     <SiteShellHeader />
 <main id="top" className="contact-main g21">
-      <section className="g21-hero" aria-labelledby="g21-contact-title">
+      {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-contact-title">
         <div className="g21-wrap">
           <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">{(hero.eyebrow as string) || "Contact"}</span></nav>
           <div className="g21-title g21-title--contact">
@@ -80,10 +83,10 @@ export function ContactView({ blocks, contact, previewNote }: { blocks: StaticBl
             </div>
           </div>
         </div>
-      </section>
-      <section className="g21-contact-sec" id="experience-center" aria-label="Contact inquiry">
+      </section> : null}
+      {shown("form") ? <section className="g21-contact-sec" id="experience-center" aria-label="Contact inquiry">
         <ContactInquiry email={contact.email} phone={contact.phone} website={contact.website} image={hero.image as string | undefined} content={inquiryForm} />
-      </section>
+      </section> : null}
     </main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />

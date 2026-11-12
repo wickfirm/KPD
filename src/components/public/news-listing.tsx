@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { newsCaption, newsListingDefaults as d, type NewsListItem, type NewsListingCopy } from "@/lib/news-listing";
 import { NewsFilters } from "./news-filters";
@@ -59,7 +60,9 @@ const category = (item: NewsListItem) => (item.kind === "BLOG" ? "perspective" :
 /// as cards (each links to its /news/<slug> page), outside press coverage
 /// ("In the press") and a press band. Copy for
 /// the page comes from Pages → News.
-export function NewsListingMain({ articles, copy, email, coverage = [] }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string; coverage?: PressItem[] }) {
+export function NewsListingMain({ articles, copy, email, coverage = [], hidden }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string; coverage?: PressItem[]; hidden?: readonly string[] }) {
+  /// Sections the editor switched off under "Sections on this page".
+  const shown = sectionFilter(hidden);
   const pick = (key: keyof typeof d) => (typeof copy[key] === "string" ? (copy[key] as string).trim() : "") || d[key];
   const eyebrow = pick("eyebrow");
   const heading = pick("heading");
@@ -69,7 +72,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [] }: { arti
   const hasBoth = !pressFirst && articles.some((item) => item.kind === "BLOG") && articles.some((item) => item.kind !== "BLOG");
   return (
     <main className="news-main g21" id="top">
-      <section className="g21-hero" aria-labelledby="g21-news-title">
+      {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-news-title">
         <div className="g21-wrap">
           <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span>{eyebrow}</span><span aria-hidden="true">/</span><span aria-current="page">News</span></nav>
           <div className="g21-title">
@@ -80,9 +83,9 @@ export function NewsListingMain({ articles, copy, email, coverage = [] }: { arti
             </div>
           </div>
         </div>
-      </section>
+      </section> : null}
 
-      <section className="g21-news-sec" id="updates" aria-label={pressFirst ? "In the press" : "Articles"}>
+      {shown("articles") ? <section className="g21-news-sec" id="updates" aria-label={pressFirst ? "In the press" : "Articles"}>
         <div className="g21-wrap">
           {pressFirst ? <PressCards items={copy.coverageVisible === false ? [] : coverage} cta={pick("pressCardCta")} emptyText={pick("emptyText")} /> : <>
           {feature ? <article className="g21-feat" data-cat={category(feature)}>
@@ -108,7 +111,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [] }: { arti
           <p className="g21-muted g21-empty" data-news-empty hidden>No articles in this category yet.</p>
           </>}
         </div>
-      </section>
+      </section> : null}
 
       {pressFirst || copy.coverageVisible === false || coverage.length === 0 ? null : <section className="g21-pad g21-pad--top-flush" id="press" aria-labelledby="g21-coverage-title">
         <div className="g21-wrap g21-coverage">

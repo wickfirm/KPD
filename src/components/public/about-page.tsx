@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { aboutDefaults, type AboutContent, type AboutKeyFact } from "@/lib/about-defaults";
 import { textStyleProps } from "@/lib/text-style";
+import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { splitLead, valueCard } from "@/lib/about-layout";
 
@@ -26,7 +27,9 @@ function ButtonLink({ href, className, children }: { href: string; className: st
 /// g21-prefixed and every rule is scoped under main.g21 (redesign-pages.css),
 /// so delivered site.css rules for the old About markup no longer apply and
 /// nothing else on the site changes.
-export function AboutMain({ content }: { content: AboutContent }) {
+export function AboutMain({ content, hidden }: { content: AboutContent; hidden?: readonly string[] }) {
+  /// Sections the editor switched off under "Sections on this page".
+  const shown = sectionFilter(hidden);
   const heading = content.heading ?? "";
   const sectionHeading = content.sectionHeading ?? "";
   const heroText = content.heroText ?? "";
@@ -73,7 +76,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
 
   return (
     <main className="about-main g21" id="top">
-      <section className="g21-hero" aria-labelledby="g21-about-title">
+      {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-about-title">
         <div className="g21-wrap">
           <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">{eyebrow || "About"}</span></nav>
           <div className="g21-title">
@@ -93,9 +96,9 @@ export function AboutMain({ content }: { content: AboutContent }) {
             {keyFacts.map((fact, index) => <div key={index}><dt className="g21-cap">{fact.label}</dt><dd>{fact.value}</dd></div>)}
           </dl> : null}
         </div>
-      </section>
+      </section> : null}
 
-      {sectionHeading || story.length ? <section className="g21-pad" id="about" aria-labelledby="g21-philosophy-title">
+      {shown("philosophy") && (sectionHeading || story.length) ? <section className="g21-pad" id="about" aria-labelledby="g21-philosophy-title">
         <div className="g21-wrap">
           <div className="g21-sec-top">
             <div>
@@ -117,7 +120,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
         </div>
       </section> : null}
 
-      {mission.lead || vision.lead ? <section className="g21-pad g21-band" id="mission" aria-labelledby="g21-mv-title">
+      {shown("mission") && (mission.lead || vision.lead) ? <section className="g21-pad g21-band" id="mission" aria-labelledby="g21-mv-title">
         <div className="g21-wrap">
           <h2 className="g21-sr" id="g21-mv-title">Mission and vision</h2>
           <div className="g21-mv">
@@ -127,7 +130,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
         </div>
       </section> : null}
 
-      {leaders.length ? <section className="g21-pad" id="chairman" aria-labelledby={leadershipHeading ? "g21-leadership-title" : undefined} aria-label={leadershipHeading ? undefined : "Leadership"}>
+      {shown("leadership") && leaders.length ? <section className="g21-pad" id="chairman" aria-labelledby={leadershipHeading ? "g21-leadership-title" : undefined} aria-label={leadershipHeading ? undefined : "Leadership"}>
         <div className="g21-wrap">
           {leadershipKicker || leadershipHeading ? <div className="g21-sec-top"><div>
             {leadershipKicker ? <span className="g21-cap">{leadershipKicker}</span> : null}
@@ -143,7 +146,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
         </div>
       </section> : null}
 
-      {management.length ? <section className="g21-pad g21-pad--flush" id="management" aria-labelledby="g21-team-title">
+      {shown("team") && management.length ? <section className="g21-pad g21-pad--flush" id="management" aria-labelledby="g21-team-title">
         <div className="g21-wrap">
           <div className="g21-sec-top"><div>
             {teamKicker ? <span className="g21-cap">{teamKicker}</span> : null}
@@ -159,7 +162,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
         </div>
       </section> : null}
 
-      {visitHeading ? <section className="g21-visit" aria-labelledby="g21-visit-title">
+      {shown("visit") && visitHeading ? <section className="g21-visit" aria-labelledby="g21-visit-title">
         {visitImage ? <img src={visitImage} alt="" loading="lazy" /> : null}
         <div className="g21-wrap g21-visit-in">
           {visitKicker ? <p className="g21-cap">{visitKicker}</p> : null}
