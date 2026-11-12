@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import { withDialCode } from "@/lib/phone";
 
 const COUNTRIES = [
   "United Arab Emirates (+971)", "Saudi Arabia (+966)", "Qatar (+974)", "Kuwait (+965)", "Bahrain (+973)", "Oman (+968)",
@@ -11,7 +12,9 @@ const COUNTRIES = [
 ];
 
 /// Gate in front of a development brochure. The lead is stored with the other
-/// enquiries, and the visitor is emailed the file set in the development editor.
+/// enquiries, mirrored to Salesforce as a Lead (inquiry type "Brochure request",
+/// Property_Interest__c from the development), and the visitor is emailed the
+/// file set in the development editor.
 export function BrochureRequest({ projectName, projectSlug, label, className = "btn-pill" }: { projectName: string; projectSlug: string; label: string; className?: string }) {
   const [open, setOpen] = useState(false);
   const [phoneError, setPhoneError] = useState("");
@@ -38,9 +41,10 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
     const data = new FormData(form);
     const name = String(data.get("name") || "").trim();
     const email = String(data.get("email") || "").trim();
-    const phone = String(data.get("phone") || "").trim();
     const country = String(data.get("country") || "").trim();
-    if (phone.replace(/\D/g, "").length < 7) {
+    const typedPhone = String(data.get("phone") || "").trim();
+    const phone = withDialCode(typedPhone, country);
+    if (typedPhone.replace(/\D/g, "").length < 7) {
       setPhoneError("Please enter a valid phone number");
       return;
     }
