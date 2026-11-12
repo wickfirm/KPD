@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { saveProject, type ProjectFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
 import type { ProjectChrome } from "@/lib/project-chrome";
-import { defaultKeyFacts, galleryLightDevelopments } from "@/lib/development-gallery-light";
+import { defaultKeyFacts, galleryLightDevelopments, parseKeyFacts } from "@/lib/development-gallery-light";
+import { ListEditor } from "@/components/admin/list-editor";
 
 export type ProjectDefaults = {
   id?: string; slug?: string; name?: string; tagline?: string | null; description?: string | null;
@@ -32,7 +33,13 @@ export default function ProjectForm({ defaults, seo, chrome }: { defaults?: Proj
     <TextStyleFields prefix="projectDescription" value={chrome?.descriptionStyle} label="Introduction appearance" preserveDefault />
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="heroCtaVisible" defaultChecked={chrome?.ctaVisible !== false} /><span><strong>Show the introduction button</strong></span></label><label className="cms-field"><span>Button label</span><input name="heroCtaLabel" defaultValue={chrome?.ctaLabel ?? "Explore"} /></label><label className="cms-field"><span>Button link</span><input name="heroCtaUrl" defaultValue={chrome?.ctaUrl ?? "#amenities"} placeholder="#amenities" /></label></div>
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="brochureVisible" defaultChecked={chrome?.brochureVisible !== false} /><span><strong>Show Download brochure</strong><small>Sits beside the introduction button. Visitors fill in a short form, then receive this file by email.</small></span></label><label className="cms-field"><span>Brochure button text</span><input name="brochureLabel" defaultValue={chrome?.brochureLabel ?? "Download brochure"} /></label><div className="cms-field"><span>Brochure file</span><AssetUrlField name="brochureUrl" defaultValue={chrome?.brochureUrl ?? ""} accept="application/pdf,image/*" placeholder="Upload the PDF" fileLabel="brochure" /></div></div>
-    {defaults?.slug && galleryLightDevelopments.has(defaults.slug) ? <label className="cms-field"><span>Key facts</span><textarea name="keyFacts" rows={5} defaultValue={chrome?.keyFacts ?? defaultKeyFacts(defaults.slug)} /><small>The row of facts under the page image, one per line as <code>Label | value</code>, for example <code>Residences | 155</code>. Leave empty to hide the row.</small></label> : null}
+    {defaults?.slug && galleryLightDevelopments.has(defaults.slug) ? <>
+      <h3>Book a viewing button</h3>
+      <p className="cms-muted">The dark button beside Download brochure at the top of the page. Leave the link empty to use the private viewing band&apos;s first button link below (or the enquiry popup when that is empty too).</p>
+      <div className="cms-grid"><label className="cms-field"><span>Button label</span><input name="bookLabel" defaultValue={chrome?.bookLabel ?? ""} placeholder={chrome?.enquirePrimaryLabel || "Book a viewing"} /></label><label className="cms-field"><span>Button link</span><input name="bookUrl" defaultValue={chrome?.bookUrl ?? ""} placeholder="e.g. /contact, https://calendly.com/… or #location" /><small>A full https:// address opens in a new tab.</small></label></div>
+      <h3>Key facts</h3>
+      <KeyFactsField initial={chrome?.keyFacts ?? defaultKeyFacts(defaults.slug)} />
+    </> : null}
     <h3>Private viewing band</h3>
     <p className="cms-muted">Shown directly after the calculator. Leave the first button link empty to open the enquiry popup.</p>
     <label className="cms-check"><input type="checkbox" name="enquireVisible" defaultChecked={chrome?.enquireVisible !== false} /><span><strong>Show the private viewing band</strong></span></label>
@@ -55,4 +62,17 @@ export default function ProjectForm({ defaults, seo, chrome }: { defaults?: Proj
     <SeoFields defaults={seo} />
     <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save development"}</button></div>
   </form>;
+}
+
+/// The row of facts under the page image (Location, Residences, Types, From,
+/// Payment…). Edited as cards; stored as the same "Label | value" lines.
+function KeyFactsField({ initial }: { initial: string }) {
+  const [facts, setFacts] = useState(() => parseKeyFacts(initial));
+  const value = facts.filter((fact) => fact.label.trim() && fact.value.trim()).map((fact) => `${fact.label.trim()} | ${fact.value.trim()}`).join("\n");
+  return <div className="cms-field">
+    <small>The row of facts under the page image, shown left to right in this order. Remove every fact to hide the row.</small>
+    <input type="hidden" name="keyFacts" value={value} />
+    <ListEditor items={facts} onChange={setFacts} addLabel="Add fact" max={6} newItem={() => ({ label: "", value: "" })} itemLabel={(fact, index) => fact.label || `Fact ${index + 1}`}
+      renderItem={(fact, update) => <div className="cms-grid"><label className="cms-field"><span>Label</span><input value={fact.label} onChange={(event) => update({ label: event.target.value })} placeholder="Residences" /></label><label className="cms-field"><span>Value</span><input value={fact.value} onChange={(event) => update({ value: event.target.value })} placeholder="155" /></label></div>} />
+  </div>;
 }

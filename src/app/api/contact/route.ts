@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { pushLeadToSalesforce, SALESFORCE_LEAD_HOLD_NOTE, shouldMirrorSubmissionToSalesforce } from "@/lib/salesforce";
 import { leadDescription, sanitizeDetails } from "@/lib/submissions";
-import { getGlobalSettings, recipientFor, type FormRecipientKey } from "@/lib/site-contact";
+import { getGlobalSettings } from "@/lib/site-contact";
+import { buildNotificationEmail, notificationRecipients, notifyKeyFor, resendConfigured, sendWithResend } from "@/lib/form-notify";
 import { brochureLink, sendBrochureEmail } from "@/lib/brochure-mail";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 
@@ -23,15 +24,17 @@ export async function POST(req: NextRequest) {
   const interest = String(payload.interest || "").trim() || null;
   const sourcePage = String(payload.sourcePage || "").trim() || null;
   const inquiryType = String(payload.inquiryType || "").trim().slice(0, 80) || null;
-  const recipientKeys = new Set<FormRecipientKey>(["enquiry", "booking", "floorPlan", "calculator", "newsletter", "contactSales", "contactCustomer", "contactChannel", "contactCareers", "contactPress"]);
   const requestedKey = String(payload.recipientKey || "");
   const settings = await getGlobalSettings();
-  const fromSettings = recipientKeys.has(requestedKey as FormRecipientKey) ? recipientFor(settings, requestedKey as FormRecipientKey) : "";
+  // Routing comes from Site settings only. Forms that do not name a key
+  // (brochure, seven x seven landing) are matched by their enquiry type.
+  const notifyKey = notifyKeyFor({ recipientKey: requestedKey, inquiryType });
+  const notifyTo = notificationRecipients(settings, notifyKey);
   const fromClient = String(payload.recipient || "").trim();
-  const recipient = (fromSettings || fromClient).slice(0, 320);
+  const recipient = (notifyTo.join(", ") || fromClient).slice(0, 320);
   // Every field the visitor filled in, as ordered { label, value } pairs.
   const details = sanitizeDetails(payload.details);
-  if (recipient && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(recipient)) details.push({ label: "Delivery recipient", value: recipient });
+  if (recipient && /^[^@\s]+@[^@\s]+\.[^@\s]+/.test(recipient)) details.push({ label: "Delivery recipient", value: recipient });
 
   if (!name || !email || !message) {
     return NextResponse.json(
@@ -110,6 +113,21 @@ export async function POST(req: NextRequest) {
         console.error("[api/contact] brochure email failed:", error);
       }
     }
+  }
+
+  // Team copy by email (Resend). The submission is already saved, so a mail
+  // failure never fails the request; the outcome is noted on the submission.
+  if (settings.formEmailsEnabled !== false && notifyTo.length && resendConfigured()) {
+    let outcome: string;
+    try {
+      const mail = buildNotificationEmail({ inquiryType, name, email, phone, message, interest, sourcePage, details, submissionId: submission.id, adminUrl: new URL("/admin/submissions", req.nextUrl.origin).toString() });
+      await sendWithResend({ to: notifyTo, ...mail, replyTo: email });
+      outcome = `Sent to ${notifyTo.join(", ")}`;
+    } catch (error) {
+      console.error("[api/contact] notification email failed:", error);
+      outcome = `Not sent: ${(error as Error).message}`.slice(0, 300);
+    }
+    await db.contactSubmission.update({ where: { id: submission.id }, data: { details: [...details, { label: "Email notification", value: outcome }] } }).catch(() => null);
   }
 
   return NextResponse.json({ ok: true, id: submission.id, emailed }, { status: 201 });

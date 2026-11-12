@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 const COUNTRIES = [
   "United Arab Emirates (+971)", "Saudi Arabia (+966)", "Qatar (+974)", "Kuwait (+965)", "Bahrain (+973)", "Oman (+968)",
@@ -17,6 +17,20 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
   const [phoneError, setPhoneError] = useState("");
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
+  const [done, setDone] = useState(false);
+
+  /// Escape closes the form; after a successful request it closes on its own.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
+  useEffect(() => {
+    if (!open || !done) return;
+    const timer = window.setTimeout(() => setOpen(false), 5000);
+    return () => window.clearTimeout(timer);
+  }, [open, done]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,6 +73,7 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
       if (!response.ok) throw new Error(body.error || "Unable to send your request.");
       setStatus(body.emailed ? "The download link is on its way to your email." : "Your request is saved. The team will email the brochure link.");
       form.reset();
+      setDone(true);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Unable to send your request.");
     } finally {
@@ -67,10 +82,16 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
   }
 
   return <>
-    <button className={className} type="button" onClick={() => { setOpen(true); setStatus(""); }}>{label}</button>
+    <button className={className} type="button" onClick={() => { setOpen(true); setStatus(""); setDone(false); }}>{label}</button>
     {open ? <div className="brochure-request" role="dialog" aria-modal="true" aria-labelledby="brochure-request-title">
       <button className="brochure-request__backdrop" type="button" aria-label="Close brochure form" onClick={() => setOpen(false)} />
-      <form className="brochure-request__panel" onSubmit={submit}>
+      {done ? <div className="brochure-request__panel brochure-request__panel--done">
+        <button className="brochure-request__close" type="button" aria-label="Close" onClick={() => setOpen(false)}>×</button>
+        <h2 id="brochure-request-title">Thank you</h2>
+        <p className="brochure-request__status" role="status">{status}</p>
+        <button className="brochure-request__done" type="button" onClick={() => setOpen(false)}>Close <span aria-hidden="true">→</span></button>
+      </div> : <form className="brochure-request__panel" onSubmit={submit}>
+        <button className="brochure-request__close" type="button" aria-label="Close" onClick={() => setOpen(false)}>×</button>
         <h2 id="brochure-request-title">Property Brochure</h2>
         <p>Fill the form below to download the property brochure.</p>
         <div className="brochure-request__grid">
@@ -81,7 +102,7 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
         </div>
         <button type="submit" disabled={pending}>{pending ? "Sending…" : "Request brochure"} <span aria-hidden="true">→</span></button>
         {status ? <p className="brochure-request__status" role="status">{status}</p> : null}
-      </form>
+      </form>}
     </div> : null}
   </>;
 }

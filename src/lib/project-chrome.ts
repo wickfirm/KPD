@@ -10,6 +10,10 @@ export type ProjectChrome = {
   brochureLabel?: string;
   brochureUrl?: string;
   brochureVisible?: boolean;
+  /// Gallery-light "Book a viewing" button beside Download brochure. Absent
+  /// values follow the private viewing band's first button (enquirePrimary*).
+  bookLabel?: string;
+  bookUrl?: string;
   enquireVisible?: boolean;
   enquireEyebrow?: string;
   enquireHeading?: string;
@@ -51,6 +55,8 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
   const ctaUrl = typeof source.ctaUrl === "string" ? source.ctaUrl.trim() : "";
   const brochureLabel = typeof source.brochureLabel === "string" ? source.brochureLabel.trim() : "";
   const brochureUrl = typeof source.brochureUrl === "string" ? source.brochureUrl.trim() : "";
+  const bookLabel = typeof source.bookLabel === "string" ? source.bookLabel.trim() : "";
+  const bookUrl = typeof source.bookUrl === "string" ? source.bookUrl.trim() : "";
   const enquireEyebrow = typeof source.enquireEyebrow === "string" ? source.enquireEyebrow.trim() : "";
   const enquireHeading = typeof source.enquireHeading === "string" ? source.enquireHeading.trim() : "";
   const enquireText = typeof source.enquireText === "string" ? source.enquireText.trim() : "";
@@ -68,6 +74,8 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
     ...(brochureLabel ? { brochureLabel } : {}),
     ...(brochureUrl ? { brochureUrl } : {}),
     ...(source.brochureVisible === false ? { brochureVisible: false } : {}),
+    ...(bookLabel ? { bookLabel } : {}),
+    ...(bookUrl ? { bookUrl } : {}),
     ...(source.enquireVisible === false ? { enquireVisible: false } : {}),
     ...(enquireEyebrow ? { enquireEyebrow } : {}),
     ...(enquireHeading ? { enquireHeading } : {}),
