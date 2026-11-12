@@ -1,4 +1,4 @@
-import { saveSectionVisibility } from "@/app/admin/(dashboard)/section-visibility-actions";
+import { saveSectionVisibility, toggleSectionVisibility } from "@/app/admin/(dashboard)/section-visibility-actions";
 import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { ownSwitchNotes, type SectionDef } from "@/lib/section-visibility";
 
@@ -28,4 +28,21 @@ export async function SectionVisibilityPanel({ page, sections, returnTo, noteKey
       <div className="cms-actions"><button className="cms-btn" type="submit">Save sections</button></div>
     </form>
   </details>;
+}
+
+/// The Hide / Show button on one section's own card in an editor, so a block
+/// can be switched off where it is edited. Same setting as the panel above.
+export function SectionToggle({ page, section, hidden, returnTo }: { page: string; section: string; hidden: boolean; returnTo: string }) {
+  return <form action={toggleSectionVisibility} className="cms-section-toggle">
+    <input type="hidden" name="page" value={page} />
+    <input type="hidden" name="section" value={section} />
+    <input type="hidden" name="hide" value={hidden ? "0" : "1"} />
+    <input type="hidden" name="returnTo" value={returnTo} />
+    <button className={`cms-btn cms-btn--small ${hidden ? "" : "cms-btn--ghost"}`} type="submit" title={hidden ? "Show this section on the live page again" : "Hide this section from the live page; its content is kept"}>{hidden ? "Show on page" : "Hide from page"}</button>
+  </form>;
+}
+
+/// A "Hidden" label for a section card whose block is switched off.
+export function HiddenBadge() {
+  return <span className="cms-badge cms-badge--DRAFT">Hidden on page</span>;
 }

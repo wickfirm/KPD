@@ -1297,3 +1297,6 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 .cms-sections-panel[open] > summary { margin-bottom: 14px; }
 .cms-sections-panel__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 12px; margin-top: 12px; }
 .cms-sections-panel__grid .cms-check small { display: block; margin-top: 2px; font-size: 12px; }
+.cms-module-card__side { display: inline-flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.cms-section-toggle { display: inline-flex; margin: 0 !important; padding: 0 !important; }
+.cms-module-disclosure > summary:has(.cms-badge--DRAFT) h3 { opacity: 0.6; }
