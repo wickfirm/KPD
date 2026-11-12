@@ -2,7 +2,7 @@ import Script from "next/script";
 
 /// KPD's Google Tag Manager container. NEXT_PUBLIC_GTM_ID can override it
 /// (or set it to "off" to disable tracking) without a code change.
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-TGPH7TL2";
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID?.trim() || "GTM-W463GNF5";
 
 /// Only real visitor traffic is sent: local dev and Vercel preview
 /// deployments are skipped so they don't pollute the analytics data.
