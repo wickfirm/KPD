@@ -1,4 +1,5 @@
 ﻿import "./public.css";
+import GoogleTagManager from "@/components/public/GoogleTagManager";
 
 /// CMS saves must appear on the next public request rather than after an ISR window.
 export const dynamic = "force-dynamic";
@@ -9,5 +10,10 @@ export const dynamic = "force-dynamic";
 /// No wrapper element: the delivered body classes are applied to <body> itself
 /// before first paint (DeliveredBodyClass), so the DOM matches the client's HTML.
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      <GoogleTagManager />
+      {children}
+    </>
+  );
 }
