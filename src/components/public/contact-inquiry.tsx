@@ -12,6 +12,16 @@ import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 /// shown as pill choices, which post the same names and values.
 
 type PaneKey = "sales" | "customer" | "channel" | "job" | "press";
+
+/// CMS text with [label](/path) links, e.g. the consent lines. Only site paths
+/// and http(s) links become links; everything else stays plain text.
+function linked(value: string) {
+  return value.split(/(\[[^\]]+\]\([^)\s]+\))/g).map((part, index) => {
+    const match = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(part);
+    if (!match || !(/^\/(?!\/)/.test(match[2]) || /^https?:\/\//i.test(match[2]))) return part;
+    return <a key={index} href={match[2]}>{match[1]}</a>;
+  });
+}
 type ContactWindow = Window & { __KPD_CONTACT?: { email?: string; recipients?: Record<string, string | undefined> } };
 
 export function ContactInquiry({ phone = "", website = "", image = "", content }: { email?: string; phone?: string; website?: string; image?: string; content?: unknown }) {
@@ -138,11 +148,11 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
     <aside className="g21-ec-card">
       {image ? <figure className="g21-ph"><img src={image} alt="KPD Experience Centre reception lounge" /></figure> : null}
       <div className="g21-ec-body">
-        <span className="g21-cap">Experience Centre address</span>
-        <address>Bay Gate Tower, Floor 36<br />Business Bay, Dubai, AE</address>
+        <span className="g21-cap">{c.addressLabel}</span>
+        <address>{c.address.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]))}</address>
         <div className="g21-ctas">
-          <a className="g21-btn" href="https://www.google.com/maps/search/?api=1&query=Bay+Gate+Tower+Business+Bay+Dubai" target="_blank" rel="noopener">Get directions <span className="g21-ar" aria-hidden="true">↗</span></a>
-          {tel ? <a className="g21-btn g21-btn--line" href={`tel:${tel}`}>Call</a> : null}
+          <a className="g21-btn" href={c.directionsUrl} target="_blank" rel="noopener">{c.directionsLabel} <span className="g21-ar" aria-hidden="true">↗</span></a>
+          {tel ? <a className="g21-btn g21-btn--line" href={`tel:${tel}`}>{c.callLabel}</a> : null}
         </div>
         {website ? <a className="g21-txt-link" href={website}>{(() => { try { return new URL(website).hostname; } catch { return website; } })()}</a> : null}
       </div>
@@ -150,7 +160,7 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
     </aside>
 
     <div className="g21-cform">
-      <h2 className="g21-cf-h">How can we help?</h2>
+      <h2 className="g21-cf-h">{c.formHeading}</h2>
       <div className="g21-tabs" role="tablist" aria-label="Inquiry type">
         {panes.map(({ key, label }) => (
           <button key={key} id={`contact-tab-${key}`} type="button" role="tab" aria-selected={activePane === key} aria-controls={`contact-pane-${key}`} tabIndex={activePane === key ? 0 : -1} onClick={() => setActivePane(key)}>{label}</button>
@@ -223,10 +233,10 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
         </fieldset>
 
         <div className="g21-consent">
-          <label className="g21-chk"><input type="checkbox" name="Terms" required /><span>I have read and agree to Kasumigaseki Properties Development&apos;s <a href="/terms">Terms and Conditions</a> and <a href="/privacy-policy">Privacy Policy</a>.</span></label>
-          <label className="g21-chk"><input type="checkbox" name="Marketing" /><span>I consent to receive marketing communications from Kasumigaseki Properties Development in accordance with the Privacy Policy. I can unsubscribe at any time.</span></label>
+          <label className="g21-chk"><input type="checkbox" name="Terms" required /><span>{linked(c.termsText)}</span></label>
+          <label className="g21-chk"><input type="checkbox" name="Marketing" /><span>{linked(c.marketingText)}</span></label>
         </div>
-        <button className="g21-btn g21-submit" type="submit" disabled={pending}>Send enquiry <span className="g21-ar" aria-hidden="true">→</span></button>
+        <button className="g21-btn g21-submit" type="submit" disabled={pending}>{c.submitLabel} <span className="g21-ar" aria-hidden="true">→</span></button>
         {status ? <p className="g21-form-status" role="status">{status}</p> : null}
       </form>
     </div>

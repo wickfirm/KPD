@@ -7,6 +7,7 @@ import type { ContactDetails, StaticBlock } from "@/lib/static-blocks";
 import { AboutMain } from "./about-page";
 import { LegacyMain } from "./legacy-page";
 import { ContactInquiry } from "./contact-inquiry";
+import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
@@ -59,6 +60,7 @@ export function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[]; pre
 export function ContactView({ blocks, contact, previewNote }: { blocks: StaticBlock[]; contact: ContactDetails; previewNote?: string }) {
   const hero = blocks.find((block) => block.type === "hero") ?? {};
   const inquiryForm = blocks.find((block) => block.type === "contact-form");
+  const inquiryCopy = mergeContactInquiryContent(inquiryForm);
   return <>
     {preview(previewNote)}
     <DeliveredBodyClass bodyClass="home-development-page kpd-page contact-page" />
@@ -72,8 +74,8 @@ export function ContactView({ blocks, contact, previewNote }: { blocks: StaticBl
             <div>
               {hero.text ? <p className="g21-lede" style={textStyleProps(hero.textStyle as AboutContent["heroTextStyle"])}>{hero.text as string}</p> : null}
               {contact.phone || contact.email ? <div className="g21-quick">
-                {contact.phone ? <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}><span className="g21-cap">Call</span><b>{contact.phone}</b></a> : null}
-                {contact.email ? <a href={`mailto:${contact.email}`}><span className="g21-cap">Email</span><b>{contact.email}</b></a> : null}
+                {contact.phone ? <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`}><span className="g21-cap">{inquiryCopy.quickCallLabel}</span><b>{contact.phone}</b></a> : null}
+                {contact.email ? <a href={`mailto:${contact.email}`}><span className="g21-cap">{inquiryCopy.quickEmailLabel}</span><b>{contact.email}</b></a> : null}
               </div> : null}
             </div>
           </div>

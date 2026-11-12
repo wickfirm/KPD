@@ -33,7 +33,24 @@ export type ProjectChrome = {
   nameStyle?: TextStyle;
   taglineStyle?: TextStyle;
   descriptionStyle?: TextStyle;
+  /// Small labels on the gallery-light page. Absent means the approved
+  /// wording; an empty string hides that label.
+  labels?: ProjectPageLabels;
 };
+
+export type ProjectPageLabels = { overview?: string; driveNote?: string; calculator?: string; subnavCta?: string };
+export const projectPageLabelDefaults = { overview: "Overview", driveNote: "Drive times from {name}", calculator: "Mortgage calculator", subnavCta: "Enquire" } as const;
+
+/// Keeps only string labels, so a hidden ("") label survives but junk does not.
+function parsePageLabels(value: unknown): ProjectPageLabels | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const source = value as Record<string, unknown>;
+  const labels: ProjectPageLabels = {};
+  for (const key of Object.keys(projectPageLabelDefaults) as (keyof ProjectPageLabels)[]) {
+    if (typeof source[key] === "string") labels[key] = (source[key] as string).trim();
+  }
+  return Object.keys(labels).length ? labels : undefined;
+}
 
 export const projectChromeKey = (id: string) => `project-chrome:${id}`;
 
@@ -91,5 +108,6 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
     ...(cleanTextStyle(source.nameStyle) ? { nameStyle: cleanTextStyle(source.nameStyle) } : {}),
     ...(cleanTextStyle(source.taglineStyle) ? { taglineStyle: cleanTextStyle(source.taglineStyle) } : {}),
     ...(cleanTextStyle(source.descriptionStyle) ? { descriptionStyle: cleanTextStyle(source.descriptionStyle) } : {}),
+    ...(parsePageLabels(source.labels) ? { labels: parsePageLabels(source.labels) } : {}),
   };
 }

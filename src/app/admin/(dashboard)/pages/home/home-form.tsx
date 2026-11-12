@@ -5,7 +5,7 @@ import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
-import { homeDefaults, type BannerSlide, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
+import { homeDefaults, type BannerSlide, type HomeNewsCard, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
 
 export type { HomeSettings };
@@ -41,6 +41,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
   const [stats, setStats] = useState<StatItem[]>(() => settings.introStats ?? []);
   const [slides, setSlides] = useState<BannerSlide[]>(() => settings.bannerSlides ?? []);
   const [values, setValues] = useState<HomeValue[]>(() => settings.introValues ?? homeDefaults.introValues ?? []);
+  const [newsCards, setNewsCards] = useState<HomeNewsCard[]>(() => settings.newsCards ?? homeDefaults.newsCards ?? []);
   return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero</h2>
     <label className="cms-field"><span>Show in the hero</span><select name="heroMediaType" defaultValue={settings.heroMediaType ?? "video"}><option value="video">Video</option><option value="image">Image</option></select><small>Choose which one the homepage banner shows. If the chosen one is empty, the other is used instead.</small></label>
@@ -56,10 +57,11 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     <TextStyleFields prefix="introBody" value={settings.introBodyStyle} label="Statement appearance" preserveDefault />
     <section className="cms-editor-section">
       <h3>Value trio</h3>
-      <p className="cms-muted">The three columns under the About statement. Each has a small “Value” caption above its title.</p>
+      <p className="cms-muted">The three columns under the About statement. Each has a small caption (“Value” unless you change it) above its title.</p>
       <input type="hidden" name="introValuesJson" value={JSON.stringify(values)} />
-      <ListEditor items={values} onChange={setValues} newItem={() => ({ title: "", body: "" })} addLabel="Add value" itemLabel={(item, index) => `Value ${index + 1}${item.title ? ` — ${item.title}` : ""}`}
+      <ListEditor items={values} onChange={setValues} newItem={(): HomeValue => ({ title: "", body: "" })} addLabel="Add value" itemLabel={(item, index) => `Value ${index + 1}${item.title ? ` — ${item.title}` : ""}`}
         renderItem={(item, update) => <div className="cms-grid">
+          <label className="cms-field"><span>Small caption</span><input value={item.cap ?? "Value"} onChange={(event) => update({ cap: event.target.value })} placeholder="Value" /><small>Leave empty to hide it.</small></label>
           <label className="cms-field"><span>Title</span><input value={item.title} onChange={(event) => update({ title: event.target.value })} placeholder="Quality" /></label>
           <label className="cms-field"><span>Description</span><input value={item.body} onChange={(event) => update({ body: event.target.value })} placeholder="An uncompromising standard across every material." /></label>
         </div>} />
@@ -135,6 +137,21 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     <label className="cms-field"><span>Supporting text</span><textarea name="newsText" rows={3} defaultValue={settings.newsText ?? ""} /></label>
     <TextStyleFields prefix="newsBody" value={settings.newsBodyStyle} label="News text appearance" preserveDefault />
     <div className="cms-grid"><label className="cms-check"><input type="checkbox" name="newsCtaVisible" defaultChecked={settings.newsCtaVisible !== false} /><span><strong>Show button</strong><small>Controls the news button.</small></span></label><label className="cms-field"><span>Button text</span><input name="newsCta" defaultValue={settings.newsCta ?? "Read News & Insights"} /></label><label className="cms-field"><span>Button link</span><input name="newsCtaUrl" defaultValue={settings.newsCtaUrl ?? "/news"} /></label><label className="cms-field"><span>Button position</span><select name="newsCtaPosition" defaultValue={settings.newsCtaPosition ?? "below"}><option value="below">Below the text</option><option value="above">Above the text</option><option value="right">Right of the text</option><option value="left">Left of the text</option></select><small>The button and the supporting text move as a pair.</small></label></div>
+    <section className="cms-editor-section">
+      <h3>News cards</h3>
+      <p className="cms-muted">The cards under the news band. Each opens its link; point them at press coverage or any page.</p>
+      <label className="cms-field"><span>Card link text</span><input name="newsCardLabel" defaultValue={settings.newsCardLabel ?? homeDefaults.newsCardLabel} placeholder="Explore" /><small>For example “Read more” or “Know more”. Leave empty for “Explore”.</small></label>
+      <input type="hidden" name="newsCardsJson" value={JSON.stringify(newsCards)} />
+      <ListEditor items={newsCards} onChange={setNewsCards} newItem={() => ({ image: "", title: "", text: "", url: "" })} addLabel="Add news card" max={6} itemLabel={(item, index) => `Card ${index + 1}${item.title ? ` — ${item.title}` : ""}`}
+        renderItem={(item, update, index) => <>
+          <div className="cms-grid">
+            <label className="cms-field"><span>Title</span><input value={item.title} onChange={(event) => update({ title: event.target.value })} /></label>
+            <label className="cms-field"><span>Link</span><input value={item.url} onChange={(event) => update({ url: event.target.value })} placeholder="/news or https://…" /></label>
+          </div>
+          <label className="cms-field"><span>Text</span><textarea rows={2} value={item.text} onChange={(event) => update({ text: event.target.value })} /></label>
+          <div className="cms-field"><span>Image</span><AssetUrlField value={item.image} onChange={(image) => update({ image })} accept="image/*" fileLabel={`news card ${index + 1} image`} /></div>
+        </>} />
+    </section>
     <SeoFields defaults={seo} />
     <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;

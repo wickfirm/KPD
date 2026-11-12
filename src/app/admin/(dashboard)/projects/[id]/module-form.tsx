@@ -6,9 +6,10 @@ import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reorder";
 import { moduleKindLabels } from "@/lib/project-starter";
 import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
+import { sectionEyebrow } from "@/lib/development-section-labels";
 
 type ModuleItem = { label?: string; value?: string; image?: string; url?: string };
-type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyleValue; textStyle?: TextStyleValue };
+type ModuleContent = { eyebrow?: string; text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyleValue; textStyle?: TextStyleValue };
 type Defaults = { id?: string; title?: string; slug?: string; kind?: string; profile?: string; sortOrder?: number; content?: ModuleContent };
 const initialState: ProjectModuleFormState = {};
 
@@ -65,6 +66,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
       <label className="cms-field"><span>Section title</span><textarea name="title" rows={2} required defaultValue={defaults?.title} /><small>Line breaks render in the section heading exactly as typed.</small></label>
       <label className="cms-field"><span>Section type</span><select name="kind" value={kind} onChange={(event) => setKind(event.target.value)}>{Object.entries(moduleKindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
     </div>
+    <label className="cms-field"><span>Small caption above the title</span><input name="eyebrow" defaultValue={sectionEyebrow(defaults?.slug ?? "", defaults?.content?.eyebrow)} placeholder="e.g. Amenities" /><small>The capital-letter caption over the section title on the seven x seven page. Leave empty to hide it.</small></label>
     <input type="hidden" name="sortOrder" value={defaults?.sortOrder ?? 0} />
     <details className="cms-advanced-input">
       <summary>Advanced options</summary>

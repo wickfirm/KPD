@@ -5,6 +5,7 @@
 // when the CMS returned nothing).
 
 import { db } from "@/lib/db";
+import type { TextStyle } from "@/lib/text-style";
 
 export type NewsListItem = {
   slug: string;
@@ -28,6 +29,12 @@ export type NewsListingCopy = {
   /// undefined = the supplied launch coverage; coverageVisible false hides it.
   coverageVisible?: boolean; coverageLabel?: string; coverageHeading?: string;
   coverage?: unknown;
+  /// "press" leads the page with the press coverage as image cards instead of
+  /// CMS articles (client: no internal news for now). Absent = articles.
+  layout?: "articles" | "press";
+  filterAll?: string; filterPerspective?: string; filterAnnouncement?: string;
+  pressCardCta?: string;
+  headingStyle?: TextStyle; pressHeadingStyle?: TextStyle; pressTextStyle?: TextStyle;
 };
 
 export const newsListingDefaults = {
@@ -42,6 +49,10 @@ export const newsListingDefaults = {
   pressLinkLabel: "Press form",
   pressLinkText: "Send a media request",
   pressLinkUrl: "/contact",
+  filterAll: "All",
+  filterPerspective: "Perspectives",
+  filterAnnouncement: "Announcements",
+  pressCardCta: "Read the article",
 } as const;
 
 /// Reading time from the article body (string[] of paragraphs), at least 1 minute.

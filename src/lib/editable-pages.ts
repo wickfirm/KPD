@@ -14,12 +14,12 @@ export type EditablePage = {
 
 export const editablePages: EditablePage[] = [
   { key: "home", title: "Homepage", description: "Hero video, introduction, developments heading, contact strip, and the Experience Center gallery.", href: "/admin/pages/home", publicHref: "/", editor: "home" },
-  { key: "seven-x-seven", title: "seven x seven", description: "The residence landing page: text, buttons, images, floor plans, amenities and the payment plan.", href: "/admin/seven-x-seven", publicHref: "/seven-x-seven", editor: "static" },
+  { key: "seven-x-seven", title: "seven x seven landing page", description: "The separate residence landing page at /seven-x-seven (not the development page): text, buttons, images, floor plans, amenities and the payment plan.", href: "/admin/seven-x-seven", publicHref: "/seven-x-seven", editor: "static" },
   { key: "about", title: "About us", description: "Mission, vision, chairman's message, and the executive management team.", href: "/admin/about", publicHref: "/about", editor: "about" },
   { key: "invest-in-dubai", title: "Investor guide", description: "Every section of the Invest in Dubai page: hero, benefits, yield comparison, residency, pathway, trust, liquidity, featured developments, FAQ and closing band.", href: "/admin/pages/invest-in-dubai", publicHref: "/invest-in-dubai", editor: "static" },
   { key: "news", title: "News", description: "The News page: hero title and introduction, article button labels, and the press band. Articles themselves are written under News & Blog.", href: "/admin/pages/news", publicHref: "/news", editor: "news" },
   { key: "contact", title: "Contact", description: "Intro heading and copy for the Contact page hero.", href: "/admin/pages/contact", publicHref: "/contact", editor: "static" },
-  { key: "legacy", title: "Legacy", description: "Company story page with the six-part alternating timeline.", href: "/admin/pages/legacy", publicHref: "/legacy", editor: "static" },
+  { key: "legacy", title: "History", description: "The History page (address /legacy): the company story and its timeline.", href: "/admin/pages/legacy", publicHref: "/legacy", editor: "static" },
   { key: "terms", title: "Terms and Conditions", description: "Legal hero and body copy for the terms page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/terms", publicHref: "/terms", editor: "static" },
   { key: "privacy-policy", title: "Privacy Policy", description: "Legal hero and body copy for the privacy page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/privacy-policy", publicHref: "/privacy-policy", editor: "static" },
   { key: "cookie-policy", title: "Cookie Policy", description: "Legal hero and body copy for the cookie page. Start a body line with “## ” to make it a section heading.", href: "/admin/pages/cookie-policy", publicHref: "/cookie-policy", editor: "static" },

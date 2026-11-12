@@ -2,7 +2,7 @@
 /// invest-in-dubai.html). Single source of truth for the public page fallbacks
 /// and the admin investor-guide editor. Pure data - safe for client components.
 
-import { mortgageCalculatorDefaultCopy } from "@/lib/mortgage-calculator-html";
+import { mortgageCalculatorDefaultCopy, type MortgageCalculatorLabels } from "@/lib/mortgage-calculator-html";
 import { cleanTextStyle, type TextStyle } from "@/lib/text-style";
 
 export type IconCard = { icon: string; title: string; text: string };
@@ -29,6 +29,29 @@ export const investSectionLabels: Record<InvestSectionId, string> = {
   calculator: "Mortgage calculator",
 };
 
+export type InvestLabels = Record<keyof typeof investLabelDefaults, string>;
+/// The approved wording for each label; the editor shows it as the placeholder.
+export const investLabelDefaults = {
+  benefits: "Why Dubai",
+  market: "Rental yield",
+  calculator: "Mortgage calculator",
+  payment: "Payment plans",
+  pathway: "Investment pathway",
+  liquidity: "Market liquidity and exit",
+  featured: "Featured developments",
+  calculatorButton: "Open the calculator",
+  subnavCta: "Enquire",
+  yieldCity: "City / market",
+  yieldGross: "Gross rental yield",
+  yieldGain: "Capital appreciation",
+  featuredCta: "Explore",
+} as const;
+
+/// A label as shown: the saved text, or the approved wording when blank.
+export function investLabel(labels: Partial<InvestLabels> | undefined, key: keyof typeof investLabelDefaults): string {
+  return labels?.[key]?.trim() || investLabelDefaults[key];
+}
+
 export type InvestContent = {
   metrics: Metric[];
   benefits: { heading: string; text: string; items: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
@@ -40,7 +63,10 @@ export type InvestContent = {
   trust: PanelSection;
   liquidity: { heading: string; text: string; feature: IconCard; cards: IconCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
   featured: { heading: string; text: string; cards: FeaturedCard[]; headingStyle?: TextStyle; textStyle?: TextStyle };
-  calculator: { heading: string; text: string; headingStyle?: TextStyle; textStyle?: TextStyle };
+  calculator: { heading: string; text: string; headingStyle?: TextStyle; textStyle?: TextStyle } & MortgageCalculatorLabels;
+  /// Small captions and button texts around the sections (Nov 2026 batch 2).
+  /// Blank keeps the approved wording in investLabelDefaults.
+  labels: InvestLabels;
   faq: { eyebrow: string; heading: string; text: string; items: FaqItem[]; headingStyle?: TextStyle; textStyle?: TextStyle };
   contact: { eyebrow: string; heading: string; text: string; image: string; primaryLabel: string; secondaryLabel: string };
   sectionOrder: InvestSectionId[];
@@ -172,7 +198,8 @@ export const investDefaults: InvestContent = {
   },
   paymentVisible: true,
   sectionOrder: [...investSectionIds],
-  calculator: { ...mortgageCalculatorDefaultCopy, headingStyle: undefined, textStyle: undefined },
+  calculator: { ...mortgageCalculatorDefaultCopy, headingStyle: undefined, textStyle: undefined, estimateLabel: undefined, monthlyLabel: undefined, costsButton: undefined, formHeading: undefined, formText: undefined, submitLabel: undefined, disclaimer: undefined },
+  labels: Object.fromEntries(Object.keys(investLabelDefaults).map((key) => [key, ""])) as InvestLabels,
   faq: {
     headingStyle: undefined,
     textStyle: undefined,

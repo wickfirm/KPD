@@ -33,7 +33,19 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   const section = heading || text || cta
     ? `<section class="${sectionClass}" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
-  return staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section);
+  return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings);
+}
+
+/// The news grid under the band: CMS cards when saved (an empty list removes
+/// the grid), otherwise the delivered cards with the CMS link text.
+function withHomeNewsCards(tail: string, settings: HomeSettings) {
+  const label = escapeHtml(settings.newsCardLabel?.trim() || "Explore");
+  const grid = /<section class="pdf-section pdf-events-grid"[^>]*>[\s\S]*?<\/section>/;
+  if (!settings.newsCards) return settings.newsCardLabel?.trim() ? tail.replace(grid, (match) => match.replace(/(<a href="[^"]*">)Explore(<\/a>)/g, `$1${label}$2`)) : tail;
+  const cards = settings.newsCards.filter((card) => card.title.trim() || card.image.trim());
+  if (!cards.length) return tail.replace(grid, "");
+  const html = cards.map((card) => `<article class="pdf-event-card">${card.image ? `<img src="${escapeHtml(card.image)}" alt="${escapeHtml(card.title)}">` : ""}<h3>${escapeHtml(card.title)}</h3>${card.text ? `<p>${escapeHtml(card.text)}</p>` : ""}<a href="${escapeHtml(card.url || "/news")}">${label}</a></article>`).join("");
+  return tail.replace(grid, `<section class="pdf-section pdf-events-grid" aria-label="${escapeHtml(settings.newsHeading?.trim() || "Latest news")}">${html}</section>`);
 }
 
 /// Gallery-light hero: full-bleed media with the page headline, a supporting
@@ -86,7 +98,7 @@ export function HomeIntro({ heading, paragraphs, headingStyle, bodyStyle, kicker
         <div className="pdf-values">
           {values.filter((value) => value.title.trim() || value.body.trim()).map((value, index) => (
             <div className="pdf-value" key={`${value.title}-${index}`}>
-              <p className="pdf-value-cap">Value</p>
+              {(value.cap ?? "Value") ? <p className="pdf-value-cap">{value.cap ?? "Value"}</p> : null}
               <h3>{value.title}</h3>
               {value.body.trim() ? <p>{value.body}</p> : null}
             </div>

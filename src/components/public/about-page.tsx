@@ -52,6 +52,8 @@ export function AboutMain({ content }: { content: AboutContent }) {
   const heroSecondaryUrl = field(content.heroSecondaryUrl, aboutDefaults.heroSecondaryUrl);
   const keyFacts = (content.keyFacts ?? aboutDefaults.keyFacts).filter((fact: AboutKeyFact) => fact.label || fact.value);
   const philosophyKicker = field(content.philosophyKicker, aboutDefaults.philosophyKicker);
+  const missionKicker = field(content.missionKicker, aboutDefaults.missionKicker);
+  const visionKicker = field(content.visionKicker, aboutDefaults.visionKicker);
   const leadershipKicker = field(content.leadershipKicker, aboutDefaults.leadershipKicker);
   const leadershipHeading = field(content.leadershipHeading, aboutDefaults.leadershipHeading);
   const teamKicker = field(content.teamKicker, aboutDefaults.teamKicker);
@@ -106,7 +108,7 @@ export function AboutMain({ content }: { content: AboutContent }) {
             {valueParagraphs.map((paragraph, index) => {
               const card = valueCard(paragraph, index);
               return <article className="g21-val" key={index}>
-                <span className="g21-cap">{card.cap}</span>
+                <span className="g21-cap">{content.valueCaps?.[index]?.trim() || card.cap}</span>
                 {card.title ? <h3>{card.title}</h3> : null}
                 <p style={textStyleProps(content.storyStyle)}>{multiline(card.text)}</p>
               </article>;
@@ -119,8 +121,8 @@ export function AboutMain({ content }: { content: AboutContent }) {
         <div className="g21-wrap">
           <h2 className="g21-sr" id="g21-mv-title">Mission and vision</h2>
           <div className="g21-mv">
-            {mission.lead ? <article><span className="g21-cap">Our mission</span><p className="g21-big" style={textStyleProps(content.missionVisionStyle)}>{multiline(mission.lead)}</p>{mission.rest ? <p className="g21-muted">{multiline(mission.rest)}</p> : null}</article> : null}
-            {vision.lead ? <article><span className="g21-cap">Our vision</span><p className="g21-big" style={textStyleProps(content.missionVisionStyle)}>{multiline(vision.lead)}</p>{vision.rest ? <p className="g21-muted">{multiline(vision.rest)}</p> : null}</article> : null}
+            {mission.lead ? <article>{missionKicker ? <span className="g21-cap">{missionKicker}</span> : null}<p className="g21-big" style={textStyleProps(content.missionVisionStyle)}>{multiline(mission.lead)}</p>{mission.rest ? <p className="g21-muted">{multiline(mission.rest)}</p> : null}</article> : null}
+            {vision.lead ? <article>{visionKicker ? <span className="g21-cap">{visionKicker}</span> : null}<p className="g21-big" style={textStyleProps(content.missionVisionStyle)}>{multiline(vision.lead)}</p>{vision.rest ? <p className="g21-muted">{multiline(vision.rest)}</p> : null}</article> : null}
           </div>
         </div>
       </section> : null}

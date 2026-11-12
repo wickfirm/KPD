@@ -18,6 +18,8 @@ export type LegacyGalleryLight = {
   /// Hero line used while the hero intro copy is empty.
   lede?: string;
   mapLabel?: string;
+  /// First hero button, jumping to the first year. {year} becomes that year.
+  startLabel?: string;
   nameKicker?: string;
   nameHeading?: string;
   /// Paragraphs separated by a blank line.
@@ -33,6 +35,7 @@ export type LegacyGalleryLight = {
 export const legacyGalleryDefaults: Required<LegacyGalleryLight> = {
   lede: "Founded in 2011, Kasumigaseki takes its name from the Japanese expression meaning “The Barrier of Haze.”",
   mapLabel: "Explore the map",
+  startLabel: "Start in {year}",
   nameKicker: "The name",
   nameHeading: "“The Barrier of Haze.”",
   nameText: "Rooted in the story of an ancient checkpoint overlooking distant lands through the haze, the name evokes perspective, foresight, and the vision to look beyond the horizon.\n\nToday, Kasumigaseki is synonymous with Japan’s central government district, a symbol of the nation’s resilience, enduring infrastructure, and long-term vision.",

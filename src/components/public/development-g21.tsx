@@ -3,7 +3,8 @@ import Link from "next/link";
 import type { DevelopmentProject, CalculatorCopy } from "./development-page";
 import { BrochureRequest } from "./brochure-request";
 import { DevelopmentAccordion } from "./development-accordion";
-import { developmentSlots } from "@/lib/project-chrome";
+import { developmentSlots, projectPageLabelDefaults } from "@/lib/project-chrome";
+import { sectionEyebrow } from "@/lib/development-section-labels";
 import { moduleSectionId } from "@/lib/module-section-id";
 import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
 import { defaultKeyFacts, driveMinutes, mapsLink, parseKeyFacts } from "@/lib/development-gallery-light";
@@ -11,7 +12,7 @@ import { textStyleProps, type TextStyle } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
-type ModuleContent = { text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyle; textStyle?: TextStyle };
+type ModuleContent = { eyebrow?: string; text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyle; textStyle?: TextStyle };
 type Module = DevelopmentProject["modules"][number];
 
 const read = (value: unknown) => (value && typeof value === "object" && !Array.isArray(value) ? value : {}) as ModuleContent;
@@ -21,9 +22,9 @@ function multiline(value: string): ReactNode[] {
   return value.replace(/\r\n/g, "\n").split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]));
 }
 
-/// Small kicker above each section and its label in the page bar, by module
-/// slug. A null label keeps the section out of the page bar (as in the mock).
-const capFor: Record<string, string> = { "meydan-horizon": "Meydan Horizon", location: "The location", tour: "Virtual tour", amenities: "Amenities", brochure: "Interiors", "floor-plans": "Floor plans", "payment-plan": "Payment plan" };
+/// Each section's label in the page bar, by module slug. A null label keeps
+/// the section out of the page bar (as in the mock). The small kicker above
+/// each section comes from development-section-labels.ts (CMS-editable).
 const navFor: Record<string, string | null> = { "meydan-horizon": null, tour: null, location: "Location", amenities: "Amenities", brochure: "Materials", "floor-plans": "Floor plans", "payment-plan": "Payment" };
 
 /// A button that opens the booking form, or follows a link when one is set.
@@ -57,6 +58,8 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
   const primaryLabel = chrome.enquirePrimaryLabel || "Book a viewing";
   const bookLabel = chrome.bookLabel || primaryLabel;
   const bookUrl = chrome.bookUrl || chrome.enquirePrimaryUrl;
+  /// Page labels: undefined keeps the approved wording, "" hides the label.
+  const pageLabel = (key: keyof typeof projectPageLabelDefaults) => chrome.labels?.[key] ?? projectPageLabelDefaults[key];
 
   /// Background bands: split sections and the calculator sit on stone,
   /// everything else is white (split images alternate sides). A white section that
@@ -76,14 +79,14 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
     const previousWhite = index === 0 ? true : !plan[index - 1].band;
     const tone = entry.band ? " g21-band" : previousWhite ? " g21-pad--flush" : "";
     if (entry.slot === "calculator") return <section key="calculator" {...mortgageCalculatorSectionProps} className={`${mortgageCalculatorSectionProps.className} g21-calc g21-pad g21-band`} id="calculator">
-      <div className="g21-wrap"><span className="g21-cap g21-calc-cap">Mortgage calculator</span><div dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(calculator) }} /></div>
+      <div className="g21-wrap">{pageLabel("calculator") ? <span className="g21-cap g21-calc-cap">{pageLabel("calculator")}</span> : null}<div dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(calculator) }} /></div>
     </section>;
 
     const module = entry.slot;
     const data = read(module.content);
     const id = moduleSectionId(module.slug);
     const titleId = `g21-${id}-title`;
-    const cap = capFor[module.slug] ?? "";
+    const cap = sectionEyebrow(module.slug, data.eyebrow);
     const titleStyle = textStyleProps(data.titleStyle);
     const textStyle = textStyleProps(data.textStyle);
     const images = data.images ?? [];
@@ -111,7 +114,7 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
             {timed ? <span className="g21-bar" aria-hidden="true"><span style={{ width: `${(place.minutes / max) * 100}%` }} /></span> : <span />}
             <em>{place.time}</em>
           </li>)}</ol> : null}
-          {sorted.length ? <p className="g21-cap g21-drive-note">Drive times from {project.name}</p> : null}
+          {sorted.length && pageLabel("driveNote") ? <p className="g21-cap g21-drive-note">{pageLabel("driveNote").replaceAll("{name}", project.name)}</p> : null}
         </div>
       </section>;
     }
@@ -220,13 +223,13 @@ export function DevelopmentMainG21({ project, calculator }: { project: Developme
       <nav className="g21-subnav" aria-label="On this page">
         <div className="g21-wrap g21-subnav-in">
           {nav.map((entry) => <a key={entry.href} href={entry.href}>{entry.label}</a>)}
-          <button className="g21-btn g21-sub-cta" type="button" data-booking-open>Enquire</button>
+          {pageLabel("subnavCta") ? <button className="g21-btn g21-sub-cta" type="button" data-booking-open>{pageLabel("subnavCta")}</button> : null}
         </div>
       </nav>
 
       <section className="g21-pad" id="overview" aria-labelledby="g21-overview-title">
         <div className="g21-wrap g21-overview">
-          <div><span className="g21-cap">Overview</span>{project.tagline ? <h2 id="g21-overview-title" style={textStyleProps(chrome.taglineStyle)}>{multiline(project.tagline)}</h2> : null}</div>
+          <div>{pageLabel("overview") ? <span className="g21-cap">{pageLabel("overview")}</span> : null}{project.tagline ? <h2 id="g21-overview-title" style={textStyleProps(chrome.taglineStyle)}>{multiline(project.tagline)}</h2> : null}</div>
           <div className="g21-overview-copy">
             {project.description ? <p style={textStyleProps(chrome.descriptionStyle)}>{multiline(project.description)}</p> : null}
             {chrome.ctaVisible === false ? null : <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={chrome.ctaUrl || "#amenities"}>{chrome.ctaLabel || "Explore"} {arrow()}</Cta></div>}

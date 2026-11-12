@@ -40,6 +40,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
   const firstYear = years[0];
   const mapUrl = content.ctaUrl ?? "https://map.kasumigaseki.ae/";
   const mapLabel = pick(content, "mapLabel");
+  const startLabel = pick(content, "startLabel");
   const learnVisible = content.ctaVisible !== false && Boolean(content.ctaUrl);
   const learnLabel = content.ctaLabel || "Learn more";
   const nameKicker = pick(content, "nameKicker");
@@ -62,7 +63,7 @@ export function LegacyMain({ content }: { content: LegacyContent }) {
             <div>
               {lede ? <p className="g21-lede" style={textStyleProps(content.textStyle)}>{multiline(lede)}</p> : null}
               <div className="g21-ctas">
-                {firstYear ? <a className="g21-btn" href={`#${firstYear.anchor}`}>Start in {firstYear.year} <span className="g21-ar g21-ar--down" aria-hidden="true">↓</span></a> : null}
+                {firstYear && startLabel ? <a className="g21-btn" href={`#${firstYear.anchor}`}>{startLabel.replaceAll("{year}", firstYear.year)} <span className="g21-ar g21-ar--down" aria-hidden="true">↓</span></a> : null}
                 {mapLabel && mapUrl ? <ButtonLink className="g21-btn g21-btn--line" href={mapUrl}>{mapLabel} <span className="g21-ar" aria-hidden="true">↗</span></ButtonLink> : null}
               </div>
             </div>

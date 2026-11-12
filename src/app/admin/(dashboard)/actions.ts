@@ -355,6 +355,8 @@ function moduleContentFromForm(formData: FormData) {
   const items = paired ? paired.items : nonEmptyLines(formData.get("items")).map(parseItemRow).filter((item) => Object.values(item).some(Boolean));
 
   const text = String(formData.get("text") || "").trim();
+  // Section caption: stored whenever the editor sends it, so an emptied field hides it.
+  const eyebrow = formData.has("eyebrow") ? String(formData.get("eyebrow") ?? "").trim() : undefined;
   const url = String(formData.get("url") || "").trim();
   const ctaLabel = String(formData.get("ctaLabel") || "").trim();
   const ctaVisible = formData.get("ctaVisible") === "on";
@@ -365,6 +367,7 @@ function moduleContentFromForm(formData: FormData) {
   const bodyTextStyle = style("text");
 
   return {
+    ...(eyebrow !== undefined ? { eyebrow } : {}),
     ...(text ? { text } : {}),
     // Stored even when empty: an explicit empty list means the editor removed
     // every image, which the delivered-figure renderer must honour instead of
@@ -466,6 +469,13 @@ export async function saveProject(
     nameStyle: textStyleFromForm(formData, "projectName"),
     taglineStyle: textStyleFromForm(formData, "projectTagline"),
     descriptionStyle: textStyleFromForm(formData, "projectDescription"),
+    // Gallery-light page labels: only on the forms that show them; others keep what was saved.
+    labels: formData.has("labelOverview") ? {
+      overview: String(formData.get("labelOverview") ?? ""),
+      driveNote: String(formData.get("labelDriveNote") ?? ""),
+      calculator: String(formData.get("labelCalculator") ?? ""),
+      subnavCta: String(formData.get("labelSubnavCta") ?? ""),
+    } : previousChrome.labels,
   });
   const chromeKey = projectChromeKey(result.id);
   await db.siteSetting.upsert({ where: { key: chromeKey }, update: { value: chrome }, create: { key: chromeKey, value: chrome } });
@@ -700,6 +710,9 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
       return { label: label.trim(), value: value.join("|").trim() };
     }).filter((fact) => fact.label || fact.value),
     philosophyKicker: String(formData.get("aboutPhilosophyKicker") ?? "").trim(),
+    valueCaps: String(formData.get("aboutValueCaps") ?? "").replace(/\r\n/g, "\n").split("\n").map((line) => line.trim()),
+    missionKicker: String(formData.get("aboutMissionKicker") ?? "").trim(),
+    visionKicker: String(formData.get("aboutVisionKicker") ?? "").trim(),
     leadershipKicker: String(formData.get("aboutLeadershipKicker") ?? "").trim(),
     leadershipHeading: normalizeLineBreaks(formData.get("aboutLeadershipHeading") as string | null),
     teamKicker: String(formData.get("aboutTeamKicker") ?? "").trim(),
@@ -717,6 +730,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     // Gallery-light (Option 2.1) fields: an empty value hides that element.
     lede: normalizeLineBreaks(formData.get("legacyLede") as string | null),
     mapLabel: String(formData.get("legacyMapLabel") ?? "").trim(),
+    ...(formData.has("legacyStartLabel") ? { startLabel: String(formData.get("legacyStartLabel") ?? "").trim() } : {}),
     nameKicker: String(formData.get("legacyNameKicker") ?? "").trim(),
     nameHeading: normalizeLineBreaks(formData.get("legacyNameHeading") as string | null),
     nameText: String(formData.get("legacyNameText") ?? "").replace(/\r\n/g, "\n").trim(),
@@ -742,6 +756,17 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     channelMessagePrompt: String(formData.get("contactChannelMessagePrompt") || "").trim() || contactInquiryDefaults.channelMessagePrompt,
     jobMessagePrompt: String(formData.get("contactJobMessagePrompt") || "").trim() || contactInquiryDefaults.jobMessagePrompt,
     pressMessagePrompt: String(formData.get("contactPressMessagePrompt") || "").trim() || contactInquiryDefaults.pressMessagePrompt,
+    formHeading: String(formData.get("contactFormHeading") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.formHeading,
+    submitLabel: String(formData.get("contactSubmitLabel") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.submitLabel,
+    addressLabel: String(formData.get("contactAddressLabel") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.addressLabel,
+    address: String(formData.get("contactAddress") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.address,
+    directionsLabel: String(formData.get("contactDirectionsLabel") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.directionsLabel,
+    directionsUrl: String(formData.get("contactDirectionsUrl") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.directionsUrl,
+    callLabel: String(formData.get("contactCallLabel") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.callLabel,
+    quickCallLabel: String(formData.get("contactQuickCallLabel") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.quickCallLabel,
+    quickEmailLabel: String(formData.get("contactQuickEmailLabel") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.quickEmailLabel,
+    termsText: String(formData.get("contactTermsText") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.termsText,
+    marketingText: String(formData.get("contactMarketingText") || "").replace(/\r\n/g, "\n").trim() || contactInquiryDefaults.marketingText,
   } : null;
   // The investor-guide editor sends its structured sections as JSON.
   let invest: ({ type: "invest" } & ReturnType<typeof sanitizeInvestContent>) | null = null;
@@ -754,6 +779,13 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
   }
   const headingStyle = textStyleFromForm(formData, "pageHeading");
   const introStyle = textStyleFromForm(formData, "pageIntro");
+  // Legal pages: the contact block at the end (blank fields keep the standard wording).
+  const legalContactBlock = formData.has("legalContactHeading") ? {
+    type: "legal-contact",
+    heading: String(formData.get("legalContactHeading") ?? "").trim(),
+    text: String(formData.get("legalContactText") ?? "").trim(),
+    email: String(formData.get("legalContactEmail") ?? "").trim(),
+  } : null;
   const content = [
     ...(heading || intro || image || eyebrow || ctaLabel || ctaUrl || headingStyle || introStyle ? [{ type: "hero", heading, text: intro, image, eyebrow, ctaLabel, ctaUrl, ...(headingStyle ? { headingStyle } : {}), ...(introStyle ? { textStyle: introStyle } : {}) }] : []),
     ...paragraphBlocks(paragraphs),
@@ -761,6 +793,7 @@ function buildStaticPageContent(slug: string, formData: FormData): { content: Re
     ...(legacy ? [legacy] : []),
     ...(contactForm ? [contactForm] : []),
     ...(invest ? [invest] : []),
+    ...(legalContactBlock ? [legalContactBlock] : []),
   ];
 
   return { content };
@@ -995,7 +1028,7 @@ function homeSettingsFromForm(formData: FormData) {
     heroCtaLabel: String(formData.get("heroCtaLabel") || "").trim(),
     heroCtaUrl: String(formData.get("heroCtaUrl") || "").trim(),
     introKicker: String(formData.get("introKicker") || "").trim(),
-    introValues: parseJsonList(formData.get("introValuesJson"), (item) => (text(item.title) || text(item.body) ? { title: text(item.title), body: text(item.body) } : null)),
+    introValues: parseJsonList(formData.get("introValuesJson"), (item) => (text(item.title) || text(item.body) ? { title: text(item.title), body: text(item.body), ...(typeof item.cap === "string" ? { cap: text(item.cap) } : {}) } : null)),
     introHeading: normalizeLineBreaks(formData.get("introHeading") as string | null),
     introParagraphs: nonEmptyLines(formData.get("introParagraphs")),
     developmentHeading: normalizeLineBreaks(formData.get("developmentHeading") as string | null),
@@ -1023,6 +1056,8 @@ function homeSettingsFromForm(formData: FormData) {
     newsCta: String(formData.get("newsCta") || "").trim(),
     newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
     newsCtaVisible: formData.get("newsCtaVisible") === "on",
+    newsCardLabel: formData.has("newsCardLabel") ? String(formData.get("newsCardLabel") || "").trim() : undefined,
+    newsCards: formData.has("newsCardsJson") ? parseJsonList(formData.get("newsCardsJson"), (item) => (text(item.title) || text(item.image) ? { image: text(item.image), title: text(item.title), text: text(item.text), url: text(item.url) } : null)) : undefined,
     newsCtaPosition: ["above", "left", "right"].includes(String(formData.get("newsCtaPosition") || "")) ? formData.get("newsCtaPosition") as "above" | "left" | "right" : "below",
     developmentCtaPosition: ["above", "left", "right"].includes(String(formData.get("developmentCtaPosition") || "")) ? formData.get("developmentCtaPosition") as "above" | "left" | "right" : "below",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
@@ -1103,6 +1138,14 @@ export async function saveNewsListing(
     coverageLabel: field("coverageLabel"),
     coverageHeading: normalizeLineBreaks(formData.get("coverageHeading") as string | null),
     coverage: [] as PressItem[],
+    layout: formData.get("layout") === "press" ? "press" as const : "articles" as const,
+    filterAll: field("filterAll"),
+    filterPerspective: field("filterPerspective"),
+    filterAnnouncement: field("filterAnnouncement"),
+    pressCardCta: field("pressCardCta"),
+    headingStyle: textStyleFromForm(formData, "newsHeading"),
+    pressHeadingStyle: textStyleFromForm(formData, "newsPressHeading"),
+    pressTextStyle: textStyleFromForm(formData, "newsPressText"),
   };
   try {
     value.coverage = normalizePressItems(JSON.parse(String(formData.get("coverageJson") || "[]")));

@@ -129,6 +129,8 @@ h1, h2, h3 { letter-spacing: -0.025em; }
 .cms-sidenav__link:hover { background: rgba(255,255,255,0.07); color: #fff; }
 .cms-sidenav__link.is-active { background: rgba(255,255,255,0.13); color: #fff; }
 .cms-sidenav__link.is-active svg { opacity: 1; }
+.cms-sidenav__link--sub { padding-left: 34px; font-size: 0.95em; }
+.cms-sidenav__link--sub svg { width: 14px; height: 14px; }
 .cms-sidebar__foot {
   border-top: 1px solid rgba(255,255,255,0.08);
   padding: 14px 16px 16px;

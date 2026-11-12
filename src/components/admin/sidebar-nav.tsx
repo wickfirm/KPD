@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 
 /// `exact` makes a link highlight only on a full path match — used by overview
 /// links (e.g. All pages) so they don't stay lit inside a child editor.
-export type NavLink = { href: string; label: string; hint: string; icon: string; exact?: boolean };
+/// `sub` indents a link under the one above it (e.g. each development under Developments).
+export type NavLink = { href: string; label: string; hint: string; icon: string; exact?: boolean; sub?: boolean };
 export type NavGroup = { title: string; links: NavLink[] };
 
 /// Left-hand navigation with plain-language labels and hints. Highlights the
@@ -20,7 +21,7 @@ export default function SidebarNav({ groups }: { groups: NavGroup[] }) {
           {group.links.map((link) => {
             const active = link.exact || link.href === "/admin" ? pathname === link.href : pathname.startsWith(link.href);
             return (
-              <Link key={link.href} href={link.href} className={`cms-sidenav__link${active ? " is-active" : ""}`} title={link.hint} aria-current={active ? "page" : undefined}>
+              <Link key={link.href} href={link.href} className={`cms-sidenav__link${link.sub ? " cms-sidenav__link--sub" : ""}${active ? " is-active" : ""}`} title={link.hint} aria-current={active ? "page" : undefined}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
                   <path d={link.icon} />
                 </svg>

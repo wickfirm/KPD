@@ -8,6 +8,7 @@ import { TextStyleFields } from "@/components/admin/text-style-fields";
 import type { ProjectChrome } from "@/lib/project-chrome";
 import { defaultKeyFacts, galleryLightDevelopments, parseKeyFacts } from "@/lib/development-gallery-light";
 import { ListEditor } from "@/components/admin/list-editor";
+import { projectPageLabelDefaults } from "@/lib/project-chrome";
 
 export type ProjectDefaults = {
   id?: string; slug?: string; name?: string; tagline?: string | null; description?: string | null;
@@ -39,6 +40,14 @@ export default function ProjectForm({ defaults, seo, chrome }: { defaults?: Proj
       <div className="cms-grid"><label className="cms-field"><span>Button label</span><input name="bookLabel" defaultValue={chrome?.bookLabel ?? ""} placeholder={chrome?.enquirePrimaryLabel || "Book a viewing"} /></label><label className="cms-field"><span>Button link</span><input name="bookUrl" defaultValue={chrome?.bookUrl ?? ""} placeholder="e.g. /contact, https://calendly.com/… or #location" /><small>A full https:// address opens in a new tab.</small></label></div>
       <h3>Key facts</h3>
       <KeyFactsField initial={chrome?.keyFacts ?? defaultKeyFacts(defaults.slug)} />
+      <h3>Small labels on the page</h3>
+      <p className="cms-muted">The small capital-letter captions. Clear a field to hide that caption. Each section’s own caption is edited in that section below.</p>
+      <div className="cms-grid">
+        <label className="cms-field"><span>Introduction caption</span><input name="labelOverview" defaultValue={chrome?.labels?.overview ?? projectPageLabelDefaults.overview} /><small>Above the headline, e.g. “Overview”.</small></label>
+        <label className="cms-field"><span>Drive-times note</span><input name="labelDriveNote" defaultValue={chrome?.labels?.driveNote ?? projectPageLabelDefaults.driveNote} /><small>Under the location list. {"{name}"} becomes the development name.</small></label>
+        <label className="cms-field"><span>Calculator caption</span><input name="labelCalculator" defaultValue={chrome?.labels?.calculator ?? projectPageLabelDefaults.calculator} /><small>Above the mortgage calculator. Its wording is edited under Investor guide → Mortgage calculator.</small></label>
+        <label className="cms-field"><span>Page-bar button</span><input name="labelSubnavCta" defaultValue={chrome?.labels?.subnavCta ?? projectPageLabelDefaults.subnavCta} /><small>The button at the end of the sticky section bar. It opens the enquiry popup.</small></label>
+      </div>
     </> : null}
     <h3>Private viewing band</h3>
     <p className="cms-muted">Shown directly after the calculator. Leave the first button link empty to open the enquiry popup.</p>

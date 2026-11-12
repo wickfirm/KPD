@@ -7,10 +7,11 @@ const FILTERS = [
   { key: "perspective", label: "Perspectives" },
   { key: "announcement", label: "Announcements" },
 ] as const;
+export type NewsFilterLabels = Partial<Record<(typeof FILTERS)[number]["key"], string>>;
 
 /// Filter tabs for the /news listing: shows only the server-rendered articles
 /// whose data-cat matches, and the empty note when none do.
-export function NewsFilters() {
+export function NewsFilters({ labels }: { labels?: NewsFilterLabels }) {
   const [active, setActive] = useState<string>("all");
   function choose(key: string) {
     setActive(key);
@@ -25,7 +26,7 @@ export function NewsFilters() {
   }
   return (
     <div className="g21-filters" role="group" aria-label="Filter articles">
-      {FILTERS.map((filter) => <button key={filter.key} type="button" aria-pressed={active === filter.key} onClick={() => choose(filter.key)}>{filter.label}</button>)}
+      {FILTERS.map((filter) => <button key={filter.key} type="button" aria-pressed={active === filter.key} onClick={() => choose(filter.key)}>{labels?.[filter.key] || filter.label}</button>)}
     </div>
   );
 }

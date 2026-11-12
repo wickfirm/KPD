@@ -7,7 +7,10 @@ import type { TextStyle } from "@/lib/text-style";
 export type DevelopmentCard = { href: string; image: string; title: string; copy: string };
 export type StatItem = { value: string; label: string };
 export type BannerSlide = { image: string; label: string; text?: string; tag?: string };
-export type HomeValue = { title: string; body: string };
+/// cap: the small caption above the title. Absent = "Value"; "" hides it.
+export type HomeValue = { title: string; body: string; cap?: string };
+/// A card in the homepage news grid (the delivered three cards by default).
+export type HomeNewsCard = { image: string; title: string; text: string; url: string };
 
 export type HomeSettings = {
   introStats?: StatItem[];
@@ -67,6 +70,10 @@ export type HomeSettings = {
   newsCtaVisible?: boolean;
   /// Where the news button sits relative to the supporting text (item 15).
   newsCtaPosition?: "below" | "above" | "left" | "right";
+  /// The three cards under the news band. Absent = the delivered cards.
+  newsCards?: HomeNewsCard[];
+  /// Link text on each news card. Blank = "Explore".
+  newsCardLabel?: string;
   /// Same choice for the button on the developments banner (round two).
   developmentCtaPosition?: "below" | "above" | "left" | "right";
   contactHeading?: string;
@@ -129,6 +136,13 @@ export const homeDefaults = {
   newsHeading: "The Latest from Kasumigaseki Properties Development.",
   newsText: "Development updates, market notes and the thinking behind how we build.",
   newsCta: "Read News & Insights",
+  newsCardLabel: "Explore",
+  /// The delivered news grid (public/legacy/index.html), for the editor pre-fill.
+  newsCards: [
+    { image: "/legacy/assets/images/library/office-buildings-property-real-estate-skyscrape-2026-03-17-04-25-11-utc.jpg", title: "Design, Underwriting & Endurance Forum", text: "A market note on how disciplined feasibility, measured design, and delivery control shape long-horizon residential value.", url: "/news#updates" },
+    { image: "/legacy/assets/images/library/bottom-up-view-of-modern-office-building-in-hong-k-2026-01-11-09-09-49-utc.jpg", title: "Experience Center Private Preview", text: "A private look at the spaces, materials, and consultation flow inside the KPD Experience Center.", url: "/news#updates" },
+    { image: "/legacy/assets/images/library/the-office-building-2026-03-24-04-30-30-utc.jpg", title: "Emerald Villa Private Preview", text: "A preview of garden-led villa living, privacy planning, and hospitality cues within the Emerald Villa collection.", url: "/news#updates" },
+  ] as HomeNewsCard[],
   contactHeading: "Visit the Experience Center",
   contactKicker: "Experience Centre",
   contactText: "Some things are best understood in person. At the Kasumigaseki Properties Development Experience Center you can handle the finishes, walk the model and talk through the project with the people who shaped it.",

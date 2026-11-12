@@ -174,16 +174,53 @@ function escapeHtmlValue(value: string) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
+/// The calculator's other visible wording (client feedback, Nov 2026 batch 2).
+/// Each one replaces exactly one delivered string; blank keeps the delivered text.
+export const mortgageCalculatorLabelDefaults = {
+  estimateLabel: "Your estimate",
+  monthlyLabel: "Monthly payment",
+  costsButton: "View upfront costs",
+  formHeading: "Review your eligibility",
+  formText: "Share your details and the KPD team will contact you.",
+  submitLabel: "Check your eligibility",
+  disclaimer: "Illustrative estimate only. Rates, lending criteria and fees vary by lender and applicant; this is not a financing offer.",
+} as const;
+export type MortgageCalculatorLabels = { [K in keyof typeof mortgageCalculatorLabelDefaults]?: string };
+
+/// Where each label sits in the delivered markup: the text between `before` and `after`.
+const labelSlots: Record<keyof typeof mortgageCalculatorLabelDefaults, [string, string]> = {
+  estimateLabel: ['<span class="kpd-eyebrow">', "</span>\n          <div class=\"mortgage-result-primary\""],
+  monthlyLabel: ["<span>", "</span>\n            <strong data-monthly-payment>"],
+  costsButton: ["data-cost-toggle>", "</button>"],
+  formHeading: ["<h4>", "</h4>\n              <p>Share"],
+  formText: ["<p>", "</p>\n            </div>\n            <input type=\"hidden\" name=\"Inquiry Type\""],
+  submitLabel: ['<button class="btn-pill mortgage-submit" type="submit">', "</button>"],
+  disclaimer: ['<p class="mortgage-disclaimer">', "</p>"],
+};
+
+function withLabels(html: string, labels?: MortgageCalculatorLabels): string {
+  if (!labels) return html;
+  let out = html;
+  for (const key of Object.keys(labelSlots) as (keyof typeof labelSlots)[]) {
+    const value = labels[key]?.trim();
+    if (!value) continue;
+    const [before, after] = labelSlots[key];
+    const target = `${before}${mortgageCalculatorLabelDefaults[key]}${after}`;
+    if (out.includes(target)) out = out.replace(target, `${before}${escapeHtmlValue(value)}${after}`);
+  }
+  return out;
+}
+
 /// The delivered inner markup with the heading and intro replaced by CMS values.
 /// Empty or missing values keep the delivered wording, so the section title
 /// referenced by aria-labelledby always renders. Line breaks render as <br>
 /// like every other multiline CMS field, and optional text styles ride on the
 /// two elements. The regexes survive future verbatim pastes of the client's
 /// markup with different wording.
-export function mortgageCalculatorHtmlWith(copy?: { heading?: string; text?: string; headingStyle?: TextStyle; textStyle?: TextStyle }): string {
+export function mortgageCalculatorHtmlWith(copy?: { heading?: string; text?: string; headingStyle?: TextStyle; textStyle?: TextStyle } & MortgageCalculatorLabels): string {
   const heading = escapeHtmlValue((copy?.heading ?? "").trim() || mortgageCalculatorDefaultCopy.heading).replaceAll("\n", "<br>");
   const text = escapeHtmlValue((copy?.text ?? "").trim() || mortgageCalculatorDefaultCopy.text).replaceAll("\n", "<br>");
-  return mortgageCalculatorHtml
+  return withLabels(mortgageCalculatorHtml, copy)
     .replace(/<h2 id="mortgage-calculator-title">[\s\S]*?<\/h2>/, `<h2 id="mortgage-calculator-title"${textStyleAttribute(copy?.headingStyle)}>${heading}</h2>`)
     .replace(/(<div class="invest-copy motion-reveal"[^>]*>\s*)<p>[\s\S]*?<\/p>/, `$1<p${textStyleAttribute(copy?.textStyle)}>${text}</p>`);
 }
