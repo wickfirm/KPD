@@ -4,7 +4,8 @@
 // Public delivery goes through the bucket's public base URL (custom domain or
 // r2.dev) so all assets are served via the Cloudflare CDN.
 // ─────────────────────────────────────────────────────────────────────────────
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { createHash } from "node:crypto";
 import { SignatureV4 } from "@smithy/signature-v4";
 import { Sha256 } from "@smithy/core/checksum";
 
@@ -75,8 +76,11 @@ export async function r2PresignedUpload(key: string): Promise<string> {
 }
 
 /// Vercel rejects request bodies above 4.5 MB before a route can process them.
-/// These helpers let the authenticated CMS stream larger (up to 25 MB) files
+/// These helpers let the authenticated CMS stream larger (up to 250 MB) files
 /// through several small route requests without exposing R2 credentials.
+/// R2 rejects a multipart upload whose parts (except the last) are under
+/// 5 MiB, so a part arrives as two requests: the first half is held in a
+/// staging object and the full part is uploaded when the second half lands.
 export async function r2StartMultipartUpload(key: string, contentType: string): Promise<string> {
   const bucket = process.env.R2_BUCKET;
   if (!bucket) throw new Error("R2_BUCKET is not set");
@@ -93,6 +97,43 @@ export async function r2UploadPart(key: string, uploadId: string, partNumber: nu
   const result = await s3().send(new UploadPartCommand({ Bucket: bucket, Key: key, UploadId: uploadId, PartNumber: partNumber, Body: body }));
   if (!result.ETag) throw new Error("R2 did not return an upload-part tag.");
   return result.ETag;
+}
+
+/// Private, unguessable holding place for the first half of one part. Derived
+/// from the upload id on the server, so a client cannot point it at another object.
+export function r2StagingKey(key: string, uploadId: string, partNumber: number): string {
+  return `cms/_staging/${createHash("sha256").update(`${key}\n${uploadId}`).digest("hex").slice(0, 40)}/${partNumber}`;
+}
+
+export async function r2StageChunk(key: string, uploadId: string, partNumber: number, body: Uint8Array): Promise<void> {
+  const bucket = process.env.R2_BUCKET;
+  if (!bucket) throw new Error("R2_BUCKET is not set");
+  await s3().send(new PutObjectCommand({ Bucket: bucket, Key: r2StagingKey(key, uploadId, partNumber), Body: body, ContentType: "application/octet-stream", CacheControl: "no-store" }));
+}
+
+/// Uploads one part made of the staged first half plus `rest`, then drops the
+/// staging object. Returns the part's ETag.
+export async function r2UploadStagedPart(key: string, uploadId: string, partNumber: number, rest: Uint8Array): Promise<string> {
+  const bucket = process.env.R2_BUCKET;
+  if (!bucket) throw new Error("R2_BUCKET is not set");
+  const stagingKey = r2StagingKey(key, uploadId, partNumber);
+  const staged = await s3().send(new GetObjectCommand({ Bucket: bucket, Key: stagingKey }));
+  const head = staged.Body ? await staged.Body.transformToByteArray() : null;
+  if (!head?.length) throw new Error(`The first half of part ${partNumber} is missing. Try the upload again.`);
+  const body = new Uint8Array(head.length + rest.length);
+  body.set(head, 0);
+  body.set(rest, head.length);
+  const eTag = await r2UploadPart(key, uploadId, partNumber, body);
+  await r2Delete(stagingKey).catch((error) => console.error("[r2] staging cleanup failed:", error));
+  return eTag;
+}
+
+/// Cancels an unfinished multipart upload (and the staged half of `partNumber`, if any).
+export async function r2AbortMultipartUpload(key: string, uploadId: string, partNumber?: number): Promise<void> {
+  const bucket = process.env.R2_BUCKET;
+  if (!bucket) throw new Error("R2_BUCKET is not set");
+  if (partNumber) await r2Delete(r2StagingKey(key, uploadId, partNumber)).catch(() => undefined);
+  await s3().send(new AbortMultipartUploadCommand({ Bucket: bucket, Key: key, UploadId: uploadId }));
 }
 
 export async function r2CompleteMultipartUpload(key: string, uploadId: string, parts: { partNumber: number; eTag: string }[]): Promise<{ key: string; url: string }> {

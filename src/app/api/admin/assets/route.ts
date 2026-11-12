@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getActor, requireSession } from "@/lib/auth";
 import { can } from "@/lib/permissions";
-import { r2CompleteMultipartUpload, r2PresignedUpload, r2StartMultipartUpload, r2Upload, r2UploadPart, buildCmsKey, r2PublicUrl } from "@/lib/r2";
+import { r2AbortMultipartUpload, r2CompleteMultipartUpload, r2PresignedUpload, r2StageChunk, r2StartMultipartUpload, r2Upload, r2UploadPart, r2UploadStagedPart, buildCmsKey, r2PublicUrl } from "@/lib/r2";
 
 const MAX_BYTES = 250 * 1024 * 1024;
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/svg+xml", "video/mp4", "video/webm", "application/pdf"]);
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
   try { session = await requireMediaUploader(); }
   catch { return NextResponse.json({ error: "Your account is not allowed to upload files." }, { status: 403 }); }
   if (request.headers.get("content-type")?.includes("application/json")) {
-    const body = await request.json().catch(() => null) as { action?: string; fileName?: string; contentType?: string; size?: number; key?: string; uploadId?: string; parts?: { partNumber?: number; eTag?: string }[] } | null;
+    const body = await request.json().catch(() => null) as { action?: string; fileName?: string; contentType?: string; size?: number; key?: string; uploadId?: string; partNumber?: number; parts?: { partNumber?: number; eTag?: string }[] } | null;
     if (!body) return NextResponse.json({ error: "Invalid upload request." }, { status: 400 });
     try {
       if (body.action === "start") {
@@ -64,6 +64,14 @@ export async function POST(request: NextRequest) {
         await db.mediaAsset.create({ data: { key: uploaded.key, url: uploaded.url, fileName, contentType, size, uploadedBy: session.email } }).catch((error) => console.error("[admin/assets] library registration failed:", error));
         return NextResponse.json(uploaded, { status: 201 });
       }
+      if (body.action === "abort") {
+        const key = String(body.key || "");
+        const uploadId = String(body.uploadId || "");
+        const partNumber = Number(body.partNumber);
+        if (!key.startsWith("cms/") || !uploadId) return NextResponse.json({ error: "Invalid multipart upload." }, { status: 400 });
+        await r2AbortMultipartUpload(key, uploadId, Number.isInteger(partNumber) && partNumber > 0 ? partNumber : undefined);
+        return NextResponse.json({ aborted: true });
+      }
       return NextResponse.json({ error: "Unknown upload action." }, { status: 400 });
     } catch (error) {
       console.error("[admin/assets] multipart setup error:", error);
@@ -96,6 +104,9 @@ export async function POST(request: NextRequest) {
 
 /// A multipart chunk stays below Vercel's 4.5 MB request cap; R2 assembles
 /// the completed object after the client sends the final metadata request.
+/// R2 needs every part but the last to be at least 5 MiB, so a part may come
+/// in two chunks (x-kpd-chunk-index 0 and 1 of x-kpd-chunk-count 2): the first
+/// is staged in storage and the part is uploaded when the second arrives.
 export async function PUT(request: NextRequest) {
   try { await requireMediaUploader(); }
   catch { return NextResponse.json({ error: "Your account is not allowed to upload files." }, { status: 403 }); }
@@ -103,9 +114,19 @@ export async function PUT(request: NextRequest) {
   const uploadId = String(request.headers.get("x-kpd-upload-id") || "");
   const partNumber = Number(request.headers.get("x-kpd-part-number"));
   const length = Number(request.headers.get("x-kpd-part-length") || request.headers.get("content-length"));
-  if (!key.startsWith("cms/") || !uploadId || !Number.isInteger(partNumber) || partNumber < 1 || !Number.isFinite(length) || length <= 0 || length > 4 * 1024 * 1024) return NextResponse.json({ error: "Invalid upload chunk." }, { status: 400 });
+  const chunkIndex = Number(request.headers.get("x-kpd-chunk-index") ?? 0);
+  const chunkCount = Number(request.headers.get("x-kpd-chunk-count") ?? 1);
+  if (!key.startsWith("cms/") || !uploadId || !Number.isInteger(partNumber) || partNumber < 1 || partNumber > 10000 || !Number.isFinite(length) || length <= 0 || length > 4 * 1024 * 1024) return NextResponse.json({ error: "Invalid upload chunk." }, { status: 400 });
+  if (!(chunkCount === 1 && chunkIndex === 0) && !(chunkCount === 2 && (chunkIndex === 0 || chunkIndex === 1))) return NextResponse.json({ error: "Invalid upload chunk." }, { status: 400 });
   try {
-    const eTag = await r2UploadPart(key, uploadId, partNumber, new Uint8Array(await request.arrayBuffer()));
+    const body = new Uint8Array(await request.arrayBuffer());
+    if (chunkCount === 2 && chunkIndex === 0) {
+      await r2StageChunk(key, uploadId, partNumber, body);
+      return NextResponse.json({ staged: true });
+    }
+    const eTag = chunkCount === 2
+      ? await r2UploadStagedPart(key, uploadId, partNumber, body)
+      : await r2UploadPart(key, uploadId, partNumber, body);
     return NextResponse.json({ eTag });
   } catch (error) {
     console.error("[admin/assets] multipart part error:", error);
