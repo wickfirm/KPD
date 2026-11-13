@@ -4,7 +4,7 @@ import { pushLeadToSalesforce, SALESFORCE_LEAD_HOLD_NOTE, shouldMirrorSubmission
 import { leadDescription, sanitizeDetails } from "@/lib/submissions";
 import { getGlobalSettings } from "@/lib/site-contact";
 import { buildNotificationEmail, notificationRecipients, notifyKeyFor, resendConfigured, sendWithResend } from "@/lib/form-notify";
-import { brochureLink, sendBrochureEmail } from "@/lib/brochure-mail";
+import { brochureDownload } from "@/lib/brochure-download";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 
 /// Public contact / booking form endpoint (Salesforce dual-write, Clause 2).
@@ -100,19 +100,16 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  let emailed = false;
+  // Brochure pop-up: the visitor downloads the file straight away (no email to
+  // the visitor). Without an uploaded file the team follows up from the
+  // notification below.
+  let download: { url: string; fileName: string; attachment: boolean } | null = null;
   if (inquiryType === "Brochure request") {
     const projectSlug = String(payload.projectSlug || "").trim();
-    const project = projectSlug ? await db.project.findUnique({ where: { slug: projectSlug }, select: { id: true, name: true } }).catch(() => null) : null;
+    const project = projectSlug ? await db.project.findUnique({ where: { slug: projectSlug }, select: { id: true } }).catch(() => null) : null;
     const chromeRow = project ? await db.siteSetting.findUnique({ where: { key: projectChromeKey(project.id) } }).catch(() => null) : null;
-    const downloadUrl = brochureLink(req.nextUrl.origin, parseProjectChrome(chromeRow?.value).brochureUrl ?? "");
-    if (project && downloadUrl) {
-      try {
-        emailed = (await sendBrochureEmail({ to: email, name, projectName: project.name, downloadUrl })).sent;
-      } catch (error) {
-        console.error("[api/contact] brochure email failed:", error);
-      }
-    }
+    const brochureUrl = parseProjectChrome(chromeRow?.value).brochureUrl ?? "";
+    if (project && brochureUrl) download = await brochureDownload({ origin: req.nextUrl.origin, url: brochureUrl, projectSlug });
   }
 
   // Team copy by email (Resend). The submission is already saved, so a mail
@@ -130,5 +127,5 @@ export async function POST(req: NextRequest) {
     await db.contactSubmission.update({ where: { id: submission.id }, data: { details: [...details, { label: "Email notification", value: outcome }] } }).catch(() => null);
   }
 
-  return NextResponse.json({ ok: true, id: submission.id, emailed }, { status: 201 });
+  return NextResponse.json({ ok: true, id: submission.id, download }, { status: 201 });
 }

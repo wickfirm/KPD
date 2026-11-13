@@ -508,6 +508,7 @@ body.home-development-page {
   text-transform: uppercase;
   cursor: pointer;
 }
+a.brochure-request__done { box-sizing: border-box; text-decoration: none; }
 @media (max-width: 700px) {
   .brochure-request__grid { grid-template-columns: 1fr; }
   .brochure-request__panel h2 { font-size: 32px; }

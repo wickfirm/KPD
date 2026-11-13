@@ -11,16 +11,33 @@ const COUNTRIES = [
   "Brazil (+55)", "Other",
 ];
 
+type BrochureDownload = { url: string; fileName: string; attachment: boolean };
+
+/// Starts the download without leaving the page. Signed CMS links answer with
+/// Content-Disposition: attachment, so a plain click saves the file; any other
+/// address opens in a new tab (the Download button stays as a fallback).
+function startDownload(file: BrochureDownload) {
+  const link = document.createElement("a");
+  link.href = file.url;
+  link.download = file.fileName;
+  if (!file.attachment) { link.target = "_blank"; link.rel = "noopener"; }
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
 /// Gate in front of a development brochure. The lead is stored with the other
 /// enquiries, mirrored to Salesforce as a Lead (inquiry type "Brochure request",
-/// Property_Interest__c from the development), and the visitor is emailed the
-/// file set in the development editor.
+/// Property_Interest__c from the development), the team is notified, and the
+/// file set in the development editor downloads straight away (no email to the visitor).
 export function BrochureRequest({ projectName, projectSlug, label, className = "btn-pill" }: { projectName: string; projectSlug: string; label: string; className?: string }) {
   const [open, setOpen] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState(false);
+  const [download, setDownload] = useState<BrochureDownload | null>(null);
 
   /// Escape closes the form; after a successful request it closes on its own.
   useEffect(() => {
@@ -29,11 +46,6 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
-  useEffect(() => {
-    if (!open || !done) return;
-    const timer = window.setTimeout(() => setOpen(false), 5000);
-    return () => window.clearTimeout(timer);
-  }, [open, done]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -59,7 +71,7 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
           name,
           email,
           phone,
-          message: `Please email the brochure for ${projectName}.`,
+          message: `Downloaded the brochure for ${projectName}.`,
           interest: projectName,
           sourcePage: `/developments/${projectSlug}`,
           inquiryType: "Brochure request",
@@ -73,9 +85,14 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
           ],
         }),
       });
-      const body = await response.json().catch(() => ({})) as { error?: string; emailed?: boolean };
+      const body = await response.json().catch(() => ({})) as { error?: string; download?: BrochureDownload | null };
       if (!response.ok) throw new Error(body.error || "Unable to send your request.");
-      setStatus(body.emailed ? "The download link is on its way to your email." : "Your request is saved. The team will email the brochure link.");
+      const file = body.download?.url ? body.download : null;
+      setDownload(file);
+      if (file) startDownload(file);
+      setStatus(file
+        ? "Your brochure is downloading. If it doesn't start, use the button below."
+        : "Your request is saved. The brochure isn't available to download yet, so our team will send it to you shortly.");
       form.reset();
       setDone(true);
     } catch (error) {
@@ -86,14 +103,15 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
   }
 
   return <>
-    <button className={className} type="button" onClick={() => { setOpen(true); setStatus(""); setDone(false); }}>{label}</button>
+    <button className={className} type="button" onClick={() => { setOpen(true); setStatus(""); setDone(false); setDownload(null); }}>{label}</button>
     {open ? <div className="brochure-request" role="dialog" aria-modal="true" aria-labelledby="brochure-request-title">
       <button className="brochure-request__backdrop" type="button" aria-label="Close brochure form" onClick={() => setOpen(false)} />
       {done ? <div className="brochure-request__panel brochure-request__panel--done">
         <button className="brochure-request__close" type="button" aria-label="Close" onClick={() => setOpen(false)}>×</button>
         <h2 id="brochure-request-title">Thank you</h2>
         <p className="brochure-request__status" role="status">{status}</p>
-        <button className="brochure-request__done" type="button" onClick={() => setOpen(false)}>Close <span aria-hidden="true">→</span></button>
+        {download ? <a className="brochure-request__done" href={download.url} download={download.fileName} target={download.attachment ? undefined : "_blank"} rel="noopener">Download brochure <span aria-hidden="true">↓</span></a>
+          : <button className="brochure-request__done" type="button" onClick={() => setOpen(false)}>Close <span aria-hidden="true">→</span></button>}
       </div> : <form className="brochure-request__panel" onSubmit={submit}>
         <button className="brochure-request__close" type="button" aria-label="Close" onClick={() => setOpen(false)}>×</button>
         <h2 id="brochure-request-title">Property Brochure</h2>
@@ -104,7 +122,7 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
           <label>Phone<input name="phone" required autoComplete="tel" inputMode="tel" onChange={() => setPhoneError("")} />{phoneError ? <small>{phoneError}</small> : null}</label>
           <label>Country<select name="country" defaultValue={COUNTRIES[0]}>{COUNTRIES.map((country) => <option key={country}>{country}</option>)}</select></label>
         </div>
-        <button type="submit" disabled={pending}>{pending ? "Sending…" : "Request brochure"} <span aria-hidden="true">→</span></button>
+        <button type="submit" disabled={pending}>{pending ? "Preparing…" : "Download brochure"} <span aria-hidden="true">→</span></button>
         {status ? <p className="brochure-request__status" role="status">{status}</p> : null}
       </form>}
     </div> : null}
