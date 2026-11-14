@@ -103,19 +103,24 @@ describe("Salesforce lead mapping", () => {
 });
 
 describe("which forms become Leads", () => {
-  it("holds newsletter, job, and customer-service forms", () => {
+  it("holds newsletter, job and press forms", () => {
     expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "newsletter", inquiryType: "Newsletter signup" })).toBe(false);
     expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactCareers", inquiryType: "Job Inquiry" })).toBe(false);
-    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactCustomer", inquiryType: "Customer Inquiry" })).toBe(false);
-    expect(shouldMirrorSubmissionToSalesforce({ inquiryType: "Customer service" })).toBe(false);
-    expect(shouldMirrorSubmissionToSalesforce({ inquiryType: "customer-service" })).toBe(false);
+    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactPress", inquiryType: "Press Inquiry" })).toBe(false);
+    // Renamed tabs are still held by their routing key.
+    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactPress", inquiryType: "Media" })).toBe(false);
+    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactCareers", inquiryType: "Careers at KPD" })).toBe(false);
+    expect(shouldMirrorSubmissionToSalesforce({ inquiryType: "press-inquiry" })).toBe(false);
     expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "enquiry", inquiryType: "Newsletter signup" })).toBe(false);
   });
 
-  it("still mirrors the confirmed enquiry forms", () => {
-    for (const inquiryType of ["Sales Inquiry", "Booking request", "Floor plan request", "Press Inquiry", "Channel Partner", "Brochure request", "seven x seven residence"]) {
+  it("mirrors the sales, customer and channel partner forms and the site pop-ups", () => {
+    for (const inquiryType of ["Sales Inquiry", "Customer Inquiry", "Channel Partner", "Booking request", "Floor plan request", "Brochure request", "seven x seven residence"]) {
       expect(shouldMirrorSubmissionToSalesforce({ inquiryType })).toBe(true);
     }
+    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactSales", inquiryType: "Sales Inquiry" })).toBe(true);
+    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactCustomer", inquiryType: "Customer Inquiry" })).toBe(true);
+    expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "contactChannel", inquiryType: "Channel Partner" })).toBe(true);
     expect(shouldMirrorSubmissionToSalesforce({ recipientKey: "calculator" })).toBe(true);
     expect(shouldMirrorSubmissionToSalesforce({})).toBe(true);
   });

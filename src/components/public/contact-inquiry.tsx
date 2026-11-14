@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
+import { dialCodeLabel, looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/lib/phone";
 
 /// The contact inquiry in the client-approved Option 2.1 "Gallery light"
 /// layout: the Experience Centre card beside one adaptive form with five
@@ -35,11 +36,12 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
   ];
   const [activePane, setActivePane] = useState<PaneKey>("sales");
   const [segment, setSegment] = useState<"client" | "broker">("client");
-  const [cvName, setCvName] = useState("Attach a PDF, DOC or DOCX");
+  const [cvName, setCvName] = useState("Attach a PDF, DOC or DOCX (max 4 MB)");
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
   const [plannerScenario, setPlannerScenario] = useState("");
   const [plannerProject, setPlannerProject] = useState("");
+  const [country, setCountry] = useState<string>(PHONE_COUNTRIES[0]);
 
   const brokerVisible = activePane === "sales" && segment === "broker";
 
@@ -93,11 +95,20 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
       press: get("Press Message"),
     };
     const label = panes.find((pane) => pane.key === activePane)!.label;
+    // The country code is chosen beside the number (Salesforce and the team need
+    // it to call back); a number typed with + or 00 is kept as typed.
+    if (!looksLikePhone(get("Phone"))) {
+      setStatus("Please enter a valid phone number.");
+      return;
+    }
+    const phoneNumber = withDialCode(get("Phone"), get("Country"));
     setPending(true);
     try {
       let cvUrl = "";
       const cvFile = data.get("CV");
       if (activePane === "job" && cvFile instanceof File && cvFile.size > 0) {
+        // Checked here too: Vercel rejects bodies over 4.5 MB before the upload route runs.
+        if (cvFile.size > 4 * 1024 * 1024) throw new Error("The CV is too large (4 MB maximum). Please attach a smaller file.");
         setStatus("Uploading your CV…");
         const uploadForm = new FormData();
         uploadForm.append("file", cvFile);
@@ -111,7 +122,8 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
       // Messages screen shows the form's own fields rather than one flattened note.
       const answers: [string, string][] = [
         ...byPane[activePane],
-        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF, DOC or DOCX" ? cvName : "")] as [string, string]] : []),
+        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF, DOC or DOCX (max 4 MB)" ? cvName : "")] as [string, string]] : []),
+        ["Country", get("Country")],
         ["Marketing consent", data.get("Marketing") === "on" ? "Yes" : "No"],
         ["Terms accepted", data.get("Terms") === "on" ? "Yes" : ""],
         ["Ownership Cost Planner scenario", plannerScenario],
@@ -120,11 +132,11 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
       const recipientKey: Record<PaneKey, string> = { sales: "contactSales", customer: "contactCustomer", channel: "contactChannel", job: "contactCareers", press: "contactPress" };
       const routing = (window as ContactWindow).__KPD_CONTACT;
       const recipient = routing?.recipients?.[recipientKey[activePane]] || routing?.email || "";
-      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: get("Phone") ? `+971 ${get("Phone")}` : "", interest: interestByPane[activePane], inquiryType: label, recipient, recipientKey: recipientKey[activePane], sourcePage: "/contact", message: messageByPane[activePane], details }) });
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: phoneNumber, interest: interestByPane[activePane], inquiryType: label, recipient, recipientKey: recipientKey[activePane], sourcePage: "/contact", message: messageByPane[activePane] || `${label} (no message left).`, details }) });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();
-      setCvName("Attach a PDF, DOC or DOCX");
+      setCvName("Attach a PDF, DOC or DOCX (max 4 MB)");
       window.sessionStorage.removeItem("kpdPlannerScenario");
       window.sessionStorage.removeItem("kpdPlannerProject");
       setPlannerScenario("");
@@ -177,7 +189,10 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
           </div>
           <div className="g21-row">
             <label className="g21-fld"><span>Email</span><input name="Email" type="email" autoComplete="email" required /></label>
-            <label className="g21-fld"><span>Phone</span><span className="g21-phone"><b>+971</b><input name="Phone" type="tel" autoComplete="tel" required /></span></label>
+            <div className="g21-fld"><span id="contact-phone-label">Phone</span><span className="g21-phone">
+              <span className="g21-dial"><b aria-hidden="true">{dialCodeLabel(country)}</b><select name="Country" aria-label="Country code" value={country} onChange={(event) => setCountry(event.target.value)}>{PHONE_COUNTRIES.map((option) => <option key={option}>{option}</option>)}</select></span>
+              <input name="Phone" type="tel" inputMode="tel" autoComplete="tel-national" aria-labelledby="contact-phone-label" required />
+            </span></div>
           </div>
         </fieldset>
 
@@ -218,7 +233,7 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
             <label className="g21-fld"><span>LinkedIn / portfolio</span><input name="LinkedIn / Portfolio" type="url" placeholder="https://" /></label>
           </div>
           <div className="g21-fld"><span>Upload CV</span><label className="g21-file">
-            <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF, DOC or DOCX")} />
+            <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF, DOC or DOCX (max 4 MB)")} />
             <b>Choose file</b><span id="contactCvName">{cvName}</span>
           </label></div>
           <label className="g21-fld"><span>Message</span><textarea name="Job Message" placeholder={c.jobMessagePrompt}></textarea></label>

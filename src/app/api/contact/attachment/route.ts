@@ -4,8 +4,10 @@ import { r2Upload, buildCmsKey } from "@/lib/r2";
 /// Public CV upload for the contact form's Job Inquiry pane (multipart/form-data,
 /// field "file"). Stores the document in the same R2 bucket as the media
 /// library and returns its public URL, which the form then includes in the
-/// submission message. Deliberately strict: PDF/DOC/DOCX only, 10 MB cap.
-const MAX_BYTES = 10 * 1024 * 1024;
+/// submission message. Deliberately strict: PDF/DOC/DOCX only, 4 MB cap (Vercel
+/// refuses any request body over 4.5 MB before this route runs, so a larger cap
+/// only produced an unexplained failure).
+const MAX_BYTES = 4 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".pdf", ".doc", ".docx"];
 
 export async function POST(req: NextRequest) {
@@ -26,7 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Only PDF, DOC and DOCX files are accepted." }, { status: 400 });
   }
   if (file.size > MAX_BYTES) {
-    return NextResponse.json({ error: "The file is too large (10 MB maximum)." }, { status: 413 });
+    return NextResponse.json({ error: "The file is too large (4 MB maximum)." }, { status: 413 });
   }
 
   try {

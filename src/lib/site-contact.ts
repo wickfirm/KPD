@@ -62,6 +62,15 @@ export type GlobalSettings = {
 /// Runtime settings never populate missing values from this object.
 export const globalDefaults: GlobalSettings = {};
 
+export const POPUP_NOTE_DEFAULT = "Our team will be in touch personally to discuss your enquiry.";
+const REPEATED_POPUP_NOTE = "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally.";
+
+/// Shows a note still saved with the old repeated wording as the tidied sentence.
+export function tidyPopupNote<T extends { popupNote?: string } | undefined>(settings: T): T {
+  if (!settings || settings.popupNote?.trim() !== REPEATED_POPUP_NOTE) return settings;
+  return { ...settings, popupNote: POPUP_NOTE_DEFAULT };
+}
+
 const STRING_KEYS = ["email", "phone", "whatsapp", "newsletterNote", "newsletterHeading", "newsletterSubmitLabel", "footerDevelopmentsTitle", "footerCompanyTitle", "footerMediaTitle", "footerAboutLabel", "footerHistoryLabel", "footerInvestorLabel", "footerNewsLabel", "footerContactLabel", "footerTermsLabel", "footerPrivacyLabel", "footerCookiesLabel", "footerCopyright", "facebook", "x", "instagram", "youtube", "linkedin", "enquiryLabel", "callLabel", "whatsappLabel", "headerCtaLabel", "popupTitle", "popupIntro", "popupSubmitLabel", "popupNote"] as const;
 const POPUP_FREQUENCIES = ["every-page", "session", "day"] as const;
 const BOOLEAN_KEYS = ["enquiryEnabled", "callEnabled", "whatsappEnabled", "popupEnabled", "headerCtaVisible", "formEmailsEnabled"] as const;
@@ -78,6 +87,9 @@ export function mergeGlobalSettings(saved: unknown): GlobalSettings {
   for (const key of STRING_KEYS) {
     if (typeof source[key] === "string") result[key] = source[key].trim();
   }
+  // The first pop-up note said the same thing twice; a note still saved with
+  // that wording shows (and re-saves) as the tidied sentence.
+  if (result.popupNote === REPEATED_POPUP_NOTE) result.popupNote = POPUP_NOTE_DEFAULT;
   for (const key of BOOLEAN_KEYS) {
     if (typeof source[key] === "boolean") result[key] = source[key];
   }

@@ -35,7 +35,7 @@
     if (submit) submit.textContent = copy.popupSubmitLabel || "Send enquiry";
 
     const note = card.querySelector(".booking-privacy-note");
-    if (note) note.textContent = copy.popupNote || "Our team will be in touch personally to discuss your enquiry. A member of our team will respond personally.";
+    if (note) note.textContent = copy.popupNote || "Our team will be in touch personally to discuss your enquiry.";
   }
 
   updateInquiryForm();

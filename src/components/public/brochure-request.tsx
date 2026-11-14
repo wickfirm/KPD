@@ -1,15 +1,9 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import { withDialCode } from "@/lib/phone";
+import { looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/lib/phone";
 
-const COUNTRIES = [
-  "United Arab Emirates (+971)", "Saudi Arabia (+966)", "Qatar (+974)", "Kuwait (+965)", "Bahrain (+973)", "Oman (+968)",
-  "India (+91)", "Pakistan (+92)", "United Kingdom (+44)", "United States (+1)", "Canada (+1)", "France (+33)", "Germany (+49)",
-  "China (+86)", "Japan (+81)", "Singapore (+65)", "Australia (+61)", "Switzerland (+41)", "Italy (+39)", "Spain (+34)",
-  "Russia (+7)", "Turkey (+90)", "Egypt (+20)", "Lebanon (+961)", "Jordan (+962)", "South Africa (+27)", "Nigeria (+234)",
-  "Brazil (+55)", "Other",
-];
+const COUNTRIES = PHONE_COUNTRIES;
 
 type BrochureDownload = { url: string; fileName: string; attachment: boolean };
 
@@ -56,7 +50,7 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
     const country = String(data.get("country") || "").trim();
     const typedPhone = String(data.get("phone") || "").trim();
     const phone = withDialCode(typedPhone, country);
-    if (typedPhone.replace(/\D/g, "").length < 7) {
+    if (!looksLikePhone(typedPhone)) {
       setPhoneError("Please enter a valid phone number");
       return;
     }

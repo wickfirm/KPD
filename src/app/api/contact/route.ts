@@ -46,8 +46,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
   }
 
-  // Newsletter, job, and customer-service forms stay in Messages until that
-  // lead list is confirmed. Every other enquiry is mirrored to Salesforce.
+  // Newsletter, job and press forms stay in Messages only. Every other
+  // enquiry is mirrored to Salesforce.
   const mirrorToSalesforce = shouldMirrorSubmissionToSalesforce({ recipientKey: requestedKey, inquiryType });
   const propertyInterestId = String(payload.propertyInterestId || "").trim() || null;
   const held = mirrorToSalesforce ? {} : { syncError: SALESFORCE_LEAD_HOLD_NOTE };
