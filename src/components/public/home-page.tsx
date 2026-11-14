@@ -7,6 +7,8 @@ import { textStyleAttribute, textStyleProps } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
 import { HomeDevelopmentSlider } from "./home-development-slider";
 import { sectionFilter } from "@/lib/section-visibility";
+import { homeNewsGridHtml } from "@/lib/home-news";
+import type { NewsListItem } from "@/lib/news-listing";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -19,7 +21,7 @@ function escapeHtml(value: string) {
 
 /// Replaces the one CMS-managed band inside the otherwise delivered static
 /// homepage tail. Values are escaped before the tail is rendered as HTML.
-function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
+function withHomeNewsHeader(staticTail: string, settings: HomeSettings, articles: readonly NewsListItem[]) {
   const heading = settings.newsHeading?.trim() ?? "";
   const text = settings.newsText?.trim() ?? "";
   const cta = settings.newsCtaVisible === false ? "" : settings.newsCta?.trim() ?? "";
@@ -34,7 +36,7 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings) {
   const section = heading || text || cta
     ? `<section class="${sectionClass}" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
-  return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings);
+  return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings, articles);
 }
 
 /// "Latest news" switched off: drop its heading band and card grid.
@@ -44,16 +46,12 @@ function withoutHomeNews(tail: string) {
     .replace(/<section class="pdf-section pdf-events-grid"[^>]*>[\s\S]*?<\/section>/, "");
 }
 
-/// The news grid under the band: CMS cards when saved (an empty list removes
-/// the grid), otherwise the delivered cards with the CMS link text.
-function withHomeNewsCards(tail: string, settings: HomeSettings) {
-  const label = escapeHtml(settings.newsCardLabel?.trim() || "Explore");
+/// The news grid under the band: the latest published articles, newest first
+/// (see home-news.ts). No published articles removes the grid; the delivered
+/// placeholder cards never show.
+function withHomeNewsCards(tail: string, settings: HomeSettings, articles: readonly NewsListItem[]) {
   const grid = /<section class="pdf-section pdf-events-grid"[^>]*>[\s\S]*?<\/section>/;
-  if (!settings.newsCards) return settings.newsCardLabel?.trim() ? tail.replace(grid, (match) => match.replace(/(<a href="[^"]*">)Explore(<\/a>)/g, `$1${label}$2`)) : tail;
-  const cards = settings.newsCards.filter((card) => card.title.trim() || card.image.trim());
-  if (!cards.length) return tail.replace(grid, "");
-  const html = cards.map((card) => `<article class="pdf-event-card">${card.image ? `<img src="${escapeHtml(card.image)}" alt="${escapeHtml(card.title)}">` : ""}<h3>${escapeHtml(card.title)}</h3>${card.text ? `<p>${escapeHtml(card.text)}</p>` : ""}<a href="${escapeHtml(card.url || "/news")}">${label}</a></article>`).join("");
-  return tail.replace(grid, `<section class="pdf-section pdf-events-grid" aria-label="${escapeHtml(settings.newsHeading?.trim() || "Latest news")}">${html}</section>`);
+  return tail.replace(grid, homeNewsGridHtml(articles, { label: settings.newsCardLabel?.trim() || "Explore", ariaLabel: settings.newsHeading?.trim() || "Latest news" }));
 }
 
 /// Gallery-light hero: full-bleed media with the page headline, a supporting
@@ -232,7 +230,7 @@ export function HomeExperienceGallery({ images, captions }: { images?: string[];
 
 /// The homepage <main>: CMS content is authoritative. The delivered static
 /// tail only supplies structural markup; editable text is replaced above.
-export function HomeMain({ settings, staticTail, developmentCards, hidden }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[]; hidden?: readonly string[] }) {
+export function HomeMain({ settings, staticTail, developmentCards, hidden, newsArticles = [] }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[]; hidden?: readonly string[]; newsArticles?: readonly NewsListItem[] }) {
   /// Sections the editor switched off under "Sections on this page".
   const shown = sectionFilter(hidden);
   const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
@@ -264,7 +262,7 @@ export function HomeMain({ settings, staticTail, developmentCards, hidden }: { s
       {shown("cards") ? <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} /> : null}
       {shown("contact") && hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={settings.contactKicker ?? homeDefaults.contactKicker} /> : null}
       {shown("gallery") ? <HomeExperienceGallery images={experienceImages.filter(Boolean)} captions={experienceCaptions} /> : null}
-      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(shown("news") ? withHomeNewsHeader(staticTail, settings) : withoutHomeNews(staticTail)) }} />
+      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(shown("news") ? withHomeNewsHeader(staticTail, settings, newsArticles) : withoutHomeNews(staticTail)) }} />
     </main>
   );
 }

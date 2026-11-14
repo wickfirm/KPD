@@ -1057,7 +1057,6 @@ function homeSettingsFromForm(formData: FormData) {
     newsCtaUrl: String(formData.get("newsCtaUrl") || "").trim(),
     newsCtaVisible: formData.get("newsCtaVisible") === "on",
     newsCardLabel: formData.has("newsCardLabel") ? String(formData.get("newsCardLabel") || "").trim() : undefined,
-    newsCards: formData.has("newsCardsJson") ? parseJsonList(formData.get("newsCardsJson"), (item) => (text(item.title) || text(item.image) ? { image: text(item.image), title: text(item.title), text: text(item.text), url: text(item.url) } : null)) : undefined,
     newsCtaPosition: ["above", "left", "right"].includes(String(formData.get("newsCtaPosition") || "")) ? formData.get("newsCtaPosition") as "above" | "left" | "right" : "below",
     developmentCtaPosition: ["above", "left", "right"].includes(String(formData.get("developmentCtaPosition") || "")) ? formData.get("developmentCtaPosition") as "above" | "left" | "right" : "below",
     contactHeading: normalizeLineBreaks(formData.get("contactHeading") as string | null),
