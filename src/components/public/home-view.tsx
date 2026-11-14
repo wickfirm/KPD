@@ -7,16 +7,18 @@ import { getHomeStaticTail } from "@/lib/legacy-home";
 import type { HomeSettings } from "@/lib/home-defaults";
 import { getPublishedDevelopmentCards } from "@/lib/nav-developments";
 import { loadHiddenSections } from "@/lib/section-visibility-store";
+import { loadNewsArticles } from "@/lib/news-listing";
+import { HOME_NEWS_LIMIT } from "@/lib/home-news";
 
 /// The homepage: delivered shell + React content. Shared by the public route
 /// and the admin unsaved-changes preview so both render identically.
 export async function HomeView({ home, previewNote }: { home: HomeSettings; previewNote?: string }) {
-  const [developmentCards, hidden] = await Promise.all([getPublishedDevelopmentCards(), loadHiddenSections("home")]);
+  const [developmentCards, hidden, newsArticles] = await Promise.all([getPublishedDevelopmentCards(), loadHiddenSections("home"), loadNewsArticles(HOME_NEWS_LIMIT)]);
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page" />
     <SiteShellHeader />
-    <HomeMain settings={home} staticTail={getHomeStaticTail()} developmentCards={developmentCards} hidden={hidden} />
+    <HomeMain settings={home} staticTail={getHomeStaticTail()} developmentCards={developmentCards} hidden={hidden} newsArticles={newsArticles} />
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page" sources={["/legacy/assets/js/live-news.js?v=20261007-internal-links"]} />
