@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { restoreVersion } from "@/app/admin/(dashboard)/actions";
 import { MAX_CONTENT_VERSIONS } from "@/lib/versions";
 import { ConfirmButton } from "./confirm-button";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 /// "Safety net" panel shown under every versioned editor. Lists the rolling
 /// history (newest first, max 5 — the oldest drops off on the 6th save) and
@@ -36,7 +37,7 @@ export default async function VersionHistory({
           <li key={version.id} className={index === 0 ? "is-current" : undefined}>
             <div className="cms-history__meta">
               <strong>v{version.versionNumber}{index === 0 ? " — current" : ""}</strong>
-              <span>{version.createdAt.toLocaleString("en-GB")}</span>
+              <span>{version.createdAt.toLocaleString("en-GB", { timeZone: CMS_TIME_ZONE })}</span>
               {version.authorEmail ? <span>{version.authorEmail}</span> : null}
               <span className="cms-history__label">{version.label}</span>
             </div>

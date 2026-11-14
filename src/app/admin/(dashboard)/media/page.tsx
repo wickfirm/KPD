@@ -6,6 +6,7 @@ import { CopyButton } from "@/components/admin/copy-button";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { deleteMedia, importExistingMedia } from "./media-actions";
 import { MediaUploadForm } from "./media-client";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -92,7 +93,7 @@ export default async function MediaPage({ searchParams }: { searchParams: Promis
                 </div>
                 <figcaption>
                   <strong title={asset.fileName}>{asset.fileName}</strong>
-                  <span>{formatSize(asset.size)} · {asset.createdAt.toLocaleDateString("en-GB")}{asset.uploadedBy ? ` · ${asset.uploadedBy}` : ""}</span>
+                  <span>{formatSize(asset.size)} · {asset.createdAt.toLocaleDateString("en-GB", { timeZone: CMS_TIME_ZONE })}{asset.uploadedBy ? ` · ${asset.uploadedBy}` : ""}</span>
                   <div className="cms-media-card__actions">
                     <CopyButton value={asset.url} />
                     <a className="cms-btn cms-btn--ghost cms-btn--small" href={asset.url} target="_blank" rel="noopener noreferrer">Open</a>

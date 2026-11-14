@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { SavedBanner } from "@/components/admin/flash";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -97,7 +98,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 <li key={entry.id}>
                   <span className="cms-activity-mini__who">{entry.actorName || entry.actorEmail || "System"}</span>
                   <span>{entry.summary}</span>
-                  <time>{entry.createdAt.toLocaleString("en-GB")}</time>
+                  <time>{entry.createdAt.toLocaleString("en-GB", { timeZone: CMS_TIME_ZONE })}</time>
                 </li>
               ))}
             </ul>

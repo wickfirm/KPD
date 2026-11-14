@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { deleteArticle, duplicateArticle, setArticleStatus } from "../actions";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { SavedBanner } from "@/components/admin/flash";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -77,7 +78,7 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
                   <div className="cms-row-card__meta"><span className="cms-badge cms-badge--type">{article.kind === "BLOG" ? "Blog" : "News"}</span><span className={`cms-badge cms-badge--${article.status}`}>{statusLabels[article.status] ?? article.status}</span></div>
                   <h2><Link href={`/admin/articles/${article.id}`}>{article.title}</Link></h2>
                   <p className="cms-row-card__summary">{article.summary}</p>
-                  <p className="cms-muted">/{article.slug} · {article.publishedAt ? `published ${article.publishedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : "not published"} · edited {article.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                  <p className="cms-muted">/{article.slug} · {article.publishedAt ? `published ${article.publishedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}` : "not published"} · edited {article.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}</p>
                 </div>
                 <div className="cms-row-card__actions">
                   <Link className="cms-btn cms-btn--small" href={`/admin/articles/${article.id}`}>Edit</Link>
