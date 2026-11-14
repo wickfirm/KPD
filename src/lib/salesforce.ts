@@ -1,8 +1,8 @@
 // Salesforce dual-write (Contract Clause 2).
 //
 // Submissions are always stored locally first. A Lead is created only for the
-// enquiry types confirmed in the org review. Newsletter, job, and
-// customer-service forms stay in Messages until that list is confirmed.
+// enquiry types. Newsletter, job and press forms stay in Messages only (they
+// are not sales leads); every other form, including Customer Inquiry, is mirrored.
 //
 // Lead mapping from the org review:
 //   FirstName, LastName, Email, Phone
@@ -27,18 +27,19 @@ const DESCRIPTION_LIMIT = 32_000;
 export const WEBSITE_LEADS_QUEUE_ID = "00GWF00000Ailv7";
 
 export const SALESFORCE_LEAD_HOLD_NOTE =
-  "Stored in Messages. Newsletter, job, and customer-service forms are not sent to Salesforce yet.";
+  "Stored in Messages. Newsletter, job and press forms are not sent to Salesforce.";
 
-/// Recipient keys and inquiry labels that stay local until the lead list is confirmed.
-const HELD_RECIPIENT_KEYS = new Set(["newsletter", "contactCareers", "contactCustomer"]);
+/// Recipient keys and inquiry labels that never become Salesforce Leads.
+const HELD_RECIPIENT_KEYS = new Set(["newsletter", "contactCareers", "contactPress"]);
 const HELD_INQUIRY_TYPES = new Set([
   "newsletter",
   "newsletter signup",
   "job",
   "job inquiry",
   "careers",
-  "customer inquiry",
-  "customer service",
+  "press",
+  "press inquiry",
+  "media inquiry",
 ]);
 
 export type LeadPayload = {

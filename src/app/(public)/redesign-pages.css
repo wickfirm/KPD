@@ -1849,6 +1849,44 @@ main.g21 .g21-fld .g21-phone input {
   border-radius: 0;
 }
 
+/* Country code beside the phone number: the native select covers the code
+   label (transparent), so the box shows "+971 ▾" but opens the full list. */
+main.g21 .g21-phone .g21-dial {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+}
+
+main.g21 .g21-phone .g21-dial b {
+  gap: 8px;
+  min-width: 78px;
+}
+
+main.g21 .g21-phone .g21-dial b::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  margin-top: -3px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+
+main.g21 .g21-fld .g21-phone .g21-dial select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+main.g21 .g21-phone .g21-dial:focus-within b {
+  background: #F4F3EF;
+}
+
 main.g21 .g21-pills {
   display: flex;
   flex-wrap: wrap;

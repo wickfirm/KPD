@@ -27,8 +27,34 @@
   let lastY = window.scrollY;
   let bookingModalTouched = false;
   let bookingWidgetLauncher = null;
+  // [KPD CMS patch] Country code list for the pop-up's phone field. Same list
+  // and order as PHONE_COUNTRIES in src/lib/phone.ts (phone.test.ts checks).
+  const phoneCountries = ["United Arab Emirates (+971)", "Saudi Arabia (+966)", "Qatar (+974)", "Kuwait (+965)", "Bahrain (+973)", "Oman (+968)", "India (+91)", "Pakistan (+92)", "United Kingdom (+44)", "United States (+1)", "Canada (+1)", "France (+33)", "Germany (+49)", "China (+86)", "Japan (+81)", "Singapore (+65)", "Australia (+61)", "Switzerland (+41)", "Italy (+39)", "Spain (+34)", "Russia (+7)", "Turkey (+90)", "Egypt (+20)", "Lebanon (+961)", "Jordan (+962)", "South Africa (+27)", "Nigeria (+234)", "Brazil (+55)", "Other"];
+  const phoneCountryOptions = phoneCountries.map((country) => "<option>" + country + "</option>").join("");
+  const dialCodeOf = (country) => { const match = /\(\+(\d{1,4})\)/.exec(country || ""); return match ? match[1] : ""; };
+  // Same rules as withDialCode in src/lib/phone.ts: "050 123 4567" + UAE -> "+971 50 123 4567";
+  // a number typed with + or 00 is kept as typed.
+  function withDialCode(phone, country) {
+    const typed = String(phone || "").trim();
+    if (!typed) return "";
+    if (typed.startsWith("+")) return typed;
+    if (typed.startsWith("00")) return "+" + typed.slice(2).trim();
+    const dial = dialCodeOf(country);
+    if (!dial) return typed;
+    const local = typed.replace(/^0+/, "");
+    const digits = local.replace(/\D/g, "");
+    if (digits.startsWith(dial) && digits.length > 9) return "+" + local;
+    return "+" + dial + " " + local;
+  }
+  // The pop-up shows only the code ("+971") over the transparent country list.
+  document.addEventListener("change", (event) => {
+    const select = event.target;
+    if (!(select instanceof HTMLSelectElement) || !select.closest(".booking-lead-dial")) return;
+    const label = select.closest(".booking-lead-dial").querySelector("[data-dial-code]");
+    if (label) label.textContent = "+" + dialCodeOf(select.value);
+  });
   // [KPD CMS patch] Phone is required: Salesforce will not create a Lead without one.
-  const bookingLeadFormMarkup = "<form class=\"booking-lead-form\" action=\"mailto:" + recipientFor("booking") + "?subject=KPD%20Meeting%20Request\" method=\"post\" enctype=\"text/plain\"><div class=\"booking-lead-grid\"><input class=\"booking-lead-field\" type=\"text\" name=\"Name\" placeholder=\"Full name\" autocomplete=\"name\" required><input class=\"booking-lead-field\" type=\"email\" name=\"Email\" placeholder=\"Email address\" autocomplete=\"email\" required><input class=\"booking-lead-field\" type=\"tel\" name=\"Phone\" placeholder=\"Phone number\" autocomplete=\"tel\" required><select class=\"booking-lead-field\" name=\"Interest\" aria-label=\"Interest\"><option value=\"\">Interested in</option>" + publishedProjectOptions + "<option>Online call</option></select><textarea class=\"booking-lead-field booking-lead-message\" name=\"Message\" placeholder=\"Short message\"></textarea></div><button class=\"btn-pill booking-primary-button booking-lead-submit text-black\" type=\"submit\">Submit inquiry</button></form><p class=\"booking-privacy-note\">The KPD team will respond with the right advisory route.</p>";
+  const bookingLeadFormMarkup = "<form class=\"booking-lead-form\" action=\"mailto:" + recipientFor("booking") + "?subject=KPD%20Meeting%20Request\" method=\"post\" enctype=\"text/plain\"><div class=\"booking-lead-grid\"><input class=\"booking-lead-field\" type=\"text\" name=\"Name\" placeholder=\"Full name\" autocomplete=\"name\" required><input class=\"booking-lead-field\" type=\"email\" name=\"Email\" placeholder=\"Email address\" autocomplete=\"email\" required><div class=\"booking-lead-phone\"><span class=\"booking-lead-field booking-lead-dial\"><b aria-hidden=\"true\" data-dial-code>+971</b><select name=\"Country\" aria-label=\"Country code\">" + phoneCountryOptions + "</select></span><input class=\"booking-lead-field\" type=\"tel\" name=\"Phone\" placeholder=\"Phone number\" autocomplete=\"tel-national\" inputmode=\"tel\" required></div><select class=\"booking-lead-field\" name=\"Interest\" aria-label=\"Interest\"><option value=\"\">Interested in</option>" + publishedProjectOptions + "<option>Online call</option></select><textarea class=\"booking-lead-field booking-lead-message\" name=\"Message\" placeholder=\"Short message\"></textarea></div><button class=\"btn-pill booking-primary-button booking-lead-submit text-black\" type=\"submit\">Submit inquiry</button></form><p class=\"booking-privacy-note\">The KPD team will respond with the right advisory route.</p>";
   const bookingModalMarkup = "<div class=\"booking-backdrop\" aria-hidden=\"true\"></div><div class=\"booking-card\"><button class=\"modal-close\" type=\"button\" data-booking-close aria-label=\"Minimize inquiry form\"></button><h2 id=\"booking-title\">Inquiry Form</h2><p>Share a few contact details and the KPD team will coordinate the right advisory conversation.</p>" + bookingLeadFormMarkup + "</div>";
 
   if (!floatingContact) {
@@ -1621,7 +1647,9 @@
     const firstName = valueFrom(formData, ["First Name", "Name", "name"]);
     const lastName = valueFrom(formData, ["Last Name"]);
     const email = valueFrom(formData, ["Email", "email"]);
-    const phone = valueFrom(formData, ["Phone", "phone"]);
+    const typedPhone = valueFrom(formData, ["Phone", "phone"]);
+    // [KPD CMS patch] forms with a country list send the number with its dial code.
+    const phone = formData.has("Country") ? withDialCode(typedPhone, valueFrom(formData, ["Country"])) : typedPhone;
     const interest = valueFrom(formData, ["Project of Interest", "Related Project", "Interest", "interest"]);
     const message = valueFrom(formData, ["Sales Message", "Customer Message", "Partner Message", "Message", "message"])
       || (form.id === "footer-email-form" ? "Newsletter signup." : "Website enquiry.");
@@ -1655,6 +1683,10 @@
       formStatus(form, "Please provide your email address.", true);
       return;
     }
+    if (form.classList.contains("booking-lead-form") && typedPhone.replace(/\D/g, "").length < 7) {
+      formStatus(form, "Please enter a valid phone number.", true);
+      return;
+    }
 
     if (submit) submit.disabled = true;
     formStatus(form, "Sending your enquiry…", false);
@@ -1667,6 +1699,7 @@
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
       form.reset();
+      form.querySelectorAll(".booking-lead-dial [data-dial-code]").forEach((label) => { label.textContent = "+971"; });
       if (plannerScenario) window.sessionStorage.removeItem("kpdPlannerScenario");
       if (plannerProject) window.sessionStorage.removeItem("kpdPlannerProject");
       formStatus(form, "Thank you. Your enquiry has been received.", false);

@@ -1728,3 +1728,46 @@ a.brochure-request__done { box-sizing: border-box; text-decoration: none; }
   font-size: 13px;
   color: rgba(0, 0, 0, 0.86);
 }
+
+/* "Start a conversation" pop-up: country code pill beside the phone number.
+   The native country list sits transparent over the "+971" label, so the pill
+   stays short but opens the full list. site.css untouched. */
+.booking-lead-phone {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.booking-lead-phone > input.booking-lead-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.booking-lead-field.booking-lead-dial {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  width: auto;
+  padding: 0 12px;
+}
+.booking-lead-dial b { font-weight: 400; }
+.booking-lead-dial b::after {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  margin: 0 0 2px 7px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: rotate(45deg);
+}
+.booking-lead-dial select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+.booking-lead-dial:focus-within { border-color: var(--black); }

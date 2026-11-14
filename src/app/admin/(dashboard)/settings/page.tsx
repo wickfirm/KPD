@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { tidyPopupNote } from "@/lib/site-contact";
 import { requireRole } from "@/lib/auth";
 import SettingsForm, { type Settings } from "./settings-form";
 import VersionHistory from "@/components/admin/version-history";
@@ -17,7 +18,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   ]);
   const settings: Settings = {};
   for (const row of rows) {
-    if (row.key === "global") settings.global = row.value as Settings["global"];
+    if (row.key === "global") settings.global = tidyPopupNote(row.value as Settings["global"]);
     if (row.key === "home") settings.home = row.value as Settings["home"];
     if (row.key === "news_listing") settings.newsListing = row.value as Settings["newsListing"];
   }

@@ -1,5 +1,7 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { withDialCode } from "./phone";
+import { dialCodeLabel, looksLikePhone, PHONE_COUNTRIES, withDialCode } from "./phone";
 
 describe("withDialCode", () => {
   it("prefixes the selected country's dial code and drops the trunk zero", () => {
@@ -14,5 +16,22 @@ describe("withDialCode", () => {
   it("leaves the number alone when no dial code is known", () => {
     expect(withDialCode("12345678", "Other")).toBe("12345678");
     expect(withDialCode("  ", "Qatar (+974)")).toBe("");
+  });
+});
+
+describe("country code lists", () => {
+  it("the pop-up script offers the same countries, in the same order", () => {
+    const script = readFileSync(join(process.cwd(), "public/legacy/assets/js/site-cms.js"), "utf8");
+    const match = /const phoneCountries = (\[[^\]]*\]);/.exec(script);
+    expect(match).not.toBeNull();
+    expect(JSON.parse(match![1])).toEqual([...PHONE_COUNTRIES]);
+  });
+  it("shows only the code for the selected country", () => {
+    expect(dialCodeLabel("United Arab Emirates (+971)")).toBe("+971");
+    expect(dialCodeLabel("Other")).toBe("+");
+  });
+  it("needs at least 7 digits", () => {
+    expect(looksLikePhone("050 123")).toBe(false);
+    expect(looksLikePhone("050 123 4567")).toBe(true);
   });
 });
