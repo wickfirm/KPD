@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-const DELIVERED_SCRIPT = "/legacy/assets/js/site-cms.js?v=20261112-phone-required";
+const DELIVERED_SCRIPT = "/legacy/assets/js/site-cms.js?v=20261114-popup-sent";
 const INQUIRY_FORM_COPY_SCRIPT = "/legacy/assets/js/inquiry-form-copy.js?v=20261028-cms-project-options";
 
 /// The delivered script binds scroll/resize listeners on window and document.

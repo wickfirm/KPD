@@ -472,6 +472,12 @@
     if (!modal) return;
     modal.classList.toggle("open", open);
     modal.classList.toggle("is-minimized", !open);
+    // [KPD CMS patch] reopening after a sent enquiry shows a fresh form again.
+    if (open) modal.querySelectorAll(".booking-card.is-sent").forEach((card) => {
+      card.classList.remove("is-sent");
+      const status = card.querySelector("[data-contact-api-status]");
+      if (status) status.remove();
+    });
     if (bookingWidgetLauncher) {
       bookingWidgetLauncher.classList.toggle("visible", !open);
       bookingWidgetLauncher.setAttribute("aria-expanded", open ? "true" : "false");
@@ -1651,7 +1657,7 @@
     }
 
     if (submit) submit.disabled = true;
-    formStatus(form, "Sending your enquiryâ€¦", false);
+    formStatus(form, "Sending your enquiry…", false);
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -1664,6 +1670,10 @@
       if (plannerScenario) window.sessionStorage.removeItem("kpdPlannerScenario");
       if (plannerProject) window.sessionStorage.removeItem("kpdPlannerProject");
       formStatus(form, "Thank you. Your enquiry has been received.", false);
+      // [KPD CMS patch] the pop-up swaps the form for the confirmation so the
+      // message is not squeezed under the button and the privacy note.
+      const sentCard = form.classList.contains("booking-lead-form") ? form.closest(".booking-card") : null;
+      if (sentCard) sentCard.classList.add("is-sent");
     } catch (error) {
       formStatus(form, error instanceof Error ? error.message : "Unable to send your enquiry. Please try again.", true);
     } finally {
