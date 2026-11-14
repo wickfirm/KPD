@@ -1706,3 +1706,25 @@ a.brochure-request__done { box-sizing: border-box; text-decoration: none; }
     align-items: start;
   }
 }
+
+/* "Start a conversation" pop-up: status line under the button, and the sent
+   state (site-cms.js adds .is-sent to .booking-card after a 2xx from
+   /api/contact) which swaps the form for the confirmation. site.css untouched. */
+.booking-card [data-contact-api-status] {
+  max-width: none;
+  margin: 2px 0 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: rgba(0, 0, 0, 0.72);
+}
+.booking-card [data-contact-api-status].form-error { color: #a12a2a; }
+.booking-card .booking-privacy-note { line-height: 1.45; }
+.booking-card.is-sent #booking-title + p,
+.booking-card.is-sent .booking-lead-grid,
+.booking-card.is-sent .booking-lead-submit { display: none; }
+.booking-card.is-sent .booking-lead-form { margin-top: 4px; }
+.booking-card.is-sent [data-contact-api-status] {
+  margin: 0 34px 4px 0;
+  font-size: 13px;
+  color: rgba(0, 0, 0, 0.86);
+}
