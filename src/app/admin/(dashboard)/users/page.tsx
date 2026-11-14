@@ -5,6 +5,7 @@ import { SavedBanner } from "@/components/admin/flash";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { updateUserRole, toggleUserActive, deleteUser } from "./user-actions";
 import { UserCreateForm, UserPasswordForm } from "./users-client";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -90,7 +91,7 @@ export default async function UsersPage({ searchParams }: { searchParams: Promis
                 </div>
                 <div>
                   <span className="cms-user-card__label">Last signed in</span>
-                  <span>{u.lastLoginAt ? u.lastLoginAt.toLocaleString("en-GB") : <span className="cms-muted">never</span>}</span>
+                  <span>{u.lastLoginAt ? u.lastLoginAt.toLocaleString("en-GB", { timeZone: CMS_TIME_ZONE }) : <span className="cms-muted">never</span>}</span>
                 </div>
                 <div>
                   <span className="cms-user-card__label">Password</span>

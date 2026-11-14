@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { SavedBanner } from "@/components/admin/flash";
 import { readDetails, type SubmissionDetail } from "@/lib/submissions";
 import { retrySubmissionSync } from "./actions";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +90,7 @@ export default async function SubmissionsPage({
                 <span className="cms-badge cms-badge--type">{row.inquiryType ?? "Enquiry"}</span>
                 <span className="cms-submission__who"><strong>{row.name}</strong><small>{row.email}{row.phone ? ` · ${row.phone}` : ""}</small></span>
                 <span className="cms-submission__interest">{row.interest ?? "—"}</span>
-                <span className="cms-submission__when">{row.createdAt.toLocaleString("en-GB")}</span>
+                <span className="cms-submission__when">{row.createdAt.toLocaleString("en-GB", { timeZone: CMS_TIME_ZONE })}</span>
                 <span className={`cms-badge cms-badge--${row.status}`} title={row.syncError ?? undefined}>{row.status}</span>
               </summary>
               <div className="cms-submission__body">

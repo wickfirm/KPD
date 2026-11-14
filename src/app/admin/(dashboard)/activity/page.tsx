@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { activityActions, activityActionLabels } from "@/lib/activity";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -57,7 +58,7 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
           <tbody>
             {entries.map((entry) => (
               <tr key={entry.id}>
-                <td className="cms-nowrap">{entry.createdAt.toLocaleString("en-GB")}</td>
+                <td className="cms-nowrap">{entry.createdAt.toLocaleString("en-GB", { timeZone: CMS_TIME_ZONE })}</td>
                 <td>{entry.actorName || entry.actorEmail || <span className="cms-muted">System</span>}</td>
                 <td>
                   <span className={`cms-badge cms-action--${entry.action.split(".")[0]}`}>{entry.action}</span>

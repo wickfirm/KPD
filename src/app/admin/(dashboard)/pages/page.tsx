@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { editablePages, type EditablePage } from "@/lib/editable-pages";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function PagesPage() {
         <div className="cms-row-card__meta"><span className="cms-eyebrow">{entry.publicHref}</span><span className={`cms-badge cms-badge--${info.badge}`}>{info.label}</span></div>
         <h2><Link href={entry.href}>{entry.title}</Link></h2>
         <p className="cms-dev-card__tagline">{entry.description}</p>
-        <p className="cms-muted">{info.note}{info.updatedAt ? ` Last saved ${info.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}.` : ""}</p>
+        <p className="cms-muted">{info.note}{info.updatedAt ? ` Last saved ${info.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}.` : ""}</p>
       </div>
       <div className="cms-dev-card__actions">
         <Link className="cms-btn cms-btn--small" href={entry.href}>Edit</Link>
@@ -78,7 +79,7 @@ export default async function PagesPage() {
           <div className="cms-dev-card__body">
             <div className="cms-row-card__meta"><span className="cms-eyebrow">/{page.slug}</span><span className={`cms-badge cms-badge--${page.status}`}>{page.status === "PUBLISHED" ? "Published" : page.status === "ARCHIVED" ? "Archived" : "Draft"}</span></div>
             <h2><Link href={`/admin/pages/${page.id}`}>{page.title}</Link></h2>
-            <p className="cms-muted">Last saved {page.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}. This page has no public template yet.</p>
+            <p className="cms-muted">Last saved {page.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}. This page has no public template yet.</p>
           </div>
           <div className="cms-dev-card__actions"><Link className="cms-btn cms-btn--small" href={`/admin/pages/${page.id}`}>Edit</Link></div>
         </article>)}

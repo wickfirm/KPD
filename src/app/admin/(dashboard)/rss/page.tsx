@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { reviewRssItem } from "../actions";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export default async function RssQueuePage() {
           <article key={item.id} className="cms-review-card">
             <div className="cms-row-card__meta">
               <span className="cms-badge cms-badge--type">{item.source}</span>
-              <span className="cms-muted">{item.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) ?? "unknown date"}</span>
+              <span className="cms-muted">{item.publishedAt?.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE }) ?? "unknown date"}</span>
             </div>
             <h2><a href={item.url} target="_blank" rel="noopener noreferrer">{item.title} ↗</a></h2>
             {item.snippet ? <p className="cms-row-card__summary">{item.snippet}</p> : null}

@@ -20,6 +20,7 @@ import { HiddenBadge, SectionToggle, SectionVisibilityPanel } from "@/components
 import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { developmentSectionPage, developmentSections } from "@/lib/section-visibility";
 import { galleryLightDevelopments } from "@/lib/development-gallery-light";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -94,7 +95,7 @@ export default async function ProjectEditorPage({
             <ul>
               {versions.map((version, versionIndex) => (
                 <li key={version.id}>
-                  <span><strong>v{version.versionNumber}{versionIndex === 0 ? " — current" : ""}</strong> · {version.createdAt.toLocaleString("en-GB")}{version.authorEmail ? ` · ${version.authorEmail}` : ""}</span>
+                  <span><strong>v{version.versionNumber}{versionIndex === 0 ? " — current" : ""}</strong> · {version.createdAt.toLocaleString("en-GB", { timeZone: CMS_TIME_ZONE })}{version.authorEmail ? ` · ${version.authorEmail}` : ""}</span>
                   {versionIndex !== 0 ? (
                     <form action={restoreVersion}>
                       <input type="hidden" name="versionId" value={version.id} />

@@ -5,6 +5,7 @@ import { ConfirmButton } from "@/components/admin/confirm-button";
 import { duplicateProject, moveProject, setProjectStatus } from "../actions";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { HomepageToggle } from "./homepage-toggle";
+import { CMS_TIME_ZONE } from "@/lib/time-zone";
 
 export const dynamic = "force-dynamic";
 
@@ -73,7 +74,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
                 <span className="cms-eyebrow">{project.location || "Development"}</span>
                 <h2><Link href={`/admin/projects/${project.id}`}>{project.name}</Link></h2>
                 {project.tagline ? <p className="cms-dev-card__tagline">{project.tagline}</p> : null}
-                <p className="cms-muted">{project._count.modules} sections · /developments/{project.slug} · edited {project.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</p>
+                <p className="cms-muted">{project._count.modules} sections · /developments/{project.slug} · edited {project.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}</p>
                 <HomepageToggle id={project.id} shown={shownOnHomepage.get(projectChromeKey(project.id)) !== false} />
               </div>
               <div className="cms-dev-card__actions">
