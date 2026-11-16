@@ -2048,16 +2048,20 @@ main.g21 .g21-overview {
   display: grid;
   grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
   gap: clamp(28px, 6vw, 110px);
-  align-items: end;
+  align-items: center;
 }
 
-main.g21 .g21-overview .g21-cap {
+main.g21 .g21-overview-logo img {
   display: block;
-  margin-bottom: 16px;
+  width: auto;
+  max-width: min(100%, 420px);
+  max-height: 240px;
+  object-fit: contain;
 }
 
 main.g21 .g21-overview h2 {
-  font-size: clamp(32px, 4vw, 64px);
+  margin-bottom: 24px;
+  font-size: clamp(30px, 3.4vw, 54px);
   font-weight: 300;
 }
 
@@ -2410,6 +2414,15 @@ main.g21 .g21-ms p {
 
   main.g21 .g21-scale {
     display: none;
+  }
+
+  main.g21 .g21-overview-logo:empty {
+    display: none;
+  }
+
+  main.g21 .g21-overview-logo img {
+    max-width: min(70%, 320px);
+    max-height: 160px;
   }
 
   main.g21 .g21-drive li {

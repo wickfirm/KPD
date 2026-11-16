@@ -19,6 +19,9 @@ export type ProjectChrome = {
   enquireHeading?: string;
   enquireText?: string;
   enquireImage?: string;
+  /// Gallery-light introduction: logo shown in the left column, beside the
+  /// headline and introduction text. Absent leaves the left column empty.
+  overviewLogo?: string;
   enquirePrimaryLabel?: string;
   enquirePrimaryUrl?: string;
   enquireSecondaryLabel?: string;
@@ -78,6 +81,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
   const enquireHeading = typeof source.enquireHeading === "string" ? source.enquireHeading.trim() : "";
   const enquireText = typeof source.enquireText === "string" ? source.enquireText.trim() : "";
   const enquireImage = typeof source.enquireImage === "string" ? source.enquireImage.trim() : "";
+  const overviewLogo = typeof source.overviewLogo === "string" ? source.overviewLogo.trim() : "";
   const enquirePrimaryLabel = typeof source.enquirePrimaryLabel === "string" ? source.enquirePrimaryLabel.trim() : "";
   const enquirePrimaryUrl = typeof source.enquirePrimaryUrl === "string" ? source.enquirePrimaryUrl.trim() : "";
   const enquireSecondaryLabel = typeof source.enquireSecondaryLabel === "string" ? source.enquireSecondaryLabel.trim() : "";
@@ -98,6 +102,7 @@ export function parseProjectChrome(value: unknown): ProjectChrome {
     ...(enquireHeading ? { enquireHeading } : {}),
     ...(enquireText ? { enquireText } : {}),
     ...(enquireImage ? { enquireImage } : {}),
+    ...(overviewLogo ? { overviewLogo } : {}),
     ...(enquirePrimaryLabel ? { enquirePrimaryLabel } : {}),
     ...(enquirePrimaryUrl ? { enquirePrimaryUrl } : {}),
     ...(enquireSecondaryLabel ? { enquireSecondaryLabel } : {}),
