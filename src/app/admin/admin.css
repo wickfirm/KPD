@@ -1300,3 +1300,9 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 .cms-module-card__side { display: inline-flex; align-items: center; gap: 14px; flex-shrink: 0; }
 .cms-section-toggle { display: inline-flex; margin: 0 !important; padding: 0 !important; }
 .cms-module-disclosure > summary:has(.cms-badge--DRAFT) h3 { opacity: 0.6; }
+
+/* ── Article editor: "Generate with AI" under Title / Summary / Alt text ── */
+.cms-ai-assist { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: -4px 0 18px; }
+.cms-ai-assist small { font-size: 12.5px; line-height: 1.4; }
+.cms-ai-assist__ok { color: var(--color-ink-muted); }
+.cms-ai-assist__error { color: var(--color-danger, #b42318); }
