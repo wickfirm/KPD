@@ -44,6 +44,8 @@ describe("development page labels", () => {
   });
   it("keeps page labels, including hidden ones", () => {
     expect(parseProjectChrome({ labels: { overview: "", driveNote: "From {name}", junk: 1 } }).labels).toEqual({ overview: "", driveNote: "From {name}" });
+    expect(parseProjectChrome({ overviewLogo: "  https://cdn/logo.svg " }).overviewLogo).toBe("https://cdn/logo.svg");
+    expect(parseProjectChrome({ overviewLogo: "" })).not.toHaveProperty("overviewLogo");
     expect(parseProjectChrome({}).labels).toBeUndefined();
   });
 });

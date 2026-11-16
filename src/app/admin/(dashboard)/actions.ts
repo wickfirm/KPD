@@ -459,6 +459,7 @@ export async function saveProject(
     enquireHeading: String(formData.get("enquireHeading") || "").trim(),
     enquireText: String(formData.get("enquireText") || "").trim(),
     enquireImage: String(formData.get("enquireImage") || "").trim(),
+    overviewLogo: formData.has("overviewLogo") ? String(formData.get("overviewLogo") || "").trim() : previousChrome.overviewLogo,
     enquirePrimaryLabel: String(formData.get("enquirePrimaryLabel") || "").trim(),
     enquirePrimaryUrl: String(formData.get("enquirePrimaryUrl") || "").trim(),
     enquireSecondaryLabel: String(formData.get("enquireSecondaryLabel") || "").trim(),
@@ -470,8 +471,9 @@ export async function saveProject(
     taglineStyle: textStyleFromForm(formData, "projectTagline"),
     descriptionStyle: textStyleFromForm(formData, "projectDescription"),
     // Gallery-light page labels: only on the forms that show them; others keep what was saved.
-    labels: formData.has("labelOverview") ? {
-      overview: String(formData.get("labelOverview") ?? ""),
+    // The introduction caption is no longer shown or edited; keep what was saved.
+    labels: formData.has("labelDriveNote") ? {
+      ...(previousChrome.labels?.overview !== undefined ? { overview: previousChrome.labels.overview } : {}),
       driveNote: String(formData.get("labelDriveNote") ?? ""),
       calculator: String(formData.get("labelCalculator") ?? ""),
       subnavCta: String(formData.get("labelSubnavCta") ?? ""),
