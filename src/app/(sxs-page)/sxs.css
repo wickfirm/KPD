@@ -18,7 +18,7 @@
   --accent: var(--dune);
   --button-hover-accent: var(--gold);
   --gallery-accent: var(--gold);
-  --payment-accent: var(--gold);
+  --payment-accent: var(--dune); /* Arabian Dune, same as the CTA (client 2026-11-16) */
   --menu-accent: #e9e611;
   --shadow: rgba(0, 0, 0, 0.58);
   color-scheme: dark;
@@ -2187,6 +2187,7 @@ img {
 
 .payment-reveal {
   --accent: var(--payment-accent);
+  --button-hover-accent: var(--payment-accent);
 
   position: absolute;
   inset: 0;
@@ -2440,7 +2441,7 @@ img {
 .payment-milestone.is-selected > i {
   border-color: var(--accent);
   background: var(--accent);
-  box-shadow: 0 0 0 5px rgba(248, 141, 42, 0.18);
+  box-shadow: 0 0 0 5px rgba(141, 111, 87, 0.3);
 }
 
 .payment-milestone > svg {
@@ -5119,7 +5120,7 @@ img {
 
   .mobile-payment-phase button.is-active {
     border-color: var(--payment-accent);
-    background: rgba(217, 176, 97, 0.08);
+    background: rgba(141, 111, 87, 0.14);
     color: #fff;
   }
 
@@ -5958,7 +5959,7 @@ img {
   }
 
   .mobile-payment-current > strong {
-    color: #d9b061;
+    color: var(--payment-accent);
     font-size: 92px;
   }
 
@@ -6377,7 +6378,7 @@ body.sxs-residence {
   --accent: var(--dune);
   --button-hover-accent: var(--gold);
   --gallery-accent: var(--gold);
-  --payment-accent: var(--gold);
+  --payment-accent: var(--dune); /* Arabian Dune, same as the CTA (client 2026-11-16) */
   --menu-accent: #e9e611;
   --shadow: rgba(0, 0, 0, 0.58);
   background: var(--black);
