@@ -81,7 +81,8 @@ export function visionImageUrl(coverImage: string | null, siteUrl = process.env.
 const SYSTEM = [
   "You write metadata for articles on the website of Kasumigaseki Properties Development (KPD), a real estate developer in Dubai.",
   "Write in the language the article is written in. Plain text only: no markdown, no quotation marks around the result, no emoji.",
-  `summary: one or two sentences, at most ${SUMMARY_MAX} characters, that tell a reader what the article is about. Factual and calm, in the article's own tone. Only use facts that are in the article; do not start with "This article".`,
+  `summary: one or two sentences, at most ${SUMMARY_MAX} characters, written in KPD's own editorial voice as a standalone teaser for the article card. State the idea itself directly, in the article's own calm, factual tone, as if KPD were saying it. Never describe the text from outside: no "This article", "The article argues", "The author", "This piece/post explores", "In this blog", "Discover how" or similar framing. Only use facts that are in the article.`,
+  'Example of the voice wanted - for an article saying design restraint makes better homes, write "Restraint in materials, light and detail creates homes that feel considered for years." and not "The article argues that restraint creates better homes."',
   `alt: at most ${ALT_MAX} characters describing what the cover image actually shows, for someone who cannot see it. Do not start with "Image of" or "Photo of". If no image is attached, return an empty string.`,
 ].join("\n");
 
@@ -92,12 +93,20 @@ const SCHEMA = {
   additionalProperties: false,
 } as const;
 
-async function askClaude(input: AutofillInput, imageUrl: string | null): Promise<{ summary: string; alt: string }> {
+/// True when a summary talks about the text ("The article argues…") instead
+/// of saying the thing itself, which the client does not want on the cards.
+export function isMetaSummary(summary: string) {
+  return /\b(?:this|the|our)\s+(?:article|post|blog(?:\s+post)?|piece|write-?up)\b|\bthe\s+(?:author|writer)s?\b|^\s*(?:discover|learn|read about|find out|explore)\b/i.test(summary);
+}
+
+const META_RETRY = "Your previous summary described the text from outside (for example \"The article argues…\"). Rewrite it in KPD's own voice: state the idea directly, with no reference to an article, post, piece, author or reader.";
+
+async function askClaude(input: AutofillInput, imageUrl: string | null, retryNote?: string): Promise<{ summary: string; alt: string }> {
   const client = new Anthropic({ timeout: 25_000, maxRetries: 1 });
   const article = `Title: ${input.title}\n\n${input.body.join("\n\n")}`;
   const content: Anthropic.Beta.BetaContentBlockParam[] = [];
   if (imageUrl) content.push({ type: "image", source: { type: "url", url: imageUrl } });
-  content.push({ type: "text", text: `${imageUrl ? "The attached image is the article's cover image.\n\n" : ""}<article>\n${article}\n</article>` });
+  content.push({ type: "text", text: `${imageUrl ? "The attached image is the article's cover image.\n\n" : ""}<article>\n${article}\n</article>${retryNote ? `\n\n${retryNote}` : ""}` });
 
   const model = autofillModel();
   // Haiku has no server-side refusal fallback; the bigger models do.
@@ -150,6 +159,17 @@ export async function autofillArticle(
   }
 
   if (needSummary) {
+    // One corrective retry when the summary still uses "The article…"
+    // framing; if it persists, the plain opening of the body is used instead.
+    if (ai && isMetaSummary(ai.summary)) {
+      const ask = options.ask ?? askClaude;
+      try {
+        const again = await ask(input, null, META_RETRY);
+        ai = { ...ai, summary: isMetaSummary(again.summary) ? "" : again.summary };
+      } catch {
+        ai = { ...ai, summary: "" };
+      }
+    }
     const fromAi = ai ? trimTo(ai.summary, SUMMARY_MAX) : "";
     result.summary = fromAi || summaryFromBody(input.body) || trimTo(input.title, SUMMARY_MAX);
     result.generated.summary = fromAi ? "ai" : "fallback";
