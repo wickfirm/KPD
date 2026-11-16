@@ -238,9 +238,9 @@ const sectionNavigation = [
   { id: "amenities", label: "amenities", progress: 16.3 },
   { id: "community", label: "community", progress: 22.3 },
   { id: "location", label: "location", progress: 23.3 },
-  { id: "floor-plans", label: "floor plans", progress: 28.5 },
-  { id: "payment-plan", label: "payment plan", progress: 29.5 },
-  { id: "contact", label: "contact", progress: 35.5 }
+  { id: "floor-plans", label: "floor plans", progress: 24.3 },
+  { id: "payment-plan", label: "payment plan", progress: 25.3 },
+  { id: "contact", label: "contact", progress: 31.3 }
 ] as const;
 
 const amenitySnapProgress = Array.from(
@@ -251,16 +251,15 @@ const amenitySnapProgress = Array.from(
 const scrollSnapProgress = Array.from(
   new Set([
     0, 1, 2, 3, 7.8, 8.8,
-    14.3, 15.3, ...amenitySnapProgress, 22.3, 23.3, 24.5, 25, 25.5, 26.5, 27.5,
-    28.5, 29.5, 34.5, 35.5
+    14.3, 15.3, ...amenitySnapProgress, 22.3, 23.3,
+    24.3, 25.3, 30.3, 31.3
   ])
 ).sort((a, b) => a - b);
 
 const rollbackFreeRanges = [
   [3, 7.8],
   [8.8, 14.3],
-  [24.5, 27.5],
-  [29.5, 34.5]
+  [25.3, 30.3]
 ] as const;
 
 const distanceAreaLabels = [
@@ -310,7 +309,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
         const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
         const anchor = typeof record.anchor === "string" ? record.anchor.replace(/^#/, "") : sectionNavigation[index % sectionNavigation.length].id;
         const known = sectionNavigation.find((entry) => entry.id === anchor);
-        return { id: anchor, label: typeof record.label === "string" ? record.label : anchor.replaceAll("-", " "), progress: known?.progress ?? (index / Math.max(navigationValue.length - 1, 1)) * 35.5 };
+        return { id: anchor, label: typeof record.label === "string" ? record.label : anchor.replaceAll("-", " "), progress: known?.progress ?? (index / Math.max(navigationValue.length - 1, 1)) * 31.3 };
       })
     : [...sectionNavigation];
   const interestOptions = items("register", "interestOptions", ["Information about the project", "A property consultant to contact me", "Book a private viewing"]);
@@ -667,7 +666,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       settleTimer = window.setTimeout(() => {
         const stageTop = window.scrollY + stage.getBoundingClientRect().top;
         const rawProgress = (window.scrollY - stageTop) / Math.max(window.innerHeight, 1);
-        if (rawProgress < -0.05 || rawProgress > 35.55) return;
+        if (rawProgress < -0.05 || rawProgress > 31.35) return;
         if (rollbackFreeRanges.some(([start, end]) => rawProgress > start && rawProgress < end)) {
           userScrollIntentRef.current = false;
           return;
@@ -979,7 +978,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       const openingRightWidth = openingRightNaturalWidth * openingPairScale;
       const captionImageRatioA = mobileLayout ? 0.76 : 0.82;
       const captionImageRatioB = mobileLayout ? 0.66 : 0.72;
-      const rawProgress = Math.min(Math.max(-stageRect.top / Math.max(window.innerHeight, 1), 0), 35.5);
+      const rawProgress = Math.min(Math.max(-stageRect.top / Math.max(window.innerHeight, 1), 0), 31.3);
       const progress = Math.min(rawProgress, 1);
       const aboutProgress = Math.min(Math.max(rawProgress - 1, 0), 1);
       const aboutContentProgress = Math.min(Math.max((rawProgress - 1.82) / 0.18, 0), 1);
@@ -999,14 +998,17 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
       const communityRevealProgress = Math.min(Math.max(rawProgress - 21.3, 0), 1);
       const distanceRevealProgress = Math.min(Math.max(rawProgress - 22.3, 0), 1);
       const distanceTypingProgress = distanceRevealProgress;
-      const distanceMapProgress = Math.min(Math.max((rawProgress - 23.3) / 1.2, 0), 1);
-      const distanceMarkerProgress = Math.min(Math.max((rawProgress - 24.5) / 0.5, 0), 1);
-      const distanceLightProgress = Math.min(Math.max((rawProgress - 25.5) / 2, 0), 1);
+      // The dark map slide with the centred residence badge was removed at the
+      // client's request (2026-11-16), together with its 4.2 screens of scroll.
+      // Floor plans now follow the location copy directly.
+      const distanceMapProgress = 0;
+      const distanceMarkerProgress = 0;
+      const distanceLightProgress = 0;
       const distanceZoomProgress = distanceLightProgress;
-      const floorPlanRevealProgress = Math.min(Math.max(rawProgress - 27.5, 0), 1);
-      const paymentRevealProgress = Math.min(Math.max(rawProgress - 28.5, 0), 1);
-      const paymentSequenceProgress = Math.min(Math.max((rawProgress - 29.5) / 5, 0), 1);
-      const footerRevealProgress = Math.min(Math.max(rawProgress - 34.5, 0), 1);
+      const floorPlanRevealProgress = Math.min(Math.max(rawProgress - 23.3, 0), 1);
+      const paymentRevealProgress = Math.min(Math.max(rawProgress - 24.3, 0), 1);
+      const paymentSequenceProgress = Math.min(Math.max((rawProgress - 25.3) / 5, 0), 1);
+      const footerRevealProgress = Math.min(Math.max(rawProgress - 30.3, 0), 1);
       const nextActiveSection = navigationSections.reduce((nearest, section) =>
         Math.abs(section.progress - rawProgress) < Math.abs(nearest.progress - rawProgress) ? section : nearest
       ).id;
@@ -1509,7 +1511,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                 <button
                   className="everly-cta"
                   type="button"
-                  onClick={() => navigateFromMenu(28.5, "floor-plans")}
+                  onClick={() => navigateFromMenu(24.3, "floor-plans")}
                 >
                    explore floor plans
                 </button>
@@ -1718,27 +1720,6 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                 </p>
               </div>
 
-              <div className="distance-map-slide">
-                <div className="distance-map-space">
-                  <div
-                    className="distance-live-map distance-dark-map"
-                    ref={distanceDarkMapRef}
-                    aria-hidden="true"
-                  />
-                  {/* The light live map was removed with the gray takeover; the dark map below is the only one shown. */}
-                  <div className="distance-live-map distance-light-map" aria-hidden="true" style={{ display: "none" }} />
-
-                  <div className="distance-residence-marker">
-                    <span className="distance-marker-disc">
-                      <img className="distance-marker-light" src={markWhite} alt="" />
-                      <img className="distance-marker-dark" src={markBlack} alt="" />
-                    </span>
-                    <p>seven x seven residences</p>
-                    <small>Meydan Horizon</small>
-                  </div>
-
-                </div>
-              </div>
             </div>
           </section>
 
