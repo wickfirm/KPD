@@ -230,10 +230,11 @@ export function DevelopmentMainG21({ project, calculator, hidden }: { project: D
         </div>
       </nav>
 
-      {shown("overview") ? <section className="g21-pad" id="overview" aria-labelledby="g21-overview-title">
+      {shown("overview") ? <section className="g21-pad" id="overview" aria-labelledby={project.tagline ? "g21-overview-title" : undefined} aria-label={project.tagline ? undefined : "Overview"}>
         <div className="g21-wrap g21-overview">
-          <div>{pageLabel("overview") ? <span className="g21-cap">{pageLabel("overview")}</span> : null}{project.tagline ? <h2 id="g21-overview-title" style={textStyleProps(chrome.taglineStyle)}>{multiline(project.tagline)}</h2> : null}</div>
+          <div className="g21-overview-logo">{chrome.overviewLogo ? <img src={chrome.overviewLogo} alt={project.name} /> : null}</div>
           <div className="g21-overview-copy">
+            {project.tagline ? <h2 id="g21-overview-title" style={textStyleProps(chrome.taglineStyle)}>{multiline(project.tagline)}</h2> : null}
             {project.description ? <p style={textStyleProps(chrome.descriptionStyle)}>{multiline(project.description)}</p> : null}
             {chrome.ctaVisible === false ? null : <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={chrome.ctaUrl || "#amenities"}>{chrome.ctaLabel || "Explore"} {arrow()}</Cta></div>}
           </div>

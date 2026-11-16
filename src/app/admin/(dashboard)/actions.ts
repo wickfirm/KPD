@@ -22,6 +22,7 @@ import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter"
 import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
 import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
+import { autofillArticle, summaryFromBody } from "@/lib/article-autofill";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
 import { applySxsSettings } from "./seven-x-seven/actions";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
@@ -180,6 +181,24 @@ export async function saveArticle(
   const current = id ? await db.article.findUnique({ where: { id }, select: { status: true } }) : null;
   if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change an article once it is published or archived." };
   formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
+  // Editors may leave the summary and the cover alt text empty: write them now,
+  // into the form itself, so the saved article and its version history hold
+  // the same text the editor will see (and can change) after saving.
+  const title = String(formData.get("title") || "").trim();
+  if (!title) return { error: "Give the article a title." };
+  let body: string[];
+  try { body = parseBody(String(formData.get("body") || "")); } catch (err) { return { error: (err as Error).message }; }
+  const coverImage = String(formData.get("coverImage") || "").trim() || null;
+  const filled = await autofillArticle({
+    title,
+    body,
+    summary: String(formData.get("summary") || ""),
+    coverImage,
+    coverImageAlt: String(formData.get("coverImageAlt") || ""),
+  });
+  if (!filled.summary) return { error: "Write the article body, or a summary, before saving." };
+  formData.set("summary", filled.summary);
+  formData.set("coverImageAlt", filled.coverImageAlt ?? "");
   const result = await applyArticle(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this article." };
   const seo = await saveSeoFor("ARTICLE", result.id, formData);
@@ -199,6 +218,8 @@ export async function saveArticle(
   });
   await logActivity({ action: "content.save", session, entityType: "ARTICLE", entityId: result.id, summary: `Saved article “${result.label}”` });
   if (seo.error) return seo;
+  const wrote = [filled.generated.summary && "summary", filled.generated.coverImageAlt && "cover image alt text"].filter(Boolean).join(" and ");
+  if (wrote) redirect(`/admin/articles/${result.id}?notice=${encodeURIComponent(`Changes saved. The ${wrote} ${wrote.includes(" and ") ? "were" : "was"} written for you from the article. Check ${wrote.includes(" and ") ? "them" : "it"} below and edit if needed.`)}`);
   redirect(`/admin/articles/${result.id}?saved=1`);
 }
 
@@ -217,7 +238,8 @@ export async function previewArticleDraft(formData: FormData): Promise<{ error?:
     kind: formData.get("kind") === "BLOG" ? "BLOG" : "NEWS",
     slug: saved?.slug ?? slugify(title),
     title,
-    summary: String(formData.get("summary") || "").trim(),
+    // Same fallback the save uses, so preview cards are never blank.
+    summary: String(formData.get("summary") || "").trim() || summaryFromBody(body),
     body,
     coverImage: String(formData.get("coverImage") || "").trim() || null,
     coverImageAlt: String(formData.get("coverImageAlt") || "").trim() || null,
@@ -459,6 +481,7 @@ export async function saveProject(
     enquireHeading: String(formData.get("enquireHeading") || "").trim(),
     enquireText: String(formData.get("enquireText") || "").trim(),
     enquireImage: String(formData.get("enquireImage") || "").trim(),
+    overviewLogo: formData.has("overviewLogo") ? String(formData.get("overviewLogo") || "").trim() : previousChrome.overviewLogo,
     enquirePrimaryLabel: String(formData.get("enquirePrimaryLabel") || "").trim(),
     enquirePrimaryUrl: String(formData.get("enquirePrimaryUrl") || "").trim(),
     enquireSecondaryLabel: String(formData.get("enquireSecondaryLabel") || "").trim(),
@@ -470,8 +493,9 @@ export async function saveProject(
     taglineStyle: textStyleFromForm(formData, "projectTagline"),
     descriptionStyle: textStyleFromForm(formData, "projectDescription"),
     // Gallery-light page labels: only on the forms that show them; others keep what was saved.
-    labels: formData.has("labelOverview") ? {
-      overview: String(formData.get("labelOverview") ?? ""),
+    // The introduction caption is no longer shown or edited; keep what was saved.
+    labels: formData.has("labelDriveNote") ? {
+      ...(previousChrome.labels?.overview !== undefined ? { overview: previousChrome.labels.overview } : {}),
       driveNote: String(formData.get("labelDriveNote") ?? ""),
       calculator: String(formData.get("labelCalculator") ?? ""),
       subnavCta: String(formData.get("labelSubnavCta") ?? ""),

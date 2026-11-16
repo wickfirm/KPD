@@ -87,14 +87,16 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
 
       <label className="cms-field">
         <span>Summary</span>
-        <textarea name="summary" rows={3} defaultValue={defaults?.summary} required />
+        <textarea name="summary" rows={3} defaultValue={defaults?.summary} placeholder="Leave empty to have it written from the body when you save." />
+        <small>Shown on article cards and used as the search description. Leave it empty and one is written from the article when you save; you can edit it afterwards.</small>
       </label>
 
       <section className="cms-editor-section"><h3>Cover image</h3><p className="cms-muted">Upload the lead image used on article cards and the article page.</p><AssetUrlField name="coverImage" defaultValue={defaults?.coverImage ?? ""} accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" placeholder="https://…" /></section>
 
       <label className="cms-field">
         <span>Cover image alt text</span>
-        <input name="coverImageAlt" defaultValue={defaults?.coverImageAlt ?? ""} />
+        <input name="coverImageAlt" defaultValue={defaults?.coverImageAlt ?? ""} placeholder="Leave empty to have it written when you save." />
+        <small>Describes the cover image for screen readers and search engines. Leave it empty and it is written from the image when you save; you can edit it afterwards.</small>
       </label>
 
       <label className="cms-field">
