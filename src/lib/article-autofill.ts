@@ -33,7 +33,11 @@ export type AutofillResult = {
   generated: { summary?: "ai" | "fallback"; coverImageAlt?: "ai" | "fallback" };
 };
 
-const MODEL = "claude-opus-5-5";
+/// Claude Haiku by default (fast and inexpensive for short metadata).
+/// ARTICLE_AUTOFILL_MODEL overrides it, e.g. "claude-opus-5-5".
+export function autofillModel() {
+  return process.env.ARTICLE_AUTOFILL_MODEL?.trim() || "claude-haiku-5-5";
+}
 
 function clean(text: string) {
   return text.replace(/\s+/g, " ").trim();
@@ -95,11 +99,13 @@ async function askClaude(input: AutofillInput, imageUrl: string | null): Promise
   if (imageUrl) content.push({ type: "image", source: { type: "url", url: imageUrl } });
   content.push({ type: "text", text: `${imageUrl ? "The attached image is the article's cover image.\n\n" : ""}<article>\n${article}\n</article>` });
 
+  const model = autofillModel();
+  // Haiku has no server-side refusal fallback; the bigger models do.
+  const fallback = model.includes("haiku") ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const };
   const response = await client.beta.messages.create({
-    model: MODEL,
+    model,
     max_tokens: 4000,
-    betas: ["server-side-fallback-2026-07-01"],
-    fallbacks: "default",
+    ...fallback,
     system: SYSTEM,
     output_config: { effort: "low", format: { type: "json_schema", schema: SCHEMA } },
     messages: [{ role: "user", content }],

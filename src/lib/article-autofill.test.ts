@@ -80,3 +80,15 @@ describe("autofillArticle", () => {
     expect(out.generated.coverImageAlt).toBeUndefined();
   });
 });
+
+describe("autofillModel", () => {
+  it("defaults to Haiku and can be overridden", async () => {
+    const { autofillModel } = await import("./article-autofill");
+    const before = process.env.ARTICLE_AUTOFILL_MODEL;
+    delete process.env.ARTICLE_AUTOFILL_MODEL;
+    expect(autofillModel()).toBe("claude-haiku-5-5");
+    process.env.ARTICLE_AUTOFILL_MODEL = "claude-opus-5-5";
+    expect(autofillModel()).toBe("claude-opus-5-5");
+    if (before === undefined) delete process.env.ARTICLE_AUTOFILL_MODEL; else process.env.ARTICLE_AUTOFILL_MODEL = before;
+  });
+});
