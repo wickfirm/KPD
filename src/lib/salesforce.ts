@@ -11,20 +11,34 @@
 //   LeadSource "Website" (the value already exists; do not send LeadSourceDetail__c)
 //   Description — message plus the extra form detail
 //   Property_Interest__c — Salesforce Project record id only (lookup). Never ProductInterest__c.
-//   OwnerId — the website_leads queue, until each enquiry type has its own owner.
+//     An enquiry that names a development gets its Project id from
+//     SALESFORCE_PROJECT_RECORD_IDS, else the production placeholder Project.
+//     The real property name always stays in Description.
+//   OwnerId — the Website Leads queue, until each enquiry type has its own owner.
 //
 // The org blocks a second Lead when Email or Phone exactly matches an existing
 // Lead (DUPLICATES_DETECTED, allowSave false). That response cannot be overridden.
 // The new detail is appended to the existing Lead instead.
 //
-// Point SALESFORCE_LOGIN_URL at the UAT sandbox. Do not use the production org
-// for the first test of this mapping, and do not deploy it to production first.
+// The defaults below are the production org. Only SALESFORCE_CLIENT_ID and
+// SALESFORCE_CLIENT_SECRET are required. To test against the UAT sandbox, set
+// SALESFORCE_LOGIN_URL, SALESFORCE_ORG_ID, SALESFORCE_LEAD_OWNER_ID and
+// SALESFORCE_PROJECT_PLACEHOLDER_ID to the sandbox values.
 
 const API_VERSION = "v68.0";
 const DESCRIPTION_LIMIT = 32_000;
 
-/// Queue "website_leads". 00G is the Group/Queue prefix; the id is the full value.
-export const WEBSITE_LEADS_QUEUE_ID = "00GWF00000Ailv7";
+/// Production My Domain. The token endpoint is <this>/services/oauth2/token.
+export const PRODUCTION_LOGIN_URL = "https://inspiration-force-4305.my.salesforce.com";
+/// Production org id. A token from any other org is refused.
+export const PRODUCTION_ORG_ID = "00Dam00001apx41EAA";
+/// Production "Website Leads" queue. 00G is the Group/Queue prefix.
+export const WEBSITE_LEADS_QUEUE_ID = "00GWj00000HI934MAD";
+/// Production placeholder Project for Property_Interest__c, until the final Project ids arrive.
+export const PROJECT_PLACEHOLDER_ID = "a09Wj00000IMtBbIAL";
+
+/// Website developments. An enquiry that names one of these needs a Project lookup.
+const KNOWN_PROJECT_NAMES = ["seven x seven", "villa 174", "villa 24", "emerald villa", "dubai hills mansion"];
 
 export const SALESFORCE_LEAD_HOLD_NOTE =
   "Stored in Messages. Newsletter, job and press forms are not sent to Salesforce.";
@@ -73,7 +87,26 @@ type DuplicateMatch = {
 };
 
 function isSalesforceConfigured() {
-  return Boolean(process.env.SALESFORCE_CLIENT_ID && process.env.SALESFORCE_CLIENT_SECRET && process.env.SALESFORCE_LOGIN_URL);
+  return Boolean(process.env.SALESFORCE_CLIENT_ID?.trim() && process.env.SALESFORCE_CLIENT_SECRET?.trim());
+}
+
+/// My Domain base URL. Accepts the bare host or the full token endpoint.
+export function salesforceLoginUrl(raw = process.env.SALESFORCE_LOGIN_URL): string {
+  const value = raw?.trim() || PRODUCTION_LOGIN_URL;
+  return value.replace(/\/+$/, "").replace(/\/services\/oauth2\/token$/, "");
+}
+
+/// The org a token must belong to: SALESFORCE_ORG_ID, or the production org on the production host.
+export function expectedOrgId(loginUrl = salesforceLoginUrl(), raw = process.env.SALESFORCE_ORG_ID): string | null {
+  const configured = salesforceRecordId(raw);
+  if (configured) return configured;
+  return loginUrl === PRODUCTION_LOGIN_URL ? PRODUCTION_ORG_ID : null;
+}
+
+/// The token response "id" is https://<host>/id/<orgId>/<userId>. Compare the 15-character form.
+export function tokenMatchesOrg(identityUrl: string | undefined, orgId: string): boolean {
+  const match = (identityUrl || "").match(/\/id\/([a-zA-Z0-9]{15,18})\//);
+  return Boolean(match && match[1].slice(0, 15) === orgId.slice(0, 15));
 }
 
 /// UAT uses the client-credentials flow. The password flow remains only when both are set.
@@ -106,16 +139,22 @@ export function leadObjectId(value: unknown): string | null {
 /// Project lookup ids. Reject ids that belong to a queue, a lead, or a user.
 export function projectObjectId(value: unknown): string | null {
   const id = salesforceRecordId(value);
-  if (!id || id.startsWith("00G") || id.startsWith("00Q") || id.startsWith("005")) return null;
+  // Record ids always carry digits; a 15-letter word such as an agency name is not one.
+  if (!id || !/\d/.test(id) || id.startsWith("00G") || id.startsWith("00Q") || id.startsWith("005")) return null;
   return id;
 }
 
-/// The website_leads queue, unless SALESFORCE_LEAD_OWNER_ID names another queue.
+/// The Website Leads queue, unless SALESFORCE_LEAD_OWNER_ID names another queue.
 export function websiteLeadOwnerId(raw = process.env.SALESFORCE_LEAD_OWNER_ID): string {
   const configured = raw?.trim() || WEBSITE_LEADS_QUEUE_ID;
   const id = queueObjectId(configured);
-  if (!id) throw new Error(`Salesforce owner must be a queue id. website_leads is ${WEBSITE_LEADS_QUEUE_ID}.`);
+  if (!id) throw new Error(`Salesforce owner must be a queue id. Website Leads is ${WEBSITE_LEADS_QUEUE_ID}.`);
   return id;
+}
+
+/// Placeholder Project for enquiries that name a development with no mapped Project id.
+export function projectPlaceholderId(raw = process.env.SALESFORCE_PROJECT_PLACEHOLDER_ID): string {
+  return projectObjectId(raw) || PROJECT_PLACEHOLDER_ID;
 }
 
 /// Website project label -> Project record id. Empty until UAT supplies the ids.
@@ -147,13 +186,25 @@ export function shouldMirrorSubmissionToSalesforce(input: {
   return !HELD_INQUIRY_TYPES.has(inquiryType);
 }
 
-function propertyInterestId(lead: LeadPayload): string | null {
-  return (
-    projectObjectId(lead.propertyInterestId) ||
-    projectObjectId(lead.interest) ||
-    projectRecordIds()[normalizeInquiryLabel(lead.interest || "")] ||
-    null
-  );
+/// The development an enquiry is about: the chosen project, or the development page it came from.
+export function enquiryPropertyName(lead: Pick<LeadPayload, "interest" | "sourcePage" | "inquiryType">): string | null {
+  const interest = lead.interest?.trim() || "";
+  const key = normalizeInquiryLabel(interest);
+  if (key && (KNOWN_PROJECT_NAMES.includes(key) || key in projectRecordIds())) return interest;
+  const path = (lead.sourcePage || "").trim().split(/[?#]/)[0];
+  if (/^\/seven-x-seven(?:\/|$)/.test(path) || normalizeInquiryLabel(lead.inquiryType || "").startsWith("seven x seven")) return "seven x seven";
+  const slug = path.match(/^\/developments\/([a-z0-9-]+)/i)?.[1];
+  if (slug) return slug.replace(/-/g, " ");
+  return null;
+}
+
+/// Project id for Property_Interest__c: an explicit id, the mapped id, or the placeholder
+/// when the enquiry names a development. Null for enquiries with no development.
+function propertyInterestId(lead: LeadPayload, propertyName: string | null): string | null {
+  const explicit = projectObjectId(lead.propertyInterestId) || projectObjectId(lead.interest);
+  if (explicit) return explicit;
+  if (!propertyName) return null;
+  return projectRecordIds()[normalizeInquiryLabel(propertyName)] || projectPlaceholderId();
 }
 
 /// Phone, email, and last name are required before Salesforce will accept the Lead.
@@ -171,12 +222,15 @@ export function buildSalesforceLeadRecord(lead: LeadPayload): SalesforceLeadReco
   const name = lead.name.trim();
   const parts = name.split(/\s+/).filter(Boolean);
   const first = parts[0] || name;
-  const propertyId = propertyInterestId(lead);
+  const propertyName = enquiryPropertyName(lead);
+  const propertyId = propertyInterestId(lead, propertyName);
   const blocks = [lead.message.trim()];
   const inquiryType = lead.inquiryType?.trim();
   if (inquiryType) blocks.push(`Inquiry type: ${inquiryType}`);
+  // The real property name stays here, whichever Project id (or placeholder) is sent.
   const interest = lead.interest?.trim();
-  if (interest && interest !== propertyId) blocks.push(`Property interest: ${interest}`);
+  if (propertyName) blocks.push(`Property interest: ${propertyName}`);
+  if (interest && interest !== propertyName && !projectObjectId(interest)) blocks.push(`Interest: ${interest}`);
   const sourcePage = lead.sourcePage?.trim();
   if (sourcePage) blocks.push(`Source page: ${sourcePage}`);
   const phone = (lead.phone || "").trim().slice(0, 40);
@@ -270,7 +324,8 @@ async function getAccessToken(): Promise<string> {
         client_id: process.env.SALESFORCE_CLIENT_ID!,
         client_secret: process.env.SALESFORCE_CLIENT_SECRET!,
       });
-  const res = await fetch(`${process.env.SALESFORCE_LOGIN_URL}/services/oauth2/token`, {
+  const loginUrl = salesforceLoginUrl();
+  const res = await fetch(`${loginUrl}/services/oauth2/token`, {
     method: "POST",
     body: params,
     // Bound the handshake so a slow Salesforce cannot pin the enquiry buttons.
@@ -283,8 +338,12 @@ async function getAccessToken(): Promise<string> {
     const detail = await res.text();
     throw new Error(`Salesforce auth failed (${res.status}): ${detail.slice(0, 300)}`);
   }
-  const data = (await res.json()) as { access_token: string; instance_url: string };
+  const data = (await res.json()) as { access_token: string; instance_url: string; id?: string };
   if (!data.instance_url) throw new Error("Salesforce auth did not return an instance URL.");
+  const orgId = expectedOrgId(loginUrl);
+  if (orgId && !tokenMatchesOrg(data.id, orgId)) {
+    throw new Error(`Salesforce credentials belong to a different org than ${orgId}. Check SALESFORCE_CLIENT_ID / SALESFORCE_CLIENT_SECRET.`);
+  }
   instanceUrl = data.instance_url.replace(/\/$/, "");
   return data.access_token;
 }

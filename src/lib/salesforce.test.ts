@@ -9,6 +9,13 @@ import {
   projectObjectId,
   pushLeadToSalesforce,
   queueObjectId,
+  enquiryPropertyName,
+  expectedOrgId,
+  salesforceLoginUrl,
+  tokenMatchesOrg,
+  PRODUCTION_LOGIN_URL,
+  PRODUCTION_ORG_ID,
+  PROJECT_PLACEHOLDER_ID,
   salesforceRecordId,
   shouldMirrorSubmissionToSalesforce,
   soqlLiteral,
@@ -24,6 +31,8 @@ const ENV_KEYS = [
   "SALESFORCE_LOGIN_URL",
   "SALESFORCE_PROJECT_RECORD_IDS",
   "SALESFORCE_LEAD_OWNER_ID",
+  "SALESFORCE_ORG_ID",
+  "SALESFORCE_PROJECT_PLACEHOLDER_ID",
 ] as const;
 
 const previousEnv = new Map(ENV_KEYS.map((key) => [key, process.env[key]]));
@@ -47,9 +56,12 @@ const lead = {
 };
 
 describe("Salesforce lead mapping", () => {
-  it("sends the reviewed fields and assigns the website_leads queue", () => {
+  it("sends the production mapping: Website Leads queue and the placeholder Project", () => {
     delete process.env.SALESFORCE_PROJECT_RECORD_IDS;
     delete process.env.SALESFORCE_LEAD_OWNER_ID;
+    delete process.env.SALESFORCE_PROJECT_PLACEHOLDER_ID;
+    expect(WEBSITE_LEADS_QUEUE_ID).toBe("00GWj00000HI934MAD");
+    expect(PROJECT_PLACEHOLDER_ID).toBe("a09Wj00000IMtBbIAL");
     const record = buildSalesforceLeadRecord(lead);
     expect(record).toEqual({
       FirstName: "Jane",
@@ -60,6 +72,7 @@ describe("Salesforce lead mapping", () => {
       Status: "New",
       LeadSource: "Website",
       OwnerId: WEBSITE_LEADS_QUEUE_ID,
+      Property_Interest__c: PROJECT_PLACEHOLDER_ID,
       Description: "Hello\n\nBudget: AED 5M\n\nInquiry type: Sales Inquiry\n\nProperty interest: seven x seven\n\nSource page: /contact",
     });
     expect(record).not.toHaveProperty("ProductInterest__c");
@@ -86,6 +99,47 @@ describe("Salesforce lead mapping", () => {
     expect(mapped.Description).toContain("Property interest: seven x seven");
     expect(projectRecordIds("nope")).toEqual({});
     expect(projectRecordIds("[]")).toEqual({});
+  });
+
+  it("uses the placeholder only for enquiries that name a development", () => {
+    delete process.env.SALESFORCE_PROJECT_RECORD_IDS;
+    delete process.env.SALESFORCE_PROJECT_PLACEHOLDER_ID;
+    const general = buildSalesforceLeadRecord({ ...lead, interest: "General enquiry" });
+    expect(general.Property_Interest__c).toBeUndefined();
+    expect(general.Description).toContain("Interest: General enquiry");
+    expect(general.Description).not.toContain("Property interest:");
+    const channel = buildSalesforceLeadRecord({ ...lead, interest: "AcmeRealtyGroup", inquiryType: "Channel Partner" });
+    expect(channel.Property_Interest__c).toBeUndefined();
+
+    const brochure = buildSalesforceLeadRecord({ ...lead, interest: "Dubai Hills Mansion", sourcePage: "/developments/dubai-hills-mansion", inquiryType: "Brochure request" });
+    expect(brochure.Property_Interest__c).toBe(PROJECT_PLACEHOLDER_ID);
+    expect(brochure.Description).toContain("Property interest: Dubai Hills Mansion");
+
+    // seven x seven landing: the select holds the visitor's goal, not the project.
+    const landing = buildSalesforceLeadRecord({ ...lead, interest: "Book a private viewing", sourcePage: "/seven-x-seven", inquiryType: "seven x seven residence" });
+    expect(landing.Property_Interest__c).toBe(PROJECT_PLACEHOLDER_ID);
+    expect(landing.Description).toContain("Property interest: seven x seven");
+    expect(landing.Description).toContain("Interest: Book a private viewing");
+
+    const popup = { ...lead, interest: null, sourcePage: "/developments/villa-174", inquiryType: "Booking request" };
+    expect(enquiryPropertyName(popup)).toBe("villa 174");
+    expect(enquiryPropertyName({ ...popup, sourcePage: "/" })).toBeNull();
+
+    // Final Project ids replace the placeholder per development once they are mapped.
+    process.env.SALESFORCE_PROJECT_RECORD_IDS = JSON.stringify({ "seven x seven": "a09Wj00000AAAAAAAA" });
+    expect(buildSalesforceLeadRecord({ ...lead, interest: "Book a private viewing", sourcePage: "/seven-x-seven" }).Property_Interest__c).toBe("a09Wj00000AAAAAAAA");
+    expect(buildSalesforceLeadRecord({ ...lead, interest: "Villa 174" }).Property_Interest__c).toBe(PROJECT_PLACEHOLDER_ID);
+  });
+
+  it("targets the production org by default and accepts the token endpoint as the login URL", () => {
+    expect(salesforceLoginUrl(undefined)).toBe(PRODUCTION_LOGIN_URL);
+    expect(salesforceLoginUrl(" ")).toBe(PRODUCTION_LOGIN_URL);
+    expect(salesforceLoginUrl("https://inspiration-force-4305.my.salesforce.com/services/oauth2/token")).toBe(PRODUCTION_LOGIN_URL);
+    expect(expectedOrgId(PRODUCTION_LOGIN_URL, undefined)).toBe(PRODUCTION_ORG_ID);
+    expect(expectedOrgId("https://inspiration-force-4305--uat.sandbox.my.salesforce.com", undefined)).toBeNull();
+    expect(tokenMatchesOrg(`https://login.salesforce.com/id/${PRODUCTION_ORG_ID}/005Wj000001AAAAIAA`, PRODUCTION_ORG_ID)).toBe(true);
+    expect(tokenMatchesOrg("https://test.salesforce.com/id/00DWF000000AAAA2AA/005Wj000001AAAAIAA", PRODUCTION_ORG_ID)).toBe(false);
+    expect(tokenMatchesOrg(undefined, PRODUCTION_ORG_ID)).toBe(false);
   });
 
   it("keeps a single name in LastName and omits an empty phone", () => {
@@ -285,5 +339,31 @@ describe("duplicate lead rule", () => {
     await expect(pushLeadToSalesforce(lead)).resolves.toBe("00Qxx0000000001EAA");
     expect(tokenBody).toContain("grant_type=client_credentials");
     expect(tokenBody).not.toContain("password");
+  });
+
+  it("needs only the client id and secret for production, and refuses a token from another org", async () => {
+    process.env.SALESFORCE_CLIENT_ID = "client";
+    process.env.SALESFORCE_CLIENT_SECRET = "secret";
+    for (const key of ["SALESFORCE_LOGIN_URL", "SALESFORCE_USERNAME", "SALESFORCE_PASSWORD", "SALESFORCE_LEAD_OWNER_ID", "SALESFORCE_ORG_ID", "SALESFORCE_PROJECT_RECORD_IDS", "SALESFORCE_PROJECT_PLACEHOLDER_ID"]) delete process.env[key];
+    let identity = `https://login.salesforce.com/id/${PRODUCTION_ORG_ID}/005Wj000001AAAAIAA`;
+    const calls: Array<{ url: string; body?: unknown }> = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      const raw = init?.body == null ? "" : String(init.body);
+      calls.push({ url: String(url), body: raw.startsWith("{") ? JSON.parse(raw) : undefined });
+      if (String(url).endsWith("/services/oauth2/token")) {
+        return new Response(JSON.stringify({ access_token: "token", instance_url: PRODUCTION_LOGIN_URL, id: identity }), { status: 200 });
+      }
+      if (init?.method === "POST") return new Response(JSON.stringify({ id: "00QWj0000000001EAA" }), { status: 201 });
+      return new Response("unexpected", { status: 500 });
+    }));
+
+    await expect(pushLeadToSalesforce(lead)).resolves.toBe("00QWj0000000001EAA");
+    expect(calls[0].url).toBe(`${PRODUCTION_LOGIN_URL}/services/oauth2/token`);
+    expect(calls[1].body).toMatchObject({ OwnerId: "00GWj00000HI934MAD", Property_Interest__c: "a09Wj00000IMtBbIAL", Company: "KPD Website Enquiry", LeadSource: "Website", Status: "New" });
+
+    identity = "https://test.salesforce.com/id/00DWF000000AAAA2AA/005Wj000001AAAAIAA";
+    calls.length = 0;
+    await expect(pushLeadToSalesforce(lead)).rejects.toThrow(/different org/);
+    expect(calls.some((call) => call.url.endsWith("/sobjects/Lead"))).toBe(false);
   });
 });
