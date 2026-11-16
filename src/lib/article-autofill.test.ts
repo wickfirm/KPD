@@ -92,3 +92,29 @@ describe("autofillModel", () => {
     if (before === undefined) delete process.env.ARTICLE_AUTOFILL_MODEL; else process.env.ARTICLE_AUTOFILL_MODEL = before;
   });
 });
+
+describe("meta summaries", () => {
+  it("spots summaries that describe the article instead of saying the thing", async () => {
+    const { isMetaSummary } = await import("./article-autofill");
+    expect(isMetaSummary("The article argues that quiet architecture is deliberate rather than passive.")).toBe(true);
+    expect(isMetaSummary("This post explores yield.")).toBe(true);
+    expect(isMetaSummary("Discover how restraint shapes homes.")).toBe(true);
+    expect(isMetaSummary("Quiet architecture is deliberate, not passive: restraint in materials and light makes homes that last.")).toBe(false);
+    expect(isMetaSummary("The story of Dubai's skyline continues with Seven x Seven.")).toBe(false);
+  });
+  it("retries once, then falls back to the body opening", async () => {
+    const ask = vi.fn()
+      .mockResolvedValueOnce({ summary: "The article argues X.", alt: "Towers at dusk" })
+      .mockResolvedValueOnce({ summary: "Restraint makes better homes.", alt: "" });
+    const fixed = await autofillArticle(base, { useAi: true, ask });
+    expect(ask).toHaveBeenCalledTimes(2);
+    expect(ask.mock.calls[1][2]).toMatch(/KPD's own voice/);
+    expect(fixed.summary).toBe("Restraint makes better homes.");
+    expect(fixed.coverImageAlt).toBe("Towers at dusk");
+
+    const stubborn = vi.fn().mockResolvedValue({ summary: "This article explores X.", alt: "Towers" });
+    const out = await autofillArticle(base, { useAi: true, ask: stubborn });
+    expect(out.summary).toBe(summaryFromBody(base.body));
+    expect(out.generated.summary).toBe("fallback");
+  });
+});
