@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
-import { previewArticleDraft, saveArticle, type ArticleFormState } from "../actions";
+import { useActionState, useRef, useState, type RefObject } from "react";
+import { generateArticleText, previewArticleDraft, saveArticle, type ArticleFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 
@@ -18,6 +18,43 @@ export type ArticleDefaults = {
 };
 
 const initialState: ArticleFormState = {};
+
+type AiField = "title" | "summary" | "alt";
+const aiFieldName: Record<AiField, string> = { title: "title", summary: "summary", alt: "coverImageAlt" };
+
+/// "Generate with AI" under a field: writes a fresh suggestion from the body
+/// (and the cover image, for the alt text) into the field without saving.
+/// Clicking again gives another version; the editor saves when happy.
+function GenerateWithAi({ field, formRef }: { field: AiField; formRef: RefObject<HTMLFormElement | null> }) {
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  async function generate() {
+    const form = formRef.current;
+    if (!form) return;
+    const body = (form.elements.namedItem("body") as HTMLTextAreaElement | null)?.value ?? "";
+    if (!body.trim()) { setMessage({ ok: false, text: "The body section is empty. Write the article body first, then generate." }); return; }
+    setBusy(true); setMessage(null);
+    try {
+      const result = await generateArticleText(field, new FormData(form));
+      const input = form.elements.namedItem(aiFieldName[field]) as HTMLInputElement | HTMLTextAreaElement | null;
+      if (result.text && input) {
+        input.value = result.text;
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        setMessage({ ok: true, text: "Written. Not saved yet: edit it, generate again, or save the article to keep it." });
+      } else {
+        setMessage({ ok: false, text: result.error ?? "The AI could not write this right now. Please try again." });
+      }
+    } catch {
+      setMessage({ ok: false, text: "The AI could not write this right now. Please try again." });
+    } finally { setBusy(false); }
+  }
+  return (
+    <div className="cms-ai-assist">
+      <button className="cms-btn cms-btn--ghost cms-btn--small" type="button" onClick={generate} disabled={busy}>{busy ? "Writing…" : "Generate with AI"}</button>
+      {message ? <small className={message.ok ? "cms-ai-assist__ok" : "cms-ai-assist__error"} role={message.ok ? "status" : "alert"}>{message.text}</small> : null}
+    </div>
+  );
+}
 
 /// Editors write plain paragraphs; the database stores a JSON array. Convert
 /// the stored array into blank-line-separated text so the editor never sees
@@ -65,6 +102,7 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
         <span>Title</span>
         <input name="title" defaultValue={defaults?.title} required />
       </label>
+      <GenerateWithAi field="title" formRef={formRef} />
 
       <div className="cms-field"><span>Article address</span><output>/{defaults?.slug ?? "derived-from-title"}</output><small>Created automatically from the title and kept stable after publishing.</small></div>
 
@@ -87,17 +125,19 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
 
       <label className="cms-field">
         <span>Summary</span>
-        <textarea name="summary" rows={3} defaultValue={defaults?.summary} placeholder="Leave empty to have it written from the body when you save." />
-        <small>Shown on article cards and used as the search description. Leave it empty and one is written from the article when you save; you can edit it afterwards.</small>
+        <textarea name="summary" rows={3} defaultValue={defaults?.summary} />
+        <small>Shown on article cards and used as the search description. Left empty, the opening of the body is used.</small>
       </label>
+      <GenerateWithAi field="summary" formRef={formRef} />
 
       <section className="cms-editor-section"><h3>Cover image</h3><p className="cms-muted">Upload the lead image used on article cards and the article page.</p><AssetUrlField name="coverImage" defaultValue={defaults?.coverImage ?? ""} accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" placeholder="https://…" /></section>
 
       <label className="cms-field">
         <span>Cover image alt text</span>
-        <input name="coverImageAlt" defaultValue={defaults?.coverImageAlt ?? ""} placeholder="Leave empty to have it written when you save." />
-        <small>Describes the cover image for screen readers and search engines. Leave it empty and it is written from the image when you save; you can edit it afterwards.</small>
+        <input name="coverImageAlt" defaultValue={defaults?.coverImageAlt ?? ""} />
+        <small>Describes the cover image for screen readers and search engines.</small>
       </label>
+      <GenerateWithAi field="alt" formRef={formRef} />
 
       <label className="cms-field">
         <span>
