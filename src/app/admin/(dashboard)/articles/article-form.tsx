@@ -125,8 +125,8 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
 
       <label className="cms-field">
         <span>Summary</span>
-        <textarea name="summary" rows={3} defaultValue={defaults?.summary} />
-        <small>Shown on article cards and used as the search description. Left empty, the opening of the body is used.</small>
+        <textarea name="summary" rows={3} defaultValue={defaults?.summary} required />
+        <small>Shown on article cards and used as the search description. Type it, or press Generate with AI.</small>
       </label>
       <GenerateWithAi field="summary" formRef={formRef} />
 

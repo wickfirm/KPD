@@ -22,7 +22,7 @@ import { nextCopySlug, reorderIds, starterModules } from "@/lib/project-starter"
 import { pairedGalleryContent, parseItemRow } from "@/lib/gallery-content";
 import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
 import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
-import { generateArticleField, summaryFromBody, type ArticleAiField, type ArticleAiResult } from "@/lib/article-ai";
+import { generateArticleField, type ArticleAiField, type ArticleAiResult } from "@/lib/article-ai";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
 import { applySxsSettings } from "./seven-x-seven/actions";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
@@ -181,14 +181,9 @@ export async function saveArticle(
   const current = id ? await db.article.findUnique({ where: { id }, select: { status: true } }) : null;
   if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change an article once it is published or archived." };
   formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
-  // A summary left empty is taken from the opening of the body (no AI here:
-  // the editor uses "Generate with AI" for that and saves what they like).
-  if (!String(formData.get("summary") || "").trim()) {
-    try {
-      formData.set("summary", summaryFromBody(parseBody(String(formData.get("body") || ""))));
-    } catch (err) { return { error: (err as Error).message }; }
-    if (!String(formData.get("summary") || "").trim()) return { error: "Write the article body, or a summary, before saving." };
-  }
+  // Nothing is filled in automatically: the editor types the summary or uses
+  // "Generate with AI" under it.
+  if (!String(formData.get("summary") || "").trim()) return { error: "Add a summary: type one, or press Generate with AI under the Summary field." };
   const result = await applyArticle(id, formData);
   if (result.error || !result.id) return { error: result.error ?? "Unable to save this article." };
   const seo = await saveSeoFor("ARTICLE", result.id, formData);
@@ -243,8 +238,7 @@ export async function previewArticleDraft(formData: FormData): Promise<{ error?:
     kind: formData.get("kind") === "BLOG" ? "BLOG" : "NEWS",
     slug: saved?.slug ?? slugify(title),
     title,
-    // Same fallback the save uses, so preview cards are never blank.
-    summary: String(formData.get("summary") || "").trim() || summaryFromBody(body),
+    summary: String(formData.get("summary") || "").trim(),
     body,
     coverImage: String(formData.get("coverImage") || "").trim() || null,
     coverImageAlt: String(formData.get("coverImageAlt") || "").trim() || null,
