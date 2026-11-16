@@ -1771,3 +1771,17 @@ a.brochure-request__done { box-sizing: border-box; text-decoration: none; }
   font-size: 16px;
 }
 .booking-lead-dial:focus-within { border-color: var(--black); }
+
+/* Homepage news header = the Experience Centre header. The news band renders
+   the same pdf-contact-block markup (see withHomeNewsHeader), so columns,
+   heading, copy and the filled pill come from the rules above; only the
+   vertical spacing stays the news band's own (the card grid follows it). */
+.home-development-page .development-pdf-home .pdf-contact-block.pdf-news-head {
+  padding: clamp(88px, 10vw, 160px) 0 clamp(36px, 4vw, 56px);
+}
+.home-development-page .development-pdf-home .pdf-news-head.pdf-events-head--cta-side .pdf-contact-copy p {
+  margin-bottom: 0;
+}
+.home-development-page .development-pdf-home .pdf-news-head.pdf-events-head--cta-above .pdf-contact-copy p {
+  margin-bottom: 0;
+}

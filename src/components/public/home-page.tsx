@@ -28,13 +28,16 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings, articles
   const ctaUrl = settings.newsCtaUrl?.trim() || "#news";
   /// The button and its supporting text move as a pair (client feedback 15).
   const position = settings.newsCtaPosition === "above" || settings.newsCtaPosition === "left" || settings.newsCtaPosition === "right" ? settings.newsCtaPosition : "below";
-  const sectionClass = position === "below" ? "pdf-section pdf-events-head" : `pdf-section pdf-events-head pdf-events-head--cta-${position === "above" ? "above" : "side"}${position === "left" ? " pdf-events-head--cta-left" : ""}`;
+  /// Same markup and classes as the Experience Centre header (HomeContactBlock),
+  /// so both section headers share one layout: heading left, copy + filled
+  /// pill with an arrow right. pdf-news-head only keeps the news spacing.
+  const sectionClass = position === "below" ? "pdf-section pdf-contact-block pdf-news-head" : `pdf-section pdf-contact-block pdf-news-head pdf-events-head--cta-${position === "above" ? "above" : "side"}${position === "left" ? " pdf-events-head--cta-left" : ""}`;
   const copy = text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : "";
-  const button = cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)}</a>` : "";
+  const button = cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)} <span class="pdf-contact-arrow" aria-hidden="true">→</span></a>` : "";
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
-    ? `<section class="${sectionClass}" id="events">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}<div>${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
+    ? `<section class="${sectionClass}" id="events"><div class="pdf-contact-heading">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}</div><div class="pdf-contact-copy">${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
   return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings, articles);
 }
