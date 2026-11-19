@@ -81,10 +81,21 @@ export function injectNavDevelopments(html: string, extras: NavDevelopment[]) {
     .replace(/(<li><a href="\/developments\/dubai-hills-mansion">[^<]*<\/a><\/li>)/, `$1\n          ${mobile}`)
     .replace(/(<li class="footer_links_item"><a href="\/developments\/dubai-hills-mansion"[^>]*>[^<]*<\/a><\/li>)/, `$1\n            ${footer}`);
   const core = /(?:seven-x-seven|emerald-villa|dubai-hills-mansion)/;
-  return withLiveProjects
+  const live = withLiveProjects
     .replace(/(<li class="menu-item menu-item-main has-sub"><a href=")[^"]+("[^>]*>Developments<\/a>)/, `$1${extras[0] ? link(extras[0]) : "/#developments"}$2`)
     .replace(new RegExp(`<a class="mega-project-link mega-project-(?:sxs|emerald|hills)" href="/developments/${core.source}"[^>]*>[^<]*</a>\\s*`, "g"), "")
     .replace(new RegExp(`<img class="mega-preview-image mega-preview-(?:sxs|emerald|hills)(?: [^"]*)?"[^>]*>\\s*`, "g"), "")
     .replace(new RegExp(`<li><a href="/developments/${core.source}">[^<]*</a></li>\\s*`, "g"), "")
     .replace(new RegExp(`<li class="footer_links_item"><a href="/developments/${core.source}"[^>]*>[^<]*</a></li>\\s*`, "g"), "");
+  return extras.length ? live : withoutDevelopmentsNav(live);
+}
+
+/// With nothing published, drop the Developments entry itself rather than
+/// leave an empty mega menu, an empty mobile sub-list and an empty footer
+/// column behind. Mirrors the React header and footer.
+function withoutDevelopmentsNav(html: string) {
+  return html
+    .replace(/<div class="header-nav-dropdown">\s*<button class="header-nav-trigger"[^>]*>Developments<\/button>[\s\S]*?(?:<\/div>\s*){3}(?=<a\b)/, "")
+    .replace(/<li class="menu-item menu-item-main has-sub"><a [^>]*>Developments<\/a>\s*<ul class="menu-sublist">\s*<\/ul>\s*<\/li>\s*/, "")
+    .replace(/<div class="footer_links_col">\s*<h3 class="footer_links_title[^"]*">Developments?<\/h3>\s*<ul [^>]*>\s*<\/ul>\s*<\/div>\s*/, "");
 }
