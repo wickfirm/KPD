@@ -16,7 +16,9 @@ export async function SiteShellHeader() {
         <button className="menu-toggle" type="button" data-menu-open aria-label="Open menu"><span /><span /></button>
         <nav className="header-nav header-nav-left" aria-label="Primary navigation left">
           <Link href="/#top">Home</Link>
-          <div className="header-nav-dropdown">
+          {/* With nothing published (every development drafted or archived) the
+              mega menu would open onto an empty panel, so the item is left out. */}
+          {developments.length ? <div className="header-nav-dropdown">
             <button className="header-nav-trigger" type="button" aria-haspopup="true">Developments</button>
             <div className="header-nav-menu header-mega-menu" role="menu" aria-label="Developments">
               <div className="header-mega-copy">
@@ -28,7 +30,7 @@ export async function SiteShellHeader() {
                 {developments.map((project, index) => project.heroImage ? <img key={project.slug} className={`mega-preview-image mega-preview-extra-${index + 1}${index === 0 ? " is-default" : ""}`} src={project.heroImage} alt="" /> : null)}
               </div>
             </div>
-          </div>
+          </div> : null}
           <Link href="/about">About</Link>
         </nav>
         <Link href="/#top" className="brand-link" aria-label="Kasumigaseki Properties Development home">
@@ -55,11 +57,11 @@ export async function SiteShellHeader() {
       <button className="menu-close" type="button" data-menu-close aria-label="Close menu" />
       <div className="menu-inner"><ul className="menu-list">
         <li className="menu-item menu-item-main"><Link href="/#top">Home</Link></li>
-        <li className="menu-item menu-item-main has-sub"><Link href={developments[0] ? `/developments/${developments[0].slug}` : "/#developments"}>Developments</Link>
+        {developments.length ? <li className="menu-item menu-item-main has-sub"><Link href={`/developments/${developments[0].slug}`}>Developments</Link>
           <ul className="menu-sublist">
             {developments.map((project) => <li key={project.slug}><Link href={`/developments/${project.slug}`}>{project.name}</Link></li>)}
           </ul>
-        </li>
+        </li> : null}
         <li className="menu-item menu-item-main has-sub"><Link href="/about">About</Link>
           <ul className="menu-sublist"><li><Link href="/legacy">History</Link></li></ul>
         </li>

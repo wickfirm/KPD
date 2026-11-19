@@ -20,12 +20,13 @@ export async function SiteShellFooter() {
       </div>
       <div className="footer_links">
         <div className="footer_links_col_container">
-          <div className="footer_links_col">
+          {/* Only list developments when at least one is published. */}
+          {developments.length ? <div className="footer_links_col">
             <h3 className="footer_links_title text-size-footer">{contact.footerDevelopmentsTitle || "Developments"}</h3>
             <ul role="list" className="footer_links_list">
               {developments.map((project) => <li className="footer_links_item" key={project.slug}><Link href={`/developments/${project.slug}`} className="footer_link text-size-footer">{project.name}</Link></li>)}
             </ul>
-          </div>
+          </div> : null}
           <div className="footer_links_col">
             <h3 className="footer_links_title text-size-footer">{contact.footerCompanyTitle || "Company"}</h3>
             <ul role="list" className="footer_links_list">

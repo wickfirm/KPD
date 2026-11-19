@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getNewsPageShell } from "./news-shell";
+import { getArticleShell, getNewsPageShell } from "./news-shell";
 import { injectNavDevelopments, type NavDevelopment } from "./nav-developments";
 
 const extras: NavDevelopment[] = [
@@ -14,6 +14,26 @@ describe("injectNavDevelopments", () => {
   it("removes every fixed development when none are published", () => {
     const out = injectNavDevelopments(raw, []);
     for (const slug of ["seven-x-seven", "emerald-villa", "dubai-hills-mansion"]) expect(out).not.toContain(`/developments/${slug}`);
+  });
+
+  it("drops the Developments menu, mobile entry and footer column when none are published", () => {
+    for (const html of [raw, getArticleShell().beforeMain + getArticleShell().afterMain]) {
+      const out = injectNavDevelopments(html, []);
+      expect(out).not.toContain(">Developments</button>");
+      expect(out).not.toContain("header-mega-menu");
+      expect(out).not.toMatch(/>Developments<\/a>/);
+      expect(out).not.toMatch(/footer_links_title[^"]*">Developments?<\/h3>/);
+      // Neighbouring navigation is untouched.
+      expect(out).toMatch(/<a href="\/about">About<\/a>\s*<\/nav>/);
+      expect(out).toContain("header-media-menu");
+      expect(out).toContain(">Company</h3>");
+    }
+  });
+
+  it("keeps the Developments menu when something is published", () => {
+    const out = injectNavDevelopments(raw, extras);
+    expect(out).toContain(">Developments</button>");
+    expect(out).toMatch(/>Developments<\/a>/);
   });
 
   it("adds each extra to the header dropdown, mobile menu and footer", () => {
