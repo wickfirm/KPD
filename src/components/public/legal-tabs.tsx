@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ReactNode } from "react";
 import { textStyleProps } from "@/lib/text-style";
 import type { TextStyle } from "@/lib/text-style";
-import { legalContact, legalDocuments, type LegalPiece, type LegalTabId } from "@/lib/terms-defaults";
+import { legalContact, legalDocuments, type LegalDocument, type LegalPiece, type LegalTabId } from "@/lib/terms-defaults";
 import type { Locale } from "@/lib/locales";
 import { t, type MessageKey } from "@/lib/i18n";
 
@@ -45,11 +45,12 @@ function Piece({ piece, onPrivacy }: { piece: LegalPiece; onPrivacy: () => void 
 }
 
 /// Terms, Privacy and Cookies from the client document. Tab buttons change the
-/// panel in place. The address does not change.
-export function LegalTabs({ initialTab, image, headingStyle, contact, locale }: { initialTab: LegalTabId; image?: string; headingStyle?: TextStyle; contact?: { heading?: string; text?: string; email?: string }; locale: Locale }) {
+/// panel in place. The address does not change. `documents` is the same
+/// document in the page's language; English has none and uses the client's.
+export function LegalTabs({ initialTab, image, headingStyle, contact, locale, documents }: { initialTab: LegalTabId; image?: string; headingStyle?: TextStyle; contact?: { heading?: string; text?: string; email?: string }; locale: Locale; documents?: LegalDocument[] }) {
   const help = { heading: contact?.heading?.trim() || legalContact.heading, text: contact?.text?.trim() || legalContact.text, email: contact?.email?.trim() || legalContact.email };
   const [tab, setTab] = useState<LegalTabId>(initialTab);
-  const active = legalDocuments.find((entry) => entry.id === tab) ?? legalDocuments[0];
+  const active = (documents ?? legalDocuments).find((entry) => entry.id === tab) ?? legalDocuments[0];
 
   function show(next: LegalTabId) {
     setTab(next);

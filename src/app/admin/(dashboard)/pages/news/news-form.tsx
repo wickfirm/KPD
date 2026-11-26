@@ -1,22 +1,30 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { ListEditor } from "@/components/admin/list-editor";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
 import { detectLang, pressCoverageCopyDefaults as pd, type PressItem } from "@/lib/press-coverage";
-import { saveNewsListing, type SiteSettingsFormState } from "../../actions";
+import { saveNewsListing, saveNewsListingTranslation, type SiteSettingsFormState } from "../../actions";
 import { newsListingDefaults as d, type NewsListingCopy } from "@/lib/news-listing";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { newsTextFields, newsSharedLabels } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 const initialState: SiteSettingsFormState = {};
 
 /// Editor for the /news page copy. Every field shows the live wording; a field
 /// left blank falls back to the approved wording shown as its placeholder.
-export default function NewsForm({ copy, coverage: initialCoverage }: { copy: NewsListingCopy; coverage: PressItem[] }) {
-  const [state, formAction, pending] = useActionState(saveNewsListing, initialState);
+/// `lang` is the language tab: "en" is the page copy itself; "ar" or "ja" is
+/// the same editor with the copy's translation in it, saved as a translation.
+export default function NewsForm({ copy, coverage: initialCoverage, lang = "en", englishId = "" }: { copy: NewsListingCopy; coverage: PressItem[]; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveNewsListingTranslation : saveNewsListing, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: newsTextFields, sharedLabels: newsSharedLabels });
   const [coverage, setCoverage] = useState<PressItem[]>(initialCoverage);
   const value = (key: keyof typeof d) => copy[key] ?? d[key];
-  return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
+  return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h2 className="cms-form-heading">Hero</h2>
     <div className="cms-grid">
       <label className="cms-field"><span>Breadcrumb label</span><input name="eyebrow" defaultValue={value("eyebrow")} placeholder={d.eyebrow} /><small>Shown between Home and News in the breadcrumb.</small></label>
@@ -81,6 +89,6 @@ export default function NewsForm({ copy, coverage: initialCoverage }: { copy: Ne
       <label className="cms-field"><span>Link</span><input name="pressLinkUrl" defaultValue={value("pressLinkUrl")} placeholder={d.pressLinkUrl} /></label>
     </div>
 
-    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save News page"}</button></div>
+    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save News page"}</button></div>
   </form>;
 }

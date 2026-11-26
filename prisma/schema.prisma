@@ -84,13 +84,17 @@ model Article {
 
 /// Per-locale content. `locale`: "en" | "ar" | "ja".
 /// Arabic/Japanese content is supplied by the client (Clause 3).
+/// A null field is not translated in that language: the page shows the English
+/// text for it. Only Arabic and Japanese rows are written; English lives on the
+/// article itself.
 model ArticleTranslation {
-  id        String  @id @default(cuid())
-  articleId String
-  locale    String
-  title     String
-  summary   String
-  body      Json
+  id            String  @id @default(cuid())
+  articleId     String
+  locale        String
+  title         String?
+  summary       String?
+  body          Json?
+  coverImageAlt String?
 
   article Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
@@ -150,6 +154,11 @@ model ProjectModule {
   kind      ModuleKind     @default(CUSTOM)
   profile   ProjectProfile @default(FULL)
   content   Json // { images?: string[], text?: string, items?: {label,value}[], url?: string }
+  /// Text translated from `title` and `content`, keyed by language:
+  /// { ar?: { title?: string, content?: {…} }, ja?: {…} }. Only text that
+  /// differs from English is kept; images, links and settings are never stored
+  /// here. Null until the section is translated.
+  translations Json?
   sortOrder Int            @default(0)
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
@@ -161,13 +170,16 @@ model ProjectModule {
   @@map("project_modules")
 }
 
+/// A development's text in one language. Null means "show the English text".
+/// Only Arabic and Japanese rows are written.
 model ProjectTranslation {
-  id          String
+  id          String  @id @default(cuid())
   projectId   String
   locale      String
-  name        String
+  name        String?
   tagline     String?
   description String?
+  location    String?
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
@@ -252,12 +264,15 @@ model StaticPage {
   @@map("static_pages")
 }
 
+/// A page's text in one language. `content` mirrors the English blocks with
+/// only the translated text in it (arrays by position). Null means "show the
+/// English". Only Arabic and Japanese rows are written.
 model PageTranslation {
-  id      String
+  id      String  @id @default(cuid())
   pageId  String
   locale  String
-  title   String
-  content Json
+  title   String?
+  content Json?
 
   page StaticPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
 
@@ -316,6 +331,9 @@ model ContentVersion {
   versionNumber Int
   /// Record<string, string[]> — the captured FormData entries.
   snapshot      Json
+  /// "ar" or "ja" for the save of a translation; null for an English save.
+  /// Each language keeps its own rolling history for the item.
+  locale        String?
   authorEmail   String?
   createdAt     DateTime @default(now())
 

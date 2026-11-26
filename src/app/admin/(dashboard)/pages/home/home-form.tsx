@@ -1,12 +1,15 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { previewHomeDraft, saveHomeSettings, type SiteSettingsFormState } from "../../actions";
+import { previewHomeDraft, saveHomeSettings, saveHomeTranslation, type SiteSettingsFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { homeDefaults, type BannerSlide, type HomeSettings, type HomeValue, type StatItem } from "@/lib/home-defaults";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { homeTextFields } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 export type { HomeSettings };
 const initialState: SiteSettingsFormState = {};
@@ -14,9 +17,13 @@ const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
 
 /// Homepage editor: the values below are the only source of editable homepage
 /// content. Blank and empty lists deliberately remain blank when saved.
-export default function HomeForm({ settings, seo }: { settings: HomeSettings; seo?: SeoFieldDefaults }) {
-  const [state, formAction, pending] = useActionState(saveHomeSettings, initialState);
+/// `lang` is the language tab: "en" is the homepage itself; "ar" or "ja" is the
+/// same editor with the homepage's translation in it, saved as a translation.
+export default function HomeForm({ settings, seo, lang = "en", englishId = "" }: { settings: HomeSettings; seo?: SeoFieldDefaults; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveHomeTranslation : saveHomeSettings, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: homeTextFields });
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
   /// Opens the admin preview with the page exactly as it currently looks here,
@@ -29,7 +36,7 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
     try {
       const result = await previewHomeDraft(new FormData(formRef.current));
       if (result.error) throw new Error(result.error);
-      const target = "/admin/preview/home?draft=1";
+      const target = `/admin/preview/home?draft=1${translating ? `&lang=${lang}` : ""}`;
       if (tab) tab.location.href = target; else window.location.assign(target);
     } catch (error) {
       tab?.close();
@@ -142,6 +149,6 @@ export default function HomeForm({ settings, seo }: { settings: HomeSettings; se
       <label className="cms-field"><span>Card link text</span><input name="newsCardLabel" defaultValue={settings.newsCardLabel ?? homeDefaults.newsCardLabel} placeholder="Explore" /><small>For example “Read more” or “Know more”. Leave empty for “Explore”.</small></label>
     </section>
     <SeoFields defaults={seo} />
-    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save homepage"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
+    <div className="cms-actions cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save homepage"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

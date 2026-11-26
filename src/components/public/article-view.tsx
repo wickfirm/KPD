@@ -1,9 +1,10 @@
 import { absoluteUrl } from "@/lib/site";
 import { getArticleShell } from "@/lib/news-shell";
-import { getNavDevelopments, injectNavDevelopments } from "@/lib/nav-developments";
+import { injectNavDevelopments } from "@/lib/nav-developments";
 import { formatDate, localeHref, localizeHtmlLinks } from "@/lib/locales";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
+import { getLocalizedNavDevelopments } from "@/lib/translations/store";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
@@ -43,7 +44,7 @@ export async function ArticleView({ article, previewNote }: { article: ArticleVi
     ...(locale !== "en" ? { inLanguage: locale } : {}),
   };
   const shell = getArticleShell();
-  const extras = await getNavDevelopments();
+  const extras = await getLocalizedNavDevelopments();
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page news-design-page article-page" />

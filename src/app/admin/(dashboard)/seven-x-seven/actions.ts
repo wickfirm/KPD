@@ -9,6 +9,9 @@ import { sxsDefaults } from "@/lib/sxs-defaults";
 import { applySxsMediaMap, sxsPreviewKey, sxsSettingKey, type SxsContent } from "@/lib/sxs-content";
 import { recordVersion, snapshotFormData } from "@/lib/versions";
 import { revalidatePath } from "next/cache";
+import { DEFAULT_LOCALE, languageNames, type Locale } from "@/lib/locales";
+import { splitTranslationForm, translationDraftKey } from "@/lib/translations/form-translation";
+import { writeSettingTranslation } from "@/lib/translations/store";
 
 export type SxsFormState = { error?: string };
 
@@ -169,13 +172,52 @@ export async function saveSxsPage(_prev: SxsFormState, formData: FormData): Prom
 
 export async function previewSxsDraft(formData: FormData) {
   await requirePermission("content.editLive");
-  const content = sxsContentFromForm(formData);
+  // An Arabic or Japanese tab previews its translation from its own row.
+  const { locale, form } = splitTranslationForm(formData);
+  const content = sxsContentFromForm(form);
+  const key = translationDraftKey(sxsPreviewKey, locale);
   await db.siteSetting.upsert({
-    where: { key: sxsPreviewKey },
-    create: { key: sxsPreviewKey, value: { content, savedAt: Date.now() } as never },
+    where: { key },
+    create: { key, value: { content, savedAt: Date.now() } as never },
     update: { value: { content, savedAt: Date.now() } as never },
   });
   return { ok: true as const };
+}
+
+// ── Translation (the Arabic and Japanese tab) ─────────────────────────────────
+//
+// The text of every section, stored beside the English record in the row
+// "sxs:<language>" (src/lib/translations/store.ts). Only text that differs
+// from the English form can be stored; media and links are never text.
+
+/// The landing page's translation. The same write path for the tab's save and
+/// for a version restore. Without the English form, the comparison is with the
+/// page as it is saved.
+export async function applySxsTranslation(_id: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<{ id?: string; error?: string }> {
+  const saved = (await db.siteSetting.findUnique({ where: { key: sxsSettingKey } }).catch(() => null))?.value ?? null;
+  await writeSettingTranslation(sxsSettingKey, locale, englishForm ? sxsContentFromForm(englishForm) : saved, sxsContentFromForm(form));
+  return { id: "sxs" };
+}
+
+export async function saveSxsTranslation(_prev: SxsFormState, formData: FormData): Promise<SxsFormState> {
+  const { session } = await requirePermission("content.editLive");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  await applySxsTranslation("sxs", locale, form, english);
+  const returnTo = `/admin/seven-x-seven?lang=${locale}`;
+  revalidatePath("/seven-x-seven");
+  revalidatePublicContent();
+  await recordVersion({
+    entityType: "SXS_PAGE",
+    entityId: "sxs",
+    path: returnTo,
+    label: "seven x seven",
+    snapshot: snapshotFormData(formData),
+    authorEmail: session.email,
+    locale,
+  });
+  await logActivity({ action: "content.save", session, entityType: "SXS_PAGE", entityId: "sxs", summary: `Saved the ${languageNames[locale]} translation of the seven x seven residence page` });
+  redirect(`${returnTo}&saved=1`);
 }
 
 

@@ -1,12 +1,12 @@
 import { ContactView } from "@/components/public/page-views";
 import { JsonLd } from "@/components/public/json-ld";
 import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
-import { loadFixedPageSeo } from "@/lib/seo-store";
 import { loadContactDetails, loadStaticBlocks } from "@/lib/static-blocks";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
+import { localizedBlocks, loadLocalizedFixedPageSeo } from "@/lib/translations/store";
 export async function generateMetadata() {
-  return pageMetadata(await loadFixedPageSeo("contact"), await getLocale());
+  return pageMetadata(await loadLocalizedFixedPageSeo("contact"), await getLocale());
 }
 export const revalidate = 300;
 
@@ -20,10 +20,10 @@ export const revalidate = 300;
 export default async function ContactPage() {
   // The two CMS reads are independent — run them in parallel.
   const [contact, blocks] = await Promise.all([loadContactDetails(), loadStaticBlocks("contact")]);
-  const [seo, locale] = await Promise.all([loadFixedPageSeo("contact"), getLocale()]);
+  const [seo, locale] = await Promise.all([loadLocalizedFixedPageSeo("contact"), getLocale()]);
   return <>
     <JsonLd data={webPageJsonLd({ kind: "ContactPage", name: seo.title, description: seo.description, path: seo.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.contact"), path: seo.path }], locale)} />
-    <ContactView blocks={blocks} contact={contact} />
+    <ContactView blocks={await localizedBlocks("contact", blocks, locale)} contact={contact} />
   </>;
 }

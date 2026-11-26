@@ -4,7 +4,10 @@ import { useActionState, useRef, useState } from "react";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import type { SxsContent } from "@/lib/sxs-content";
-import { previewSxsDraft, saveSxsPage, type SxsFormState } from "./actions";
+import { previewSxsDraft, saveSxsPage, saveSxsTranslation, type SxsFormState } from "./actions";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { sxsTextFields, sxsSharedLabels } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 type Media = { src: string; alt: string; label?: string; position?: string };
 type NavItem = { label: string; anchor: string };
@@ -39,9 +42,15 @@ function planOf(value: unknown): Plan {
   };
 }
 
-export default function SxsForm({ content }: { content: SxsContent }) {
-  const [state, action, pending] = useActionState(saveSxsPage, initial);
+/// `lang` is the language tab: "en" is the page itself; "ar" or "ja" is the
+/// same editor with the page's translation in it, saved as a translation.
+/// Images, floor-plan files, logos, anchors and map coordinates are shared
+/// with English in every language.
+export default function SxsForm({ content, lang = "en", englishId = "" }: { content: SxsContent; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, action, pending] = useActionState(translating ? saveSxsTranslation : saveSxsPage, initial);
   const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: sxsTextFields, sharedLabels: sxsSharedLabels });
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
   const [navigation, setNavigation] = useState<NavItem[]>(() => Array.isArray(content.navigation.items) ? content.navigation.items as NavItem[] : []);
@@ -71,7 +80,7 @@ export default function SxsForm({ content }: { content: SxsContent }) {
     const tab = window.open("about:blank", "_blank");
     try {
       await previewSxsDraft(new FormData(formRef.current));
-      const target = "/admin/preview/seven-x-seven";
+      const target = `/admin/preview/seven-x-seven${translating ? `?lang=${lang}` : ""}`;
       if (tab) tab.location.href = target; else window.location.assign(target);
     } catch (error) {
       tab?.close();
@@ -213,7 +222,7 @@ export default function SxsForm({ content }: { content: SxsContent }) {
     </section>
 
     <div className="cms-actions">
-      <button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>
+      <button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save page"}</button>
       <button className="cms-btn cms-btn--ghost" type="button" onClick={preview} disabled={previewing}>{previewing ? "Opening…" : "Preview"}</button>
     </div>
   </form>;

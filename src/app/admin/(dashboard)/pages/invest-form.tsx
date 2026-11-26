@@ -2,7 +2,7 @@
 
 import { useActionState, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { previewInvestDraft, saveStaticPage, type StaticPageFormState } from "../actions";
+import { previewInvestDraft, saveStaticPage, saveStaticPageTranslation, type StaticPageFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
@@ -11,6 +11,9 @@ import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reo
 import { ensureInvestSections, investIcons, investLabelDefaults, investSectionLabels, mergeInvestContent, type FaqItem, type FeaturedCard, type IconCard, type InvestContent, type InvestSectionId, type Metric, type PanelSection, type YieldRow } from "@/lib/invest-defaults";
 import type { TextStyle } from "@/lib/text-style";
 import { mortgageCalculatorLabelDefaults } from "@/lib/mortgage-calculator-html";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { investTextFields, investSharedLabels } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 const initialState: StaticPageFormState = {};
 const IMAGES = "image/jpeg,image/png,image/webp,image/gif,image/svg+xml";
@@ -80,9 +83,13 @@ function PanelEditor({ value, onChange }: { value: PanelSection; onChange: (chan
 }
 
 /// Investor-guide editor: every public value comes from this CMS record.
-export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefaults; seo?: SeoFieldDefaults }) {
-  const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
+/// `lang` is the language tab: "en" is the guide itself; "ar" or "ja" is the
+/// same editor with the guide's translation in it, saved as a translation.
+export default function InvestForm({ defaults, seo, lang = "en", englishId = "", returnTo }: { defaults: InvestPageDefaults; seo?: SeoFieldDefaults; lang?: Locale; englishId?: string; returnTo?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveStaticPageTranslation : saveStaticPage, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: investTextFields, sharedLabels: investSharedLabels, fields: { returnTo: returnTo ?? "" } });
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
   /// Opens the admin preview with the page exactly as it currently looks here,
@@ -95,7 +102,7 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     try {
       const result = await previewInvestDraft(new FormData(formRef.current));
       if (result.error) throw new Error(result.error);
-      const target = "/admin/preview/invest-in-dubai?draft=1";
+      const target = `/admin/preview/invest-in-dubai?draft=1${translating ? `&lang=${lang}` : ""}`;
       if (tab) tab.location.href = target; else window.location.assign(target);
     } catch (error) {
       tab?.close();
@@ -272,6 +279,6 @@ export default function InvestForm({ defaults, seo }: { defaults: InvestPageDefa
     <Picture label="Background image" value={content.contact.image} onChange={(image) => patch("contact", { image })} specs="Wide landscape, about 2400 × 1200px, under 4 MB." />
 
     <SeoFields defaults={seo} />
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save investor guide"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save investor guide"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

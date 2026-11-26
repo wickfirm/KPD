@@ -7,6 +7,7 @@ import { requirePermission } from "@/lib/auth";
 import { logActivity } from "@/lib/activity";
 import { revalidatePublicContent } from "@/lib/revalidate";
 import { galleryLightDevelopments } from "@/lib/development-gallery-light";
+import { sharedModuleFields } from "@/lib/project-modules";
 import {
   developmentSectionPage,
   developmentSections,
@@ -26,7 +27,7 @@ async function pageTarget(page: string): Promise<PageTarget | null> {
   if (!page.startsWith("development:")) return null;
   const project = await db.project.findUnique({
     where: { id: page.slice("development:".length) },
-    include: { modules: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }] } },
+    include: { modules: { orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: sharedModuleFields } },
   });
   if (!project) return null;
   return { sections: developmentSections(project.modules, galleryLightDevelopments.has(project.slug)), label: project.name, publicPath: `/developments/${project.slug}` };

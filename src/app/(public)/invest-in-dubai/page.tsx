@@ -1,13 +1,13 @@
 import { InvestView } from "@/components/public/invest-view";
 import { JsonLd } from "@/components/public/json-ld";
 import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
-import { loadFixedPageSeo } from "@/lib/seo-store";
 import { loadInvestPage } from "@/lib/invest-page";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
+import { loadLocalizedFixedPageSeo, localizedInvestPage } from "@/lib/translations/store";
 
 export async function generateMetadata() {
-  return pageMetadata(await loadFixedPageSeo("invest-in-dubai"), await getLocale());
+  return pageMetadata(await loadLocalizedFixedPageSeo("invest-in-dubai"), await getLocale());
 }
 export const revalidate = 300;
 
@@ -17,8 +17,8 @@ export const revalidate = 300;
 /// content as the fallback (src/lib/invest-defaults.ts).
 export default async function InvestPage() {
   const locale = await getLocale();
-  const { hero, saved } = await loadInvestPage();
-  const seo = await loadFixedPageSeo("invest-in-dubai");
+  const { hero, saved } = await localizedInvestPage(await loadInvestPage(), locale);
+  const seo = await loadLocalizedFixedPageSeo("invest-in-dubai");
   return <>
     <JsonLd data={webPageJsonLd({ name: seo.title, description: seo.description, path: seo.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "breadcrumb.investorGuide"), path: seo.path }], locale)} />

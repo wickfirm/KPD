@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { saveProject, type ProjectFormState } from "../actions";
+import { useActionState, useRef, useState } from "react";
+import { saveProject, saveProjectTranslation, type ProjectFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { TextStyleFields } from "@/components/admin/text-style-fields";
@@ -9,6 +9,9 @@ import type { ProjectChrome } from "@/lib/project-chrome";
 import { defaultKeyFacts, galleryLightDevelopments, parseKeyFacts } from "@/lib/development-gallery-light";
 import { ListEditor } from "@/components/admin/list-editor";
 import { projectPageLabelDefaults } from "@/lib/project-chrome";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { projectTextFields } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 export type ProjectDefaults = {
   id?: string; slug?: string; name?: string; tagline?: string | null; description?: string | null;
@@ -17,9 +20,15 @@ export type ProjectDefaults = {
 
 const initialState: ProjectFormState = {};
 
-export default function ProjectForm({ defaults, seo, chrome }: { defaults?: ProjectDefaults; seo?: SeoFieldDefaults; chrome?: ProjectChrome }) {
-  const [state, formAction, pending] = useActionState(saveProject, initialState);
-  return <form action={formAction}>
+/// `lang` is the language tab: "en" is the development itself; "ar" or "ja" is
+/// the same editor with the development's translation in it. Images, links,
+/// switches and appearance are shared with English in every language.
+export default function ProjectForm({ defaults, seo, chrome, lang = "en", englishId = "" }: { defaults?: ProjectDefaults; seo?: SeoFieldDefaults; chrome?: ProjectChrome; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveProjectTranslation : saveProject, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: projectTextFields });
+  return <form ref={formRef} action={formAction}>
     {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
     {state.error ? <p className="cms-error">{state.error}</p> : null}
     <div className="cms-grid">
@@ -71,7 +80,7 @@ export default function ProjectForm({ defaults, seo, chrome }: { defaults?: Proj
       </div>
     </details>
     <SeoFields defaults={seo} />
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save development"}</button></div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save development"}</button></div>
   </form>;
 }
 

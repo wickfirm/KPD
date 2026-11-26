@@ -1306,3 +1306,36 @@ h1, h2, h3 { letter-spacing: -0.035em; }
 .cms-ai-assist small { font-size: 12.5px; line-height: 1.4; }
 .cms-ai-assist__ok { color: var(--color-ink-muted); }
 .cms-ai-assist__error { color: var(--color-danger, #b42318); }
+
+/* ── Translations: the Arabic and Japanese tabs of every editor ── */
+/* Language tabs, under an editor's heading. A dot marks a language it is already translated in. */
+.cms-lang-tabs { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; font-size: 13.5px; }
+.cms-lang-tabs__label { margin-right: 4px; color: var(--color-ink-muted); font-size: 11.5px; font-weight: 750; letter-spacing: 0.1em; text-transform: uppercase; }
+.cms-lang-tabs a { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1px solid var(--color-line); border-radius: 999px; background: var(--color-surface); color: var(--color-ink); font-weight: 600; line-height: 1.2; text-decoration: none; }
+.cms-lang-tabs a:hover { border-color: var(--color-line-strong); background: var(--color-surface-soft); }
+.cms-lang-tabs a[aria-current="page"] { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+.cms-lang-tabs__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--color-ink); }
+.cms-lang-tabs a[aria-current="page"] .cms-lang-tabs__dot { background: #fff; }
+.cms-badge--lang { background: var(--color-brand-tint); border-color: var(--color-line); color: var(--color-ink); font-size: 11px; letter-spacing: 0.04em; }
+/* Site settings → Languages: the two switches. */
+#languages .cms-check { margin-bottom: 10px; }
+#languages .cms-actions { margin-top: 14px; }
+
+/* A translation tab: whatever is shared with English is dimmed and cannot be changed. */
+.cms-form--translation .cms-field[data-shared] :is(input, select, textarea),
+.cms-form--translation .cms-check[data-shared],
+.cms-form--translation .cms-media-picker[data-shared] { opacity: 0.5; cursor: not-allowed; }
+.cms-form--translation .cms-field[data-shared] :is(input, select, textarea):hover { border-color: var(--color-line); }
+.cms-form--translation .cms-field[data-shared]::after,
+.cms-form--translation .cms-check[data-shared]::after { content: "Shared with English"; display: block; margin-top: 5px; font-size: 12px; color: var(--color-ink-muted); }
+.cms-form--translation .cms-media-picker[data-shared]::after { content: "Shared with English"; margin-left: auto; align-self: flex-end; font-size: 12px; color: var(--color-ink-muted); }
+.cms-form--translation .cms-media-picker[inert] label { cursor: not-allowed; opacity: 0.55; }
+.cms-form--translation [inert],
+.cms-form--translation .cms-drag-handle[inert] { cursor: not-allowed; }
+.cms-form--translation :is(button, .cms-drag-handle)[inert],
+.cms-form--translation .cms-check[inert] { opacity: 0.45; }
+.cms-form--translation [data-shared-list]::after { content: "The entries, their number and their order are shared with English. Only their text can be translated."; display: block; margin-top: 8px; font-size: 12px; color: var(--color-ink-muted); }
+
+/* The English under a translated box; a box that still shows English says so. */
+.cms-form--translation .cms-field[data-en][data-translated="1"]:not([data-shared])::after { content: "English: " attr(data-en); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 6px; font-size: 12.5px; line-height: 1.45; color: var(--color-ink-muted); white-space: pre-wrap; }
+.cms-form--translation .cms-field[data-en][data-translated="0"]:not([data-shared])::after { content: "English — not translated yet"; display: block; margin-top: 6px; font-size: 12px; color: var(--color-ink-muted); }

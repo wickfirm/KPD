@@ -1,11 +1,14 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { previewPageDraft, saveStaticPage, type StaticPageFormState } from "../actions";
+import { previewPageDraft, saveStaticPage, saveStaticPageTranslation, type StaticPageFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { ListEditor } from "@/components/admin/list-editor";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
 import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { pageTextFields } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 import { aboutDefaults, type AboutContent } from "@/lib/about-defaults";
 import { legacyGalleryDefaults, type LegacyContent, type LegacyMilestone } from "@/lib/legacy-defaults";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
@@ -20,15 +23,21 @@ function firstBlock(blocks: Block[] | undefined, type: string) {
   return (blocks ?? []).find((block) => block.type === type);
 }
 
-export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { defaults?: StaticPageDefaults; lockedSlug?: boolean; seo?: SeoFieldDefaults }) {
-  const [state, formAction, pending] = useActionState(saveStaticPage, initialState);
+/// `lang` is the language tab: "en" is the page itself (the editor as it always
+/// was); "ar" or "ja" is the same editor with the page's translation in it,
+/// saved as a translation and never over the English page. `returnTo` is the
+/// editor's own address, where a translation save comes back to.
+export default function StaticPageForm({ defaults, lockedSlug = false, seo, lang = "en", englishId = "", returnTo }: { defaults?: StaticPageDefaults; lockedSlug?: boolean; seo?: SeoFieldDefaults; lang?: Locale; englishId?: string; returnTo?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveStaticPageTranslation : saveStaticPage, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: pageTextFields, fields: { returnTo: returnTo ?? "" } });
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
   /// Legal pages, About, Legacy and Contact: opens the admin preview with the page exactly as it
   /// currently looks here, saved or not. The tab opens straight away (a
-  /// click-triggered open is never blocked) and is pointed at the preview once
-  /// the draft is stored.
+  /// click-triggered open is never blocked) and is pointed at the preview once the
+  /// draft is stored.
   async function previewUnsaved() {
     if (!formRef.current) return;
     setPreviewing(true); setPreviewError("");
@@ -36,7 +45,7 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
     try {
       const result = await previewPageDraft(new FormData(formRef.current));
       if (result.error || !result.slug) throw new Error(result.error || "Unable to build the preview.");
-      const target = `/admin/preview/pages/${result.slug}?draft=1`;
+      const target = `/admin/preview/pages/${result.slug}?draft=1${translating ? `&lang=${lang}` : ""}`;
       if (tab) tab.location.href = target; else window.location.assign(target);
     } catch (error) {
       tab?.close();
@@ -170,6 +179,6 @@ export default function StaticPageForm({ defaults, lockedSlug = false, seo }: { 
       </div>
     </section> : null}
     {seo ? <SeoFields defaults={seo} /> : null}
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save page"}</button>{isLegal || isAbout || isLegacy || defaults?.slug === "contact" ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save page"}</button>{isLegal || isAbout || isLegacy || defaults?.slug === "contact" ? <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button> : null}{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

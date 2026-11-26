@@ -6,6 +6,8 @@ import { duplicateProject, moveProject, setProjectStatus } from "../actions";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { HomepageToggle } from "./homepage-toggle";
 import { CMS_TIME_ZONE } from "@/lib/time-zone";
+import { TranslatedBadges } from "@/components/admin/language-tabs";
+import { projectTranslationLocales } from "@/lib/translations/store";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,8 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   }),
     db.siteSetting.findMany({ where: { key: { startsWith: "project-chrome:" } }, select: { key: true, value: true } }),
   ]);
+  // The AR / JA badges: the languages each development is translated in.
+  const translated = await projectTranslationLocales(all.map((project) => project.id));
   const shownOnHomepage = new Map(chromeRows.map((row) => [row.key, parseProjectChrome(row.value).showOnHomepage !== false]));
   const projects = all.filter((project) =>
     (!statusFilter || project.status === statusFilter) &&
@@ -75,6 +79,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
                 <h2><Link href={`/admin/projects/${project.id}`}>{project.name}</Link></h2>
                 {project.tagline ? <p className="cms-dev-card__tagline">{project.tagline}</p> : null}
                 <p className="cms-muted">{project._count.modules} sections · /developments/{project.slug} · edited {project.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}</p>
+                {translated.get(project.id)?.length ? <div className="cms-row-card__meta"><TranslatedBadges locales={translated.get(project.id)} /></div> : null}
                 <HomepageToggle id={project.id} shown={shownOnHomepage.get(projectChromeKey(project.id)) !== false} />
               </div>
               <div className="cms-dev-card__actions">

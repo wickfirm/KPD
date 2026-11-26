@@ -1,20 +1,29 @@
 "use client";
 
-import { useActionState } from "react";
-import { saveGlobalSettings, type SiteSettingsFormState } from "../actions";
+import { useActionState, useRef } from "react";
+import { saveGlobalSettings, saveGlobalTranslation, type SiteSettingsFormState } from "../actions";
 import type { FormRecipients } from "@/lib/site-contact";
 import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { settingsTextFields } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 export type Settings = { global?: { email?: string; phone?: string; whatsapp?: string; newsletterNote?: string; newsletterHeading?: string; newsletterSubmitLabel?: string; footerDevelopmentsTitle?: string; footerCompanyTitle?: string; footerMediaTitle?: string; footerAboutLabel?: string; footerHistoryLabel?: string; footerInvestorLabel?: string; footerNewsLabel?: string; footerContactLabel?: string; footerTermsLabel?: string; footerPrivacyLabel?: string; footerCookiesLabel?: string; footerCopyright?: string; facebook?: string; x?: string; instagram?: string; youtube?: string; linkedin?: string; enquiryEnabled?: boolean; callEnabled?: boolean; whatsappEnabled?: boolean; enquiryLabel?: string; callLabel?: string; whatsappLabel?: string; headerCtaLabel?: string; headerCtaVisible?: boolean; popupEnabled?: boolean; formEmailsEnabled?: boolean; popupFrequency?: "every-page" | "session" | "day"; popupDelaySeconds?: number; popupInterests?: string[]; popupTitle?: string; popupIntro?: string; popupSubmitLabel?: string; popupNote?: string; recipients?: FormRecipients; typography?: { headings?: TextStyleValue; body?: TextStyleValue; ctas?: TextStyleValue } }; home?: { heroVideo?: string; introHeading?: string; introParagraphs?: string[]; developmentHeading?: string; contactHeading?: string; contactText?: string; experienceImages?: string[] }; newsListing?: { eyebrow?: string; heading?: string; intro?: string } };
 const initialState: SiteSettingsFormState = {};
 
 /// Shared contact and footer details only. Homepage content moved to its own
 /// editor under Pages → Homepage, so editors find page content in Pages.
-export default function SettingsForm({ settings }: { settings: Settings }) {
-  const [state, formAction, pending] = useActionState(saveGlobalSettings, initialState);
+/// `lang` is the language tab: "en" is the settings themselves; "ar" or "ja"
+/// is the same editor with the wording's translation in it. Contact details,
+/// recipients, switches and typography are the same in every language.
+export default function SettingsForm({ settings, lang = "en", englishId = "" }: { settings: Settings; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveGlobalTranslation : saveGlobalSettings, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: settingsTextFields });
   const global = settings.global ?? {};
   const recipients = global.recipients ?? {};
-  return <form action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
+  return <form ref={formRef} action={formAction}>{state.error ? <p className="cms-error">{state.error}</p> : null}
     <h1>Site settings</h1><p className="cms-muted">Shared contact details used across the site: the footer, the floating Enquiry / Call / WhatsApp buttons, the booking form and the Contact page. Leave a field empty to hide or disable that item. Homepage content lives under <strong>Pages → Homepage</strong>.</p>
     <h2 className="cms-form-heading">Contact</h2>
     <div className="cms-grid">
@@ -98,6 +107,6 @@ export default function SettingsForm({ settings }: { settings: Settings }) {
       <label className="cms-field"><span>LinkedIn</span><input type="url" name="linkedin" defaultValue={global.linkedin ?? ""} placeholder="https://www.linkedin.com/company/…" /></label>
       <label className="cms-field"><span>YouTube</span><input type="url" name="youtube" defaultValue={global.youtube ?? ""} placeholder="https://www.youtube.com/…" /></label>
     </div>
-    <div className="cms-actions"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : "Save settings"}</button></div>
+    <div className="cms-actions"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save settings"}</button></div>
   </form>;
 }

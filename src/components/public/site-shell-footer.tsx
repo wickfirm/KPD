@@ -1,9 +1,9 @@
 ﻿import Link from "next/link";
-import { getGlobalSettings, recipientFor } from "@/lib/site-contact";
-import { getNavDevelopments } from "@/lib/nav-developments";
+import { recipientFor } from "@/lib/site-contact";
 import { getLocale, getSwitcherLocales } from "@/lib/locale";
 import { localeHref } from "@/lib/locales";
 import { t } from "@/lib/i18n";
+import { getLocalizedGlobalSettings, getLocalizedNavDevelopments } from "@/lib/translations/store";
 import { LanguageSwitcher } from "./language-switcher";
 
 /// Delivered footer â€” 1:1 port of the delivered markup (link columns,
@@ -11,7 +11,7 @@ import { LanguageSwitcher } from "./language-switcher";
 /// mailto exactly as delivered. Links and the delivered label fallbacks follow
 /// the page's language; English is unchanged.
 export async function SiteShellFooter() {
-  const [contact, developments, locale, switcherLocales] = await Promise.all([getGlobalSettings(), getNavDevelopments(), getLocale(), getSwitcherLocales()]);
+  const [contact, developments, locale, switcherLocales] = await Promise.all([getLocalizedGlobalSettings(), getLocalizedNavDevelopments(), getLocale(), getSwitcherLocales()]);
   const href = (path: string) => localeHref(path, locale);
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.
