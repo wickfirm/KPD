@@ -30,3 +30,6 @@ next-env.d.ts
 
 # client-supplied content deliveries (not app code)
 /content/
+
+# Written by the translation importer (npm run translations:import -- --sql)
+/prisma/import-translations.sql
