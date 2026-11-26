@@ -5,6 +5,8 @@ import { newsCaption, newsListingDefaults as d, type NewsListItem, type NewsList
 import { NewsFilters } from "./news-filters";
 import { pressCoverageCopyDefaults, pressDateLabel, type PressItem } from "@/lib/press-coverage";
 import { textStyleProps } from "@/lib/text-style";
+import { localeHref, type Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 /// Rows shown before the "Show all" toggle.
 const PRESS_VISIBLE_ROWS = 8;
@@ -60,10 +62,12 @@ const category = (item: NewsListItem) => (item.kind === "BLOG" ? "perspective" :
 /// as cards (each links to its /news/<slug> page), outside press coverage
 /// ("In the press") and a press band. Copy for
 /// the page comes from Pages → News.
-export function NewsListingMain({ articles, copy, email, coverage = [], hidden }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string; coverage?: PressItem[]; hidden?: readonly string[] }) {
+export function NewsListingMain({ articles, copy, email, coverage = [], hidden, locale }: { articles: NewsListItem[]; copy: NewsListingCopy; email?: string; coverage?: PressItem[]; hidden?: readonly string[]; locale: Locale }) {
   /// Sections the editor switched off under "Sections on this page".
   const shown = sectionFilter(hidden);
   const pick = (key: keyof typeof d) => (typeof copy[key] === "string" ? (copy[key] as string).trim() : "") || d[key];
+  /// Internal links follow the page's language; other addresses are left alone.
+  const href = (path: string) => localeHref(path, locale);
   const eyebrow = pick("eyebrow");
   const heading = pick("heading");
   const intro = copy.intro?.trim() ?? "";
@@ -74,32 +78,32 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden }
     <main className="news-main g21" id="top">
       {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-news-title">
         <div className="g21-wrap">
-          <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span>{eyebrow}</span><span aria-hidden="true">/</span><span aria-current="page">News</span></nav>
+          <nav className="g21-crumbs g21-cap" aria-label={t(locale, "breadcrumb.label")}><Link href={href("/")}>{t(locale, "nav.home")}</Link><span aria-hidden="true">/</span><span>{eyebrow}</span><span aria-hidden="true">/</span><span aria-current="page">{t(locale, "nav.news")}</span></nav>
           <div className="g21-title">
             <h1 id="g21-news-title" style={textStyleProps(copy.headingStyle)}>{emphasisNodes(heading)}</h1>
             <div>
               {intro ? <p className="g21-lede">{intro}</p> : null}
-              {hasBoth ? <NewsFilters labels={{ all: pick("filterAll"), perspective: pick("filterPerspective"), announcement: pick("filterAnnouncement") }} /> : null}
+              {hasBoth ? <NewsFilters locale={locale} labels={{ all: pick("filterAll"), perspective: pick("filterPerspective"), announcement: pick("filterAnnouncement") }} /> : null}
             </div>
           </div>
         </div>
       </section> : null}
 
-      {shown("articles") ? <section className="g21-news-sec" id="updates" aria-label={pressFirst ? "In the press" : "Articles"}>
+      {shown("articles") ? <section className="g21-news-sec" id="updates" aria-label={pressFirst ? t(locale, "news.inThePress") : t(locale, "news.articles")}>
         <div className="g21-wrap">
           {pressFirst ? <PressCards items={copy.coverageVisible === false ? [] : coverage} cta={pick("pressCardCta")} emptyText={pick("emptyText")} /> : <>
           {feature ? <article className="g21-feat" data-cat={category(feature)}>
-            <Link className="g21-feat-img" href={`/news/${feature.slug}`} tabIndex={-1} aria-hidden="true"><img src={feature.coverImage || FALLBACK_IMAGE} alt="" /></Link>
+            <Link className="g21-feat-img" href={href(`/news/${feature.slug}`)} tabIndex={-1} aria-hidden="true"><img src={feature.coverImage || FALLBACK_IMAGE} alt="" /></Link>
             <div className="g21-feat-copy">
               <p className="g21-cap">{newsCaption(feature)}</p>
               <h2>{feature.title}</h2>
               {feature.summary ? <p className="g21-muted">{feature.summary}</p> : null}
-              <Link className="g21-btn" href={`/news/${feature.slug}`}>{pick("featureCta")} <span className="g21-ar" aria-hidden="true">→</span></Link>
+              <Link className="g21-btn" href={href(`/news/${feature.slug}`)}>{pick("featureCta")} <span className="g21-ar" aria-hidden="true">→</span></Link>
             </div>
           </article> : <p className="g21-muted">{pick("emptyText")}</p>}
           {rest.length ? <div className="g21-cards">
             {rest.map((item) => <article className="g21-card" key={item.slug} data-cat={category(item)}>
-              <Link href={`/news/${item.slug}`}>
+              <Link href={href(`/news/${item.slug}`)}>
                 <figure className="g21-card-img"><img src={item.coverImage || FALLBACK_IMAGE} alt={item.coverImageAlt} loading="lazy" /></figure>
                 <span className="g21-cap">{newsCaption(item)}</span>
                 <h3>{item.title}</h3>
@@ -108,7 +112,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden }
               </Link>
             </article>)}
           </div> : null}
-          <p className="g21-muted g21-empty" data-news-empty hidden>No articles in this category yet.</p>
+          <p className="g21-muted g21-empty" data-news-empty hidden>{t(locale, "news.noArticles")}</p>
           </>}
         </div>
       </section> : null}
@@ -122,7 +126,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden }
           <div>
             <ul className="g21-coverage-list">{coverage.slice(0, PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} key={i} />)}</ul>
             {coverage.length > PRESS_VISIBLE_ROWS ? <details className="g21-coverage-more">
-              <summary className="g21-txt-link">Show all {coverage.length} <span aria-hidden="true">↓</span></summary>
+              <summary className="g21-txt-link">{t(locale, "news.showAll")} {coverage.length} <span aria-hidden="true">↓</span></summary>
               <ul className="g21-coverage-list">{coverage.slice(PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} key={i} />)}</ul>
             </details> : null}
           </div>
@@ -137,8 +141,8 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden }
             <p className="g21-muted" style={textStyleProps(copy.pressTextStyle)}>{pick("pressText")}</p>
           </div>
           <div className="g21-press-links">
-            {email ? <a href={`mailto:${email}`}><span className="g21-cap">Email</span><b>{email}</b><span className="g21-ar" aria-hidden="true">↗</span></a> : null}
-            <Link href={pick("pressLinkUrl")}><span className="g21-cap">{pick("pressLinkLabel")}</span><b>{pick("pressLinkText")}</b><span className="g21-ar" aria-hidden="true">→</span></Link>
+            {email ? <a href={`mailto:${email}`}><span className="g21-cap">{t(locale, "news.email")}</span><b>{email}</b><span className="g21-ar" aria-hidden="true">↗</span></a> : null}
+            <Link href={href(pick("pressLinkUrl"))}><span className="g21-cap">{pick("pressLinkLabel")}</span><b>{pick("pressLinkText")}</b><span className="g21-ar" aria-hidden="true">→</span></Link>
           </div>
         </div>
       </section>}

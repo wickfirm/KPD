@@ -8,6 +8,8 @@ import { DevelopmentView } from "@/components/public/development-view";
 import { loadSeoOverride } from "@/lib/seo-store";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
 import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
+import { getLocale } from "@/lib/locale";
+import { t } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
 
@@ -42,19 +44,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ...seo,
     path: `/developments/${project.slug}`,
     image: project.heroImage,
-  });
+  }, await getLocale());
 }
 
 /// Unified delivered shell + React content rendered from the project row and
 /// its CMS modules (shared with the admin draft preview).
 export default async function DevelopmentPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const locale = await getLocale();
   const project = await getPublishedProject(slug);
   if (!project) notFound();
   const chromeRow = await db.siteSetting.findUnique({ where: { key: projectChromeKey(project.id) } }).catch(() => null);
   return <>
-    <JsonLd data={residenceJsonLd(project)} />
-    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: project.name, path: `/developments/${project.slug}` }])} />
+    <JsonLd data={residenceJsonLd(project, locale)} />
+    <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: project.name, path: `/developments/${project.slug}` }], locale)} />
     <DevelopmentView project={{ ...project, chrome: parseProjectChrome(chromeRow?.value) }} />
   </>;
 }

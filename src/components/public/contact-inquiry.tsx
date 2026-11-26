@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
+import { localeHref, type Locale } from "@/lib/locales";
 import { dialCodeLabel, looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/lib/phone";
 
 /// The contact inquiry in the client-approved Option 2.1 "Gallery light"
@@ -15,17 +16,18 @@ import { dialCodeLabel, looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/
 type PaneKey = "sales" | "customer" | "channel" | "job" | "press";
 
 /// CMS text with [label](/path) links, e.g. the consent lines. Only site paths
-/// and http(s) links become links; everything else stays plain text.
-function linked(value: string) {
+/// and http(s) links become links; everything else stays plain text. A site
+/// path gets the page's language, so the link keeps the visitor in it.
+function linked(value: string, locale: Locale) {
   return value.split(/(\[[^\]]+\]\([^)\s]+\))/g).map((part, index) => {
     const match = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(part);
     if (!match || !(/^\/(?!\/)/.test(match[2]) || /^https?:\/\//i.test(match[2]))) return part;
-    return <a key={index} href={match[2]}>{match[1]}</a>;
+    return <a key={index} href={localeHref(match[2], locale)}>{match[1]}</a>;
   });
 }
 type ContactWindow = Window & { __KPD_CONTACT?: { email?: string; recipients?: Record<string, string | undefined> } };
 
-export function ContactInquiry({ phone = "", website = "", image = "", content }: { email?: string; phone?: string; website?: string; image?: string; content?: unknown }) {
+export function ContactInquiry({ locale, phone = "", website = "", image = "", content }: { locale: Locale; email?: string; phone?: string; website?: string; image?: string; content?: unknown }) {
   const c = mergeContactInquiryContent(content);
   const panes = [
     { key: "sales" as const, label: c.salesLabel, id: "sales" },
@@ -248,8 +250,8 @@ export function ContactInquiry({ phone = "", website = "", image = "", content }
         </fieldset>
 
         <div className="g21-consent">
-          <label className="g21-chk"><input type="checkbox" name="Terms" required /><span>{linked(c.termsText)}</span></label>
-          <label className="g21-chk"><input type="checkbox" name="Marketing" /><span>{linked(c.marketingText)}</span></label>
+          <label className="g21-chk"><input type="checkbox" name="Terms" required /><span>{linked(c.termsText, locale)}</span></label>
+          <label className="g21-chk"><input type="checkbox" name="Marketing" /><span>{linked(c.marketingText, locale)}</span></label>
         </div>
         <button className="g21-btn g21-submit" type="submit" disabled={pending}>{c.submitLabel} <span className="g21-ar" aria-hidden="true">→</span></button>
         {status ? <p className="g21-form-status" role="status">{status}</p> : null}

@@ -1,13 +1,18 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { ORGANIZATION_ID, SITE_URL, WEBSITE_ID, organizationJsonLd } from "@/lib/site";
 import { getGlobalSettings } from "@/lib/site-contact";
+import { getIsLocalePreview, getLocale, getPublishedLocales, getSwitcherShown } from "@/lib/locale";
+import { DEFAULT_LOCALE, isRtl, type Locale } from "@/lib/locales";
 import "./globals.css";
 
 /// Root-level CMS typography and organisation details must not be frozen into
 /// a static parent layout while public pages update underneath it.
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+/// The base metadata of every page; pageMetadata() (src/lib/seo.ts) adds each
+/// page's own on top of it.
+const baseMetadata: Metadata = {
   /// Anchors every relative OG/Twitter/canonical URL to the canonical host.
   metadataBase: new URL(SITE_URL),
   title: {
@@ -26,15 +31,25 @@ export const metadata: Metadata = {
   alternates: { types: { "application/rss+xml": [{ url: "/rss.xml", title: "KPD news and press" }] } },
 };
 
-const websiteJsonLd = {
+/// A language that can be reached but is not offered in the switcher is there
+/// to be looked at by address, not to be found: its pages are kept out of
+/// search until the switcher is switched on with them. English, and an admin
+/// preview, get the base metadata exactly as it is.
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  if (locale === DEFAULT_LOCALE || (await getIsLocalePreview()) || (await getSwitcherShown())) return baseMetadata;
+  return { ...baseMetadata, robots: { index: false, follow: true } };
+}
+
+const websiteJsonLd = (locale: Locale) => ({
   "@context": "https://schema.org",
   "@type": "WebSite",
   "@id": WEBSITE_ID,
   name: "Kasumigaseki Properties Development",
   url: SITE_URL,
-  inLanguage: "en",
+  inLanguage: locale,
   publisher: { "@id": ORGANIZATION_ID },
-};
+});
 
 /// CMS typography accepts only CSS length values; keeping this narrow prevents
 /// saved editorial values from becoming arbitrary CSS in the public document.
@@ -58,11 +73,23 @@ function typographyCss(typography: Awaited<ReturnType<typeof getGlobalSettings>>
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const contact = await getGlobalSettings();
+  const [contact, locale, preview] = await Promise.all([getGlobalSettings(), getLocale(), getIsLocalePreview()]);
+  // A language the client has not switched on is not reachable. Only an admin
+  // preview may show it, and only an unpublished language needs the lookup.
+  if (locale !== DEFAULT_LOCALE && !preview && !(await getPublishedLocales()).includes(locale)) notFound();
   const organization = { ...organizationJsonLd, ...(contact.email ? { email: contact.email } : {}) };
   const cmsTypography = typographyCss(contact.typography);
   return (
-    <html lang="en">
+    // English is marked up exactly as before; only a right-to-left page gets a dir.
+    <html lang={locale} {...(isRtl(locale) ? { dir: "rtl" } : {})}>
+      <head>
+        {/* A language's own stylesheet comes after every other one. English pages load none of them. */}
+        {locale === "ar" ? <link rel="stylesheet" href="/locales/ar.css" /> : null}
+        {locale === "ja" ? <>
+          <link rel="stylesheet" href="/fonts/noto-sans-jp/wght.css" />
+          <link rel="stylesheet" href="/locales/ja.css" />
+        </> : null}
+      </head>
       <body suppressHydrationWarning>
         {/* Warm up the third-party icon CDNs used by the public templates. */}
         <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
@@ -71,7 +98,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         {children}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify([organization, websiteJsonLd]) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify([organization, websiteJsonLd(locale)]) }}
         />
       </body>
     </html>

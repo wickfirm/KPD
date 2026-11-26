@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ORGANIZATION_ID, WEBSITE_ID, SITE_URL, absoluteUrl } from "./site";
+import { DEFAULT_LOCALE, localeHref, ogLocale, type Locale } from "./locales";
 
 export { ORGANIZATION_ID, WEBSITE_ID };
 
@@ -52,10 +53,13 @@ type MetadataInput = {
 };
 
 /// Complete metadata for one page: title (exactly as given, no site suffix
-/// added), description, canonical link, Open Graph and Twitter cards.
-export function pageMetadata(input: MetadataInput): Metadata {
+/// added), description, canonical link, Open Graph and Twitter cards. `path` is
+/// the English address; for another language the canonical and social URL are
+/// the page's own address in that language ("/ar/about"). English output is
+/// unchanged, so og:locale is only named on the other languages.
+export function pageMetadata(input: MetadataInput, locale: Locale = DEFAULT_LOCALE): Metadata {
   const description = clampDescription(input.description);
-  const url = absoluteUrl(input.path);
+  const url = absoluteUrl(localeHref(input.path, locale));
   const images = [input.image ? { url: input.image } : DEFAULT_SOCIAL_IMAGE];
   return {
     title: { absolute: input.title },
@@ -69,6 +73,7 @@ export function pageMetadata(input: MetadataInput): Metadata {
       title: input.title,
       description,
       images,
+      ...(locale !== DEFAULT_LOCALE ? { locale: ogLocale(locale) } : {}),
       ...(input.type === "article" && input.publishedTime ? { publishedTime: input.publishedTime } : {}),
       ...(input.type === "article" && input.modifiedTime ? { modifiedTime: input.modifiedTime } : {}),
     },
@@ -154,7 +159,9 @@ export function mediaUrl(url: string): string {
 
 export type Crumb = { name: string; path: string };
 
-export function breadcrumbJsonLd(crumbs: Crumb[]) {
+/// `crumbs` are given with their English paths; for another language each link
+/// points at the page in that language.
+export function breadcrumbJsonLd(crumbs: Crumb[], locale: Locale = DEFAULT_LOCALE) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -162,22 +169,24 @@ export function breadcrumbJsonLd(crumbs: Crumb[]) {
       "@type": "ListItem",
       position: index + 1,
       name: crumb.name,
-      item: absoluteUrl(crumb.path),
+      item: absoluteUrl(localeHref(crumb.path, locale)),
     })),
   };
 }
 
 type WebPageKind = "WebPage" | "AboutPage" | "ContactPage" | "CollectionPage" | "FAQPage";
 
-export function webPageJsonLd(input: { kind?: WebPageKind; name: string; description: string; path: string; image?: string | null }) {
+/// The page in one language: its address and `inLanguage` follow `locale`.
+export function webPageJsonLd(input: { kind?: WebPageKind; name: string; description: string; path: string; image?: string | null }, locale: Locale = DEFAULT_LOCALE) {
+  const path = localeHref(input.path, locale);
   return {
     "@context": "https://schema.org",
     "@type": input.kind ?? "WebPage",
-    "@id": `${absoluteUrl(input.path)}#webpage`,
-    url: absoluteUrl(input.path),
+    "@id": `${absoluteUrl(path)}#webpage`,
+    url: absoluteUrl(path),
     name: input.name,
     description: clampDescription(input.description),
-    inLanguage: "en",
+    inLanguage: locale,
     isPartOf: { "@id": WEBSITE_ID },
     about: { "@id": ORGANIZATION_ID },
     ...(input.image ? { primaryImageOfPage: { "@type": "ImageObject", url: mediaUrl(input.image) } } : {}),
@@ -186,15 +195,17 @@ export function webPageJsonLd(input: { kind?: WebPageKind; name: string; descrip
 
 /// A development as a place: name, description, image and where it is. No
 /// price or availability is claimed, because the site does not publish them.
-export function residenceJsonLd(project: { slug: string; name: string; tagline?: string | null; description?: string | null; heroImage?: string | null; location?: string | null }) {
+export function residenceJsonLd(project: { slug: string; name: string; tagline?: string | null; description?: string | null; heroImage?: string | null; location?: string | null }, locale: Locale = DEFAULT_LOCALE) {
+  const path = localeHref(`/developments/${project.slug}`, locale);
   return {
     "@context": "https://schema.org",
     "@type": "Residence",
-    "@id": `${absoluteUrl(`/developments/${project.slug}`)}#residence`,
+    "@id": `${absoluteUrl(path)}#residence`,
     name: project.name,
     description: developmentDescription(project),
-    url: absoluteUrl(`/developments/${project.slug}`),
+    url: absoluteUrl(path),
     ...(project.heroImage ? { image: mediaUrl(project.heroImage) } : {}),
     address: { "@type": "PostalAddress", addressLocality: (project.location ?? "").trim() || "Dubai", addressCountry: "AE" },
+    ...(locale !== DEFAULT_LOCALE ? { inLanguage: locale } : {}),
   };
 }

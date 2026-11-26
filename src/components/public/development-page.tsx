@@ -7,6 +7,8 @@ import { DevelopmentModule } from "./development-template";
 import { BrochureRequest } from "./brochure-request";
 import { developmentSlots } from "@/lib/project-chrome";
 import { mortgageCalculatorHtmlWith, mortgageCalculatorSectionProps } from "@/lib/mortgage-calculator-html";
+import { localeHref, type Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 export type DevelopmentProject = {
   id: string;
@@ -32,22 +34,22 @@ function multiline(value: string): ReactNode[] {
 }
 
 /// The delivered closing band. It sits immediately after the calculator.
-function PrivateViewing({ chrome }: { chrome?: ProjectChrome }) {
+function PrivateViewing({ chrome, locale }: { chrome?: ProjectChrome; locale: Locale }) {
   if (chrome?.enquireVisible === false) return null;
-  const heading = chrome?.enquireHeading || "Arrange a private\nviewing.";
-  const text = chrome?.enquireText || "Floor plans, pricing, and availability are shared through a single appointment-led conversation.";
+  const heading = chrome?.enquireHeading || t(locale, "dev.enquireHeading");
+  const text = chrome?.enquireText || t(locale, "dev.enquireText");
   const image = chrome?.enquireImage || "/legacy/assets/images/experience-center/hq/15.jpg";
-  const secondaryUrl = chrome?.enquireSecondaryUrl || "/contact";
+  const secondaryUrl = localeHref(chrome?.enquireSecondaryUrl || "/contact", locale);
   return (
-    <section className="projects-spec-contact single-project-enquire" aria-label={chrome?.enquireEyebrow || "Arrange a private viewing"}>
-      <img src={image} alt="Private viewing and advisory workspace" />
+    <section className="projects-spec-contact single-project-enquire" aria-label={chrome?.enquireEyebrow || t(locale, "dev.arrangeViewing")}>
+      <img src={image} alt={t(locale, "dev.viewingAlt")} />
       <div className="projects-spec-contact-copy motion-reveal">
-        <span>{chrome?.enquireEyebrow || "Enquire"}</span>
+        <span>{chrome?.enquireEyebrow || t(locale, "dev.enquireEyebrow")}</span>
         <h2>{multiline(heading)}</h2>
         <p>{text}</p>
         <div className="projects-spec-contact-actions">
-          {chrome?.enquirePrimaryUrl ? <a href={chrome.enquirePrimaryUrl}>{chrome?.enquirePrimaryLabel || "Book a viewing"}</a> : <button type="button" data-booking-open>{chrome?.enquirePrimaryLabel || "Book a viewing"}</button>}
-          <a href={secondaryUrl}>{chrome?.enquireSecondaryLabel || "Register interest"}</a>
+          {chrome?.enquirePrimaryUrl ? <a href={localeHref(chrome.enquirePrimaryUrl, locale)}>{chrome?.enquirePrimaryLabel || t(locale, "dev.bookViewing")}</a> : <button type="button" data-booking-open>{chrome?.enquirePrimaryLabel || t(locale, "dev.bookViewing")}</button>}
+          <a href={secondaryUrl}>{chrome?.enquireSecondaryLabel || t(locale, "dev.registerInterest")}</a>
         </div>
       </div>
     </section>
@@ -57,26 +59,26 @@ function PrivateViewing({ chrome }: { chrome?: ProjectChrome }) {
 /// The development page <main>: hero and overview render from the project row,
 /// then each CMS module renders through DevelopmentModule. Content fields have
 /// no delivered fallback: deleting them in the CMS deletes them from the page.
-export function DevelopmentMain({ project, shell, calculator, hidden }: { project: DevelopmentProject; shell: ProjectShell; calculator?: CalculatorCopy; hidden?: readonly string[] }) {
+export function DevelopmentMain({ project, shell, calculator, hidden, locale }: { project: DevelopmentProject; shell: ProjectShell; calculator?: CalculatorCopy; hidden?: readonly string[]; locale: Locale }) {
   /// Sections the editor switched off under "Sections on this page". The
   /// private viewing band has its own switch, so it stays when the calculator is hidden.
   const shown = sectionFilter(hidden);
   return (
     <main className="single-project-main" id="top">
-      <section className="single-project-hero pdf-hero" aria-label={`${project.name} introduction`}>
-        {project.heroVideo ? <video src={project.heroVideo} poster={project.heroImage ?? undefined} autoPlay muted loop playsInline preload="metadata" aria-label={`${project.name} presentation`} /> : project.heroImage ? <img src={project.heroImage} alt={project.name} /> : null}
+      <section className="single-project-hero pdf-hero" aria-label={t(locale, "dev.introAlt", { name: project.name })}>
+        {project.heroVideo ? <video src={project.heroVideo} poster={project.heroImage ?? undefined} autoPlay muted loop playsInline preload="metadata" aria-label={t(locale, "dev.presentationAlt", { name: project.name })} /> : project.heroImage ? <img src={project.heroImage} alt={project.name} /> : null}
         <div className="page-hero-content"><h1 style={textStyleProps(project.chrome?.nameStyle)}>{project.name}</h1></div>
       </section>
 
       <section className="single-project-intro kpd-section" id="overview">
         <div className="single-project-intro-grid single-project-intro-grid--pdf">
-          {project.heroImage ? <figure className="single-project-sketch single-project-intro-media"><img src={project.heroImage} alt={`${project.name} exterior`} /></figure> : null}
+          {project.heroImage ? <figure className="single-project-sketch single-project-intro-media"><img src={project.heroImage} alt={t(locale, "dev.exteriorAlt", { name: project.name })} /></figure> : null}
           <div className="single-project-intro-copy">
             <h1 style={textStyleProps(project.chrome?.taglineStyle)}>{multiline(project.tagline ?? "")}</h1>
             <p style={textStyleProps(project.chrome?.descriptionStyle)}>{project.description ?? ""}</p>
             {project.chrome?.ctaVisible === false && project.chrome?.brochureVisible === false ? null : <div className="single-project-actions">
-              {project.chrome?.ctaVisible === false ? null : <a className="btn-pill" href={project.chrome?.ctaUrl || "#amenities"}>{project.chrome?.ctaLabel || "Explore"}</a>}
-              {project.chrome?.brochureVisible === false ? null : <BrochureRequest projectName={project.name} projectSlug={project.slug} label={project.chrome?.brochureLabel || "Download brochure"} />}
+              {project.chrome?.ctaVisible === false ? null : <a className="btn-pill" href={localeHref(project.chrome?.ctaUrl || "#amenities", locale)}>{project.chrome?.ctaLabel || t(locale, "dev.explore")}</a>}
+              {project.chrome?.brochureVisible === false ? null : <BrochureRequest projectName={project.name} projectSlug={project.slug} label={project.chrome?.brochureLabel || t(locale, "brochure.download")} />}
             </div>}
           </div>
         </div>
@@ -86,12 +88,13 @@ export function DevelopmentMain({ project, shell, calculator, hidden }: { projec
         slot === "calculator"
           ? <div key="calculator">
             {shown("calculator") ? <section {...mortgageCalculatorSectionProps} dangerouslySetInnerHTML={{ __html: mortgageCalculatorHtmlWith(calculator) }} /> : null}
-            <PrivateViewing chrome={project.chrome} />
+            <PrivateViewing chrome={project.chrome} locale={locale} />
           </div>
           : <DevelopmentModule
             key={slot.id}
             module={{ slug: slot.slug, title: slot.title, kind: slot.kind, content: slot.content }}
             projectName={project.name}
+            locale={locale}
             shell={{ meydanFigure: shell.meydanFigure, calmFigure: shell.calmFigure, locationShell: shell.locationShell }}
           />
       ))}

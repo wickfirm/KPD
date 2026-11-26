@@ -1,0 +1,84 @@
+import type { Translation } from "./en";
+
+// Arabic. Generated from the translation sheet (KPD-translations-AR-JA.xlsx):
+// every entry has a sheet row with exactly the English text of its key. Keys
+// the sheet does not cover yet are left out, so English shows for them (see
+// index.ts). All rows are drafts until the client's reviewers approve them.
+const ar: Translation = {
+  nav: {
+    home: "الرئيسية",
+    developments: "المشاريع",
+    about: "من نحن",
+    history: "تاريخنا",
+    media: "الإعلام",
+    news: "الأخبار",
+    investorGuide: "دليل المستثمر",
+    contact: "تواصل معنا",
+    allDevelopments: "جميع المشاريع",
+    viewAllDevelopments: "عرض جميع المشاريع",
+    openMenu: "افتح القائمة",
+    closeMenu: "أغلق القائمة",
+    backToNews: "العودة إلى الأخبار",
+    language: "اللغة",
+    enquireNow: "استفسر الآن",
+  },
+  footer: {
+    terms: "الشروط والأحكام",
+    privacy: "سياسة الخصوصية",
+    cookies: "سياسة ملفات تعريف الارتباط",
+    companyName: "كاسوميغاسيكي للتطوير العقاري",
+    developments: "المشاريع",
+    about: "من نحن",
+    history: "تاريخنا",
+    investorGuide: "دليل المستثمر",
+    media: "الإعلام",
+    news: "الأخبار والمستجدات",
+    contact: "تواصل معنا",
+    newsletterHeading: "ابقَ على اطلاع",
+  },
+  news: {
+    noArticles: "لا توجد مقالات في هذه الفئة بعد.",
+    showAll: "عرض الكل",
+    latest: "آخر الأخبار",
+    inThePress: "في الصحافة",
+  },
+  home: {
+    cardCta: "استكشف",
+    contactCta: "احجز زيارة",
+    featuredDevelopments: "مشاريع مميزة",
+  },
+  about: {
+    leadership: "القيادة",
+  },
+  legacy: {
+    learnMore: "اعرف المزيد",
+  },
+  invest: {
+    capCalculator: "حاسبة التمويل العقاري",
+    capPathway: "مسار الاستثمار",
+    navFeatured: "المشاريع",
+    capFeatured: "مشاريع مميزة",
+    eyebrow: "استثمر في دبي",
+    heroCta: "تحدّث مع فريق الاستشارات",
+  },
+  dev: {
+    startTour: "ابدأ الجولة",
+    timeline: "الجدول الزمني",
+    milestone: "المرحلة",
+    bookViewing: "احجز معاينة",
+    explore: "استكشف",
+    overview: "نظرة عامة",
+    enquireHeading: "رتّب معاينة\nخاصة.",
+    enquireEyebrow: "استفسر",
+    enquireText: "نشارك المخططات والأسعار والوحدات المتاحة خلال لقاء واحد بموعد مسبق.",
+    registerInterest: "سجّل اهتمامك",
+  },
+  brochure: {
+    download: "حمّل الكتيّب",
+    downloadFloorPlans: "حمّل المخططات",
+    downloadPaymentPlan: "حمّل خطة الدفع",
+    requestPlan: "اطلب المخطط",
+  },
+};
+
+export default ar;

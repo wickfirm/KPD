@@ -9,8 +9,13 @@ import { loadNewsArticles, loadNewsListingCopy } from "@/lib/news-listing";
 import { loadContactDetails } from "@/lib/static-blocks";
 import { resolvePressItems, sortPressItems } from "@/lib/press-coverage";
 import { loadHiddenSections } from "@/lib/section-visibility-store";
+import { getLocale } from "@/lib/locale";
+import { t } from "@/lib/i18n";
 
-export const metadata = pageMetadata(pageSeo.news);
+/// Resolved per request, so the canonical and og:locale follow the page's language.
+export async function generateMetadata() {
+  return pageMetadata(pageSeo.news, await getLocale());
+}
 
 /// The news listing in the client-approved Option 2.1 "Gallery light" layout,
 /// rendered on the server from the published CMS articles (the delivered
@@ -18,13 +23,14 @@ export const metadata = pageMetadata(pageSeo.news);
 /// comes from Site settings → News listing; the delivered header/footer and
 /// site-cms.js stay as on every other page.
 export default async function NewsPage() {
+  const locale = await getLocale();
   const [articles, copy, contact, hidden] = await Promise.all([loadNewsArticles(), loadNewsListingCopy(), loadContactDetails(), loadHiddenSections("news")]);
   return <>
-    <JsonLd data={webPageJsonLd({ kind: "CollectionPage", name: pageSeo.news.title, description: pageSeo.news.description, path: pageSeo.news.path })} />
-    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "News", path: pageSeo.news.path }])} />
+    <JsonLd data={webPageJsonLd({ kind: "CollectionPage", name: pageSeo.news.title, description: pageSeo.news.description, path: pageSeo.news.path }, locale)} />
+    <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.news"), path: pageSeo.news.path }], locale)} />
     <DeliveredBodyClass bodyClass="home-development-page news-design-page" />
     <SiteShellHeader />
-    <NewsListingMain articles={articles} copy={copy} email={contact.email} coverage={sortPressItems(resolvePressItems(copy.coverage))} hidden={hidden} />
+    <NewsListingMain articles={articles} copy={copy} email={contact.email} coverage={sortPressItems(resolvePressItems(copy.coverage))} hidden={hidden} locale={locale} />
     <SiteShellFooter />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page" />

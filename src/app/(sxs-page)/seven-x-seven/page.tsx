@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DeliveredBodyClass } from "@/components/public/delivered-body-class";
 import { SevenXSevenFresh } from "@/components/public/sxs/SevenXSevenFresh";
 import { loadSxsContent } from "@/lib/sxs-content";
+import { getLocale, getSwitcherLocales } from "@/lib/locale";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SevenXSevenResidencePage() {
-  const content = await loadSxsContent();
-  return <><DeliveredBodyClass bodyClass="sxs-residence" /><SevenXSevenFresh content={content} /></>;
+  const [content, locale, switcherLocales] = await Promise.all([loadSxsContent(), getLocale(), getSwitcherLocales()]);
+  return <><DeliveredBodyClass bodyClass="sxs-residence" /><SevenXSevenFresh content={content} locale={locale} switcherLocales={switcherLocales} /></>;
 }

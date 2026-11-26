@@ -9,6 +9,8 @@ import { HomeDevelopmentSlider } from "./home-development-slider";
 import { sectionFilter } from "@/lib/section-visibility";
 import { homeNewsGridHtml } from "@/lib/home-news";
 import type { NewsListItem } from "@/lib/news-listing";
+import { localeHref, localizeHtmlLinks, type Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -21,7 +23,7 @@ function escapeHtml(value: string) {
 
 /// Replaces the one CMS-managed band inside the otherwise delivered static
 /// homepage tail. Values are escaped before the tail is rendered as HTML.
-function withHomeNewsHeader(staticTail: string, settings: HomeSettings, articles: readonly NewsListItem[]) {
+function withHomeNewsHeader(staticTail: string, settings: HomeSettings, articles: readonly NewsListItem[], locale: Locale) {
   const heading = settings.newsHeading?.trim() ?? "";
   const text = settings.newsText?.trim() ?? "";
   const cta = settings.newsCtaVisible === false ? "" : settings.newsCta?.trim() ?? "";
@@ -39,7 +41,7 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings, articles
   const section = heading || text || cta
     ? `<section class="${sectionClass}" id="events"><div class="pdf-contact-heading">${heading ? `<h2${textStyleAttribute(settings.newsHeadingStyle)}>${escapeHtml(heading).replaceAll("\n", "<br>")}</h2>` : ""}</div><div class="pdf-contact-copy">${position === "above" ? `${button}${copy}` : `${copy}${button}`}</div></section>`
     : "";
-  return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings, articles);
+  return withHomeNewsCards(staticTail.replace(/<section class="pdf-section pdf-events-head" id="events">[\s\S]*?<\/section>/, section), settings, articles, locale);
 }
 
 /// "Latest news" switched off: drop its heading band and card grid.
@@ -52,22 +54,22 @@ function withoutHomeNews(tail: string) {
 /// The news grid under the band: the latest published articles, newest first
 /// (see home-news.ts). No published articles removes the grid; the delivered
 /// placeholder cards never show.
-function withHomeNewsCards(tail: string, settings: HomeSettings, articles: readonly NewsListItem[]) {
+function withHomeNewsCards(tail: string, settings: HomeSettings, articles: readonly NewsListItem[], locale: Locale) {
   const grid = /<section class="pdf-section pdf-events-grid"[^>]*>[\s\S]*?<\/section>/;
-  return tail.replace(grid, homeNewsGridHtml(articles, { label: settings.newsCardLabel?.trim() || "Explore", ariaLabel: settings.newsHeading?.trim() || "Latest news" }));
+  return tail.replace(grid, homeNewsGridHtml(articles, { label: settings.newsCardLabel?.trim() || t(locale, "home.cardCta"), ariaLabel: settings.newsHeading?.trim() || t(locale, "news.latest") }));
 }
 
 /// Gallery-light hero: full-bleed media with the page headline, a supporting
 /// line, the CTA and a pause control overlaid at the bottom. The headline is
 /// the page's single <h1>; when the CMS clears the hero media it falls back
 /// into the intro so a heading always exists.
-export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headingStyle }: { video?: string; image?: string; heading?: string; text?: string; ctaLabel?: string; ctaUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"] }) {
+export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headingStyle, locale }: { video?: string; image?: string; heading?: string; text?: string; ctaLabel?: string; ctaUrl?: string; headingStyle?: HomeSettings["introHeadingStyle"]; locale: Locale }) {
   const hasContent = Boolean(heading?.trim() || text?.trim() || ctaLabel?.trim());
   return (
     <section className="pdf-section pdf-hero">
       {video
-        ? <video src={video} poster={image || undefined} autoPlay muted loop playsInline preload="auto" aria-label="KPD Experience Center presentation gallery" />
-        : image ? <img src={image} alt="KPD Experience Center presentation gallery" /> : null}
+        ? <video src={video} poster={image || undefined} autoPlay muted loop playsInline preload="auto" aria-label={t(locale, "home.heroMedia")} />
+        : image ? <img src={image} alt={t(locale, "home.heroMedia")} /> : null}
       {hasContent ? (
         <div className="pdf-hero-content">
           {heading?.trim() ? <h1 className="pdf-hero-title" style={textStyleProps(headingStyle)}>{emphasisNodes(heading)}</h1> : null}
@@ -76,7 +78,7 @@ export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headin
             <div className="pdf-hero-actions">
               {ctaLabel?.trim() ? <Link className="pdf-hero-cta" href={ctaUrl || "#developments"}>{ctaLabel} <span className="pdf-hero-arrow" aria-hidden="true">→</span></Link> : null}
               {video ? (
-                <button className="pdf-hero-toggle" type="button" data-hero-toggle aria-label="Pause video">
+                <button className="pdf-hero-toggle" type="button" data-hero-toggle aria-label={t(locale, "home.pauseVideo")}>
                   <svg className="pdf-hero-icon-pause" width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" y="1" width="3" height="12" fill="currentColor" /><rect x="8" y="1" width="3" height="12" fill="currentColor" /></svg>
                   <svg className="pdf-hero-icon-play" width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M2 1l9 6-9 6z" fill="currentColor" /></svg>
                 </button>
@@ -89,7 +91,7 @@ export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headin
   );
 }
 
-export function HomeIntro({ heading, paragraphs, headingStyle, bodyStyle, kicker, values }: { heading: string; paragraphs: string[]; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; kicker?: string; values?: HomeValue[] }) {
+export function HomeIntro({ heading, paragraphs, headingStyle, bodyStyle, kicker, values, locale }: { heading: string; paragraphs: string[]; headingStyle?: HomeSettings["introHeadingStyle"]; bodyStyle?: HomeSettings["introBodyStyle"]; kicker?: string; values?: HomeValue[]; locale: Locale }) {
   /// The headline normally lives in the hero; the parameter only fills again
   /// when the hero media is cleared, so the page keeps exactly one <h1>.
   const [statement, ...extraParagraphs] = paragraphs;
@@ -105,21 +107,23 @@ export function HomeIntro({ heading, paragraphs, headingStyle, bodyStyle, kicker
       </div>
       {values?.length ? (
         <div className="pdf-values">
-          {values.filter((value) => value.title.trim() || value.body.trim()).map((value, index) => (
-            <div className="pdf-value" key={`${value.title}-${index}`}>
-              {(value.cap ?? "Value") ? <p className="pdf-value-cap">{value.cap ?? "Value"}</p> : null}
+          {values.filter((value) => value.title.trim() || value.body.trim()).map((value, index) => {
+            /// undefined → the delivered caption, "" → no caption.
+            const cap = value.cap === undefined ? t(locale, "home.value") : value.cap;
+            return <div className="pdf-value" key={`${value.title}-${index}`}>
+              {cap ? <p className="pdf-value-cap">{cap}</p> : null}
               <h3>{value.title}</h3>
               {value.body.trim() ? <p>{value.body}</p> : null}
-            </div>
-          ))}
+            </div>;
+          })}
         </div>
       ) : null}
     </section>
   );
 }
 
-export function HomeDevelopmentText({ text, bodyStyle, position = "below" }: { text: string; bodyStyle?: HomeSettings["developmentTextStyle"]; position?: "above" | "below" }) {
-  return <section className={`pdf-section pdf-development-text pdf-development-text--${position}`} aria-label="Our development standard"><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
+export function HomeDevelopmentText({ text, bodyStyle, position = "below", locale }: { text: string; bodyStyle?: HomeSettings["developmentTextStyle"]; position?: "above" | "below"; locale: Locale }) {
+  return <section className={`pdf-section pdf-development-text pdf-development-text--${position}`} aria-label={t(locale, "home.developmentStandard")}><p style={textStyleProps(bodyStyle)}>{multiline(text)}</p></section>;
 }
 
 /// "$7.69B" -> { main: "$7.69", suffix: "B" }. The suffix renders beside the
@@ -133,12 +137,12 @@ function splitStatValue(value: string): { main: string; suffix: string } {
 /// Gallery-light numbers band: the first CMS figure is the large headline
 /// number, the rest form the breakdown columns beside it. The band keeps the
 /// pdf-stat classes so the delivered count-up and reveal animations bind.
-export function HomeNumbers({ kicker, stats, note, noteUrl, valueStyle, labelStyle }: { kicker?: string; stats: StatItem[]; note: string; noteUrl?: string; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"] }) {
+export function HomeNumbers({ kicker, stats, note, noteUrl, valueStyle, labelStyle, locale }: { kicker?: string; stats: StatItem[]; note: string; noteUrl?: string; valueStyle?: HomeSettings["statsValueStyle"]; labelStyle?: HomeSettings["statsLabelStyle"]; locale: Locale }) {
   const [headline, ...legend] = stats;
   if (!headline && !note.trim()) return null;
   const headlineValue = splitStatValue(headline?.value ?? "");
   return (
-    <section className="pdf-section pdf-numbers" id="numbers" aria-label="Kasumigaseki Capital figures">
+    <section className="pdf-section pdf-numbers" id="numbers" aria-label={t(locale, "home.figures")}>
       <div className="pdf-numbers-inner">
         <div className="pdf-numbers-head">
           {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
@@ -169,18 +173,19 @@ export function HomeNumbers({ kicker, stats, note, noteUrl, valueStyle, labelSty
   );
 }
 
-export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible = true }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean }) {
+export function HomeDevelopmentCards({ cards, ctaLabel, ctaVisible = true, locale }: { cards: DevelopmentCard[]; ctaLabel?: string; ctaVisible?: boolean; locale: Locale }) {
   if (!cards.length) return null;
+  const label = ctaLabel ?? t(locale, "home.cardCta");
   const countClass = cards.length < 3 ? ` pdf-development-cards--count-${cards.length}` : "";
   return (
-    <section className={`pdf-section pdf-development-cards${countClass}`} id="development-cards" aria-label="Our developments">
+    <section className={`pdf-section pdf-development-cards${countClass}`} id="development-cards" aria-label={t(locale, "home.developments")}>
       {cards.map((card, index) => (
         <a className="pdf-dev-card" href={card.href} key={`${card.href}-${index}`}>
           {card.image ? <img src={card.image} alt={card.title} /> : null}
           <div className="pdf-dev-card-body">
             <h3>{card.title}</h3>
             <p>{card.copy}</p>
-            {ctaVisible && ctaLabel ? <span>{ctaLabel}</span> : null}
+            {ctaVisible && label ? <span>{label}</span> : null}
           </div>
         </a>
       ))}
@@ -188,7 +193,7 @@ export function HomeDevelopmentCards({ cards, ctaLabel = "Explore", ctaVisible =
   );
 }
 
-export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle, kicker }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"]; kicker?: string }) {
+export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, bodyStyle, kicker, locale }: { heading: string; text: string; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: HomeSettings["contactHeadingStyle"]; bodyStyle?: HomeSettings["contactBodyStyle"]; kicker?: string; locale: Locale }) {
   return (
     <section className="pdf-section pdf-contact-block" id="contact">
       <div className="pdf-contact-heading">
@@ -197,7 +202,7 @@ export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible =
       </div>
       <div className="pdf-contact-copy">
         <p style={textStyleProps(bodyStyle)}>{multiline(text)}</p>
-        {ctaVisible && ctaLabel ? <Link href={ctaUrl || "/contact#experience-center"}>{ctaLabel} <span className="pdf-contact-arrow" aria-hidden="true">→</span></Link> : null}
+        {ctaVisible && ctaLabel ? <Link href={localeHref(ctaUrl || "/contact#experience-center", locale)}>{ctaLabel} <span className="pdf-contact-arrow" aria-hidden="true">→</span></Link> : null}
       </div>
     </section>
   );
@@ -209,21 +214,21 @@ export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible =
 /// same count, so CMS images replace all five together. Gallery-light batch 4
 /// adds the "01 / 05" index and the caption + "View" label bar; the delivered
 /// hover/active accordion and lightbox bindings are untouched.
-export function HomeExperienceGallery({ images, captions }: { images?: string[]; captions?: string[] }) {
+export function HomeExperienceGallery({ images, captions, locale }: { images?: string[]; captions?: string[]; locale: Locale }) {
   const panels: GalleryPanel[] = images?.length === 5
     ? images.map((image, index) => ({ key: `cms-${index + 1}`, image, caption: captions?.[index]?.trim() ?? "" }))
     : [];
   if (!panels.length) return null;
   const total = String(panels.length).padStart(2, "0");
   return (
-    <section className="pdf-section pdf-vertical-gallery pdf-gallery-flex" id="experience-center" aria-label="Experience Center gallery" data-gallery-flex>
+    <section className="pdf-section pdf-vertical-gallery pdf-gallery-flex" id="experience-center" aria-label={t(locale, "home.gallery")} data-gallery-flex>
       {panels.map((panel, index) => (
         <button className="pdf-gallery-panel" type="button" data-gallery-panel={panel.key} data-lightbox-src={panel.image} data-lightbox-caption={panel.caption} key={panel.key}>
           <img src={panel.image} alt={panel.caption} />
           <span className="pdf-gallery-index" aria-hidden="true">{String(index + 1).padStart(2, "0")} / {total}</span>
           <span className="pdf-gallery-lab" aria-hidden="true">
             <span>{panel.caption}</span>
-            <span>View ↗</span>
+            <span>{t(locale, "home.view")}</span>
           </span>
         </button>
       ))}
@@ -233,9 +238,11 @@ export function HomeExperienceGallery({ images, captions }: { images?: string[];
 
 /// The homepage <main>: CMS content is authoritative. The delivered static
 /// tail only supplies structural markup; editable text is replaced above.
-export function HomeMain({ settings, staticTail, developmentCards, hidden, newsArticles = [] }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[]; hidden?: readonly string[]; newsArticles?: readonly NewsListItem[] }) {
+export function HomeMain({ settings, staticTail, developmentCards, hidden, newsArticles = [], locale }: { settings: HomeSettings; staticTail: string; developmentCards: DevelopmentCard[]; hidden?: readonly string[]; newsArticles?: readonly NewsListItem[]; locale: Locale }) {
   /// Sections the editor switched off under "Sections on this page".
   const shown = sectionFilter(hidden);
+  /// The editor's links follow the page's language; other addresses are left alone.
+  const href = (path: string) => localeHref(path, locale);
   const introParagraphs = settings.introParagraphs?.filter(Boolean) ?? [];
   const introStats = settings.introStats ?? [];
   const bannerSlides = settings.bannerSlides ?? [];
@@ -255,17 +262,18 @@ export function HomeMain({ settings, staticTail, developmentCards, hidden, newsA
   const headingInHero = Boolean(heroMedia && heroHeading.trim());
   const heroText = settings.heroText ?? homeDefaults.heroText;
   const heroCtaLabel = settings.heroCtaLabel ?? homeDefaults.heroCtaLabel;
-  const heroCtaUrl = settings.heroCtaUrl ?? homeDefaults.heroCtaUrl;
+  const heroCtaUrl = href(settings.heroCtaUrl ?? homeDefaults.heroCtaUrl);
   return (
     <main className="development-pdf-home" id="top">
-      {shown("hero") && heroMedia ? <HomeHero video={hero.video} image={hero.image} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} /> : null}
-      {shown("intro") && hasIntroduction ? <HomeIntro heading={headingInHero && shown("hero") ? "" : heroHeading} paragraphs={introParagraphs} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} kicker={introKicker} values={introValues} /> : null}
-      {shown("numbers") && hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} /> : null}
-      {!shown("developments") ? null : bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || "View all developments"} ctaUrl={settings.developmentCtaUrl} ctaVisible={settings.developmentCtaVisible !== false} headingStyle={textStyleProps(settings.developmentHeadingStyle)} kicker={settings.developmentKicker ?? homeDefaults.developmentKicker} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} /> : null}
-      {shown("cards") ? <HomeDevelopmentCards cards={developmentCards} ctaLabel={settings.cardCtaLabel || "Explore"} ctaVisible={settings.cardCtaVisible !== false} /> : null}
-      {shown("contact") && hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || "Book a visit"} ctaUrl={settings.contactCtaUrl} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={settings.contactKicker ?? homeDefaults.contactKicker} /> : null}
-      {shown("gallery") ? <HomeExperienceGallery images={experienceImages.filter(Boolean)} captions={experienceCaptions} /> : null}
-      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: htmlLf(shown("news") ? withHomeNewsHeader(staticTail, settings, newsArticles) : withoutHomeNews(staticTail)) }} />
+      {shown("hero") && heroMedia ? <HomeHero video={hero.video} image={hero.image} heading={heroHeading} text={heroText} ctaLabel={heroCtaLabel} ctaUrl={heroCtaUrl} headingStyle={settings.introHeadingStyle} locale={locale} /> : null}
+      {shown("intro") && hasIntroduction ? <HomeIntro heading={headingInHero && shown("hero") ? "" : heroHeading} paragraphs={introParagraphs} headingStyle={settings.introHeadingStyle} bodyStyle={settings.introBodyStyle} kicker={introKicker} values={introValues} locale={locale} /> : null}
+      {shown("numbers") && hasNumbers ? <HomeNumbers kicker={settings.statsKicker ?? homeDefaults.statsKicker} stats={introStats} note={settings.statsNote ?? ""} noteUrl={settings.statsNoteUrl ? href(settings.statsNoteUrl) : undefined} valueStyle={settings.statsValueStyle} labelStyle={settings.statsLabelStyle} locale={locale} /> : null}
+      {!shown("developments") ? null : bannerSlides.length ? <HomeDevelopmentSlider heading={settings.developmentHeading ?? ""} bannerText={settings.developmentBannerText === undefined ? homeDefaults.developmentBannerText : settings.developmentBannerText} slides={bannerSlides} ctaLabel={settings.developmentCtaLabel || t(locale, "nav.viewAllDevelopments")} ctaUrl={settings.developmentCtaUrl ? href(settings.developmentCtaUrl) : undefined} ctaVisible={settings.developmentCtaVisible !== false} headingStyle={textStyleProps(settings.developmentHeadingStyle)} kicker={settings.developmentKicker ?? homeDefaults.developmentKicker} caption={settings.developmentText} captionVisible={settings.developmentTextVisible === true} captionPosition={settings.developmentTextPosition === "above" ? "above" : "below"} captionStyle={textStyleProps(settings.developmentTextStyle)} locale={locale} /> : settings.developmentTextVisible && settings.developmentText?.trim() ? <HomeDevelopmentText text={settings.developmentText} bodyStyle={settings.developmentTextStyle} position={settings.developmentTextPosition === "above" ? "above" : "below"} locale={locale} /> : null}
+      {shown("cards") ? <HomeDevelopmentCards cards={developmentCards.map((card) => ({ ...card, href: href(card.href) }))} ctaLabel={settings.cardCtaLabel || t(locale, "home.cardCta")} ctaVisible={settings.cardCtaVisible !== false} locale={locale} /> : null}
+      {shown("contact") && hasContact ? <HomeContactBlock heading={settings.contactHeading ?? ""} text={settings.contactText ?? ""} ctaLabel={settings.contactCtaLabel || t(locale, "home.contactCta")} ctaUrl={settings.contactCtaUrl || undefined} ctaVisible={settings.contactCtaVisible !== false} headingStyle={settings.contactHeadingStyle} bodyStyle={settings.contactBodyStyle} kicker={settings.contactKicker ?? homeDefaults.contactKicker} locale={locale} /> : null}
+      {shown("gallery") ? <HomeExperienceGallery images={experienceImages.filter(Boolean)} captions={experienceCaptions} locale={locale} /> : null}
+      {/* The tail is one block of HTML (delivered bands, the news CTA and cards): its links are localised in one pass. */}
+      <div className="pdf-static-tail" dangerouslySetInnerHTML={{ __html: localizeHtmlLinks(htmlLf(shown("news") ? withHomeNewsHeader(staticTail, settings, newsArticles, locale) : withoutHomeNews(staticTail)), locale) }} />
     </main>
   );
 }
