@@ -5,7 +5,7 @@ import { textStyleProps } from "@/lib/text-style";
 import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { LegacyTimelineRail } from "./legacy-timeline-rail";
-import { localeHref, type Locale } from "@/lib/locales";
+import { localeHref, type Locale, arrowGlyph } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -71,7 +71,7 @@ export function LegacyMain({ content, hidden, locale }: { content: LegacyContent
               {lede ? <p className="g21-lede" style={textStyleProps(content.textStyle)}>{multiline(lede)}</p> : null}
               <div className="g21-ctas">
                 {firstYear && startLabel ? <a className="g21-btn" href={`#${firstYear.anchor}`}>{startLabel.replaceAll("{year}", firstYear.year)} <span className="g21-ar g21-ar--down" aria-hidden="true">↓</span></a> : null}
-                {mapLabel && mapUrl ? <ButtonLink className="g21-btn g21-btn--line" href={mapUrl}>{mapLabel} <span className="g21-ar" aria-hidden="true">↗</span></ButtonLink> : null}
+                {mapLabel && mapUrl ? <ButtonLink className="g21-btn g21-btn--line" href={mapUrl}>{mapLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "↗")}</span></ButtonLink> : null}
               </div>
             </div>
           </div>
@@ -119,7 +119,7 @@ export function LegacyMain({ content, hidden, locale }: { content: LegacyContent
           <h2 id="g21-history-band-title">{emphasisNodes(bandHeading)}</h2>
           {bandText ? <p>{multiline(bandText)}</p> : null}
           {learnVisible || bandLinkLabel ? <div className="g21-ctas">
-            {learnVisible ? <ButtonLink className="g21-btn g21-btn--white" href={href(content.ctaUrl as string)}>{learnLabel} <span className="g21-ar" aria-hidden="true">↗</span></ButtonLink> : null}
+            {learnVisible ? <ButtonLink className="g21-btn g21-btn--white" href={href(content.ctaUrl as string)}>{learnLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "↗")}</span></ButtonLink> : null}
             {bandLinkLabel ? <ButtonLink className="g21-btn g21-btn--ghost" href={bandLinkUrl}>{bandLinkLabel}</ButtonLink> : null}
           </div> : null}
         </div>

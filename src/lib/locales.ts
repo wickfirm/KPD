@@ -33,6 +33,15 @@ export function isRtl(locale: Locale): boolean {
   return locale === "ar";
 }
 
+const mirroredGlyphs: Record<string, string> = { "→": "←", "←": "→", "↗": "↖", "↘": "↙" };
+
+/// An arrow as it points the way the text reads: a forward arrow on an Arabic
+/// page points left, and one that leaves the page keeps its tilt. A down
+/// arrow is its own mirror, and English pages get the glyph as it was written.
+export function arrowGlyph(locale: Locale, glyph: string): string {
+  return isRtl(locale) ? (mirroredGlyphs[glyph] ?? glyph) : glyph;
+}
+
 /// A URL path split into its language and the route that renders it:
 /// "/ar/about" → { locale: "ar", path: "/about" }; "/about" and "/archive"
 /// → { locale: "en", path: <unchanged> }.

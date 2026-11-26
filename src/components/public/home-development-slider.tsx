@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BannerSlide } from "@/lib/home-defaults";
 import type { TextStyle } from "@/lib/text-style";
-import type { Locale } from "@/lib/locales";
+import { arrowGlyph, type Locale } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 
 /// The delivered script runs before React has hydrated on some homepage loads.
@@ -43,7 +43,7 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
             {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
             <h2 style={headingStyle}>{multiline(heading)}</h2>
           </div>
-          <Link className="pdf-dev-all" href={ctaUrl || "/#development-cards"}>{t(locale, "nav.allDevelopments")} <span className="pdf-dev-all-arrow" aria-hidden="true">→</span></Link>
+          <Link className="pdf-dev-all" href={ctaUrl || "/#development-cards"}>{t(locale, "nav.allDevelopments")} <span className="pdf-dev-all-arrow" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link>
         </div>
         <div className="pdf-dev-frame">
           <div className="pdf-development-slides" aria-hidden="true">
@@ -55,7 +55,7 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
           <div className="pdf-development-content">
             {active?.label?.trim() ? <h2 className="pdf-dev-card-title">{active.label}</h2> : null}
             {shownText ? <p>{multiline(shownText)}</p> : null}
-            {ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel} <span className="pdf-dev-btn-arrow" aria-hidden="true">→</span></Link> : null}
+            {ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel} <span className="pdf-dev-btn-arrow" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link> : null}
             <div className="pdf-development-dots" aria-label={t(locale, "home.chooseSlide")}>
               {slides.map((slide, index) => (
                 <button className={index === activeIndex ? "active" : undefined} type="button" onClick={() => setActiveIndex(index)} aria-label={t(locale, "home.showSlide", { label: slide.label })} aria-pressed={index === activeIndex} key={`${slide.label}-${index}`} />

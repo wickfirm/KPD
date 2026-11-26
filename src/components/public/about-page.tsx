@@ -5,7 +5,7 @@ import { textStyleProps } from "@/lib/text-style";
 import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { splitLead, valueCard } from "@/lib/about-layout";
-import { localeHref, type Locale } from "@/lib/locales";
+import { localeHref, type Locale, arrowGlyph } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -88,7 +88,7 @@ export function AboutMain({ content, hidden, locale }: { content: AboutContent; 
             <div>
               {heroText ? <p className="g21-lede" style={textStyleProps(content.heroTextStyle)}>{multiline(heroText)}</p> : null}
               {heroCtaLabel || heroSecondaryLabel ? <div className="g21-ctas">
-                {heroCtaLabel ? <ButtonLink className="g21-btn" href={heroCtaUrl}>{heroCtaLabel} <span className="g21-ar" aria-hidden="true">→</span></ButtonLink> : null}
+                {heroCtaLabel ? <ButtonLink className="g21-btn" href={heroCtaUrl}>{heroCtaLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></ButtonLink> : null}
                 {heroSecondaryLabel ? (heroSecondaryUrl
                   ? <ButtonLink className="g21-btn g21-btn--line" href={heroSecondaryUrl}>{heroSecondaryLabel}</ButtonLink>
                   : <button className="g21-btn g21-btn--line" type="button" data-booking-open="">{heroSecondaryLabel}</button>) : null}
@@ -173,7 +173,7 @@ export function AboutMain({ content, hidden, locale }: { content: AboutContent; 
           <h2 id="g21-visit-title">{emphasisNodes(visitHeading)}</h2>
           {visitText ? <p>{multiline(visitText)}</p> : null}
           {visitCtaLabel || visitLinkLabel ? <div className="g21-ctas">
-            {visitCtaLabel ? <button className="g21-btn g21-btn--white" type="button" data-booking-open="">{visitCtaLabel} <span className="g21-ar" aria-hidden="true">→</span></button> : null}
+            {visitCtaLabel ? <button className="g21-btn g21-btn--white" type="button" data-booking-open="">{visitCtaLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></button> : null}
             {visitLinkLabel ? <ButtonLink className="g21-btn g21-btn--ghost" href={visitLinkUrl}>{visitLinkLabel}</ButtonLink> : null}
           </div> : null}
         </div>

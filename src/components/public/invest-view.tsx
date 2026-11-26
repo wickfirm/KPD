@@ -11,7 +11,7 @@ import { emphasisNodes } from "@/lib/emphasis";
 import { sectionFilter } from "@/lib/section-visibility";
 import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { getLocale } from "@/lib/locale";
-import { localeHref, type Locale } from "@/lib/locales";
+import { localeHref, type Locale, arrowGlyph } from "@/lib/locales";
 import { t, type MessageKey } from "@/lib/i18n";
 
 export type InvestHero = { type?: string; eyebrow?: string; heading?: string; text?: string; image?: string; ctaLabel?: string; ctaUrl?: string; headingStyle?: TextStyle; textStyle?: TextStyle };
@@ -71,7 +71,7 @@ function Split({ panel, id, reverse, cap, buttonClass, alt, locale }: { panel: P
     {panel.heading ? <h2 id={id} style={textStyleProps(panel.headingStyle)}>{emphasisNodes(panel.heading)}</h2> : null}
     {panel.text ? <p className="g21-muted" style={textStyleProps(panel.textStyle)}>{multiline(panel.text)}</p> : null}
     <Ticks items={panel.cards} stop={stop} />
-    {panel.ctaVisible === false || !panel.button ? null : <Cta url={panel.ctaUrl} className={buttonClass} locale={locale}>{panel.button} <span className="g21-ar" aria-hidden="true">→</span></Cta>}
+    {panel.ctaVisible === false || !panel.button ? null : <Cta url={panel.ctaUrl} className={buttonClass} locale={locale}>{panel.button} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Cta>}
   </div>;
   const image = panel.image ? <figure className={`g21-ph${reverse ? " g21-ph--tall" : ""}`}><img src={panel.image} alt={alt} loading="lazy" /></figure> : null;
   return <div className={`g21-split${reverse ? " g21-split--rev" : ""}${image ? "" : " g21-split--solo"}`}>{reverse ? <>{copy}{image}</> : <>{image}{copy}</>}</div>;
@@ -148,7 +148,7 @@ export async function InvestView({ hero, saved, previewNote }: { hero?: InvestHe
       <div className="g21-wrap">
         <SecTop id="g21-path-title" cap={investLabel(c.labels, "pathway")} heading={c.pathway.heading} text={c.pathway.text} headingStyle={c.pathway.headingStyle} textStyle={c.pathway.textStyle} />
         {c.pathway.steps.length ? <ol className="g21-path">{c.pathway.steps.map((step, index) => <li key={`${step.title}-${index}`}><b>{index + 1}</b><h3>{step.title}</h3><p>{step.text}</p></li>)}</ol> : null}
-        {c.pathway.button ? <button className="g21-btn g21-path-cta" type="button" data-booking-open>{c.pathway.button} <span className="g21-ar" aria-hidden="true">→</span></button> : null}
+        {c.pathway.button ? <button className="g21-btn g21-path-cta" type="button" data-booking-open>{c.pathway.button} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></button> : null}
       </div>
     </section>,
 
@@ -174,7 +174,7 @@ export async function InvestView({ hero, saved, previewNote }: { hero?: InvestHe
             <figure className="g21-ph">{item.image ? <img src={item.image} alt={t(locale, "invest.cardAlt", { title: item.title })} loading="lazy" /> : null}</figure>
             <h3>{item.title}</h3>
             {item.copy ? <p className="g21-muted">{item.copy}</p> : null}
-            <span className="g21-txt-link">{investLabel(c.labels, "featuredCta")} <span aria-hidden="true">→</span></span>
+            <span className="g21-txt-link">{investLabel(c.labels, "featuredCta")} <span aria-hidden="true">{arrowGlyph(locale, "→")}</span></span>
           </Link>)}
         </div>
       </div>
@@ -207,7 +207,7 @@ export async function InvestView({ hero, saved, previewNote }: { hero?: InvestHe
             <div>
               {lede ? <p className="g21-lede" style={textStyleProps(hero?.textStyle)}>{multiline(lede)}</p> : null}
               <div className="g21-ctas">
-                <Cta url={hero?.ctaUrl?.trim() || undefined} className="g21-btn" locale={locale}>{hero?.ctaLabel?.trim() || t(locale, "invest.heroCta")} <span className="g21-ar" aria-hidden="true">→</span></Cta>
+                <Cta url={hero?.ctaUrl?.trim() || undefined} className="g21-btn" locale={locale}>{hero?.ctaLabel?.trim() || t(locale, "invest.heroCta")} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Cta>
                 {visible.includes("calculator") ? <a className="g21-btn g21-btn--line" href="#calculator">{investLabel(c.labels, "calculatorButton")}</a> : null}
               </div>
             </div>
@@ -233,7 +233,7 @@ export async function InvestView({ hero, saved, previewNote }: { hero?: InvestHe
           <h2 id="g21-invest-band-title">{emphasisNodes(c.contact.heading)}</h2>
           {c.contact.text ? <p>{multiline(c.contact.text)}</p> : null}
           {c.contact.primaryLabel || c.contact.secondaryLabel ? <div className="g21-ctas">
-            {c.contact.primaryLabel ? <button className="g21-btn g21-btn--white" type="button" data-booking-open>{c.contact.primaryLabel} <span className="g21-ar" aria-hidden="true">→</span></button> : null}
+            {c.contact.primaryLabel ? <button className="g21-btn g21-btn--white" type="button" data-booking-open>{c.contact.primaryLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></button> : null}
             {c.contact.secondaryLabel ? <Link className="g21-btn g21-btn--ghost" href={localeHref("/contact", locale)}>{c.contact.secondaryLabel}</Link> : null}
           </div> : null}
         </div>
