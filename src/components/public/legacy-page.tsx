@@ -5,6 +5,8 @@ import { textStyleProps } from "@/lib/text-style";
 import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { LegacyTimelineRail } from "./legacy-timeline-rail";
+import { localeHref, type Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -26,9 +28,11 @@ function ButtonLink({ href, className, children }: { href: string; className: st
 /// Option 2.1 "Gallery light" layout over the same CMS timeline. Classes are
 /// g21-prefixed and every rule is scoped under main.g21 (redesign-pages.css),
 /// so the delivered timeline script and styles no longer touch this page.
-export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden?: readonly string[] }) {
+export function LegacyMain({ content, hidden, locale }: { content: LegacyContent; hidden?: readonly string[]; locale: Locale }) {
   /// Sections the editor switched off under "Sections on this page".
   const shown = sectionFilter(hidden);
+  /// Internal links follow the page's language; other addresses are left alone.
+  const href = (path: string) => localeHref(path, locale);
   const heading = content.heading ?? "";
   const lede = content.text?.trim() ? content.text : pick(content, "lede");
   const image = content.image ?? "";
@@ -41,11 +45,11 @@ export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden
   const years = milestones.map((item, index) => ({ year: (item.year ?? "").trim(), anchor: anchors[index] }))
     .filter((entry, index, all) => entry.year && all.findIndex((other) => other.year === entry.year) === index);
   const firstYear = years[0];
-  const mapUrl = content.ctaUrl ?? "https://map.kasumigaseki.ae/";
+  const mapUrl = href(content.ctaUrl ?? "https://map.kasumigaseki.ae/");
   const mapLabel = pick(content, "mapLabel");
   const startLabel = pick(content, "startLabel");
   const learnVisible = content.ctaVisible !== false && Boolean(content.ctaUrl);
-  const learnLabel = content.ctaLabel || "Learn more";
+  const learnLabel = content.ctaLabel || t(locale, "legacy.learnMore");
   const nameKicker = pick(content, "nameKicker");
   const nameHeading = pick(content, "nameHeading");
   const nameText = pick(content, "nameText").split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean);
@@ -54,13 +58,13 @@ export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden
   const bandText = pick(content, "bandText");
   const bandImage = pick(content, "bandImage");
   const bandLinkLabel = pick(content, "bandLinkLabel");
-  const bandLinkUrl = pick(content, "bandLinkUrl") || "/about";
+  const bandLinkUrl = href(pick(content, "bandLinkUrl") || "/about");
 
   return (
     <main className="legacy-main g21" id="top">
       {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-history-title">
         <div className="g21-wrap">
-          <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><Link href="/about">About</Link><span aria-hidden="true">/</span><span aria-current="page">{content.eyebrow || "History"}</span></nav>
+          <nav className="g21-crumbs g21-cap" aria-label={t(locale, "breadcrumb.label")}><Link href={href("/")}>{t(locale, "nav.home")}</Link><span aria-hidden="true">/</span><Link href={href("/about")}>{t(locale, "nav.about")}</Link><span aria-hidden="true">/</span><span aria-current="page">{content.eyebrow || t(locale, "nav.history")}</span></nav>
           <div className="g21-title">
             <h1 id="g21-history-title" style={textStyleProps(content.headingStyle)}>{emphasisNodes(heading)}</h1>
             <div>
@@ -71,7 +75,7 @@ export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden
               </div>
             </div>
           </div>
-          {image ? <figure className="g21-hero-img"><img src={image} alt="Tokyo alleyway and Japanese hospitality context" style={{ objectPosition: "50% 45%" }} /></figure> : null}
+          {image ? <figure className="g21-hero-img"><img src={image} alt={t(locale, "legacy.imageAlt")} style={{ objectPosition: "50% 45%" }} /></figure> : null}
         </div>
       </section> : null}
 
@@ -84,17 +88,17 @@ export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden
       </section> : null}
 
       {shown("timeline") && milestones.length ? <>
-        {years.length > 1 ? <nav className="g21-subnav" aria-label="Years"><div className="g21-wrap g21-subnav-in">
+        {years.length > 1 ? <nav className="g21-subnav" aria-label={t(locale, "legacy.years")}><div className="g21-wrap g21-subnav-in">
           {years.map((entry) => <a key={entry.anchor} href={`#${entry.anchor}`}>{entry.year}</a>)}
         </div></nav> : null}
         <section className="g21-pad g21-tl-sec" id="legacy-timeline" aria-labelledby="g21-tl-title">
           <div className="g21-wrap g21-tl">
-            <LegacyTimelineRail firstYear={(milestones[0].year ?? "").trim()} />
+            <LegacyTimelineRail firstYear={(milestones[0].year ?? "").trim()} locale={locale} />
             <div>
-              <h2 className="g21-sr" id="g21-tl-title">Timeline</h2>
+              <h2 className="g21-sr" id="g21-tl-title">{t(locale, "dev.timeline")}</h2>
               <ol className="g21-ms-list">
                 {milestones.map((milestone, index) => <li key={index} id={anchors[index]} data-year={(milestone.year ?? "").trim()} className={index === milestones.length - 1 ? "is-now" : undefined}>
-                  <figure className="g21-ms-img">{milestone.image ? <img src={milestone.image} alt={milestone.title || `Milestone ${milestone.year ?? ""}`} loading="lazy" /> : null}</figure>
+                  <figure className="g21-ms-img">{milestone.image ? <img src={milestone.image} alt={milestone.title || t(locale, "legacy.milestoneAlt", { year: milestone.year ?? "" })} loading="lazy" /> : null}</figure>
                   <div>
                     {milestone.year ? <span className="g21-yr">{milestone.year}</span> : null}
                     {milestone.title ? <h3>{milestone.title}</h3> : null}
@@ -115,7 +119,7 @@ export function LegacyMain({ content, hidden }: { content: LegacyContent; hidden
           <h2 id="g21-history-band-title">{emphasisNodes(bandHeading)}</h2>
           {bandText ? <p>{multiline(bandText)}</p> : null}
           {learnVisible || bandLinkLabel ? <div className="g21-ctas">
-            {learnVisible ? <ButtonLink className="g21-btn g21-btn--white" href={content.ctaUrl as string}>{learnLabel} <span className="g21-ar" aria-hidden="true">↗</span></ButtonLink> : null}
+            {learnVisible ? <ButtonLink className="g21-btn g21-btn--white" href={href(content.ctaUrl as string)}>{learnLabel} <span className="g21-ar" aria-hidden="true">↗</span></ButtonLink> : null}
             {bandLinkLabel ? <ButtonLink className="g21-btn g21-btn--ghost" href={bandLinkUrl}>{bandLinkLabel}</ButtonLink> : null}
           </div> : null}
         </div>

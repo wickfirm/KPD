@@ -1,0 +1,50 @@
+/* ── Japanese ─────────────────────────────────────────────────────────────────
+   Loaded by the root layout only for pages in Japanese (<html lang="ja">),
+   after every other stylesheet, together with the font's own stylesheet
+   (public/fonts/noto-sans-jp/wght.css, copied unmodified from the font
+   package). English and Arabic pages never request either file.
+
+   The delivered site.css is untouched. Its font rules all read var(--font-main)
+   and public.css sets that variable and one direct "Manrope" rule, so the
+   Japanese face joins the main stack by re-declaring those two, here.
+
+   The face is provisional until the client approves it: Noto Sans JP. It ships
+   as 120 character slices, and a browser downloads only the slices a page
+   uses. Latin letters and digits still come from Manrope. */
+
+html[lang="ja"] body {
+  font-family: "Manrope", "Noto Sans JP Variable", "Helvetica Neue", Arial, sans-serif;
+}
+html[lang="ja"] body.home-development-page {
+  --font-main: "Manrope", "Noto Sans JP Variable", "Helvetica Neue", Arial, sans-serif;
+}
+html[lang="ja"] .home-development-page :where(:not(i):not(.fi):not([class^="fi-"]):not([class*=" fi-"]):not(.uicon)) {
+  font-family: "Manrope", "Noto Sans JP Variable", sans-serif;
+}
+
+/* Japanese text: no tracking, no italics, and lines that break only where the
+   script allows. Body copy gets the roomier leading Japanese is set with;
+   display headings keep the design's tighter leading. The delivered rules and
+   the editor's saved line heights out-rank a plain override, and this file
+   only loads on Japanese pages. */
+html[lang="ja"] body {
+  word-break: normal;
+  line-break: strict;
+}
+html[lang="ja"] :where(body *) {
+  letter-spacing: 0 !important;
+}
+html[lang="ja"] :where(body :is(p, li, dd, dt, figcaption, blockquote, td, th)) {
+  line-height: 1.8 !important;
+}
+html[lang="ja"] :where(body :is(em, i, cite, dfn, var, address, blockquote, q)) {
+  font-style: normal !important;
+}
+
+/* The seven x seven landing sets its own display faces, Arboria and Bely
+   Display, which have no Japanese glyphs. On that page, in Japanese, every
+   face gives way to the main stack. */
+html[lang="ja"] body.sxs-residence,
+html[lang="ja"] body.sxs-residence * {
+  font-family: "Manrope", "Noto Sans JP Variable", sans-serif !important;
+}

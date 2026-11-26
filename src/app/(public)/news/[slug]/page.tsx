@@ -7,6 +7,8 @@ import { db } from "@/lib/db";
 import { ArticleView } from "@/components/public/article-view";
 import { loadSeoOverride } from "@/lib/seo-store";
 import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
+import { getLocale } from "@/lib/locale";
+import { t } from "@/lib/i18n";
 
 export const revalidate = 300;
 
@@ -33,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     type: "article",
     publishedTime: article.publishedAt?.toISOString(),
     modifiedTime: article.updatedAt.toISOString(),
-  });
+  }, await getLocale());
 }
 
 /// The article detail page serves the delivered news-article.html structure
@@ -42,10 +44,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 /// the HTML - no empty flash, no client dependency.
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const locale = await getLocale();
   const article = await getPublishedArticle(slug);
   if (!article) notFound();
   return <>
-    <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "News", path: "/news" }, { name: article.title, path: `/news/${article.slug}` }])} />
+    <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.news"), path: "/news" }, { name: article.title, path: `/news/${article.slug}` }], locale)} />
     <ArticleView article={article} />
   </>;
 }

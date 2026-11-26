@@ -19,6 +19,8 @@ import {
   FaUmbrellaBeach,
   FaWaterLadder,
 } from "react-icons/fa6";
+import { localeHref, type Locale } from "@/lib/locales";
+import { LanguageSwitcher } from "../language-switcher";
 
 type MediaItem = { src: string; alt: string; label?: string; position?: string };
 type NavigationItem = { id: string; label: string; progress: number };
@@ -39,6 +41,8 @@ type Milestone = { percent: number; title: string; detail: string; phase: string
 
 export type MobilePublicSiteProps = {
   preview: boolean;
+  locale: Locale;
+  switcherLocales: Locale[];
   heroScenes: MediaItem[];
   heroIndex: number;
   onHeroChange: (index: number) => void;
@@ -213,6 +217,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
             </a>
           ))}
         </nav>
+        {props.switcherLocales.length ? <LanguageSwitcher locale={props.locale} published={props.switcherLocales} variant="overlay" /> : null}
       </div>
 
       {props.menuTransitioning ? <div className="mobile-anchor-loader" role="status"><img src={props.markWhite ?? "/assets/brand/s-mark-white.png"} alt="" /></div> : null}
@@ -322,12 +327,12 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
         <div className="mobile-contact-shade" />
         <form onSubmit={(event) => props.onSubmitLead(event, "Footer form")}>
           <p>{props.registerHeadline}</p><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead" aria-label="I am interested in">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit" disabled={props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting"}>{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "submitting" ? "sending" : props.submitCta}</button>
-          {props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "success" ? <small role="status">Thank you. Your enquiry has been received.</small> : null}{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "error" ? <small role="alert">We could not submit your enquiry. Please try again.</small> : null}<small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small>
+          {props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "success" ? <small role="status">Thank you. Your enquiry has been received.</small> : null}{props.leadSubmission.source === "Footer form" && props.leadSubmission.state === "error" ? <small role="alert">We could not submit your enquiry. Please try again.</small> : null}<small>{props.consentCopy} <a href={localeHref("/privacy-policy", props.locale)}>privacy policy</a>.</small>
         </form>
-        <div className="mobile-contact-brand"><img src={props.logo ?? "/assets/brand/logo-stacked-white.png"} alt="seven x seven" /><p>{props.footerBody}</p><small>{props.footerCopyright}</small></div>
+        <div className="mobile-contact-brand"><img src={props.logo ?? "/assets/brand/logo-stacked-white.png"} alt="seven x seven" /><p>{props.footerBody}</p><small>{props.footerCopyright}</small>{props.switcherLocales.length ? <LanguageSwitcher locale={props.locale} published={props.switcherLocales} variant="footer" /> : null}</div>
       </footer>
 
-      {props.modalOpen ? <div className="mobile-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) props.onModalClose(); }}><div><button className="mobile-modal-close" type="button" aria-label="Close registration form" onClick={props.onModalClose}><X /></button><form onSubmit={(event) => props.onSubmitLead(event, "Register modal")}><p>seven x seven residences</p><h2 id="mobile-modal-title">{props.registerHeadline}</h2><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit">{props.submitCta}</button><small>{props.consentCopy} <a href="/privacy-policy">privacy policy</a>.</small></form></div></div> : null}
+      {props.modalOpen ? <div className="mobile-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-modal-title" onMouseDown={(event) => { if (event.target === event.currentTarget) props.onModalClose(); }}><div><button className="mobile-modal-close" type="button" aria-label="Close registration form" onClick={props.onModalClose}><X /></button><form onSubmit={(event) => props.onSubmitLead(event, "Register modal")}><p>seven x seven residences</p><h2 id="mobile-modal-title">{props.registerHeadline}</h2><p>{props.registerBody}</p><input name="FullName" type="text" placeholder="Full Name" aria-label="Full Name" required /><input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" /><div><button type="button">UAE</button><input name="PhoneNumber" type="tel" placeholder="+971 123456789" aria-label="Phone Number" required /></div><input name="Email" type="email" placeholder="Email Address" aria-label="Email Address" required /><select name="TypeOfLead">{props.interestOptions.map((option) => <option key={option}>{option}</option>)}</select><button className="mobile-contact-submit" type="submit">{props.submitCta}</button><small>{props.consentCopy} <a href={localeHref("/privacy-policy", props.locale)}>privacy policy</a>.</small></form></div></div> : null}
       {props.lightbox ? <div className="mobile-lightbox" role="dialog" aria-modal="true" aria-label="Image preview" onClick={() => props.onLightbox(null)}><button type="button" aria-label="Close image preview"><X /></button><img src={props.lightbox.src} alt={props.lightbox.alt} /></div> : null}
     </main>
   );

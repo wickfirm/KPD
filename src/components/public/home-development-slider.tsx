@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BannerSlide } from "@/lib/home-defaults";
 import type { TextStyle } from "@/lib/text-style";
+import type { Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 /// The delivered script runs before React has hydrated on some homepage loads.
 /// Own this CMS-rendered carousel in React so autoplay and the dot controls are
@@ -15,7 +17,7 @@ import type { TextStyle } from "@/lib/text-style";
 /// slide dots. The delivered heading/CTA placement options are superseded by
 /// this fixed layout; their settings remain in saved content but no longer
 /// change the render.
-export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, kicker, caption, captionVisible = false, captionPosition = "below", captionStyle }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: TextStyle; kicker?: string; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle }) {
+export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, ctaUrl, ctaVisible = true, headingStyle, kicker, caption, captionVisible = false, captionPosition = "below", captionStyle, locale }: { heading: string; bannerText?: string; slides: BannerSlide[]; ctaLabel?: string; ctaUrl?: string; ctaVisible?: boolean; headingStyle?: TextStyle; kicker?: string; caption?: string; captionVisible?: boolean; captionPosition?: "above" | "below"; captionStyle?: TextStyle; locale: Locale }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -30,18 +32,18 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
   const active = slides[activeIndex];
   const shownText = active?.text?.trim() || bannerText?.trim() || "";
   const captionBlock = captionVisible && shownText
-    ? <section className={`pdf-section pdf-development-text pdf-development-text--${captionPosition}`} aria-label="Our development standard"><p style={captionStyle}>{multiline(shownText)}</p></section>
+    ? <section className={`pdf-section pdf-development-text pdf-development-text--${captionPosition}`} aria-label={t(locale, "home.developmentStandard")}><p style={captionStyle}>{multiline(shownText)}</p></section>
     : null;
   return (
     <>
       {captionPosition === "above" ? captionBlock : null}
-      <section className="pdf-section pdf-latest" id="developments" aria-roledescription="carousel" aria-label="Featured developments">
+      <section className="pdf-section pdf-latest" id="developments" aria-roledescription="carousel" aria-label={t(locale, "home.featuredDevelopments")}>
         <div className="pdf-sec-top">
           <div>
             {kicker ? <p className="pdf-kicker">{kicker}</p> : null}
             <h2 style={headingStyle}>{multiline(heading)}</h2>
           </div>
-          <Link className="pdf-dev-all" href={ctaUrl || "/#development-cards"}>All developments <span className="pdf-dev-all-arrow" aria-hidden="true">→</span></Link>
+          <Link className="pdf-dev-all" href={ctaUrl || "/#development-cards"}>{t(locale, "nav.allDevelopments")} <span className="pdf-dev-all-arrow" aria-hidden="true">→</span></Link>
         </div>
         <div className="pdf-dev-frame">
           <div className="pdf-development-slides" aria-hidden="true">
@@ -54,9 +56,9 @@ export function HomeDevelopmentSlider({ heading, bannerText, slides, ctaLabel, c
             {active?.label?.trim() ? <h2 className="pdf-dev-card-title">{active.label}</h2> : null}
             {shownText ? <p>{multiline(shownText)}</p> : null}
             {ctaVisible && ctaLabel ? <Link className="pdf-development-button btn-pill text-white" href={ctaUrl || "/#development-cards"}>{ctaLabel} <span className="pdf-dev-btn-arrow" aria-hidden="true">→</span></Link> : null}
-            <div className="pdf-development-dots" aria-label="Choose a development slide">
+            <div className="pdf-development-dots" aria-label={t(locale, "home.chooseSlide")}>
               {slides.map((slide, index) => (
-                <button className={index === activeIndex ? "active" : undefined} type="button" onClick={() => setActiveIndex(index)} aria-label={`Show ${slide.label}`} aria-pressed={index === activeIndex} key={`${slide.label}-${index}`} />
+                <button className={index === activeIndex ? "active" : undefined} type="button" onClick={() => setActiveIndex(index)} aria-label={t(locale, "home.showSlide", { label: slide.label })} aria-pressed={index === activeIndex} key={`${slide.label}-${index}`} />
               ))}
             </div>
           </div>

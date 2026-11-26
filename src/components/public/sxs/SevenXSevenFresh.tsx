@@ -28,7 +28,9 @@ import {
   FaWaterLadder
 } from "react-icons/fa6";
 import { readFloorPlans, readMilestones, readPlaces, type SxsContent, type SxsSectionKey } from "@/lib/sxs-content";
+import { localeHref, type Locale } from "@/lib/locales";
 import { MobilePublicSite } from "./MobilePublicSite";
+import { LanguageSwitcher } from "../language-switcher";
 
 type SectionKey = SxsSectionKey;
 export type PublishedContent = SxsContent;
@@ -271,7 +273,7 @@ const distanceAreaLabels = [
   { name: "Dubai Marina", lat: 25.0805, lng: 55.1403 }
 ];
 
-export function SevenXSevenFresh({ content, preview = false }: { content: PublishedContent; preview?: boolean }) {
+export function SevenXSevenFresh({ content, preview = false, locale, switcherLocales }: { content: PublishedContent; preview?: boolean; locale: Locale; switcherLocales: Locale[] }) {
   const text = (section: SectionKey, key: string, fallback: string) => {
     const value = content[section]?.[key];
     return typeof value === "string" && value.trim() ? value : fallback;
@@ -1237,6 +1239,8 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
     return (
       <MobilePublicSite
         preview={preview}
+        locale={locale}
+        switcherLocales={switcherLocales}
         heroScenes={heroScenes}
         heroIndex={heroSlides.current}
         onHeroChange={(index) => setHeroSlides(({ current }) => ({ previous: current, current: index }))}
@@ -1357,6 +1361,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
             </a>
           ))}
         </nav>
+        {switcherLocales.length ? <LanguageSwitcher locale={locale} published={switcherLocales} variant="overlay" /> : null}
       </div>
 
       {menuTransitioning ? (
@@ -1404,7 +1409,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
               {leadSubmission.source === "Register modal" && leadSubmission.state === "success" ? <small role="status">Thank you. Your enquiry has been received.</small> : null}
               {leadSubmission.source === "Register modal" && leadSubmission.state === "error" ? <small role="alert">We could not submit your enquiry. Please try again.</small> : null}
               <small>
-                 {consentCopy} <a href="/privacy-policy">privacy policy</a>.
+                 {consentCopy} <a href={localeHref("/privacy-policy", locale)}>privacy policy</a>.
               </small>
             </form>
           </div>
@@ -1917,7 +1922,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                   {leadSubmission.source === "Footer form" && leadSubmission.state === "success" ? <p className="footer-legal-copy" role="status">Thank you. Your enquiry has been received.</p> : null}
                   {leadSubmission.source === "Footer form" && leadSubmission.state === "error" ? <p className="footer-legal-copy" role="alert">We could not submit your enquiry. Please try again.</p> : null}
                   <p className="footer-legal-copy">
-                     {consentCopy} <a href="/privacy-policy">privacy policy</a>.
+                     {consentCopy} <a href={localeHref("/privacy-policy", locale)}>privacy policy</a>.
                   </p>
                 </form>
 
@@ -1925,6 +1930,7 @@ export function SevenXSevenFresh({ content, preview = false }: { content: Publis
                   <img src={logoWhite} alt="seven x seven" />
                    <p>{text("footer", "body", "seven x seven sees luxury as the freedom to live your way.")}</p>
                    <p className="footer-copyright">{text("footer", "copyright", "Copyright 2026 Kasumigaseki Properties Development")}</p>
+                   {switcherLocales.length ? <LanguageSwitcher locale={locale} published={switcherLocales} variant="footer" /> : null}
                 </div>
               </div>
             </div>

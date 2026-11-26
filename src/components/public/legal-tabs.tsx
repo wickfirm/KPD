@@ -5,11 +5,14 @@ import type { ReactNode } from "react";
 import { textStyleProps } from "@/lib/text-style";
 import type { TextStyle } from "@/lib/text-style";
 import { legalContact, legalDocuments, type LegalPiece, type LegalTabId } from "@/lib/terms-defaults";
+import type { Locale } from "@/lib/locales";
+import { t, type MessageKey } from "@/lib/i18n";
 
-const tabs: { id: LegalTabId; label: string }[] = [
-  { id: "terms", label: "Terms and Conditions" },
-  { id: "privacy", label: "Privacy Policy" },
-  { id: "cookies", label: "Cookie Policy" },
+/// The tab buttons, in order; each label follows the page's language.
+const tabs: { id: LegalTabId; label: MessageKey }[] = [
+  { id: "terms", label: "footer.terms" },
+  { id: "privacy", label: "footer.privacy" },
+  { id: "cookies", label: "footer.cookies" },
 ];
 
 function richLine(value: string, onPrivacy: () => void): ReactNode[] {
@@ -43,7 +46,7 @@ function Piece({ piece, onPrivacy }: { piece: LegalPiece; onPrivacy: () => void 
 
 /// Terms, Privacy and Cookies from the client document. Tab buttons change the
 /// panel in place. The address does not change.
-export function LegalTabs({ initialTab, image, headingStyle, contact }: { initialTab: LegalTabId; image?: string; headingStyle?: TextStyle; contact?: { heading?: string; text?: string; email?: string } }) {
+export function LegalTabs({ initialTab, image, headingStyle, contact, locale }: { initialTab: LegalTabId; image?: string; headingStyle?: TextStyle; contact?: { heading?: string; text?: string; email?: string }; locale: Locale }) {
   const help = { heading: contact?.heading?.trim() || legalContact.heading, text: contact?.text?.trim() || legalContact.text, email: contact?.email?.trim() || legalContact.email };
   const [tab, setTab] = useState<LegalTabId>(initialTab);
   const active = legalDocuments.find((entry) => entry.id === tab) ?? legalDocuments[0];
@@ -55,9 +58,9 @@ export function LegalTabs({ initialTab, image, headingStyle, contact }: { initia
 
   return <>
     <section className="page-hero pdf-hero">{image ? <img src={image} alt="" /> : null}<div className="page-hero-content"><h1 style={textStyleProps(headingStyle)}>{active.title}</h1></div></section>
-    <nav className="kpd-legal-tabs" aria-label="Legal pages">
-      {tabs.map((entry) => <button key={entry.id} type="button" aria-current={tab === entry.id ? "page" : undefined} onClick={() => show(entry.id)}>{entry.label}</button>)}
-      <button type="button" onClick={() => window.document.getElementById("legal-contact")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Contact</button>
+    <nav className="kpd-legal-tabs" aria-label={t(locale, "legal.pages")}>
+      {tabs.map((entry) => <button key={entry.id} type="button" aria-current={tab === entry.id ? "page" : undefined} onClick={() => show(entry.id)}>{t(locale, entry.label)}</button>)}
+      <button type="button" onClick={() => window.document.getElementById("legal-contact")?.scrollIntoView({ behavior: "smooth", block: "start" })}>{t(locale, "nav.contact")}</button>
     </nav>
     <section className="kpd-legal-block" aria-label={active.title}>
       {active.sections.map((section) => <div className="kpd-legal-section" key={section.heading}>
@@ -68,7 +71,7 @@ export function LegalTabs({ initialTab, image, headingStyle, contact }: { initia
     <section id="legal-contact" className="kpd-legal-contact">
       <h2>{help.heading}</h2>
       <p>{help.text}</p>
-      <a href={`mailto:${help.email}?subject=KPD%20Inquiry`}><span>Email</span><span>{help.email}</span></a>
+      <a href={`mailto:${help.email}?subject=KPD%20Inquiry`}><span>{t(locale, "legal.email")}</span><span>{help.email}</span></a>
     </section>
   </>;
 }

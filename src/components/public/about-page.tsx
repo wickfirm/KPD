@@ -5,6 +5,8 @@ import { textStyleProps } from "@/lib/text-style";
 import { sectionFilter } from "@/lib/section-visibility";
 import { emphasisNodes } from "@/lib/emphasis";
 import { splitLead, valueCard } from "@/lib/about-layout";
+import { localeHref, type Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
 function multiline(value: string): ReactNode[] {
@@ -27,9 +29,11 @@ function ButtonLink({ href, className, children }: { href: string; className: st
 /// g21-prefixed and every rule is scoped under main.g21 (redesign-pages.css),
 /// so delivered site.css rules for the old About markup no longer apply and
 /// nothing else on the site changes.
-export function AboutMain({ content, hidden }: { content: AboutContent; hidden?: readonly string[] }) {
+export function AboutMain({ content, hidden, locale }: { content: AboutContent; hidden?: readonly string[]; locale: Locale }) {
   /// Sections the editor switched off under "Sections on this page".
   const shown = sectionFilter(hidden);
+  /// Internal links follow the page's language; other addresses are left alone.
+  const href = (path: string) => localeHref(path, locale);
   const heading = content.heading ?? "";
   const sectionHeading = content.sectionHeading ?? "";
   const heroText = content.heroText ?? "";
@@ -47,12 +51,12 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
   const ceoRole = content.ceoRole ?? aboutDefaults.ceoRole;
   const ceoImage = content.ceoImage ?? aboutDefaults.ceoImage;
   const management = content.management ?? [];
-  const eyebrow = content.eyebrow === "" ? "" : content.eyebrow ?? "About";
+  const eyebrow = content.eyebrow === "" ? "" : content.eyebrow ?? t(locale, "nav.about");
 
   const heroCtaLabel = field(content.heroCtaLabel, aboutDefaults.heroCtaLabel);
-  const heroCtaUrl = field(content.heroCtaUrl, aboutDefaults.heroCtaUrl) || "/legacy";
+  const heroCtaUrl = href(field(content.heroCtaUrl, aboutDefaults.heroCtaUrl) || "/legacy");
   const heroSecondaryLabel = field(content.heroSecondaryLabel, aboutDefaults.heroSecondaryLabel);
-  const heroSecondaryUrl = field(content.heroSecondaryUrl, aboutDefaults.heroSecondaryUrl);
+  const heroSecondaryUrl = href(field(content.heroSecondaryUrl, aboutDefaults.heroSecondaryUrl));
   const keyFacts = (content.keyFacts ?? aboutDefaults.keyFacts).filter((fact: AboutKeyFact) => fact.label || fact.value);
   const philosophyKicker = field(content.philosophyKicker, aboutDefaults.philosophyKicker);
   const missionKicker = field(content.missionKicker, aboutDefaults.missionKicker);
@@ -67,7 +71,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
   const visitImage = field(content.visitImage, aboutDefaults.visitImage);
   const visitCtaLabel = field(content.visitCtaLabel, aboutDefaults.visitCtaLabel);
   const visitLinkLabel = field(content.visitLinkLabel, aboutDefaults.visitLinkLabel);
-  const visitLinkUrl = field(content.visitLinkUrl, aboutDefaults.visitLinkUrl) || "/contact";
+  const visitLinkUrl = href(field(content.visitLinkUrl, aboutDefaults.visitLinkUrl) || "/contact");
 
   const leaders = [
     { text: chairmanText, name: chairmanName, role: chairmanRole, image: chairmanImage, style: textStyleProps(content.chairmanStyle) },
@@ -78,7 +82,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
     <main className="about-main g21" id="top">
       {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-about-title">
         <div className="g21-wrap">
-          <nav className="g21-crumbs g21-cap" aria-label="Breadcrumb"><Link href="/">Home</Link><span aria-hidden="true">/</span><span aria-current="page">{eyebrow || "About"}</span></nav>
+          <nav className="g21-crumbs g21-cap" aria-label={t(locale, "breadcrumb.label")}><Link href={href("/")}>{t(locale, "nav.home")}</Link><span aria-hidden="true">/</span><span aria-current="page">{eyebrow || t(locale, "nav.about")}</span></nav>
           <div className="g21-title">
             <h1 id="g21-about-title" style={textStyleProps(content.headingStyle)}>{emphasisNodes(heading)}</h1>
             <div>
@@ -91,7 +95,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
               </div> : null}
             </div>
           </div>
-          {heroImage ? <figure className="g21-hero-img"><img src={heroImage} alt="KPD office workspace with a view over Dubai" /></figure> : null}
+          {heroImage ? <figure className="g21-hero-img"><img src={heroImage} alt={t(locale, "about.imageAlt")} /></figure> : null}
           {keyFacts.length ? <dl className="g21-keyfacts" style={{ gridTemplateColumns: `repeat(${Math.min(keyFacts.length, 4)}, minmax(0, 1fr))` }}>
             {keyFacts.map((fact, index) => <div key={index}><dt className="g21-cap">{fact.label}</dt><dd>{fact.value}</dd></div>)}
           </dl> : null}
@@ -122,7 +126,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
 
       {shown("mission") && (mission.lead || vision.lead) ? <section className="g21-pad g21-band" id="mission" aria-labelledby="g21-mv-title">
         <div className="g21-wrap">
-          <h2 className="g21-sr" id="g21-mv-title">Mission and vision</h2>
+          <h2 className="g21-sr" id="g21-mv-title">{t(locale, "about.missionVision")}</h2>
           <div className="g21-mv">
             {mission.lead ? <article>{missionKicker ? <span className="g21-cap">{missionKicker}</span> : null}<p className="g21-big" style={textStyleProps(content.missionVisionStyle)}>{multiline(mission.lead)}</p>{mission.rest ? <p className="g21-muted">{multiline(mission.rest)}</p> : null}</article> : null}
             {vision.lead ? <article>{visionKicker ? <span className="g21-cap">{visionKicker}</span> : null}<p className="g21-big" style={textStyleProps(content.missionVisionStyle)}>{multiline(vision.lead)}</p>{vision.rest ? <p className="g21-muted">{multiline(vision.rest)}</p> : null}</article> : null}
@@ -130,7 +134,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
         </div>
       </section> : null}
 
-      {shown("leadership") && leaders.length ? <section className="g21-pad" id="chairman" aria-labelledby={leadershipHeading ? "g21-leadership-title" : undefined} aria-label={leadershipHeading ? undefined : "Leadership"}>
+      {shown("leadership") && leaders.length ? <section className="g21-pad" id="chairman" aria-labelledby={leadershipHeading ? "g21-leadership-title" : undefined} aria-label={leadershipHeading ? undefined : t(locale, "about.leadership")}>
         <div className="g21-wrap">
           {leadershipKicker || leadershipHeading ? <div className="g21-sec-top"><div>
             {leadershipKicker ? <span className="g21-cap">{leadershipKicker}</span> : null}
@@ -138,7 +142,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
           </div></div> : null}
           <div className="g21-leaders">
             {leaders.map((leader, index) => <figure className="g21-leader" key={index} id={index === 1 ? "ceo" : undefined}>
-              <div className="g21-leader-img">{leader.image ? <img src={leader.image} alt={leader.name ? `${leader.name}, ${leader.role}` : `${leader.role} portrait`} loading="lazy" /> : null}</div>
+              <div className="g21-leader-img">{leader.image ? <img src={leader.image} alt={leader.name ? t(locale, "about.leaderAlt", { name: leader.name, role: leader.role }) : t(locale, "about.portraitAlt", { role: leader.role })} loading="lazy" /> : null}</div>
               {leader.text ? <blockquote><p style={leader.style}>{multiline(leader.text)}</p></blockquote> : null}
               <figcaption>{leader.name ? <b>{leader.name}</b> : null}{leader.role ? <span className="g21-cap">{leader.role}</span> : null}</figcaption>
             </figure>)}
@@ -150,7 +154,7 @@ export function AboutMain({ content, hidden }: { content: AboutContent; hidden?:
         <div className="g21-wrap">
           <div className="g21-sec-top"><div>
             {teamKicker ? <span className="g21-cap">{teamKicker}</span> : null}
-            <h2 id="g21-team-title">{teamHeading ? emphasisNodes(teamHeading) : "Executive Management"}</h2>
+            <h2 id="g21-team-title">{teamHeading ? emphasisNodes(teamHeading) : t(locale, "about.executiveManagement")}</h2>
           </div></div>
           <ul className="g21-team">
             {management.map((person, index) => <li key={index}>

@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { t } from "@/lib/i18n";
+import type { Locale } from "@/lib/locales";
 
 /// Sticky "Milestone" rail beside the History timeline: shows the year of the
 /// milestone in view and a progress bar, and marks the matching year in the
 /// sticky year bar. Reads the list items rendered by LegacyMain.
-export function LegacyTimelineRail({ firstYear }: { firstYear: string }) {
+export function LegacyTimelineRail({ firstYear, locale }: { firstYear: string; locale: Locale }) {
   const [year, setYear] = useState(firstYear);
   const [progress, setProgress] = useState(0);
 
@@ -36,7 +38,7 @@ export function LegacyTimelineRail({ firstYear }: { firstYear: string }) {
 
   return (
     <div className="g21-tl-rail" aria-hidden="true">
-      <span className="g21-cap">Milestone</span>
+      <span className="g21-cap">{t(locale, "dev.milestone")}</span>
       <b>{year}</b>
       <i><em style={{ transform: `scaleX(${progress})` }} /></i>
     </div>

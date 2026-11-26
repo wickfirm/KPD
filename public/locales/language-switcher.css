@@ -1,0 +1,60 @@
+/* ── Language switcher (kpd-lang) ───────────────────────────────────────────
+   A static file, linked by the switcher itself (src/components/public/
+   language-switcher.tsx) on the pages where it is shown. The switcher appears
+   only once the client publishes a second language, so until then no page
+   requests this file and English pages are exactly as they were.
+
+   Not part of the delivered design, so nothing here touches a delivered class.
+   The desktop header links take after the delivered navigation links (site.css,
+   .development-site-header .header-nav a): 14px, var(--black), weight 400, and
+   opacity 0.56 on hover. site.css itself stays byte-for-byte as delivered.
+   Variants: --header, --menu (main site mobile menu), --overlay (seven x seven
+   landing's menus) and --footer. */
+
+.kpd-lang { flex: none; }
+.kpd-lang-list { display: flex; align-items: center; margin: 0; padding: 0; list-style: none; }
+.kpd-lang-item { display: flex; align-items: center; }
+.kpd-lang-link, .kpd-lang-current { display: inline-block; font-size: 14px; font-weight: 400; line-height: 1; letter-spacing: 0; white-space: nowrap; text-decoration: none; }
+.kpd-lang-link { color: var(--black); transition: opacity 0.2s ease; }
+.kpd-lang-link:hover, .kpd-lang-link:focus-visible { opacity: 0.56; }
+.kpd-lang-current { color: var(--black); opacity: 0.56; }
+.kpd-lang-sep { width: 1px; height: 12px; margin: 0 clamp(10px, 0.9vw, 14px); background: currentColor; opacity: 0.28; }
+
+/* The delivered desktop navigation gives way to the menu panel at 767px. */
+@media (max-width: 767px) {
+  .kpd-lang--header { display: none; }
+}
+
+/* Mobile menu panel of the main site. The delivered menu (end of site.css) is
+   a white panel holding a list: dark 12-13px labels, each a full-width row
+   with a hairline under it. The languages are listed the same way, under the
+   menu's own items, so they read as part of it. Language names keep their own
+   case and no tracking, which Arabic and Japanese script must not have. */
+.kpd-lang--menu .kpd-lang-list { display: block; }
+.kpd-lang--menu .kpd-lang-item { display: flex; align-items: center; min-height: 52px; border-bottom: 1px solid rgba(0, 0, 0, 0.08); }
+.kpd-lang--menu .kpd-lang-link, .kpd-lang--menu .kpd-lang-current { font-size: 13px; font-weight: 700; line-height: 1.2; letter-spacing: 0; text-transform: none; color: #111; }
+.kpd-lang--menu .kpd-lang-link { transition: opacity 0.2s ease; }
+.kpd-lang--menu .kpd-lang-link:hover, .kpd-lang--menu .kpd-lang-link:focus-visible { opacity: 0.5; }
+.kpd-lang--menu .kpd-lang-current { opacity: 0.45; }
+.kpd-lang--menu .kpd-lang-sep { display: none; }
+
+/* The seven x seven landing's menus are the opposite: full-screen black
+   overlays whose own stylesheet positions its nav elements. The languages sit
+   in the bottom corner the overlay leaves free, in light text. The landing
+   switches to its mobile layout at 720px, with its own gutter. */
+.kpd-lang--overlay { position: absolute; inset-inline-start: clamp(28px, 5.5vw, 80px); bottom: clamp(36px, 6vh, 72px); z-index: 1; }
+.kpd-lang--overlay .kpd-lang-link, .kpd-lang--overlay .kpd-lang-current { font-size: 15px; font-weight: 400; color: #fff; }
+.kpd-lang--overlay .kpd-lang-link { transition: opacity 0.2s ease; }
+.kpd-lang--overlay .kpd-lang-link:hover, .kpd-lang--overlay .kpd-lang-link:focus-visible { opacity: 0.6; }
+.kpd-lang--overlay .kpd-lang-current { opacity: 0.5; }
+.kpd-lang--overlay .kpd-lang-sep { background: #fff; height: 14px; }
+@media (max-width: 720px) {
+  .kpd-lang--overlay { inset-inline-start: var(--mobile-gutter, 24px); bottom: 30px; }
+}
+
+/* Footer legal row: the size of the delivered footer links. */
+.kpd-lang--footer .kpd-lang-link, .kpd-lang--footer .kpd-lang-current { font-size: clamp(13px, 0.85vw, 15px); line-height: 1.28; }
+.kpd-lang--footer .kpd-lang-link { color: inherit; transition: color 0.24s ease, opacity 0.24s ease; }
+.kpd-lang--footer .kpd-lang-link:hover, .kpd-lang--footer .kpd-lang-link:focus-visible { opacity: 1; color: #fff; }
+.kpd-lang--footer .kpd-lang-current { color: inherit; opacity: 0.6; }
+.kpd-lang--footer .kpd-lang-sep { height: 14px; }

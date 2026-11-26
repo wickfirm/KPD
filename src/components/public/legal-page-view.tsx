@@ -1,5 +1,6 @@
 import type { TextStyle } from "@/lib/text-style";
 import { legalTabForSlug } from "@/lib/terms-defaults";
+import { getLocale } from "@/lib/locale";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
@@ -19,7 +20,8 @@ export const legalPages: Record<string, object> = { terms: {}, "privacy-policy":
 
 /// The three legal addresses share one document. Terms, Privacy and Cookies
 /// switch in place. A saved hero image still replaces the skyline fallback.
-export function LegalPageView({ slug, page, previewNote }: { slug: string; page: { title: string; content: unknown }; previewNote?: string }) {
+export async function LegalPageView({ slug, page, previewNote }: { slug: string; page: { title: string; content: unknown }; previewNote?: string }) {
+  const locale = await getLocale();
   const blocks = Array.isArray(page.content) ? page.content as Block[] : [];
   const hero = blocks.find((block) => block.type === "hero");
   const bodyClass = "home-development-page kpd-page kpd-legal-page kpd-terms-page";
@@ -28,7 +30,7 @@ export function LegalPageView({ slug, page, previewNote }: { slug: string; page:
     <DeliveredBodyClass bodyClass={bodyClass} />
     <SiteShellHeader />
     <main id="top">
-      <LegalTabs initialTab={legalTabForSlug(slug)} image={hero?.image || legalHeroes[slug]} headingStyle={hero?.headingStyle} contact={blocks.find((block) => block.type === "legal-contact")} />
+      <LegalTabs initialTab={legalTabForSlug(slug)} image={hero?.image || legalHeroes[slug]} headingStyle={hero?.headingStyle} contact={blocks.find((block) => block.type === "legal-contact")} locale={locale} />
     </main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />

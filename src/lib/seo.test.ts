@@ -3,6 +3,7 @@ import {
   DESCRIPTION_MAX, TITLE_MAX, breadcrumbJsonLd, clampDescription, developmentDescription, developmentTitle,
   legalSeo, mediaUrl, pageMetadata, pageSeo, residenceJsonLd, webPageJsonLd, withBrand,
 } from "./seo";
+import { absoluteUrl } from "./site";
 
 describe("fixed page copy fits what search engines show", () => {
   const all = [...Object.entries(pageSeo), ...Object.entries(legalSeo)];
@@ -124,5 +125,59 @@ describe("structured data", () => {
   it("produces JSON that parses back", () => {
     const text = JSON.stringify(residenceJsonLd({ slug: "x", name: "X" }));
     expect(JSON.parse(text).name).toBe("X");
+  });
+});
+
+describe("languages", () => {
+  const base = { title: "T", description: "D", path: "/about" };
+  const page = { name: "About", description: "D", path: "/about" };
+  const development = { slug: "emerald-villa", name: "Emerald Villa", description: "D" };
+  const openGraph = (metadata: ReturnType<typeof pageMetadata>) => metadata.openGraph as { url?: string; locale?: string };
+
+  it("gives English exactly what it had before languages existed", () => {
+    expect(pageMetadata(base, "en")).toEqual(pageMetadata(base));
+    expect(webPageJsonLd(page, "en")).toEqual(webPageJsonLd(page));
+    expect(breadcrumbJsonLd([{ name: "Home", path: "/" }], "en")).toEqual(breadcrumbJsonLd([{ name: "Home", path: "/" }]));
+    expect(residenceJsonLd(development, "en")).toEqual(residenceJsonLd(development));
+  });
+
+  it("points a page's canonical and social URL at its own language address", () => {
+    const metadata = pageMetadata(base, "ar");
+    expect(metadata.alternates?.canonical).toBe(absoluteUrl("/ar/about"));
+    expect(openGraph(metadata).url).toBe(absoluteUrl("/ar/about"));
+    expect(openGraph(metadata).locale).toBe("ar_AE");
+  });
+
+  it("names og:locale on the other languages only, so English pages do not change", () => {
+    expect(openGraph(pageMetadata(base)).locale).toBeUndefined();
+    expect(openGraph(pageMetadata(base, "ja")).locale).toBe("ja_JP");
+  });
+
+  it("keeps the title, description, image and feed link as they are in every language", () => {
+    const english = pageMetadata({ ...base, image: "/img.jpg", type: "article" });
+    const arabic = pageMetadata({ ...base, image: "/img.jpg", type: "article" }, "ar");
+    expect(arabic.title).toEqual(english.title);
+    expect(arabic.description).toBe(english.description);
+    expect(arabic.openGraph?.images).toEqual(english.openGraph?.images);
+    expect(arabic.alternates?.types).toEqual(english.alternates?.types);
+  });
+
+  it("gives structured data the page's own address and language", () => {
+    const data = webPageJsonLd({ ...page, kind: "AboutPage" }, "ja");
+    expect(data.url).toBe(absoluteUrl("/ja/about"));
+    expect(data["@id"]).toBe(`${absoluteUrl("/ja/about")}#webpage`);
+    expect(data.inLanguage).toBe("ja");
+    expect(webPageJsonLd(page).inLanguage).toBe("en");
+  });
+
+  it("links breadcrumb items to the pages in the same language", () => {
+    const crumbs = [{ name: "Home", path: "/" }, { name: "News", path: "/news" }];
+    expect(breadcrumbJsonLd(crumbs, "ar").itemListElement.map((item) => item.item)).toEqual([absoluteUrl("/ar"), absoluteUrl("/ar/news")]);
+  });
+
+  it("names a residence's language on the other languages only", () => {
+    expect(residenceJsonLd(development, "ar").url).toBe(absoluteUrl("/ar/developments/emerald-villa"));
+    expect(residenceJsonLd(development, "ar").inLanguage).toBe("ar");
+    expect(residenceJsonLd(development)).not.toHaveProperty("inLanguage");
   });
 });
