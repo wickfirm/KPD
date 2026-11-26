@@ -11,7 +11,18 @@
   const kpdTelHref = "tel:" + String(kpdContact.phone).replace(/[^+\d]/g, "");
   const kpdWhatsappHref = /^https?:\/\//i.test(kpdContact.whatsapp) ? kpdContact.whatsapp : "https://wa.me/" + String(kpdContact.whatsapp).replace(/\D/g, "");
   const escapeHtml = (value) => String(value).replace(/[&<>\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character]));
-  const publishedProjectOptions = (Array.isArray(kpdContact.projects) ? kpdContact.projects : []).map((name) => `<option>${escapeHtml(name)}</option>`).join("");
+  // KPD CMS patch: on an Arabic or Japanese page the footer publishes the words
+  // of its forms in that language as window.__KPD_CONTACT.text, keyed by their
+  // English. An English page publishes none, and every word stays exactly as
+  // delivered.
+  const say = (english) => (kpdContact.text && kpdContact.text[english]) || english;
+  // A project reads in the page's language and keeps its English name as the
+  // value the form posts.
+  const projectOption = (name) => {
+    const label = kpdContact.projectLabels && kpdContact.projectLabels[name];
+    return label ? `<option value="${escapeHtml(name)}">${escapeHtml(label)}</option>` : `<option>${escapeHtml(name)}</option>`;
+  };
+  const publishedProjectOptions = (Array.isArray(kpdContact.projects) ? kpdContact.projects : []).map(projectOption).join("");
   const header = document.querySelector(".site-header");
   const menu = document.querySelector(".menu-panel");
   const menuOpeners = document.querySelectorAll("[data-menu-open]");
@@ -54,8 +65,8 @@
     if (label) label.textContent = "+" + dialCodeOf(select.value);
   });
   // [KPD CMS patch] Phone is required: Salesforce will not create a Lead without one.
-  const bookingLeadFormMarkup = "<form class=\"booking-lead-form\" action=\"mailto:" + recipientFor("booking") + "?subject=KPD%20Meeting%20Request\" method=\"post\" enctype=\"text/plain\"><div class=\"booking-lead-grid\"><input class=\"booking-lead-field\" type=\"text\" name=\"Name\" placeholder=\"Full name\" autocomplete=\"name\" required><input class=\"booking-lead-field\" type=\"email\" name=\"Email\" placeholder=\"Email address\" autocomplete=\"email\" required><div class=\"booking-lead-phone\"><span class=\"booking-lead-field booking-lead-dial\"><b aria-hidden=\"true\" data-dial-code>+971</b><select name=\"Country\" aria-label=\"Country code\">" + phoneCountryOptions + "</select></span><input class=\"booking-lead-field\" type=\"tel\" name=\"Phone\" placeholder=\"Phone number\" autocomplete=\"tel-national\" inputmode=\"tel\" required></div><select class=\"booking-lead-field\" name=\"Interest\" aria-label=\"Interest\"><option value=\"\">Interested in</option>" + publishedProjectOptions + "<option>Online call</option></select><textarea class=\"booking-lead-field booking-lead-message\" name=\"Message\" placeholder=\"Short message\"></textarea></div><button class=\"btn-pill booking-primary-button booking-lead-submit text-black\" type=\"submit\">Submit inquiry</button></form><p class=\"booking-privacy-note\">The KPD team will respond with the right advisory route.</p>";
-  const bookingModalMarkup = "<div class=\"booking-backdrop\" aria-hidden=\"true\"></div><div class=\"booking-card\"><button class=\"modal-close\" type=\"button\" data-booking-close aria-label=\"Minimize inquiry form\"></button><h2 id=\"booking-title\">Inquiry Form</h2><p>Share a few contact details and the KPD team will coordinate the right advisory conversation.</p>" + bookingLeadFormMarkup + "</div>";
+  const bookingLeadFormMarkup = "<form class=\"booking-lead-form\" action=\"mailto:" + recipientFor("booking") + "?subject=KPD%20Meeting%20Request\" method=\"post\" enctype=\"text/plain\"><div class=\"booking-lead-grid\"><input class=\"booking-lead-field\" type=\"text\" name=\"Name\" placeholder=\"" + say("Full name") + "\" autocomplete=\"name\" required><input class=\"booking-lead-field\" type=\"email\" name=\"Email\" placeholder=\"" + say("Email address") + "\" autocomplete=\"email\" required><div class=\"booking-lead-phone\"><span class=\"booking-lead-field booking-lead-dial\"><b aria-hidden=\"true\" data-dial-code>+971</b><select name=\"Country\" aria-label=\"" + say("Country code") + "\">" + phoneCountryOptions + "</select></span><input class=\"booking-lead-field\" type=\"tel\" name=\"Phone\" placeholder=\"" + say("Phone number") + "\" autocomplete=\"tel-national\" inputmode=\"tel\" required></div><select class=\"booking-lead-field\" name=\"Interest\" aria-label=\"" + say("Interest") + "\"><option value=\"\">" + say("Interested in") + "</option>" + publishedProjectOptions + "<option>" + say("Online call") + "</option></select><textarea class=\"booking-lead-field booking-lead-message\" name=\"Message\" placeholder=\"" + say("Short message") + "\"></textarea></div><button class=\"btn-pill booking-primary-button booking-lead-submit text-black\" type=\"submit\">" + say("Submit inquiry") + "</button></form><p class=\"booking-privacy-note\">" + say("The KPD team will respond with the right advisory route.") + "</p>";
+  const bookingModalMarkup = "<div class=\"booking-backdrop\" aria-hidden=\"true\"></div><div class=\"booking-card\"><button class=\"modal-close\" type=\"button\" data-booking-close aria-label=\"" + say("Minimize inquiry form") + "\"></button><h2 id=\"booking-title\">" + say("Inquiry Form") + "</h2><p>" + say("Share a few contact details and the KPD team will coordinate the right advisory conversation.") + "</p>" + bookingLeadFormMarkup + "</div>";
 
   if (!floatingContact) {
     floatingContact = document.createElement("div");
@@ -1680,16 +1691,16 @@
     const submit = form.querySelector("button[type='submit'], input[type='submit']");
 
     if (!email) {
-      formStatus(form, "Please provide your email address.", true);
+      formStatus(form, say("Please provide your email address."), true);
       return;
     }
     if (form.classList.contains("booking-lead-form") && typedPhone.replace(/\D/g, "").length < 7) {
-      formStatus(form, "Please enter a valid phone number.", true);
+      formStatus(form, say("Please enter a valid phone number."), true);
       return;
     }
 
     if (submit) submit.disabled = true;
-    formStatus(form, "Sending your enquiry…", false);
+    formStatus(form, say("Sending your enquiry…"), false);
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -1697,18 +1708,18 @@
         body: JSON.stringify({ name, email, phone, message, interest: plannerProject || interest, inquiryType, recipient, recipientKey, details, sourcePage: window.location.pathname })
       });
       const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
+      if (!response.ok) throw new Error(result.error || say("Unable to send your enquiry."));
       form.reset();
       form.querySelectorAll(".booking-lead-dial [data-dial-code]").forEach((label) => { label.textContent = "+971"; });
       if (plannerScenario) window.sessionStorage.removeItem("kpdPlannerScenario");
       if (plannerProject) window.sessionStorage.removeItem("kpdPlannerProject");
-      formStatus(form, "Thank you. Your enquiry has been received.", false);
+      formStatus(form, say("Thank you. Your enquiry has been received."), false);
       // [KPD CMS patch] the pop-up swaps the form for the confirmation so the
       // message is not squeezed under the button and the privacy note.
       const sentCard = form.classList.contains("booking-lead-form") ? form.closest(".booking-card") : null;
       if (sentCard) sentCard.classList.add("is-sent");
     } catch (error) {
-      formStatus(form, error instanceof Error ? error.message : "Unable to send your enquiry. Please try again.", true);
+      formStatus(form, error instanceof Error ? error.message : say("Unable to send your enquiry. Please try again."), true);
     } finally {
       if (submit) submit.disabled = false;
     }

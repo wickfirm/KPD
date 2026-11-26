@@ -58,5 +58,5 @@ export default async function PagePreviewPage({ params, searchParams }: { params
   const note = draft ? "UNSAVED draft — not saved, not public · visitors cannot see this URL" : "Admin preview · saved version (this is what visitors see) · visitors cannot see this URL";
   if (slug === "about") return <AboutView blocks={blocks} previewNote={language + note} />;
   if (slug === "legacy") return <LegacyView blocks={blocks} previewNote={language + note} />;
-  return <ContactView blocks={blocks} contact={await loadContactDetails()} previewNote={language + note} />;
+  return <ContactView blocks={blocks} contact={await loadContactDetails()} previewNote={language + note} englishBlocks={draft || lang === "en" ? undefined : await loadStaticBlocks(slug)} />;
 }

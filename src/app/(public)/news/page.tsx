@@ -12,10 +12,12 @@ import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
 import { localizedArticles, localizedSetting } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 /// Resolved per request, so the canonical and og:locale follow the page's language.
 export async function generateMetadata() {
-  return pageMetadata(pageSeo.news, await getLocale());
+  const [locale, translated] = await Promise.all([getLocale(), pageLanguages({ setting: "news_listing" })]);
+  return pageMetadata(pageSeo.news, locale, translated);
 }
 
 /// The news listing in the client-approved Option 2.1 "Gallery light" layout,
@@ -25,7 +27,9 @@ export async function generateMetadata() {
 /// site-cms.js stay as on every other page.
 export default async function NewsPage() {
   const locale = await getLocale();
-  const [englishArticles, englishCopy, contact, hidden] = await Promise.all([loadNewsArticles(), loadNewsListingCopy(), loadContactDetails(), loadHiddenSections("news")]);
+  // The page waits for what its metadata reads, so that its metadata can never
+  // resolve after the page (Next would stream it to the end of the HTML).
+  const [englishArticles, englishCopy, contact, hidden] = await Promise.all([loadNewsArticles(), loadNewsListingCopy(), loadContactDetails(), loadHiddenSections("news"), pageLanguages({ setting: "news_listing" })]);
   // The page's own copy and the articles take their translations in another
   // language; English keeps the lists it loaded.
   const [articles, copy] = await Promise.all([localizedArticles(englishArticles, locale), localizedSetting("news_listing", englishCopy, locale)]);

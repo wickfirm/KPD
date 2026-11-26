@@ -256,9 +256,6 @@ const SHARED_KEYS = new Set([
   // numbers written with Western digits, which Arabic keeps
   "lat", "lng", "reveal", "percent",
   "totalSqft", "totalSqm", "suiteSqft", "suiteSqm", "balconySqft", "balconySqm",
-  // choices of a form: they are translated together with the English value the
-  // form must keep posting (forms pull request)
-  "interestOptions", "salesProjects", "customerProjects", "customerNatures", "popupInterests",
   // names of shapes that hold settings rather than text
   "style",
 ]);
@@ -297,13 +294,13 @@ describe("which keys are text", () => {
   });
 
   it("never treats media, links, switches or styles as text", () => {
-    for (const key of ["image", "images", "src", "url", "href", "ctaUrl", "ctaVisible", "heroCtaVisible", "popupEnabled", "headingStyle", "textStyle", "nameStyle", "sectionOrder", "calculatorIndex", "showOnHomepage", "sortOrder", "type", "id", "slug", "anchor", "position", "icon", "code", "lat", "lng", "percent", "phase", "trend", "recipients", "email", "phone", "whatsapp", "coverage", "experienceImages", "pressLinkUrl", "popupFrequency", "popupDelaySeconds", "presentation", "layout", "heroMediaType", "interestOptions", "salesProjects", "customerProjects", "customerNatures", "popupInterests"]) {
+    for (const key of ["image", "images", "src", "url", "href", "ctaUrl", "ctaVisible", "heroCtaVisible", "popupEnabled", "headingStyle", "textStyle", "nameStyle", "sectionOrder", "calculatorIndex", "showOnHomepage", "sortOrder", "type", "id", "slug", "anchor", "position", "icon", "code", "lat", "lng", "percent", "phase", "trend", "recipients", "email", "phone", "whatsapp", "coverage", "experienceImages", "pressLinkUrl", "popupFrequency", "popupDelaySeconds", "presentation", "layout", "heroMediaType"]) {
       expect(isTranslatableKey(key), key).toBe(false);
     }
   });
 
   it("treats the copy of every page as text", () => {
-    for (const key of ["heading", "text", "eyebrow", "title", "intro", "summary", "body", "label", "value", "name", "role", "bio", "year", "alt", "question", "answer", "consent", "copyright", "keyFacts", "tagline", "location", "coverImageAlt", "popupTitle", "footerCopyright", "minutes"]) {
+    for (const key of ["heading", "text", "eyebrow", "title", "intro", "summary", "body", "label", "value", "name", "role", "bio", "year", "alt", "question", "answer", "consent", "copyright", "keyFacts", "tagline", "location", "coverImageAlt", "popupTitle", "footerCopyright", "minutes", "interestOptions", "salesProjects", "customerProjects", "customerNatures", "popupInterests"]) {
       expect(isTranslatableKey(key), key).toBe(true);
     }
   });
@@ -319,3 +316,27 @@ function leafKeySet(shape: unknown): Set<string> {
   leafKeys(shape, "", keys);
   return keys;
 }
+
+describe("a form's choices", () => {
+  // The Contact page's three lists, the pop-up's interests and the landing
+  // page's options: text a translator can translate, line by line.
+  it("are text: each line is replaced by the line at the same position", () => {
+    const english = { type: "contact-form", salesProjects: ["seven x seven", "Villa 174", "General enquiry"], submitLabel: "Send" };
+    expect(mergeLocale(english, { type: "contact-form", salesProjects: ["سيفن باي سيفن", "فيلا 174"] })).toEqual({ type: "contact-form", salesProjects: ["سيفن باي سيفن", "فيلا 174", "General enquiry"], submitLabel: "Send" });
+  });
+
+  it("replace the page's built-in list when nothing is saved in English", () => {
+    // Nothing was saved for the list, so the page shows its defaults; a
+    // translation of them must still show.
+    const english = { type: "contact-form", formHeading: "Enquiry" };
+    const translation = { type: "contact-form", salesProjects: ["سيفن باي سيفن", "فيلا 174", "استفسار عام"] };
+    expect(mergeLocale(english, translation)).toEqual({ type: "contact-form", formHeading: "Enquiry", salesProjects: ["سيفن باي سيفن", "فيلا 174", "استفسار عام"] });
+  });
+
+  it("never let a translation add a list that is not text", () => {
+    const english = { type: "hero", heading: "A" };
+    expect(mergeLocale(english, { type: "hero", images: ["/a.jpg", "/b.jpg"] })).toBe(english);
+    expect(mergeLocale(english, { type: "hero", salesProjects: [] })).toBe(english);
+    expect(mergeLocale(english, { type: "hero", salesProjects: ["ok", "  "] })).toBe(english);
+  });
+});

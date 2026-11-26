@@ -6,6 +6,7 @@ import { LegalPageView, legalPages } from "@/components/public/legal-page-view";
 import { applyTermsCopyOnce } from "@/lib/terms-restore";
 import { getLocale } from "@/lib/locale";
 import { loadLocalizedFixedPageSeo } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 export const revalidate = 300;
 
@@ -18,7 +19,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const seo = legalSeo[slug as keyof typeof legalSeo];
-  return seo ? pageMetadata(await loadLocalizedFixedPageSeo(slug), await getLocale()) : { title: "Legal" };
+  if (!seo) return { title: "Legal" };
+  const [fixed, locale, translated] = await Promise.all([loadLocalizedFixedPageSeo(slug), getLocale(), pageLanguages({ page: slug })]);
+  return pageMetadata(fixed, locale, translated);
 }
 
 /// Managed legal pages render only CMS content; unpublished pages are not
@@ -28,6 +31,9 @@ export default async function ManagedLegalPage({ params }: { params: Promise<{ s
   const meta = legalPages[slug];
   if (!meta) notFound();
   if (slug === "terms") await applyTermsCopyOnce();
+  // The page waits for what its metadata reads, so that its metadata can never
+  // resolve after the page (Next would stream it to the end of the HTML).
+  await Promise.all([loadLocalizedFixedPageSeo(slug), pageLanguages({ page: slug })]);
   let page: { title: string; content: unknown; status: string } | null = null;
   try { page = await db.staticPage.findUnique({ where: { slug } }); } catch {}
   if (!page || page.status !== "PUBLISHED") notFound();

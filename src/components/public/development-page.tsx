@@ -78,7 +78,7 @@ export function DevelopmentMain({ project, shell, calculator, hidden, locale }: 
             <p style={textStyleProps(project.chrome?.descriptionStyle)}>{project.description ?? ""}</p>
             {project.chrome?.ctaVisible === false && project.chrome?.brochureVisible === false ? null : <div className="single-project-actions">
               {project.chrome?.ctaVisible === false ? null : <a className="btn-pill" href={localeHref(project.chrome?.ctaUrl || "#amenities", locale)}>{project.chrome?.ctaLabel || t(locale, "dev.explore")}</a>}
-              {project.chrome?.brochureVisible === false ? null : <BrochureRequest projectName={project.name} projectSlug={project.slug} label={project.chrome?.brochureLabel || t(locale, "brochure.download")} />}
+              {project.chrome?.brochureVisible === false ? null : <BrochureRequest projectName={project.name} projectSlug={project.slug} locale={locale} label={project.chrome?.brochureLabel || t(locale, "brochure.download")} />}
             </div>}
           </div>
         </div>

@@ -273,7 +273,7 @@ const distanceAreaLabels = [
   { name: "Dubai Marina", lat: 25.0805, lng: 55.1403 }
 ];
 
-export function SevenXSevenFresh({ content, preview = false, locale, switcherLocales }: { content: PublishedContent; preview?: boolean; locale: Locale; switcherLocales: Locale[] }) {
+export function SevenXSevenFresh({ content, english, preview = false, locale, switcherLocales }: { content: PublishedContent; english?: PublishedContent; preview?: boolean; locale: Locale; switcherLocales: Locale[] }) {
   const text = (section: SectionKey, key: string, fallback: string) => {
     const value = content[section]?.[key];
     return typeof value === "string" && value.trim() ? value : fallback;
@@ -315,6 +315,11 @@ export function SevenXSevenFresh({ content, preview = false, locale, switcherLoc
       })
     : [...sectionNavigation];
   const interestOptions = items("register", "interestOptions", ["Information about the project", "A property consultant to contact me", "Book a private viewing"]);
+  // The same choices in English (english is the page's English content on another
+  // language's page): a choice reads in the visitor's language and posts the
+  // English entry at the same position of the list. Never the translated label.
+  const englishChoices = english?.register?.interestOptions;
+  const englishInterestOptions = Array.isArray(englishChoices) && englishChoices.every((item) => typeof item === "string") && englishChoices.length ? englishChoices : interestOptions;
   const primaryCta = text("cta", "primary", "register your interest");
   const secondaryCta = text("cta", "secondary", "explore residences");
   const submitCta = text("cta", "submit", primaryCta);
@@ -372,7 +377,8 @@ export function SevenXSevenFresh({ content, preview = false, locale, switcherLoc
       const fullName = String(formData.get("FullName") || "").trim();
       const email = String(formData.get("Email") || "").trim();
       const phone = String(formData.get("PhoneNumber") || "").trim();
-      const interest = String(interestSelect?.selectedOptions[0]?.text ?? formData.get("TypeOfLead") ?? "seven x seven");
+      const chosen = interestSelect?.selectedIndex ?? -1;
+      const interest = chosen >= 0 && englishInterestOptions[chosen] ? englishInterestOptions[chosen] : String(interestSelect?.selectedOptions[0]?.text ?? formData.get("TypeOfLead") ?? "seven x seven");
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -382,7 +388,8 @@ export function SevenXSevenFresh({ content, preview = false, locale, switcherLoc
           phone,
           message: `seven x seven residence enquiry from the ${source}. Interest: ${interest}.`,
           interest,
-          sourcePage: "/seven-x-seven",
+          sourcePage: localeHref("/seven-x-seven", locale),
+          ...(locale === "en" ? {} : { visitorLanguage: locale }),
           inquiryType: "seven x seven residence",
           details: [
             { label: "Name", value: fullName },

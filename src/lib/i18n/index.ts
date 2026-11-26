@@ -1,4 +1,4 @@
-import { type Locale } from "@/lib/locales";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/locales";
 import en, { type Messages, type Translation } from "./en";
 import ar from "./ar";
 import ja from "./ja";
@@ -32,4 +32,24 @@ export function t(locale: Locale, key: MessageKey, vars: Record<string, string |
   const english = en[namespace] as Record<string, string>;
   const message = (translations[locale][namespace] as Record<string, string> | undefined)?.[name] || english[name];
   return message.replace(/\{(\w+)\}/g, (whole, placeholder: string) => (placeholder in vars ? String(vars[placeholder]) : whole));
+}
+
+/// Whether a language has a translation of a key. t() falls back to English,
+/// which does not say whether the text was translated.
+export function isTranslated(locale: Locale, key: MessageKey): boolean {
+  const cut = key.indexOf(".");
+  const namespace = key.slice(0, cut) as Namespace;
+  const name = key.slice(cut + 1);
+  return Boolean((translations[locale][namespace] as Record<string, string> | undefined)?.[name]);
+}
+
+/// A form's message in the visitor's language. An English page gets `english`
+/// exactly as written, as before. Where the sheet has no row for `key` yet,
+/// the translation of `fallback` is used instead — the sheet's wording for the
+/// same situation — so that a refusal is never left in English beside a form
+/// in Arabic or Japanese.
+export function formMessage(locale: Locale, english: string, key: MessageKey, fallback?: MessageKey): string {
+  if (locale === DEFAULT_LOCALE) return english;
+  if (isTranslated(locale, key)) return t(locale, key);
+  return fallback && isTranslated(locale, fallback) ? t(locale, fallback) : english;
 }
