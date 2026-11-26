@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { editablePages, type EditablePage } from "@/lib/editable-pages";
+import { TranslatedBadges } from "@/components/admin/language-tabs";
 import { CMS_TIME_ZONE } from "@/lib/time-zone";
+import { pageTranslationLocales, settingTranslationLocales } from "@/lib/translations/store";
 
 export const dynamic = "force-dynamic";
 
@@ -12,16 +14,24 @@ const legalKeys = new Set(["terms", "privacy-policy", "cookie-policy"]);
 /// page creation is intentionally not offered: new page templates require a
 /// developer.
 export default async function PagesPage() {
-  const [pages, homeSetting, newsSetting] = await Promise.all([
+  const [pages, homeSetting, newsSetting, recordLocales] = await Promise.all([
     db.staticPage.findMany({ orderBy: { updatedAt: "desc" } }),
     db.siteSetting.findUnique({ where: { key: "home" } }),
     db.siteSetting.findUnique({ where: { key: "news_listing" } }),
+    settingTranslationLocales(["home", "news_listing", "sxs"]),
   ]);
   /// Settings-backed editors (Homepage, News) keep their content in a settings record.
   const settingFor = (entry: EditablePage) => (entry.editor === "home" ? homeSetting : entry.editor === "news" ? newsSetting : undefined);
   const bySlug = new Map(pages.map((page) => [page.slug, page]));
   const registered = new Set(editablePages.map((page) => page.key));
   const extras = pages.filter((page) => !registered.has(page.slug));
+  // The AR / JA badges: the languages each page is translated in.
+  const translatedIn = await pageTranslationLocales(pages.map((page) => page.id));
+  const translatedFor = (entry: EditablePage) =>
+    entry.key === "home" ? recordLocales.get("home")
+      : entry.key === "news" ? recordLocales.get("news_listing")
+      : entry.key === "seven-x-seven" ? recordLocales.get("sxs")
+      : translatedIn.get(bySlug.get(entry.key)?.id ?? "");
 
   /// What a visitor sees right now, in plain words.
   function state(entry: EditablePage) {
@@ -41,7 +51,7 @@ export default async function PagesPage() {
     const page = bySlug.get(entry.key);
     return <article className="cms-dev-card" key={entry.key}>
       <div className="cms-dev-card__body">
-        <div className="cms-row-card__meta"><span className="cms-eyebrow">{entry.publicHref}</span><span className={`cms-badge cms-badge--${info.badge}`}>{info.label}</span></div>
+        <div className="cms-row-card__meta"><span className="cms-eyebrow">{entry.publicHref}</span><span className={`cms-badge cms-badge--${info.badge}`}>{info.label}</span><TranslatedBadges locales={translatedFor(entry)} /></div>
         <h2><Link href={entry.href}>{entry.title}</Link></h2>
         <p className="cms-dev-card__tagline">{entry.description}</p>
         <p className="cms-muted">{info.note}{info.updatedAt ? ` Last saved ${info.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}.` : ""}</p>

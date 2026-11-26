@@ -1,9 +1,8 @@
 ﻿import Link from "next/link";
-import { getNavDevelopments } from "@/lib/nav-developments";
-import { getGlobalSettings } from "@/lib/site-contact";
 import { getLocale, getSwitcherLocales } from "@/lib/locale";
 import { localeHref } from "@/lib/locales";
 import { t } from "@/lib/i18n";
+import { getLocalizedGlobalSettings, getLocalizedNavDevelopments } from "@/lib/translations/store";
 import { LanguageSwitcher } from "./language-switcher";
 
 /// Delivered site chrome â€” a 1:1 port of the header, mega menu, media
@@ -14,7 +13,7 @@ import { LanguageSwitcher } from "./language-switcher";
 /// Links and labels follow the page's language; English is unchanged.
 
 export async function SiteShellHeader() {
-  const [developments, contact, locale, switcherLocales] = await Promise.all([getNavDevelopments(), getGlobalSettings(), getLocale(), getSwitcherLocales()]);
+  const [developments, contact, locale, switcherLocales] = await Promise.all([getLocalizedNavDevelopments(), getLocalizedGlobalSettings(), getLocale(), getSwitcherLocales()]);
   const href = (path: string) => localeHref(path, locale);
   // Nothing to offer until the client switches the switcher on.
   const switcher = (variant: "header" | "menu") => (switcherLocales.length ? <LanguageSwitcher locale={locale} published={switcherLocales} variant={variant} /> : null);

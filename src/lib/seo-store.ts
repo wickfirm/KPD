@@ -2,6 +2,8 @@ import { cache } from "react";
 import { db } from "./db";
 import { clampDescription } from "./seo";
 import { applySeoOverride, fixedPageSeoDefaults, parseSeoOverride, seoKey, type SeoOverride } from "./seo-overrides";
+import { prefixedLocales } from "./locales";
+import { translationSettingKey } from "./translations/merge-locale";
 
 // ── Reading and writing editor SEO text (see seo-overrides.ts) ────────────────
 
@@ -27,8 +29,9 @@ export async function saveSeoOverride(key: string, override: SeoOverride | null)
   await db.siteSetting.upsert({ where: { key }, create: { key, value: override }, update: { value: override } });
 }
 
+/// Removes an item's search text, in English and in every language.
 export async function deleteSeoOverride(key: string): Promise<void> {
-  await db.siteSetting.deleteMany({ where: { key } }).catch(() => undefined);
+  await db.siteSetting.deleteMany({ where: { key: { in: [key, ...prefixedLocales.map((locale) => translationSettingKey(key, locale))] } } }).catch(() => undefined);
 }
 
 /// A fixed page's title, description and path, with any editor text applied.

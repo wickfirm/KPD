@@ -17,7 +17,8 @@ export function AutoSectionNav({ scope = ".cms-editor-layout__main", title = "On
     const found: SectionNavItem[] = [];
     headings.forEach((heading, index) => {
       const label = heading.textContent?.trim();
-      if (!label || heading.closest(".cms-repeat-card, .cms-list-editor, .cms-module-disclosure")) return;
+      // Also not the read-only English copy an Arabic or Japanese tab shows for reference.
+      if (!label || heading.closest(".cms-repeat-card, .cms-list-editor, .cms-module-disclosure, [data-english-copy]")) return;
       if (!heading.id) heading.id = `auto-section-${index}`;
       heading.style.scrollMarginTop = "24px";
       found.push({ id: heading.id, label });

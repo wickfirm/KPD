@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { db } from "./db";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,8 +59,15 @@ export async function recordVersion(input: {
   label: string;
   snapshot: VersionSnapshot;
   authorEmail?: string | null;
+  /// "ar" or "ja" for the save of a translation, absent for an English save.
+  /// Each language keeps its own rolling history for the item, so translating
+  /// never pushes an English version out.
+  locale?: string | null;
 }): Promise<void> {
   if (!input.entityId) return;
+  // Versions are numbered once per item, across languages, so two editors
+  // saving English and Arabic at the same moment can never take the same number.
+  const own: Prisma.ContentVersionWhereInput = { entityType: input.entityType, entityId: input.entityId, locale: input.locale ?? null };
   try {
     // Retry once on the (rare) version-number race between concurrent saves.
     for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -78,12 +86,13 @@ export async function recordVersion(input: {
             label: input.label.slice(0, 160),
             versionNumber,
             snapshot: input.snapshot as never,
+            locale: input.locale ?? null,
             authorEmail: input.authorEmail ?? null,
           },
         });
-        // FIFO eviction: keep only the newest MAX_CONTENT_VERSIONS rows.
+        // FIFO eviction: keep only the newest MAX_CONTENT_VERSIONS rows of this language.
         const stale = await db.contentVersion.findMany({
-          where: { entityType: input.entityType, entityId: input.entityId },
+          where: own,
           orderBy: { versionNumber: "desc" },
           skip: MAX_CONTENT_VERSIONS,
           select: { id: true },

@@ -24,16 +24,33 @@ import { sectionDraftKey, type SectionDraft } from "@/lib/section-preview";
 import { articleDraftKey, type ArticleDraft } from "@/lib/article-preview";
 import { generateArticleField, type ArticleAiField, type ArticleAiResult } from "@/lib/article-ai";
 import { pageDraftKey, paragraphBlocks, type PageDraft } from "@/lib/page-preview";
-import { applySxsSettings } from "./seven-x-seven/actions";
+import { applySxsSettings, applySxsTranslation } from "./seven-x-seven/actions";
 import { newSiteDraft, siteDraftKey } from "@/lib/site-preview";
 import { moduleSectionId } from "@/lib/module-section-id";
 import { normalizeLineBreaks, preserveLineBreaks } from "@/lib/line-breaks";
 import { textStyleFromForm } from "@/lib/text-style";
-import { developmentSlots, parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
-import { fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
-import { deleteSeoOverride, saveSeoOverride } from "@/lib/seo-store";
+import { projectChromeKey, parseProjectChrome, developmentSlots, type ProjectChrome } from "@/lib/project-chrome";
+import { sharedModuleFields } from "@/lib/project-modules";
+import { applySeoOverride, fixedPageSeoDefaults, seoKey, seoOverrideFromForm } from "@/lib/seo-overrides";
+import { deleteSeoOverride, loadSeoOverride, saveSeoOverride } from "@/lib/seo-store";
+import { developmentDescription, developmentTitle, pageSeo, withBrand } from "@/lib/seo";
 import { contactInquiryDefaults } from "@/lib/contact-inquiry-content";
 import { detectLang, normalizePressItems, resolvePressItems, splitGoogleNewsTitle, type PressItem } from "@/lib/press-coverage";
+import { DEFAULT_LOCALE, languageNames, type Locale } from "@/lib/locales";
+import { localesSettingKey } from "@/lib/published-locales";
+import { mergeGlobalSettings } from "@/lib/site-contact";
+import { legalContact, legalDocuments, legalTabForSlug, type LegalDocument } from "@/lib/terms-defaults";
+import { splitTranslationForm, translationDraftKey } from "@/lib/translations/form-translation";
+import { alignToSaved } from "@/lib/translations/align-blocks";
+import { legalDocumentFromForm, legalFormFields } from "@/lib/translations/legal-form";
+import {
+  LEGAL_TRANSLATION_BLOCKS,
+  writeArticleTranslation,
+  writeModuleTranslation,
+  writePageTranslation,
+  writeProjectTranslation,
+  writeSettingTranslation,
+} from "@/lib/translations/store";
 
 function slugify(value: string) {
   return value
@@ -228,23 +245,25 @@ export async function generateArticleText(field: ArticleAiField, formData: FormD
 /// article-preview.ts). Nothing public changes and the article is not saved.
 export async function previewArticleDraft(formData: FormData): Promise<{ error?: string; id?: string }> {
   const { session } = await requirePermission("content.write");
-  const id = String(formData.get("id") || "");
-  const title = String(formData.get("title") || "").trim();
+  // An Arabic or Japanese tab previews its translation from its own row.
+  const { locale, form } = splitTranslationForm(formData);
+  const id = String(form.get("id") || "");
+  const title = String(form.get("title") || "").trim();
   if (!title) return { error: "Give the article a title to preview it." };
   let body: string[];
-  try { body = parseBody(String(formData.get("body") || "")); } catch (err) { return { error: (err as Error).message }; }
+  try { body = parseBody(String(form.get("body") || "")); } catch (err) { return { error: (err as Error).message }; }
   const saved = id ? await db.article.findUnique({ where: { id }, select: { slug: true } }) : null;
   const draft: ArticleDraft = {
-    kind: formData.get("kind") === "BLOG" ? "BLOG" : "NEWS",
+    kind: form.get("kind") === "BLOG" ? "BLOG" : "NEWS",
     slug: saved?.slug ?? slugify(title),
     title,
-    summary: String(formData.get("summary") || "").trim(),
+    summary: String(form.get("summary") || "").trim(),
     body,
-    coverImage: String(formData.get("coverImage") || "").trim() || null,
-    coverImageAlt: String(formData.get("coverImageAlt") || "").trim() || null,
+    coverImage: String(form.get("coverImage") || "").trim() || null,
+    coverImageAlt: String(form.get("coverImageAlt") || "").trim() || null,
     savedAt: Date.now(),
   };
-  const key = articleDraftKey(id, session.email);
+  const key = translationDraftKey(articleDraftKey(id, session.email), locale);
   await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
   return { id: id || "new" };
 }
@@ -408,9 +427,21 @@ function moduleContentFromForm(formData: FormData) {
   };
 }
 
+/// The development's own text as the editor's form has it. Shared by the real
+/// save and the translation tabs so the two cannot disagree.
+function projectTextFromForm(formData: FormData) {
+  return {
+    name: String(formData.get("name") || "").trim(),
+    tagline: normalizeLineBreaks(formData.get("tagline") as string | null) || null,
+    description: String(formData.get("description") || "").trim() || null,
+    location: String(formData.get("location") || "").trim() || null,
+  };
+}
+
 /// Shared development write path (editor form + version restore).
 async function applyProject(id: string, formData: FormData): Promise<ApplyResult> {
-  const name = String(formData.get("name") || "").trim();
+  const text = projectTextFromForm(formData);
+  const name = text.name;
   const currentSlug = id ? await db.project.findUnique({ where: { id }, select: { slug: true } }) : null;
   const slug = currentSlug?.slug ?? slugify(name);
   if (!name || !slug) return { error: "Development name is required." };
@@ -418,14 +449,11 @@ async function applyProject(id: string, formData: FormData): Promise<ApplyResult
   const status = projectStatus(formData.get("status"));
   const data = {
     slug,
-    name,
-    tagline: normalizeLineBreaks(formData.get("tagline") as string | null) || null,
-    description: String(formData.get("description") || "").trim() || null,
+    ...text,
     profile: projectProfile(formData.get("profile")),
     status,
     heroImage: String(formData.get("heroImage") || "").trim() || null,
     heroVideo: String(formData.get("heroVideo") || "").trim() || null,
-    location: String(formData.get("location") || "").trim() || null,
     sortOrder: Math.max(0, Number(formData.get("sortOrder") || 0) || 0),
   };
 
@@ -452,21 +480,11 @@ async function applyProject(id: string, formData: FormData): Promise<ApplyResult
   }
 }
 
-/// Create or update a development shell; its reusable content is managed as modules.
-export async function saveProject(
-  _prev: ProjectFormState,
-  formData: FormData,
-): Promise<ProjectFormState> {
-  const { session, user } = await requirePermission("content.write");
-  const id = String(formData.get("id") || "");
-  const current = id ? await db.project.findUnique({ where: { id }, select: { status: true } }) : null;
-  if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change a development once it is published or archived." };
-  formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
-
-  const result = await applyProject(id, formData);
-  if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
-  const previousChrome = parseProjectChrome((await db.siteSetting.findUnique({ where: { key: projectChromeKey(result.id) } }).catch(() => null))?.value);
-  const chrome = parseProjectChrome({
+/// A development's page labels and buttons as the editor's form has them,
+/// starting from what was saved for the fields this form does not show. Shared
+/// by the real save and the translation tabs so the two cannot disagree.
+function projectChromeFromForm(formData: FormData, previousChrome: ProjectChrome): ProjectChrome {
+  return parseProjectChrome({
     ctaLabel: String(formData.get("heroCtaLabel") || "").trim(),
     ctaUrl: String(formData.get("heroCtaUrl") || "").trim(),
     ctaVisible: formData.get("heroCtaVisible") === "on",
@@ -499,7 +517,25 @@ export async function saveProject(
       calculator: String(formData.get("labelCalculator") ?? ""),
       subnavCta: String(formData.get("labelSubnavCta") ?? ""),
     } : previousChrome.labels,
+
   });
+}
+
+/// Create or update a development shell; its reusable content is managed as modules.
+export async function saveProject(
+  _prev: ProjectFormState,
+  formData: FormData,
+): Promise<ProjectFormState> {
+  const { session, user } = await requirePermission("content.write");
+  const id = String(formData.get("id") || "");
+  const current = id ? await db.project.findUnique({ where: { id }, select: { status: true } }) : null;
+  if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change a development once it is published or archived." };
+  formData.set("status", allowedStatus(user.role, String(formData.get("status") || "DRAFT")));
+
+  const result = await applyProject(id, formData);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this development." };
+  const previousChrome = parseProjectChrome((await db.siteSetting.findUnique({ where: { key: projectChromeKey(result.id) } }).catch(() => null))?.value);
+  const chrome = projectChromeFromForm(formData, previousChrome);
   const chromeKey = projectChromeKey(result.id);
   await db.siteSetting.upsert({ where: { key: chromeKey }, update: { value: chrome }, create: { key: chromeKey, value: chrome } });
   const seo = await saveSeoFor("PROJECT", result.id, formData);
@@ -613,22 +649,24 @@ export async function saveProjectModule(
 /// and nothing is saved to the section itself.
 export async function previewSectionDraft(formData: FormData): Promise<{ error?: string; slug?: string; anchor?: string }> {
   await requirePermission("content.write");
-  const projectId = String(formData.get("projectId") || "");
-  const title = normalizeLineBreaks(formData.get("title") as string | null);
-  const existing = formData.get("id") ? await db.projectModule.findUnique({ where: { id: String(formData.get("id")) }, select: { slug: true } }) : null;
+  // An Arabic or Japanese tab previews its translation from its own row.
+  const { locale, form } = splitTranslationForm(formData);
+  const projectId = String(form.get("projectId") || "");
+  const title = normalizeLineBreaks(form.get("title") as string | null);
+  const existing = form.get("id") ? await db.projectModule.findUnique({ where: { id: String(form.get("id")) }, select: { slug: true } }) : null;
   const slug = existing?.slug ?? slugify(title);
   if (!projectId || !title || !slug) return { error: "Give the section a title to preview it." };
   const project = await db.project.findUnique({ where: { id: projectId }, select: { slug: true } });
   if (!project) return { error: "This development no longer exists." };
   const draft: SectionDraft = {
-    id: String(formData.get("id") || ""),
+    id: String(form.get("id") || ""),
     title,
     slug,
-    kind: moduleKind(formData.get("kind")),
-    content: moduleContentFromForm(formData),
+    kind: moduleKind(form.get("kind")),
+    content: moduleContentFromForm(form),
     savedAt: Date.now(),
   };
-  const key = sectionDraftKey(projectId);
+  const key = translationDraftKey(sectionDraftKey(projectId), locale);
   await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
   return { slug: project.slug, anchor: moduleSectionId(slug) };
 }
@@ -869,16 +907,21 @@ const previewablePageSlugs = ["terms", "privacy-policy", "cookie-policy", "about
 /// page-preview.ts). Nothing public changes and the page is not saved.
 export async function previewPageDraft(formData: FormData): Promise<{ error?: string; slug?: string }> {
   await requirePermission("content.editLive");
-  const id = String(formData.get("id") || "");
-  const existing = id ? await db.staticPage.findUnique({ where: { id }, select: { slug: true } }) : null;
-  const slug = existing?.slug ?? slugify(String(formData.get("title") || ""));
+  // An Arabic or Japanese tab previews its translation from its own row.
+  const { locale, form } = splitTranslationForm(formData);
+  const id = String(form.get("id") || "");
+  const existing = id ? await db.staticPage.findUnique({ where: { id }, select: { slug: true, content: true } }) : null;
+  const slug = existing?.slug ?? slugify(String(form.get("title") || ""));
   if (!previewablePageSlugs.includes(slug)) return { error: "This page cannot be previewed this way." };
-  const title = String(formData.get("title") || "").trim();
+  const title = String(form.get("title") || "").trim();
   if (!title) return { error: "Give the page a title to preview it." };
-  const built = buildStaticPageContent(slug, formData);
+  const built = buildStaticPageContent(slug, form);
   if ("error" in built) return { error: built.error };
-  const draft: PageDraft = { title, content: built.content, savedAt: Date.now() };
-  const key = pageDraftKey(slug);
+  // A translation's preview keeps the saved blocks the editor has no box for
+  // (a paragraph of the History page), as the public page shows them.
+  const saved: Record<string, unknown>[] = Array.isArray(existing?.content) ? (existing.content as Record<string, unknown>[]) : [];
+  const draft: PageDraft = { title, content: locale === DEFAULT_LOCALE ? built.content : alignToSaved(saved, built.content), savedAt: Date.now() };
+  const key = translationDraftKey(pageDraftKey(slug), locale);
   await db.siteSetting.upsert({ where: { key }, create: { key, value: draft as never }, update: { value: draft as never } });
   return { slug };
 }
@@ -936,10 +979,11 @@ export async function deleteStaticPage(formData: FormData) {
   redirect("/admin/pages");
 }
 
-/// Shared write path for the site-wide contact details record.
-async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
+/// The site-wide settings record as the editor's form has it. Shared by the
+/// real save and the translation tabs so the two cannot disagree.
+function globalSettingsFromForm(formData: FormData) {
   const textStyle = (prefix: string) => textStyleFromForm(formData, prefix) ?? {};
-  const global = {
+  return {
     email: String(formData.get("email") || "").trim(),
     phone: String(formData.get("phone") || "").trim(),
     whatsapp: String(formData.get("whatsapp") || "").trim(),
@@ -983,7 +1027,13 @@ async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
     popupIntro: String(formData.get("popupIntro") || "").trim(),
     popupSubmitLabel: String(formData.get("popupSubmitLabel") || "").trim(),
     popupNote: String(formData.get("popupNote") || "").trim(),
+
   };
+}
+
+/// Shared write path for the site-wide contact details record.
+async function applyGlobalSettings(formData: FormData): Promise<ApplyResult> {
+  const global = globalSettingsFromForm(formData);
   try {
     // The News page copy (news_listing) is edited under Pages → News.
     await db.siteSetting.upsert({ where: { key: "global" }, update: { value: global }, create: { key: "global", value: global } });
@@ -1109,8 +1159,10 @@ async function applyHomeSettings(formData: FormData): Promise<ApplyResult> {
 /// site-preview.ts). Nothing public changes and nothing is saved.
 export async function previewHomeDraft(formData: FormData): Promise<{ error?: string }> {
   const { session } = await requirePermission("content.editLive");
-  const key = siteDraftKey("home", session.email);
-  const value = newSiteDraft(homeSettingsFromForm(formData));
+  // An Arabic or Japanese tab previews its translation from its own row.
+  const { locale, form } = splitTranslationForm(formData);
+  const key = translationDraftKey(siteDraftKey("home", session.email), locale);
+  const value = newSiteDraft(homeSettingsFromForm(form));
   await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });
   return {};
 }
@@ -1119,30 +1171,28 @@ export async function previewHomeDraft(formData: FormData): Promise<{ error?: st
 /// the editor currently has them (validated the way a real save validates them).
 export async function previewInvestDraft(formData: FormData): Promise<{ error?: string }> {
   const { session } = await requirePermission("content.editLive");
+  // An Arabic or Japanese tab previews its translation from its own row.
+  const { locale, form } = splitTranslationForm(formData);
   let invest: ReturnType<typeof sanitizeInvestContent> | undefined;
-  const raw = String(formData.get("investJson") || "").trim();
+  const raw = String(form.get("investJson") || "").trim();
   if (raw) {
     try { invest = sanitizeInvestContent(JSON.parse(raw)); } catch { return { error: "The investor guide sections could not be read. Please review them and try again." }; }
   }
-  const heroFields = { type: "hero", eyebrow: String(formData.get("eyebrow") || "").trim(), heading: String(formData.get("heading") || "").trim(), text: String(formData.get("intro") || "").trim(), image: String(formData.get("image") || "").trim(), ...(textStyleFromForm(formData, "pageHeading") ? { headingStyle: textStyleFromForm(formData, "pageHeading") } : {}), ...(textStyleFromForm(formData, "pageIntro") ? { textStyle: textStyleFromForm(formData, "pageIntro") } : {}) };
+  const heroFields = { type: "hero", eyebrow: String(form.get("eyebrow") || "").trim(), heading: String(form.get("heading") || "").trim(), text: String(form.get("intro") || "").trim(), image: String(form.get("image") || "").trim(), ...(textStyleFromForm(form, "pageHeading") ? { headingStyle: textStyleFromForm(form, "pageHeading") } : {}), ...(textStyleFromForm(form, "pageIntro") ? { textStyle: textStyleFromForm(form, "pageIntro") } : {}) };
   // A real save drops the hero block when every field is empty; mirror that so
   // the preview shows the same delivered defaults the public page would.
   const hero = heroFields.eyebrow || heroFields.heading || heroFields.text || heroFields.image ? heroFields : undefined;
-  const key = siteDraftKey("invest", session.email);
+  const key = translationDraftKey(siteDraftKey("invest", session.email), locale);
   const value = newSiteDraft({ hero, saved: invest ? { type: "invest", ...invest } : undefined });
   await db.siteSetting.upsert({ where: { key }, create: { key, value: value as never }, update: { value: value as never } });
   return {};
 }
 
-/// The /news page copy lives in the "news_listing" settings record and is
-/// edited under Pages → News. Blank fields keep the approved wording.
-export async function saveNewsListing(
-  _prev: SiteSettingsFormState,
-  formData: FormData,
-): Promise<SiteSettingsFormState> {
-  const { session } = await requirePermission("content.editLive");
+/// The /news page copy as the editor's form has it. Shared by the real save
+/// and the translation tabs so the two cannot disagree.
+function newsListingFromForm(formData: FormData): { value: Record<string, unknown> } | { error: string } {
   const field = (name: string) => String(formData.get(name) || "").trim();
-  const value = {
+  const value: Record<string, unknown> = {
     eyebrow: field("eyebrow"),
     heading: normalizeLineBreaks(formData.get("heading") as string | null),
     intro: field("intro"),
@@ -1168,12 +1218,26 @@ export async function saveNewsListing(
     headingStyle: textStyleFromForm(formData, "newsHeading"),
     pressHeadingStyle: textStyleFromForm(formData, "newsPressHeading"),
     pressTextStyle: textStyleFromForm(formData, "newsPressText"),
+
   };
   try {
     value.coverage = normalizePressItems(JSON.parse(String(formData.get("coverageJson") || "[]")));
   } catch {
     return { error: "The press coverage list could not be read. Reload the page and try again." };
   }
+  return { value };
+}
+
+/// The /news page copy lives in the "news_listing" settings record and is
+/// edited under Pages → News. Blank fields keep the approved wording.
+export async function saveNewsListing(
+  _prev: SiteSettingsFormState,
+  formData: FormData,
+): Promise<SiteSettingsFormState> {
+  const { session } = await requirePermission("content.editLive");
+  const built = newsListingFromForm(formData);
+  if ("error" in built) return { error: built.error };
+  const value = built.value as never;
   try {
     await db.siteSetting.upsert({ where: { key: "news_listing" }, update: { value }, create: { key: "news_listing", value } });
   } catch {
@@ -1320,6 +1384,356 @@ export async function importLegacyProjectTemplate(formData: FormData) {
   redirect(`/admin/projects/${projectId}?saved=1`);
 }
 
+// ── Translations (the Arabic and Japanese tabs) ──────────────────────────────
+//
+// An Arabic or Japanese tab is the English editor form with the translation's
+// text in it. Saving it never writes the English record. The form is read with
+// the same builders as the English save, compared with the English form the
+// editor's browser sends along, and only the text that differs is stored — in
+// the translation's own row (src/lib/translations/store.ts). Images, links,
+// switches, order and styles cannot be stored: they are not text.
+//
+// Each apply* is the write path for both the tab's save and a version restore.
+
+const LEGAL_PAGE_SLUGS = ["terms", "privacy-policy", "cookie-policy"];
+
+/// An article's translation: title, summary, body and alt text.
+async function applyArticleTranslation(articleId: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const article = await db.article.findUnique({ where: { id: articleId }, select: { title: true, summary: true, body: true, coverImageAlt: true } });
+  if (!article) return { error: "This article no longer exists." };
+  let body: string[];
+  let englishBody: string[];
+  try {
+    body = parseBody(String(form.get("body") || "[]"));
+    // Without the English form, the comparison is with the article as it is saved.
+    englishBody = englishForm ? parseBody(String(englishForm.get("body") || "[]")) : Array.isArray(article.body) ? article.body.map(String) : [];
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+  const boxes = (source: FormData) => ({
+    title: String(source.get("title") || "").trim(),
+    summary: String(source.get("summary") || "").trim(),
+    coverImageAlt: String(source.get("coverImageAlt") || "").trim() || null,
+  });
+  const built = { ...boxes(form), body };
+  const english = englishForm ? { ...boxes(englishForm), body: englishBody } : { title: article.title, summary: article.summary, body: englishBody, coverImageAlt: article.coverImageAlt };
+  await writeArticleTranslation(articleId, locale, english, built);
+  return { id: articleId, label: built.title || article.title };
+}
+
+/// A legal page's translation. Its English document is the client's text
+/// (src/lib/terms-defaults.ts), not CMS content, so the form shows that
+/// document line by line; only what differs from it is stored, as an overlay.
+async function applyLegalTranslation(pageId: string, slug: string, locale: Locale, form: FormData): Promise<ApplyResult> {
+  const englishDocument = legalDocuments.find((document) => document.id === legalTabForSlug(slug));
+  if (!englishDocument) return { error: "This page has no document to translate." };
+  const page = await db.staticPage.findUnique({ where: { id: pageId }, select: { content: true } });
+  if (!page) return { error: "This page no longer exists." };
+  const savedContact = Array.isArray(page.content)
+    ? page.content.find((block): block is { type?: string; heading?: string; text?: string; email?: string } => Boolean(block) && typeof block === "object" && (block as { type?: string }).type === "legal-contact")
+    : undefined;
+  const englishContact = { ...legalContact, ...savedContact };
+  const line = (name: string, shown: string) => {
+    const value = form.get(name);
+    return typeof value === "string" && value.trim() ? value : shown;
+  };
+  const builtContact = { ...englishContact, heading: line(legalFormFields.contactHeading, englishContact.heading), text: line(legalFormFields.contactText, englishContact.text) };
+  const blocks = (contact: { heading: string; text: string }, document: LegalDocument) => [
+    { type: LEGAL_TRANSLATION_BLOCKS[0], heading: contact.heading, text: contact.text },
+    { type: LEGAL_TRANSLATION_BLOCKS[1], id: document.id, title: document.title, sections: document.sections },
+  ];
+  await writePageTranslation(pageId, locale, { content: blocks(englishContact, englishDocument) }, { content: blocks(builtContact, legalDocumentFromForm(englishDocument, form)) });
+  return { id: pageId, label: englishDocument.title };
+}
+
+/// A page's translation: its title and the text of its blocks.
+async function applyStaticPageTranslation(pageId: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const page = await db.staticPage.findUnique({ where: { id: pageId }, select: { slug: true, title: true, content: true } });
+  if (!page) return { error: "This page no longer exists." };
+  if (LEGAL_PAGE_SLUGS.includes(page.slug)) return applyLegalTranslation(pageId, page.slug, locale, form);
+  const built = buildStaticPageContent(page.slug, form);
+  if ("error" in built) return { error: built.error };
+  const saved: Record<string, unknown>[] = Array.isArray(page.content) ? (page.content as Record<string, unknown>[]) : [];
+  // Without the English form, the comparison is with the page as it is saved.
+  const englishFormBlocks = englishForm ? buildStaticPageContent(page.slug, englishForm) : { content: saved };
+  if ("error" in englishFormBlocks) return { error: englishFormBlocks.error };
+  const title = String(form.get("title") || "").trim();
+  if (!title) return { error: "Page title is required." };
+  const englishTitle = englishForm ? String(englishForm.get("title") || "").trim() : page.title;
+  // A translation is filed by the position of the page's *saved* blocks. The
+  // editor cannot show every kind of saved block (History and Contact have no
+  // body box), and a translation filed by what the editor shows would land one
+  // block too early (src/lib/translations/align-blocks.ts).
+  await writePageTranslation(
+    pageId,
+    locale,
+    { title: englishTitle, content: alignToSaved(saved, englishFormBlocks.content) },
+    { title, content: alignToSaved(saved, built.content) },
+  );
+  return { id: pageId, label: title };
+}
+
+/// A development's translation: its own text, and its page's labels and buttons.
+async function applyProjectTranslation(projectId: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const project = await db.project.findUnique({ where: { id: projectId }, select: { name: true, tagline: true, description: true, location: true } });
+  if (!project) return { error: "This development no longer exists." };
+  if (!projectTextFromForm(form).name) return { error: "Development name is required." };
+  const savedChrome = parseProjectChrome((await db.siteSetting.findUnique({ where: { key: projectChromeKey(projectId) } }).catch(() => null))?.value);
+  await writeProjectTranslation(projectId, locale, englishForm ? projectTextFromForm(englishForm) : project, projectTextFromForm(form));
+  await writeSettingTranslation(projectChromeKey(projectId), locale, englishForm ? projectChromeFromForm(englishForm, savedChrome) : savedChrome, projectChromeFromForm(form, savedChrome));
+  return { id: projectId, label: projectTextFromForm(form).name };
+}
+
+/// A development section's translation: its title and its text.
+async function applyProjectModuleTranslation(moduleId: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const section = await db.projectModule.findUnique({ where: { id: moduleId }, select: { projectId: true, title: true, content: true } });
+  if (!section) return { error: "This section no longer exists." };
+  const text = (source: FormData) => ({ title: normalizeLineBreaks(source.get("title") as string | null), content: moduleContentFromForm(source) });
+  await writeModuleTranslation(moduleId, locale, englishForm ? text(englishForm) : { title: section.title, content: section.content }, text(form));
+  return { id: moduleId, projectId: section.projectId, label: text(form).title || section.title };
+}
+
+async function applyHomeTranslation(_id: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const saved = (await db.siteSetting.findUnique({ where: { key: "home" } }).catch(() => null))?.value ?? null;
+  await writeSettingTranslation("home", locale, englishForm ? homeSettingsFromForm(englishForm) : saved, homeSettingsFromForm(form));
+  return { id: "home", label: "Homepage" };
+}
+
+async function applyGlobalTranslation(_id: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const saved = mergeGlobalSettings((await db.siteSetting.findUnique({ where: { key: "global" } }).catch(() => null))?.value);
+  await writeSettingTranslation("global", locale, englishForm ? globalSettingsFromForm(englishForm) : saved, globalSettingsFromForm(form));
+  return { id: "global", label: "Site settings" };
+}
+
+async function applyNewsListingTranslation(_id: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  const built = newsListingFromForm(form);
+  if ("error" in built) return { error: built.error };
+  let english: unknown;
+  if (englishForm) {
+    const fromForm = newsListingFromForm(englishForm);
+    if ("error" in fromForm) return { error: fromForm.error };
+    english = fromForm.value;
+  } else {
+    english = (await db.siteSetting.findUnique({ where: { key: "news_listing" } }).catch(() => null))?.value ?? null;
+  }
+  await writeSettingTranslation("news_listing", locale, english, built.value);
+  return { id: "news_listing", label: "News page" };
+}
+
+/// The write path of a translation, by entity — the same one for the tab's
+/// save and for a version restore.
+async function applyTranslation(entityType: string, entityId: string, locale: Locale, form: FormData, englishForm: FormData | null): Promise<ApplyResult> {
+  switch (entityType) {
+    case "ARTICLE": return applyArticleTranslation(entityId, locale, form, englishForm);
+    case "STATIC_PAGE": return applyStaticPageTranslation(entityId, locale, form, englishForm);
+    case "PROJECT": return applyProjectTranslation(entityId, locale, form, englishForm);
+    case "PROJECT_MODULE": return applyProjectModuleTranslation(entityId, locale, form, englishForm);
+    case "HOME_SETTINGS": return applyHomeTranslation(entityId, locale, form, englishForm);
+    case "GLOBAL_SETTINGS": return applyGlobalTranslation(entityId, locale, form, englishForm);
+    case "NEWS_LISTING": return applyNewsListingTranslation(entityId, locale, form, englishForm);
+    case "SXS_PAGE": return applySxsTranslation(entityId, locale, form, englishForm);
+    default: return { error: "This content cannot be translated." };
+  }
+}
+
+/// The "Search appearance" boxes of a translation tab: the translation's own
+/// search title and description, stored beside the English ones. Whatever is
+/// left blank shows the English search text.
+async function saveSeoTranslationFor(entityType: string, entityId: string, form: FormData, locale: Locale): Promise<{ error?: string }> {
+  const built = seoOverrideFromForm(form);
+  if (!built) return {};
+  let key: string | null = null;
+  let automatic: { title: string; description: string } | null = null;
+  if (entityType === "ARTICLE") {
+    const article = await db.article.findUnique({ where: { id: entityId }, select: { title: true, summary: true } });
+    if (article) { key = seoKey("article", entityId); automatic = { title: withBrand(article.title), description: article.summary || article.title }; }
+  } else if (entityType === "PROJECT") {
+    const project = await db.project.findUnique({ where: { id: entityId }, select: { name: true, location: true, tagline: true, description: true } });
+    if (project) { key = seoKey("project", entityId); automatic = { title: developmentTitle(project.name, project.location), description: developmentDescription(project) }; }
+  } else if (entityType === "HOME_SETTINGS") {
+    key = seoKey("page", "home");
+    automatic = { title: pageSeo.home.title, description: pageSeo.home.description };
+  } else if (entityType === "STATIC_PAGE") {
+    const slug = (await db.staticPage.findUnique({ where: { id: entityId }, select: { slug: true } }))?.slug;
+    const defaults = slug ? fixedPageSeoDefaults(slug) : null;
+    if (defaults) { key = seoKey("page", slug as string); automatic = { title: defaults.title, description: defaults.description }; }
+  }
+  if (!key || !automatic) return {};
+  try {
+    await writeSettingTranslation(key, locale, applySeoOverride(automatic, await loadSeoOverride(key)), { title: built.title ?? "", description: built.description ?? "" });
+    return {};
+  } catch {
+    return { error: "The translation was saved, but its search title and description could not be stored. Please save again." };
+  }
+}
+
+/// Where a translation save sends the editor back to: the same tab.
+function translationReturnPath(value: FormDataEntryValue | null, fallback: string, locale: Locale) {
+  const asked = String(value || "");
+  const base = asked.startsWith("/admin/") && !asked.includes("//") && !asked.includes("lang=") ? asked : fallback;
+  return `${base}${base.includes("?") ? "&" : "?"}lang=${locale}`;
+}
+
+/// What every translation save does once the text is stored.
+async function finishTranslation(input: {
+  entityType: ContentVersionEntity | "NEWS_LISTING";
+  result: ApplyResult;
+  locale: Locale;
+  session: Parameters<typeof logActivity>[0]["session"];
+  what: string;
+  returnTo: string;
+  formData: FormData;
+  versioned: boolean;
+  revalidate: () => void;
+}): Promise<{ error?: string }> {
+  input.revalidate();
+  if (input.versioned) {
+    await recordVersion({
+      entityType: input.entityType as ContentVersionEntity,
+      entityId: input.result.id ?? "",
+      path: input.returnTo,
+      label: input.result.label || input.what,
+      snapshot: snapshotFormData(input.formData),
+      authorEmail: input.session?.email ?? null,
+      locale: input.locale,
+    });
+  }
+  await logActivity({ action: "content.save", session: input.session, entityType: input.entityType, entityId: input.result.id, summary: `Saved the ${languageNames[input.locale]} translation of ${input.what}“${input.result.label}”` });
+  redirect(`${input.returnTo}&saved=1`);
+}
+
+export async function saveArticleTranslation(_prev: ArticleFormState, formData: FormData): Promise<ArticleFormState> {
+  const { session, user } = await requirePermission("content.write");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const id = String(form.get("id") || "");
+  const current = id ? await db.article.findUnique({ where: { id }, select: { status: true } }) : null;
+  if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change an article once it is published or archived." };
+  const result = await applyArticleTranslation(id, locale, form, english);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this translation." };
+  const seo = await saveSeoTranslationFor("ARTICLE", result.id, form, locale);
+  if (seo.error) return seo;
+  await finishTranslation({
+    entityType: "ARTICLE", result, locale, session, what: "article ", formData, versioned: true,
+    returnTo: `/admin/articles/${result.id}?lang=${locale}`,
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+export async function saveStaticPageTranslation(_prev: StaticPageFormState, formData: FormData): Promise<StaticPageFormState> {
+  const { session } = await requirePermission("content.editLive");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const result = await applyStaticPageTranslation(String(form.get("id") || ""), locale, form, english);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this translation." };
+  const seo = await saveSeoTranslationFor("STATIC_PAGE", result.id, form, locale);
+  if (seo.error) return seo;
+  await finishTranslation({
+    entityType: "STATIC_PAGE", result, locale, session, what: "page ", formData, versioned: true,
+    returnTo: translationReturnPath(form.get("returnTo"), `/admin/pages/${result.id}`, locale),
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+export async function saveProjectTranslation(_prev: ProjectFormState, formData: FormData): Promise<ProjectFormState> {
+  const { session, user } = await requirePermission("content.write");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const id = String(form.get("id") || "");
+  const current = id ? await db.project.findUnique({ where: { id }, select: { status: true } }) : null;
+  if (!mayEditContent(user.role, current?.status)) return { error: "Only an Editor can change a development once it is published or archived." };
+  const result = await applyProjectTranslation(id, locale, form, english);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this translation." };
+  const seo = await saveSeoTranslationFor("PROJECT", result.id, form, locale);
+  if (seo.error) return seo;
+  await finishTranslation({
+    entityType: "PROJECT", result, locale, session, what: "development ", formData, versioned: true,
+    returnTo: `/admin/projects/${result.id}?lang=${locale}`,
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+export async function saveProjectModuleTranslation(_prev: ProjectModuleFormState, formData: FormData): Promise<ProjectModuleFormState> {
+  const { session, user } = await requirePermission("content.write");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const id = String(form.get("id") || "");
+  const projectId = String(form.get("projectId") || "");
+  if (!mayEditContent(user.role, await owningProjectStatus(projectId, id))) return { error: "Only an Editor can change a development once it is published or archived." };
+  const result = await applyProjectModuleTranslation(id, locale, form, english);
+  if (result.error || !result.id) return { error: result.error ?? "Unable to save this translation." };
+  await finishTranslation({
+    entityType: "PROJECT_MODULE", result, locale, session, what: "section ", formData, versioned: true,
+    returnTo: `/admin/projects/${result.projectId ?? projectId}?lang=${locale}`,
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+export async function saveHomeTranslation(_prev: SiteSettingsFormState, formData: FormData): Promise<SiteSettingsFormState> {
+  const { session } = await requirePermission("content.editLive");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const result = await applyHomeTranslation("home", locale, form, english);
+  if (result.error) return { error: result.error };
+  const seo = await saveSeoTranslationFor("HOME_SETTINGS", "home", form, locale);
+  if (seo.error) return seo;
+  await finishTranslation({
+    entityType: "HOME_SETTINGS", result, locale, session, what: "", formData, versioned: true,
+    returnTo: `/admin/pages/home?lang=${locale}`,
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+export async function saveGlobalTranslation(_prev: SiteSettingsFormState, formData: FormData): Promise<SiteSettingsFormState> {
+  const { session } = await requirePermission("settings.manage");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const result = await applyGlobalTranslation("global", locale, form, english);
+  if (result.error) return { error: result.error };
+  await finishTranslation({
+    entityType: "GLOBAL_SETTINGS", result, locale, session, what: "", formData, versioned: true,
+    returnTo: `/admin/settings?lang=${locale}`,
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+export async function saveNewsListingTranslation(_prev: SiteSettingsFormState, formData: FormData): Promise<SiteSettingsFormState> {
+  const { session } = await requirePermission("content.editLive");
+  const { locale, form, english } = splitTranslationForm(formData);
+  if (locale === DEFAULT_LOCALE) return { error: "Choose Arabic or Japanese to save a translation." };
+  const result = await applyNewsListingTranslation("news_listing", locale, form, english);
+  if (result.error) return { error: result.error };
+  await finishTranslation({
+    entityType: "NEWS_LISTING", result, locale, session, what: "", formData, versioned: false,
+    returnTo: `/admin/pages/news?lang=${locale}`,
+    revalidate: revalidatePublicContent,
+  });
+  return {};
+}
+
+/// Site settings → Languages: which languages can be reached at their
+/// addresses (/ar/…, /ja/…). One row, key "locales"; the language switcher's
+/// own switch in that row is left as it is.
+export async function saveLanguageSwitches(formData: FormData) {
+  const { session } = await requirePermission("settings.manage");
+  const current = (await db.siteSetting.findUnique({ where: { key: localesSettingKey } }).catch(() => null))?.value;
+  const value = {
+    ...(current && typeof current === "object" && !Array.isArray(current) ? current : {}),
+    ar: formData.get("ar") === "on",
+    ja: formData.get("ja") === "on",
+  };
+  await db.siteSetting.upsert({ where: { key: localesSettingKey }, create: { key: localesSettingKey, value }, update: { value } });
+  const on = (["ar", "ja"] as const).filter((locale) => value[locale] === true).map((locale) => languageNames[locale]);
+  await logActivity({ action: "settings.save", session, entityType: "LOCALES", entityId: localesSettingKey, summary: on.length ? `Languages that can be reached: ${on.join(", ")}` : "Only English can be reached" });
+  redirect("/admin/settings?saved=1#languages");
+}
+
 // ── Version restore ──────────────────────────────────────────────────────────
 // Replays a stored editor payload through the regular save path, so validation,
 // revalidation and activity logging behave exactly like a manual save. The
@@ -1337,41 +1751,57 @@ export async function restoreVersion(formData: FormData) {
   }
 
   const payload = snapshotToFormData(version.snapshot);
+  // A version saved on an Arabic or Japanese tab is a translation. Restoring it
+  // writes the translation's own row again — never the English record.
+  const language = version.locale === "ar" || version.locale === "ja" ? version.locale : null;
   let result: ApplyResult;
-  switch (version.entityType) {
-    case "ARTICLE": result = await applyArticle(version.entityId, payload); break;
-    case "STATIC_PAGE": result = await applyStaticPage(version.entityId, payload); break;
-    case "PROJECT": result = await applyProject(version.entityId, payload); break;
-    case "PROJECT_MODULE": result = await applyProjectModule(version.entityId, payload); break;
-    case "HOME_SETTINGS": result = await applyHomeSettings(payload); break;
-    case "GLOBAL_SETTINGS": result = await applyGlobalSettings(payload); break;
-    case "CALCULATOR": result = await applyCalculator(payload); break;
-    case "SXS_PAGE": result = await applySxsSettings(payload); break;
-    default: redirect(version.path || "/admin");
+  if (language) {
+    const { form, english } = splitTranslationForm(payload);
+    result = await applyTranslation(version.entityType, version.entityId, language, form, english);
+  } else {
+    switch (version.entityType) {
+      case "ARTICLE": result = await applyArticle(version.entityId, payload); break;
+      case "STATIC_PAGE": result = await applyStaticPage(version.entityId, payload); break;
+      case "PROJECT": result = await applyProject(version.entityId, payload); break;
+      case "PROJECT_MODULE": result = await applyProjectModule(version.entityId, payload); break;
+      case "HOME_SETTINGS": result = await applyHomeSettings(payload); break;
+      case "GLOBAL_SETTINGS": result = await applyGlobalSettings(payload); break;
+      case "CALCULATOR": result = await applyCalculator(payload); break;
+      case "SXS_PAGE": result = await applySxsSettings(payload); break;
+      default: redirect(version.path || "/admin");
+    }
   }
 
   const returnPath = version.entityType === "PROJECT_MODULE"
     ? version.path
     : editorPathFor(version.entityType, result.id ?? version.entityId);
-  if (result.error) redirect(`${returnPath}?error=${encodeURIComponent(result.error)}`);
+  // A translation's editor is its own language tab.
+  const back = language && !returnPath.includes("lang=") ? `${returnPath}${returnPath.includes("?") ? "&" : "?"}lang=${language}` : returnPath;
+  const withQuery = (suffix: string) => `${back}${back.includes("?") ? "&" : "?"}${suffix}`;
+  if (result.error) redirect(withQuery(`error=${encodeURIComponent(result.error)}`));
 
   const entityId = result.id ?? version.entityId;
-  await saveSeoFor(version.entityType, entityId, payload);
+  if (language) {
+    await saveSeoTranslationFor(version.entityType, entityId, splitTranslationForm(payload).form, language);
+  } else {
+    await saveSeoFor(version.entityType, entityId, payload);
+  }
   await recordVersion({
     entityType: version.entityType as ContentVersionEntity,
     entityId,
-    path: returnPath,
+    path: back,
     label: `${version.label} — restored from v${version.versionNumber}`,
     snapshot: snapshotFormData(payload),
     authorEmail: session.email,
+    locale: language,
   });
-  await logActivity({ action: "content.restore", session, entityType: version.entityType, entityId, summary: `Restored “${version.label}” to version ${version.versionNumber}` });
+  await logActivity({ action: "content.restore", session, entityType: version.entityType, entityId, summary: `Restored “${version.label}” to version ${version.versionNumber}${language ? ` (${languageNames[language]})` : ""}` });
 
   if (version.entityType === "ARTICLE" || version.entityType === "STATIC_PAGE") revalidatePath("/");
   if (version.entityType === "CALCULATOR") revalidatePath("/api/calculator/kpd");
-  revalidatePath(returnPath);
+  revalidatePath(back);
   revalidatePublicContent();
-  redirect(`${returnPath}?restored=1`);
+  redirect(withQuery("restored=1"));
 }
 
 /// Only ever send an editor back to the development screens.
@@ -1425,7 +1855,7 @@ export async function setProjectHomepage(formData: FormData) {
 export async function duplicateProject(formData: FormData) {
   const { session } = await requirePermission("content.write");
   const id = String(formData.get("id") || "");
-  const source = id ? await db.project.findUnique({ where: { id }, include: { modules: true } }) : null;
+  const source = id ? await db.project.findUnique({ where: { id }, include: { modules: { select: sharedModuleFields } } }) : null;
   if (!source) redirect(`/admin/projects?error=${encodeURIComponent("That development no longer exists.")}`);
 
   const slugs = (await db.project.findMany({ select: { slug: true } })).map((row) => row.slug);

@@ -1,22 +1,30 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { previewSectionDraft, saveProjectModule, type ProjectModuleFormState } from "../../actions";
+import { previewSectionDraft, saveProjectModule, saveProjectModuleTranslation, type ProjectModuleFormState } from "../../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { DragHandle, reorder, useDragReorder } from "@/components/admin/drag-reorder";
 import { moduleKindLabels } from "@/lib/project-starter";
 import { TextStyleFields, type TextStyleValue } from "@/components/admin/text-style-fields";
 import { sectionEyebrow } from "@/lib/development-section-labels";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { moduleTextFields, moduleSharedLabels } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 type ModuleItem = { label?: string; value?: string; image?: string; url?: string };
 type ModuleContent = { eyebrow?: string; text?: string; images?: string[]; items?: ModuleItem[]; url?: string; ctaLabel?: string; ctaVisible?: boolean; mapUrl?: string; presentation?: string; titleStyle?: TextStyleValue; textStyle?: TextStyleValue };
 type Defaults = { id?: string; title?: string; slug?: string; kind?: string; profile?: string; sortOrder?: number; content?: ModuleContent };
 const initialState: ProjectModuleFormState = {};
 
-export default function ModuleForm({ projectId, defaults }: { projectId: string; defaults?: Defaults }) {
-  const [state, formAction, pending] = useActionState(saveProjectModule, initialState);
+/// `lang` is the language tab: "en" is the section itself; "ar" or "ja" is the
+/// same editor with the section's translation in it. Images, files, links and
+/// the order of media are shared with English in every language.
+export default function ModuleForm({ projectId, defaults, lang = "en", englishId = "" }: { projectId: string; defaults?: Defaults; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveProjectModuleTranslation : saveProjectModule, initialState);
   const [kind, setKind] = useState(defaults?.kind ?? "CUSTOM");
   const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: moduleTextFields, sharedLabels: moduleSharedLabels });
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
   /// Opens the admin preview of this development with the section exactly as it
@@ -30,7 +38,7 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
     try {
       const result = await previewSectionDraft(new FormData(formRef.current));
       if (result.error || !result.slug) throw new Error(result.error || "Unable to build the preview.");
-      const target = `/admin/preview/developments/${result.slug}?draft=1#${result.anchor ?? ""}`;
+      const target = `/admin/preview/developments/${result.slug}?draft=1${translating ? `&lang=${lang}` : ""}#${result.anchor ?? ""}`;
       if (tab) tab.location.href = target; else window.location.assign(target);
     } catch (error) {
       tab?.close();
@@ -95,6 +103,6 @@ export default function ModuleForm({ projectId, defaults }: { projectId: string;
       <label className="cms-field"><span>Layout</span><select name="presentation" defaultValue={defaults?.content?.presentation ?? "standard"}><option value="standard">Standard</option><option value="calm">Split panel (text beside a large image)</option></select></label>
       {kind === "LOCATION" ? <label className="cms-field"><span>Map embed link</span><input name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} placeholder="https://www.google.com/maps/embed?..." /><small>Used on developments created in the CMS. The three original developments keep their built-in travel map.</small></label> : <input type="hidden" name="mapUrl" defaultValue={defaults?.content?.mapUrl ?? ""} />}
     </div>
-    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : defaults?.id ? "Save section" : "Add section"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
+    <div className="cms-save-row"><button className="cms-btn" type="submit" disabled={pending}>{pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : defaults?.id ? "Save section" : "Add section"}</button><button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>{previewError ? <span className="cms-error">{previewError}</span> : null}</div>
   </form>;
 }

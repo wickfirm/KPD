@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import { legalSeo, pageMetadata } from "@/lib/seo";
-import { loadFixedPageSeo } from "@/lib/seo-store";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { LegalPageView, legalPages } from "@/components/public/legal-page-view";
 import { applyTermsCopyOnce } from "@/lib/terms-restore";
 import { getLocale } from "@/lib/locale";
+import { loadLocalizedFixedPageSeo } from "@/lib/translations/store";
 
 export const revalidate = 300;
 
@@ -18,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const seo = legalSeo[slug as keyof typeof legalSeo];
-  return seo ? pageMetadata(await loadFixedPageSeo(slug), await getLocale()) : { title: "Legal" };
+  return seo ? pageMetadata(await loadLocalizedFixedPageSeo(slug), await getLocale()) : { title: "Legal" };
 }
 
 /// Managed legal pages render only CMS content; unpublished pages are not

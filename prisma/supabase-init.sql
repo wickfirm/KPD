@@ -49,15 +49,21 @@ CREATE TABLE IF NOT EXISTS "articles" (
     CONSTRAINT "articles_pkey" PRIMARY KEY ("id")
 );
 
+-- A null field is a text the language shows in English (prisma/add-translations.sql).
 CREATE TABLE IF NOT EXISTS "article_translations" (
     "id" TEXT NOT NULL,
     "articleId" TEXT NOT NULL,
     "locale" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "summary" TEXT NOT NULL,
-    "body" JSONB NOT NULL,
+    "title" TEXT,
+    "summary" TEXT,
+    "body" JSONB,
+    "coverImageAlt" TEXT,
     CONSTRAINT "article_translations_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "article_translations" ALTER COLUMN "title" DROP NOT NULL;
+ALTER TABLE "article_translations" ALTER COLUMN "summary" DROP NOT NULL;
+ALTER TABLE "article_translations" ALTER COLUMN "body" DROP NOT NULL;
+ALTER TABLE "article_translations" ADD COLUMN IF NOT EXISTS "coverImageAlt" TEXT;
 
 CREATE TABLE IF NOT EXISTS "projects" (
     "id" TEXT NOT NULL,
@@ -87,21 +93,26 @@ CREATE TABLE IF NOT EXISTS "project_modules" (
     "kind" "ModuleKind" NOT NULL DEFAULT 'CUSTOM',
     "profile" "ProjectProfile" NOT NULL DEFAULT 'FULL',
     "content" JSONB NOT NULL,
+    "translations" JSONB,
     "sortOrder" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     CONSTRAINT "project_modules_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "project_modules" ADD COLUMN IF NOT EXISTS "translations" JSONB;
 
 CREATE TABLE IF NOT EXISTS "project_translations" (
     "id" TEXT NOT NULL,
     "projectId" TEXT NOT NULL,
     "locale" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
+    "name" TEXT,
     "tagline" TEXT,
     "description" TEXT,
+    "location" TEXT,
     CONSTRAINT "project_translations_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "project_translations" ALTER COLUMN "name" DROP NOT NULL;
+ALTER TABLE "project_translations" ADD COLUMN IF NOT EXISTS "location" TEXT;
 
 CREATE TABLE IF NOT EXISTS "rss_items" (
     "id" TEXT NOT NULL,
@@ -150,10 +161,12 @@ CREATE TABLE IF NOT EXISTS "page_translations" (
     "id" TEXT NOT NULL,
     "pageId" TEXT NOT NULL,
     "locale" TEXT NOT NULL,
-    "title" TEXT NOT NULL,
-    "content" JSONB NOT NULL,
+    "title" TEXT,
+    "content" JSONB,
     CONSTRAINT "page_translations_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "page_translations" ALTER COLUMN "title" DROP NOT NULL;
+ALTER TABLE "page_translations" ALTER COLUMN "content" DROP NOT NULL;
 
 CREATE TABLE IF NOT EXISTS "site_settings" (
     "key" TEXT NOT NULL,
@@ -323,10 +336,13 @@ CREATE TABLE IF NOT EXISTS "content_versions" (
     "label" TEXT NOT NULL,
     "versionNumber" INTEGER NOT NULL,
     "snapshot" JSONB NOT NULL,
+    -- "ar" or "ja" for the save of a translation; null for an English save.
+    "locale" TEXT,
     "authorEmail" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "content_versions_pkey" PRIMARY KEY ("id")
 );
+ALTER TABLE "content_versions" ADD COLUMN IF NOT EXISTS "locale" TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS "content_versions_entityType_entityId_versionNumber_key" ON "content_versions"("entityType", "entityId", "versionNumber");
 CREATE INDEX IF NOT EXISTS "content_versions_entityType_entityId_versionNumber_idx" ON "content_versions"("entityType", "entityId", "versionNumber" DESC);
 

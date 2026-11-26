@@ -3,7 +3,9 @@ import { db } from "@/lib/db";
 import { deleteArticle, duplicateArticle, setArticleStatus } from "../actions";
 import { ConfirmButton } from "@/components/admin/confirm-button";
 import { SavedBanner } from "@/components/admin/flash";
+import { TranslatedBadges } from "@/components/admin/language-tabs";
 import { CMS_TIME_ZONE } from "@/lib/time-zone";
+import { articleTranslationLocales } from "@/lib/translations/store";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,8 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
     orderBy: [{ updatedAt: "desc" }],
     select: { id: true, slug: true, kind: true, title: true, summary: true, coverImage: true, status: true, updatedAt: true, publishedAt: true },
   });
+  // The AR / JA badges: the languages each article is translated in.
+  const translated = await articleTranslationLocales(all.map((article) => article.id));
   const articles = all.filter((article) =>
     (!statusFilter || article.status === statusFilter) &&
     (!kindFilter || article.kind === kindFilter) &&
@@ -75,7 +79,7 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
                   {article.coverImage ? <img src={article.coverImage} alt="" loading="lazy" /> : <span>No cover</span>}
                 </Link>
                 <div className="cms-row-card__main">
-                  <div className="cms-row-card__meta"><span className="cms-badge cms-badge--type">{article.kind === "BLOG" ? "Blog" : "News"}</span><span className={`cms-badge cms-badge--${article.status}`}>{statusLabels[article.status] ?? article.status}</span></div>
+                  <div className="cms-row-card__meta"><span className="cms-badge cms-badge--type">{article.kind === "BLOG" ? "Blog" : "News"}</span><span className={`cms-badge cms-badge--${article.status}`}>{statusLabels[article.status] ?? article.status}</span><TranslatedBadges locales={translated.get(article.id)} /></div>
                   <h2><Link href={`/admin/articles/${article.id}`}>{article.title}</Link></h2>
                   <p className="cms-row-card__summary">{article.summary}</p>
                   <p className="cms-muted">/{article.slug} · {article.publishedAt ? `published ${article.publishedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}` : "not published"} · edited {article.updatedAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: CMS_TIME_ZONE })}</p>

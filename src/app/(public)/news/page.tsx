@@ -11,6 +11,7 @@ import { resolvePressItems, sortPressItems } from "@/lib/press-coverage";
 import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
+import { localizedArticles, localizedSetting } from "@/lib/translations/store";
 
 /// Resolved per request, so the canonical and og:locale follow the page's language.
 export async function generateMetadata() {
@@ -24,7 +25,10 @@ export async function generateMetadata() {
 /// site-cms.js stay as on every other page.
 export default async function NewsPage() {
   const locale = await getLocale();
-  const [articles, copy, contact, hidden] = await Promise.all([loadNewsArticles(), loadNewsListingCopy(), loadContactDetails(), loadHiddenSections("news")]);
+  const [englishArticles, englishCopy, contact, hidden] = await Promise.all([loadNewsArticles(), loadNewsListingCopy(), loadContactDetails(), loadHiddenSections("news")]);
+  // The page's own copy and the articles take their translations in another
+  // language; English keeps the lists it loaded.
+  const [articles, copy] = await Promise.all([localizedArticles(englishArticles, locale), localizedSetting("news_listing", englishCopy, locale)]);
   return <>
     <JsonLd data={webPageJsonLd({ kind: "CollectionPage", name: pageSeo.news.title, description: pageSeo.news.description, path: pageSeo.news.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.news"), path: pageSeo.news.path }], locale)} />

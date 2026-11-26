@@ -4,6 +4,7 @@ import { ORGANIZATION_ID, SITE_URL, WEBSITE_ID, organizationJsonLd } from "@/lib
 import { getGlobalSettings } from "@/lib/site-contact";
 import { getIsLocalePreview, getLocale, getPublishedLocales, getSwitcherShown } from "@/lib/locale";
 import { DEFAULT_LOCALE, isRtl, type Locale } from "@/lib/locales";
+import { getLocalizedGlobalSettings } from "@/lib/translations/store";
 import "./globals.css";
 
 /// Root-level CMS typography and organisation details must not be frozen into
@@ -73,7 +74,7 @@ function typographyCss(typography: Awaited<ReturnType<typeof getGlobalSettings>>
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [contact, locale, preview] = await Promise.all([getGlobalSettings(), getLocale(), getIsLocalePreview()]);
+  const [contact, locale, preview] = await Promise.all([getLocalizedGlobalSettings(), getLocale(), getIsLocalePreview()]);
   // A language the client has not switched on is not reachable. Only an admin
   // preview may show it, and only an unpublished language needs the lookup.
   if (locale !== DEFAULT_LOCALE && !preview && !(await getPublishedLocales()).includes(locale)) notFound();

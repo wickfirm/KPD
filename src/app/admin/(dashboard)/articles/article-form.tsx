@@ -1,9 +1,12 @@
 "use client";
 
 import { useActionState, useRef, useState, type RefObject } from "react";
-import { generateArticleText, previewArticleDraft, saveArticle, type ArticleFormState } from "../actions";
+import { generateArticleText, previewArticleDraft, saveArticle, saveArticleTranslation, type ArticleFormState } from "../actions";
 import { AssetUrlField } from "@/components/admin/asset-url-field";
 import { SeoFields, type SeoFieldDefaults } from "@/components/admin/seo-fields";
+import { useTranslationMode } from "@/components/admin/translation-mode";
+import { articleSharedLabels, articleTextFields } from "@/components/admin/translation-fields";
+import { languageNames, type Locale } from "@/lib/locales";
 
 export type ArticleDefaults = {
   id?: string;
@@ -70,9 +73,14 @@ function bodyToText(raw?: string) {
   return raw;
 }
 
-export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefaults; seo?: SeoFieldDefaults }) {
-  const [state, formAction, pending] = useActionState(saveArticle, initialState);
+/// `lang` is the language tab: "en" is the article itself (the editor as it
+/// always was); "ar" or "ja" is the same editor with the article's translation
+/// in it, saved as a translation and never over the English article.
+export default function ArticleForm({ defaults, seo, lang = "en", englishId = "" }: { defaults?: ArticleDefaults; seo?: SeoFieldDefaults; lang?: Locale; englishId?: string }) {
+  const translating = lang !== "en";
+  const [state, formAction, pending] = useActionState(translating ? saveArticleTranslation : saveArticle, initialState);
   const formRef = useRef<HTMLFormElement>(null);
+  useTranslationMode(formRef, { lang, englishId, textFields: articleTextFields, sharedLabels: articleSharedLabels });
   const [previewing, setPreviewing] = useState(false);
   const [previewError, setPreviewError] = useState("");
   /// Opens the admin preview with the article exactly as it currently looks
@@ -85,7 +93,7 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
     try {
       const result = await previewArticleDraft(new FormData(formRef.current));
       if (result.error || !result.id) throw new Error(result.error || "Unable to build the preview.");
-      const target = `/admin/preview/articles/${result.id}?draft=1`;
+      const target = `/admin/preview/articles/${result.id}?draft=1${translating ? `&lang=${lang}` : ""}`;
       if (tab) tab.location.href = target; else window.location.assign(target);
     } catch (error) {
       tab?.close();
@@ -154,7 +162,7 @@ export default function ArticleForm({ defaults, seo }: { defaults?: ArticleDefau
       <SeoFields defaults={seo} />
       <div className="cms-actions">
         <button className="cms-btn" type="submit" disabled={pending}>
-          {pending ? "Saving…" : "Save article"}
+          {pending ? "Saving…" : translating ? `Save ${languageNames[lang]} translation` : "Save article"}
         </button>
         <button className="cms-btn cms-btn--outline" type="button" onClick={previewUnsaved} disabled={previewing}>{previewing ? "Opening preview…" : "Preview with unsaved changes ↗"}</button>
         {previewError ? <span className="cms-error">{previewError}</span> : null}

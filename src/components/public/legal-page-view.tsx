@@ -1,6 +1,9 @@
 import type { TextStyle } from "@/lib/text-style";
-import { legalTabForSlug } from "@/lib/terms-defaults";
+import { legalContact, legalDocuments, legalTabForSlug, type LegalDocument } from "@/lib/terms-defaults";
+import { DEFAULT_LOCALE } from "@/lib/locales";
 import { getLocale } from "@/lib/locale";
+import { legalTranslation } from "@/lib/translations/store";
+import { mergeLocale } from "@/lib/translations/merge-locale";
 import { SiteShellHeader } from "./site-shell-header";
 import { SiteShellFooter } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
@@ -20,17 +23,32 @@ export const legalPages: Record<string, object> = { terms: {}, "privacy-policy":
 
 /// The three legal addresses share one document. Terms, Privacy and Cookies
 /// switch in place. A saved hero image still replaces the skyline fallback.
-export async function LegalPageView({ slug, page, previewNote }: { slug: string; page: { title: string; content: unknown }; previewNote?: string }) {
+export async function LegalPageView({ slug, page, previewNote }: { slug: string; page: { title: string; content?: unknown }; previewNote?: string }) {
   const locale = await getLocale();
   const blocks = Array.isArray(page.content) ? page.content as Block[] : [];
   const hero = blocks.find((block) => block.type === "hero");
   const bodyClass = "home-development-page kpd-page kpd-legal-page kpd-terms-page";
+  // English shows the client's document as it is. Another language lays each
+  // legal page's translation over its own document, and this page's over the
+  // contact block; whatever is not translated stays English.
+  const contactBlock = blocks.find((block) => block.type === "legal-contact");
+  let documents: LegalDocument[] | undefined;
+  let contact = contactBlock;
+  if (locale !== DEFAULT_LOCALE) {
+    const translated = await Promise.all(Object.keys(legalPages).map(async (legalSlug) => ({ slug: legalSlug, ...await legalTranslation(legalSlug, locale) })));
+    documents = legalDocuments.map((document) => {
+      const own = translated.find((entry) => legalTabForSlug(entry.slug) === document.id);
+      return own?.document ? mergeLocale(document, own.document) : document;
+    });
+    const own = translated.find((entry) => entry.slug === slug);
+    contact = mergeLocale({ ...legalContact, ...contactBlock }, own?.contact);
+  }
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass={bodyClass} />
     <SiteShellHeader />
     <main id="top">
-      <LegalTabs initialTab={legalTabForSlug(slug)} image={hero?.image || legalHeroes[slug]} headingStyle={hero?.headingStyle} contact={blocks.find((block) => block.type === "legal-contact")} locale={locale} />
+      <LegalTabs initialTab={legalTabForSlug(slug)} image={hero?.image || legalHeroes[slug]} headingStyle={hero?.headingStyle} contact={contact} locale={locale} documents={documents} />
     </main>
     <SiteShellFooter />
     <DeliveredEarlyScripts />

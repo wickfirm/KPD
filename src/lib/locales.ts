@@ -109,6 +109,15 @@ export function localizeHtmlLinks(html: string, locale: Locale): string {
 /// How each language names itself, always in that language.
 export const localeNames: Record<Locale, string> = { en: "English", ar: "العربية", ja: "日本語" };
 
+/// How the CMS calls each language. The CMS itself stays in English.
+export const languageNames: Record<Locale, string> = { en: "English", ar: "Arabic", ja: "Japanese" };
+
+/// The language of an editor tab, from its ?lang= address parameter. Anything
+/// that is not a language of this site is the English tab.
+export function editorLocale(value: unknown): Locale {
+  return isLocale(value) ? value : DEFAULT_LOCALE;
+}
+
 /// "ar-AE" / "ja-JP": the region form used for dates.
 function dateLocale(locale: Locale): string {
   if (locale === "ar") return "ar-AE-u-nu-latn"; // Arabic with Western digits, the norm on UAE property sites
