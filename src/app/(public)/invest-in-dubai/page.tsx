@@ -21,7 +21,9 @@ export const revalidate = 300;
 export default async function InvestPage() {
   const locale = await getLocale();
   const { hero, saved } = await localizedInvestPage(await loadInvestPage(), locale);
-  const seo = await loadLocalizedFixedPageSeo("invest-in-dubai");
+  // The page waits for what its metadata reads, so that its metadata can never
+  // resolve after the page (Next would stream it to the end of the HTML).
+  const [seo] = await Promise.all([loadLocalizedFixedPageSeo("invest-in-dubai"), pageLanguages({ page: "invest-in-dubai" })]);
   return <>
     <JsonLd data={webPageJsonLd({ name: seo.title, description: seo.description, path: seo.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "breadcrumb.investorGuide"), path: seo.path }], locale)} />

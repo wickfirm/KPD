@@ -11,6 +11,7 @@ import { sharedModuleFields } from "@/lib/project-modules";
 import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
+import type { Locale } from "@/lib/locales";
 import { localizedProject, localizedSeo, localizedSetting } from "@/lib/translations/store";
 import { pageLanguages } from "@/lib/hreflang";
 
@@ -24,6 +25,26 @@ const getPublishedProject = cache(async (slug: string) => {
     where: { slug, status: "PUBLISHED", profile: "FULL" },
     include: { modules: { where: { profile: "FULL" }, orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }], select: sharedModuleFields } },
   });
+});
+
+/// What the development's metadata reads, in the page's language, read once a
+/// request. The page awaits it too: Next does not hold a page back for its
+/// metadata, and one that resolves after the page is streamed to the end of
+/// the HTML instead of into its head. Waiting on the same read, the page can
+/// never be ready first.
+const searchAppearance = cache(async (project: NonNullable<Awaited<ReturnType<typeof getPublishedProject>>>, locale: Locale) => {
+  // In another language the name and the introduction are the development's translation.
+  const shown = await localizedProject(project, locale);
+  const [override, translated] = await Promise.all([loadSeoOverride(seoKey("project", project.id)), pageLanguages({ project: project.id })]);
+  return {
+    shown,
+    translated,
+    seo: await localizedSeo(
+      applySeoOverride({ title: developmentTitle(shown.name, shown.location), description: developmentDescription(shown) }, override),
+      seoKey("project", project.id),
+      locale,
+    ),
+  };
 });
 
 /// Published developments are prerendered at deploy time; a database outage at
@@ -45,16 +66,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const project = await getPublishedProject(slug).catch(() => null);
   if (!project) return { title: "Development not found" };
   const locale = await getLocale();
-  // In another language the name and the introduction are the development's translation.
-  const shown = await localizedProject(project, locale);
-  // The page's languages for hreflang are read beside the search override, so
-  // the metadata does not wait on them.
-  const [override, translated] = await Promise.all([loadSeoOverride(seoKey("project", project.id)), pageLanguages({ project: project.id })]);
-  const seo = await localizedSeo(
-    applySeoOverride({ title: developmentTitle(shown.name, shown.location), description: developmentDescription(shown) }, override),
-    seoKey("project", project.id),
-    locale,
-  );
+  const { seo, translated } = await searchAppearance(project, locale);
   return pageMetadata({
     ...seo,
     path: `/developments/${project.slug}`,
@@ -70,8 +82,10 @@ export default async function DevelopmentPage({ params }: { params: Promise<{ sl
   const project = await getPublishedProject(slug);
   if (!project) notFound();
   const chromeRow = await db.siteSetting.findUnique({ where: { key: projectChromeKey(project.id) } }).catch(() => null);
-  const [shown, chrome] = await Promise.all([
-    localizedProject(project, locale),
+  // The page waits for what its metadata reads (searchAppearance), so that its
+  // metadata can never resolve after the page.
+  const [{ shown }, chrome] = await Promise.all([
+    searchAppearance(project, locale),
     localizedSetting(projectChromeKey(project.id), parseProjectChrome(chromeRow?.value), locale),
   ]);
   return <>

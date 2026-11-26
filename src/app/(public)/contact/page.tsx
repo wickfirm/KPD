@@ -23,7 +23,9 @@ export const revalidate = 300;
 export default async function ContactPage() {
   // The two CMS reads are independent — run them in parallel.
   const [contact, blocks] = await Promise.all([loadContactDetails(), loadStaticBlocks("contact")]);
-  const [seo, locale] = await Promise.all([loadLocalizedFixedPageSeo("contact"), getLocale()]);
+  // The page waits for what its metadata reads, so that its metadata can never
+  // resolve after the page (Next would stream it to the end of the HTML).
+  const [seo, locale] = await Promise.all([loadLocalizedFixedPageSeo("contact"), getLocale(), pageLanguages({ page: "contact" })]);
   return <>
     <JsonLd data={webPageJsonLd({ kind: "ContactPage", name: seo.title, description: seo.description, path: seo.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.contact"), path: seo.path }], locale)} />

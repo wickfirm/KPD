@@ -31,6 +31,9 @@ export default async function ManagedLegalPage({ params }: { params: Promise<{ s
   const meta = legalPages[slug];
   if (!meta) notFound();
   if (slug === "terms") await applyTermsCopyOnce();
+  // The page waits for what its metadata reads, so that its metadata can never
+  // resolve after the page (Next would stream it to the end of the HTML).
+  await Promise.all([loadLocalizedFixedPageSeo(slug), pageLanguages({ page: slug })]);
   let page: { title: string; content: unknown; status: string } | null = null;
   try { page = await db.staticPage.findUnique({ where: { slug } }); } catch {}
   if (!page || page.status !== "PUBLISHED") notFound();

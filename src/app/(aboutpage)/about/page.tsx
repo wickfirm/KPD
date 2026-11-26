@@ -17,8 +17,9 @@ export const dynamic = "force-dynamic";
 /// Unified delivered shell + React content; the delivered design is the
 /// fallback for every field.
 export default async function AboutPage() {
-  const locale = await getLocale();
-  const seo = await loadLocalizedFixedPageSeo("about");
+// The page waits for what its metadata reads, so that its metadata can never
+// resolve after the page (Next would stream it to the end of the HTML).
+  const [locale, seo] = await Promise.all([getLocale(), loadLocalizedFixedPageSeo("about"), pageLanguages({ page: "about" })]);
   return <>
     <JsonLd data={webPageJsonLd({ kind: "AboutPage", name: seo.title, description: seo.description, path: seo.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.about"), path: seo.path }], locale)} />
