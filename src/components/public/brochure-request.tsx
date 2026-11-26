@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/lib/phone";
+import { arrowGlyph, localeHref, type Locale } from "@/lib/locales";
+import { t } from "@/lib/i18n";
 
 const COUNTRIES = PHONE_COUNTRIES;
 
@@ -25,7 +27,7 @@ function startDownload(file: BrochureDownload) {
 /// enquiries, mirrored to Salesforce as a Lead (inquiry type "Brochure request",
 /// Property_Interest__c from the development), the team is notified, and the
 /// file set in the development editor downloads straight away (no email to the visitor).
-export function BrochureRequest({ projectName, projectSlug, label, className = "btn-pill" }: { projectName: string; projectSlug: string; label: string; className?: string }) {
+export function BrochureRequest({ projectName, projectSlug, label, locale, className = "btn-pill" }: { projectName: string; projectSlug: string; label: string; locale: Locale; className?: string }) {
   const [open, setOpen] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const [status, setStatus] = useState("");
@@ -67,7 +69,8 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
           phone,
           message: `Downloaded the brochure for ${projectName}.`,
           interest: projectName,
-          sourcePage: `/developments/${projectSlug}`,
+          sourcePage: localeHref(`/developments/${projectSlug}`, locale),
+          ...(locale === "en" ? {} : { visitorLanguage: locale }),
           inquiryType: "Brochure request",
           projectSlug,
           details: [
@@ -102,21 +105,21 @@ export function BrochureRequest({ projectName, projectSlug, label, className = "
       <button className="brochure-request__backdrop" type="button" aria-label="Close brochure form" onClick={() => setOpen(false)} />
       {done ? <div className="brochure-request__panel brochure-request__panel--done">
         <button className="brochure-request__close" type="button" aria-label="Close" onClick={() => setOpen(false)}>×</button>
-        <h2 id="brochure-request-title">Thank you</h2>
+        <h2 id="brochure-request-title">{t(locale, "form.thankYou")}</h2>
         <p className="brochure-request__status" role="status">{status}</p>
-        {download ? <a className="brochure-request__done" href={download.url} download={download.fileName} target={download.attachment ? undefined : "_blank"} rel="noopener">Download brochure <span aria-hidden="true">↓</span></a>
-          : <button className="brochure-request__done" type="button" onClick={() => setOpen(false)}>Close <span aria-hidden="true">→</span></button>}
+        {download ? <a className="brochure-request__done" href={download.url} download={download.fileName} target={download.attachment ? undefined : "_blank"} rel="noopener">{t(locale, "brochure.download")} <span aria-hidden="true">↓</span></a>
+          : <button className="brochure-request__done" type="button" onClick={() => setOpen(false)}>Close <span aria-hidden="true">{arrowGlyph(locale, "→")}</span></button>}
       </div> : <form className="brochure-request__panel" onSubmit={submit}>
         <button className="brochure-request__close" type="button" aria-label="Close" onClick={() => setOpen(false)}>×</button>
-        <h2 id="brochure-request-title">Property Brochure</h2>
-        <p>Fill the form below to download the property brochure.</p>
+        <h2 id="brochure-request-title">{t(locale, "brochure.title")}</h2>
+        <p>{t(locale, "brochure.intro")}</p>
         <div className="brochure-request__grid">
           <label>Name<input name="name" required autoComplete="name" /></label>
           <label>Email<input name="email" type="email" required autoComplete="email" /></label>
           <label>Phone<input name="phone" required autoComplete="tel" inputMode="tel" onChange={() => setPhoneError("")} />{phoneError ? <small>{phoneError}</small> : null}</label>
           <label>Country<select name="country" defaultValue={COUNTRIES[0]}>{COUNTRIES.map((country) => <option key={country}>{country}</option>)}</select></label>
         </div>
-        <button type="submit" disabled={pending}>{pending ? "Preparing…" : "Download brochure"} <span aria-hidden="true">→</span></button>
+        <button type="submit" disabled={pending}>{pending ? "Preparing…" : t(locale, "brochure.download")} <span aria-hidden="true">{arrowGlyph(locale, "→")}</span></button>
         {status ? <p className="brochure-request__status" role="status">{status}</p> : null}
       </form>}
     </div> : null}

@@ -10,6 +10,7 @@ import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
 import { localizedArticle, localizedSeo } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 export const revalidate = 300;
 
@@ -31,8 +32,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const locale = await getLocale();
   // In another language the title and summary are the article's translation.
   const shown = await localizedArticle(article, locale);
+  // The page's languages for hreflang are read beside the search override, so
+  // the metadata does not wait on them.
+  const [override, translated] = await Promise.all([loadSeoOverride(seoKey("article", article.id)), pageLanguages({ article: article.id })]);
   const seo = await localizedSeo(
-    applySeoOverride({ title: withBrand(shown.title), description: shown.summary || shown.title }, await loadSeoOverride(seoKey("article", article.id))),
+    applySeoOverride({ title: withBrand(shown.title), description: shown.summary || shown.title }, override),
     seoKey("article", article.id),
     locale,
   );
@@ -43,7 +47,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     type: "article",
     publishedTime: article.publishedAt?.toISOString(),
     modifiedTime: article.updatedAt.toISOString(),
-  }, locale);
+  }, locale, translated);
 }
 
 /// The article detail page serves the delivered news-article.html structure

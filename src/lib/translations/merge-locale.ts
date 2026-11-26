@@ -23,6 +23,8 @@ type RecordValue = Record<string, unknown>;
 
 const isRecord = (value: unknown): value is RecordValue => typeof value === "object" && value !== null && !Array.isArray(value);
 const isText = (value: unknown): value is string => typeof value === "string" && value.trim() !== "";
+/// A list with something in every line (a form's choices).
+const isListOfText = (value: unknown): value is string[] => Array.isArray(value) && value.length > 0 && value.every(isText);
 
 /// Keys whose value is text a visitor reads. Anything not listed here is shared
 /// with English and is never translated, so a key added later stays English in
@@ -67,6 +69,10 @@ export const TEXT_KEYS: ReadonlySet<string> = new Set([
   "salesMessagePrompt", "customerMessagePrompt", "channelMessagePrompt", "jobMessagePrompt", "pressMessagePrompt",
   "formHeading", "addressLabel", "address", "directionsLabel", "callLabel",
   "termsText", "marketingText", "quickCallLabel", "quickEmailLabel",
+  // The choices of a form, one entry to a line (the Contact page's three lists,
+  // the pop-up's interests, the landing page's). The page shows an entry in its
+  // language and posts the English entry at the same position of the list.
+  "salesProjects", "customerProjects", "customerNatures", "popupInterests", "interestOptions",
   // legal documents (items are a list of lines; cards, headers, rows lists of text)
   "items", "cards", "headers", "rows",
   // development sections, page labels, and the development itself
@@ -145,8 +151,10 @@ export function mergeLocale<T>(english: T, translation: unknown): T {
       const current = english[key];
       if (current === undefined) {
         // Nothing is saved for this field in English: the page shows its
-        // built-in wording, which a translation may replace.
-        if (isTranslatableKey(key) && isText(translation[key])) set(key, translation[key]);
+        // built-in wording, which a translation may replace — a line of text,
+        // or a list of them (a form's choices, which the editor always shows).
+        const value = translation[key];
+        if (isTranslatableKey(key) && (isText(value) || isListOfText(value))) set(key, value);
         continue;
       }
       if (!mayReplace(key, current)) continue;

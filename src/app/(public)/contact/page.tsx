@@ -5,8 +5,11 @@ import { loadContactDetails, loadStaticBlocks } from "@/lib/static-blocks";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
 import { localizedBlocks, loadLocalizedFixedPageSeo } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 export async function generateMetadata() {
-  return pageMetadata(await loadLocalizedFixedPageSeo("contact"), await getLocale());
+  // The page's other languages, for hreflang: none while it has no translation.
+  const [seo, locale, translated] = await Promise.all([loadLocalizedFixedPageSeo("contact"), getLocale(), pageLanguages({ page: "contact" })]);
+  return pageMetadata(seo, locale, translated);
 }
 export const revalidate = 300;
 
@@ -24,6 +27,6 @@ export default async function ContactPage() {
   return <>
     <JsonLd data={webPageJsonLd({ kind: "ContactPage", name: seo.title, description: seo.description, path: seo.path }, locale)} />
     <JsonLd data={breadcrumbJsonLd([{ name: t(locale, "nav.home"), path: "/" }, { name: t(locale, "nav.contact"), path: seo.path }], locale)} />
-    <ContactView blocks={await localizedBlocks("contact", blocks, locale)} contact={contact} />
+    <ContactView blocks={await localizedBlocks("contact", blocks, locale)} contact={contact} englishBlocks={locale === "en" ? undefined : blocks} />
   </>;
 }

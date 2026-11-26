@@ -4,10 +4,13 @@ import { breadcrumbJsonLd, pageMetadata, webPageJsonLd } from "@/lib/seo";
 import { loadHomeSettings } from "@/lib/home-saved";
 import { getLocale } from "@/lib/locale";
 import { loadLocalizedFixedPageSeo, localizedSetting } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 export const dynamic = "force-dynamic";
 export async function generateMetadata() {
-  return pageMetadata(await loadLocalizedFixedPageSeo("home"), await getLocale());
+  // The page's other languages, for hreflang: none while it has no translation.
+  const [seo, locale, translated] = await Promise.all([loadLocalizedFixedPageSeo("home"), getLocale(), pageLanguages({ setting: "home" })]);
+  return pageMetadata(seo, locale, translated);
 }
 
 /// Unified delivered shell + React content. CMS-managed sections render as

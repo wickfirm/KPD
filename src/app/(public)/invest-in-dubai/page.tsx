@@ -5,9 +5,12 @@ import { loadInvestPage } from "@/lib/invest-page";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
 import { loadLocalizedFixedPageSeo, localizedInvestPage } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 export async function generateMetadata() {
-  return pageMetadata(await loadLocalizedFixedPageSeo("invest-in-dubai"), await getLocale());
+  // The page's other languages, for hreflang: none while it has no translation.
+  const [seo, locale, translated] = await Promise.all([loadLocalizedFixedPageSeo("invest-in-dubai"), getLocale(), pageLanguages({ page: "invest-in-dubai" })]);
+  return pageMetadata(seo, locale, translated);
 }
 export const revalidate = 300;
 

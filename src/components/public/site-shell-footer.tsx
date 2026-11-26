@@ -4,6 +4,8 @@ import { getLocale, getSwitcherLocales } from "@/lib/locale";
 import { localeHref } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 import { getLocalizedGlobalSettings, getLocalizedNavDevelopments } from "@/lib/translations/store";
+import { getNavDevelopments } from "@/lib/nav-developments";
+import { formWords, projectLabels } from "@/lib/form-words";
 import { LanguageSwitcher } from "./language-switcher";
 
 /// Delivered footer â€” 1:1 port of the delivered markup (link columns,
@@ -12,10 +14,14 @@ import { LanguageSwitcher } from "./language-switcher";
 /// the page's language; English is unchanged.
 export async function SiteShellFooter() {
   const [contact, developments, locale, switcherLocales] = await Promise.all([getLocalizedGlobalSettings(), getLocalizedNavDevelopments(), getLocale(), getSwitcherLocales()]);
+  // On another language's page the script also gets its forms' words in that
+  // language and each development's name in it (keyed by the English it posts).
+  // An English page publishes neither, and the script shows its own.
+  const forScript = locale === "en" ? {} : { text: formWords(locale), projectLabels: projectLabels(await getNavDevelopments(), developments) };
   const href = (path: string) => localeHref(path, locale);
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.
-  const contactScript = `window.__KPD_CONTACT=${JSON.stringify({ ...contact, projects: developments.map(({ name }) => name) }).replace(/</g, "\u003c")};`;
+  const contactScript = `window.__KPD_CONTACT=${JSON.stringify({ ...contact, projects: developments.map(({ name }) => name), ...forScript }).replace(/</g, "\u003c")};`;
   return <><script dangerouslySetInnerHTML={{ __html: contactScript }} /><footer className="section_footer" id="footer">
     <div className="footer_container">
       <div className="footer_header">

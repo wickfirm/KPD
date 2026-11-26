@@ -6,6 +6,7 @@ import { getGlobalSettings } from "@/lib/site-contact";
 import { buildNotificationEmail, notificationRecipients, notifyKeyFor, resendConfigured, sendWithResend } from "@/lib/form-notify";
 import { brochureDownload } from "@/lib/brochure-download";
 import { parseProjectChrome, projectChromeKey } from "@/lib/project-chrome";
+import { contactError, languageDetail, submissionLanguage } from "@/lib/submission-language";
 
 /// Public contact / booking form endpoint (Salesforce dual-write, Clause 2).
 /// Always persists locally. Confirmed enquiry types then mirror to Salesforce as a Lead.
@@ -25,6 +26,10 @@ export async function POST(req: NextRequest) {
   const sourcePage = String(payload.sourcePage || "").trim() || null;
   const inquiryType = String(payload.inquiryType || "").trim().slice(0, 80) || null;
   const requestedKey = String(payload.recipientKey || "");
+  // The language of the page the form was sent from. An English submission is
+  // exactly what it was; another language's says so in its details, and the
+  // refusals below answer in it.
+  const language = submissionLanguage(payload);
   const settings = await getGlobalSettings();
   // Routing comes from Site settings only. Forms that do not name a key
   // (brochure, seven x seven landing) are matched by their enquiry type.
@@ -35,15 +40,19 @@ export async function POST(req: NextRequest) {
   // Every field the visitor filled in, as ordered { label, value } pairs.
   const details = sanitizeDetails(payload.details);
   if (recipient && /^[^@\s]+@[^@\s]+\.[^@\s]+/.test(recipient)) details.push({ label: "Delivery recipient", value: recipient });
+  // Goes with the enquiry: the Messages screen, the team's email and the
+  // Salesforce description, which carries the details (no new Salesforce field).
+  const languageEntry = languageDetail(language);
+  if (languageEntry) details.push(languageEntry);
 
   if (!name || !email || !message) {
     return NextResponse.json(
-      { error: "name, email and message are required." },
+      { error: contactError(language, "required") },
       { status: 400 }
     );
   }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+    return NextResponse.json({ error: contactError(language, "email") }, { status: 400 });
   }
 
   // Newsletter, job and press forms stay in Messages only. Every other
@@ -68,7 +77,7 @@ export async function POST(req: NextRequest) {
     } catch (fallbackError) {
       console.error("[api/contact] database error:", fallbackError);
       return NextResponse.json(
-        { error: "We could not save your enquiry right now. Please try again shortly." },
+        { error: contactError(language, "save") },
         { status: 503 },
       );
     }

@@ -219,7 +219,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
             <div>
               <div className="g21-ctas">
                 <Cta className="g21-btn" url={bookUrl} external={isExternal(bookUrl)} locale={locale}>{bookLabel} {arrow(locale)}</Cta>
-                {chrome.brochureVisible === false ? null : <BrochureRequest className="g21-btn g21-btn--line" projectName={project.name} projectSlug={project.slug} label={chrome.brochureLabel || t(locale, "brochure.download")} />}
+                {chrome.brochureVisible === false ? null : <BrochureRequest className="g21-btn g21-btn--line" projectName={project.name} projectSlug={project.slug} locale={locale} label={chrome.brochureLabel || t(locale, "brochure.download")} />}
               </div>
             </div>
           </div>

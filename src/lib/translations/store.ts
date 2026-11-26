@@ -394,8 +394,20 @@ export async function writeModuleTranslation(moduleId: string, locale: Locale, e
 // ── Which languages a piece of content is translated in (the AR / JA badges) ──
 
 /// The languages each record ("home", "sxs", "news_listing", …) is translated in.
+/// A read of the translation tables failed because the database has not had
+/// prisma/add-translations.sql — a missing table or column, nothing else: a
+/// connection problem is not remembered. Every later read returns at once, so
+/// a page that only asks which languages it has (hreflang, the sitemap) is not
+/// held up by it.
+let translationTablesMissing = false;
+function noteMissingTranslationTables(error: unknown) {
+  const code = (error as { code?: string } | null)?.code;
+  if (code === "P2021" || code === "P2022") translationTablesMissing = true;
+}
+
 export async function settingTranslationLocales(keys: readonly string[]): Promise<Map<string, Locale[]>> {
   const found = new Map<string, Locale[]>();
+  if (translationTablesMissing) return found;
   try {
     const rows = await db.siteSetting.findMany({ where: { key: { in: keys.flatMap((key) => prefixedLocales.map((locale) => translationSettingKey(key, locale))) } }, select: { key: true, value: true } });
     for (const row of rows) {
@@ -404,12 +416,15 @@ export async function settingTranslationLocales(keys: readonly string[]): Promis
       const key = locale ? row.key.slice(0, -(locale.length + 1)) : "";
       if (locale && keys.includes(key)) found.set(key, [...(found.get(key) ?? []), locale]);
     }
-  } catch {}
+  } catch (error) {
+    noteMissingTranslationTables(error);
+  }
   return found;
 }
 
 export async function articleTranslationLocales(ids: readonly string[]): Promise<Map<string, Locale[]>> {
   const found = new Map<string, Locale[]>();
+  if (translationTablesMissing) return found;
   try {
     const rows = await db.articleTranslation.findMany({ where: { articleId: { in: [...ids] } }, select: { articleId: true, locale: true, title: true, summary: true, body: true, coverImageAlt: true } });
     for (const row of rows) {
@@ -418,7 +433,9 @@ export async function articleTranslationLocales(ids: readonly string[]): Promise
         found.set(row.articleId, [...(found.get(row.articleId) ?? []), row.locale as Locale]);
       }
     }
-  } catch {}
+  } catch (error) {
+    noteMissingTranslationTables(error);
+  }
   return found;
 }
 
@@ -436,10 +453,30 @@ export async function pageTranslationLocales(ids: readonly string[]): Promise<Ma
   return found;
 }
 
+/// The same by slug, for the public side (hreflang, the sitemap), which knows
+/// a page by its address. Never throws.
+export async function pageTranslationLocalesBySlug(slugs: readonly string[]): Promise<Map<string, Locale[]>> {
+  const found = new Map<string, Locale[]>();
+  if (translationTablesMissing) return found;
+  try {
+    const rows = await db.pageTranslation.findMany({ where: { page: { slug: { in: [...slugs] } } }, select: { locale: true, title: true, content: true, page: { select: { slug: true } } } });
+    for (const row of rows) {
+      if (!(prefixedLocales as readonly string[]).includes(row.locale)) continue;
+      if (hasTranslation({ ...(row.title !== null ? { title: row.title } : {}), ...(row.content !== null ? { content: row.content } : {}) })) {
+        found.set(row.page.slug, [...(found.get(row.page.slug) ?? []), row.locale as Locale]);
+      }
+    }
+  } catch (error) {
+    noteMissingTranslationTables(error);
+  }
+  return found;
+}
+
 /// A development counts as translated in a language when its own text, one of
 /// its sections, or its page labels are.
 export async function projectTranslationLocales(ids: readonly string[]): Promise<Map<string, Locale[]>> {
   const found = new Map<string, Locale[]>();
+  if (translationTablesMissing) return found;
   if (!ids.length) return found;
   const add = (id: string, locale: string) => {
     if (!(prefixedLocales as readonly string[]).includes(locale)) return;
@@ -468,6 +505,8 @@ export async function projectTranslationLocales(ids: readonly string[]): Promise
       const id = locale ? row.key.slice("project-chrome:".length, -(locale.length + 1)) : "";
       if (locale && ids.includes(id)) add(id, locale);
     }
-  } catch {}
+  } catch (error) {
+    noteMissingTranslationTables(error);
+  }
   return found;
 }

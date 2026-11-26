@@ -52,20 +52,39 @@ type MetadataInput = {
   noindex?: boolean;
 };
 
+/// The hreflang alternates of a page: every language it is published in with a
+/// translation, English included, and English again as x-default. `translated`
+/// holds the page's other languages (src/lib/hreflang.ts). None for a page
+/// without a translation in another published language — an English page is
+/// then exactly what it was — and none for a language's own page that is only
+/// the English under another address.
+export function languageAlternates(input: { locale: Locale; path: string; translated: readonly Locale[] }): Record<string, string> | undefined {
+  const { locale, path, translated } = input;
+  // No other language, or a language's own page that is only the English
+  // under another address.
+  if (!translated.length || (locale !== DEFAULT_LOCALE && !translated.includes(locale))) return undefined;
+  const languages: Record<string, string> = { en: absoluteUrl(path) };
+  for (const other of translated) languages[other] = absoluteUrl(localeHref(path, other));
+  languages["x-default"] = languages.en;
+  return languages;
+}
+
 /// Complete metadata for one page: title (exactly as given, no site suffix
 /// added), description, canonical link, Open Graph and Twitter cards. `path` is
 /// the English address; for another language the canonical and social URL are
 /// the page's own address in that language ("/ar/about"). English output is
-/// unchanged, so og:locale is only named on the other languages.
-export function pageMetadata(input: MetadataInput, locale: Locale = DEFAULT_LOCALE): Metadata {
+/// unchanged, so og:locale is only named on the other languages and hreflang
+/// alternates only appear on a page that has a translation.
+export function pageMetadata(input: MetadataInput, locale: Locale = DEFAULT_LOCALE, translated: readonly Locale[] = []): Metadata {
   const description = clampDescription(input.description);
   const url = absoluteUrl(localeHref(input.path, locale));
   const images = [input.image ? { url: input.image } : DEFAULT_SOCIAL_IMAGE];
+  const languages = languageAlternates({ locale, path: input.path, translated });
   return {
     title: { absolute: input.title },
     description,
     // Page alternates replace the root layout's, so the feed link is repeated here.
-    alternates: { canonical: url, types: { "application/rss+xml": [{ url: "/rss.xml", title: "KPD news and press" }] } },
+    alternates: { canonical: url, ...(languages ? { languages } : {}), types: { "application/rss+xml": [{ url: "/rss.xml", title: "KPD news and press" }] } },
     openGraph: {
       type: input.type ?? "website",
       siteName: SITE_NAME,

@@ -64,7 +64,10 @@ export async function LegacyView({ blocks, previewNote }: { blocks: StaticBlock[
   </>;
 }
 
-export async function ContactView({ blocks, contact, previewNote }: { blocks: StaticBlock[]; contact: ContactDetails; previewNote?: string }) {
+/// `englishBlocks` is the page as it is in English. On another language's page
+/// the form shows a choice in that language and posts the English entry, so
+/// it needs both.
+export async function ContactView({ blocks, contact, previewNote, englishBlocks }: { blocks: StaticBlock[]; contact: ContactDetails; previewNote?: string; englishBlocks?: StaticBlock[] }) {
   const hero = blocks.find((block) => block.type === "hero") ?? {};
   const inquiryForm = blocks.find((block) => block.type === "contact-form");
   const inquiryCopy = mergeContactInquiryContent(inquiryForm);
@@ -91,7 +94,7 @@ export async function ContactView({ blocks, contact, previewNote }: { blocks: St
         </div>
       </section> : null}
       {shown("form") ? <section className="g21-contact-sec" id="experience-center" aria-label={t(locale, "contact.inquiry")}>
-        <ContactInquiry locale={locale} email={contact.email} phone={contact.phone} website={contact.website} image={hero.image as string | undefined} content={inquiryForm} />
+        <ContactInquiry locale={locale} email={contact.email} phone={contact.phone} website={contact.website} image={hero.image as string | undefined} content={inquiryForm} english={englishBlocks?.find((block) => block.type === "contact-form")} />
       </section> : null}
     </main>
     <SiteShellFooter />

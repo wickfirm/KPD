@@ -12,6 +12,7 @@ import { applySeoOverride, seoKey } from "@/lib/seo-overrides";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
 import { localizedProject, localizedSeo, localizedSetting } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 export const dynamic = "force-dynamic";
 
@@ -46,8 +47,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const locale = await getLocale();
   // In another language the name and the introduction are the development's translation.
   const shown = await localizedProject(project, locale);
+  // The page's languages for hreflang are read beside the search override, so
+  // the metadata does not wait on them.
+  const [override, translated] = await Promise.all([loadSeoOverride(seoKey("project", project.id)), pageLanguages({ project: project.id })]);
   const seo = await localizedSeo(
-    applySeoOverride({ title: developmentTitle(shown.name, shown.location), description: developmentDescription(shown) }, await loadSeoOverride(seoKey("project", project.id))),
+    applySeoOverride({ title: developmentTitle(shown.name, shown.location), description: developmentDescription(shown) }, override),
     seoKey("project", project.id),
     locale,
   );
@@ -55,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ...seo,
     path: `/developments/${project.slug}`,
     image: project.heroImage,
-  }, locale);
+  }, locale, translated);
 }
 
 /// Unified delivered shell + React content rendered from the project row and

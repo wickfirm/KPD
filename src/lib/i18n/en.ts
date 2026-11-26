@@ -205,10 +205,93 @@ const en = {
   },
   /// Download links shared by the brochure pop-up and the development pages.
   brochure: {
+    title: "Property Brochure",
+    intro: "Fill the form below to download the property brochure.",
     download: "Download brochure",
     downloadFloorPlans: "Download floor plans",
     downloadPaymentPlan: "Download Payment Plan",
     requestPlan: "Request plan",
+  },
+  /// The public forms' own words: the Contact page's form, and the enquiry
+  /// pop-up, newsletter and floor-plan forms the delivered script submits.
+  /// Where the sheet has a "Forms (code)" row, its key is used and the English
+  /// is the row's text. What a visitor types or picks is never translated
+  /// here: a choice is shown in their language and posted in English.
+  form: {
+    yourDetails: "Your details",
+    aboutYourInterest: "About your interest",
+    title: "Title",
+    mr: "Mr.",
+    ms: "Ms.",
+    mrs: "Mrs.",
+    dr: "Dr.",
+    firstName: "First name",
+    lastName: "Last name",
+    email: "Email",
+    phone: "Phone",
+    countryCode: "Country code",
+    inquiryType: "Inquiry type",
+    enquirerType: "Enquirer type",
+    iAmA: "I am a",
+    client: "Client",
+    broker: "Broker",
+    projectOfInterest: "Project of interest",
+    agency: "Agency / company",
+    reraNumber: "RERA / ORN no.",
+    message: "Message",
+    yourRequest: "Your request",
+    relatedProject: "Related project",
+    natureOfInquiry: "Nature of inquiry",
+    companyDetails: "Company details",
+    companyAgency: "Company / agency",
+    marketCountry: "Market / country",
+    website: "Website",
+    application: "Application",
+    roleDepartment: "Role / department",
+    rolePlaceholder: "e.g. Marketing, Development",
+    linkedinPortfolio: "LinkedIn / portfolio",
+    uploadCv: "Upload CV",
+    cvFile: "Attach a PDF, DOC or DOCX (max 4 MB)",
+    chooseFile: "Choose file",
+    mediaRequest: "Media request",
+    publicationOutlet: "Publication / outlet",
+    deadline: "Deadline",
+    sending: "Sending your enquiry…",
+    uploadingCv: "Uploading your CV…",
+    cvTooLarge: "The CV is too large (4 MB maximum). Please attach a smaller file.",
+    cvUploadFailed: "The CV could not be uploaded. Please try again.",
+    provideEmail: "Please provide your email address.",
+    invalidPhone: "Please enter a valid phone number.",
+    success: "Thank you. Your enquiry has been received.",
+    /// The brochure pop-up's heading once the request has gone through.
+    thankYou: "Thank you",
+    unableToSend: "Unable to send your enquiry.",
+    unableToSendRetry: "Unable to send your enquiry. Please try again.",
+    /// The sheet's wording for the same situations, with no message of its
+    /// own above: the server's and the delivered script's refusals fall back
+    /// on these where their own row is still missing.
+    required: "This field is required.",
+    invalidEmail: "Please enter a valid email address.",
+    error: "We could not submit your enquiry. Please try again.",
+    errorShort: "Unable to send your request.",
+    acceptTerms: "Please accept the Terms and Privacy Policy.",
+  },
+  /// The enquiry pop-up, which the delivered script (site-cms.js) builds.
+  /// The footer publishes these in the page's language, keyed by their
+  /// English, and the script shows them in place of its own.
+  popup: {
+    title: "Inquiry Form",
+    intro: "Share a few contact details and the KPD team will coordinate the right advisory conversation.",
+    minimize: "Minimize inquiry form",
+    fullName: "Full name",
+    emailAddress: "Email address",
+    phoneNumber: "Phone number",
+    shortMessage: "Short message",
+    interest: "Interest",
+    interestedIn: "Interested in",
+    onlineCall: "Online call",
+    submit: "Submit inquiry",
+    privacyNote: "The KPD team will respond with the right advisory route.",
   },
   /// The tabs above the Terms, Privacy and Cookies document.
   legal: {

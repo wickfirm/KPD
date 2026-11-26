@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
 import { localeHref, type Locale, arrowGlyph } from "@/lib/locales";
+import { formMessage, t } from "@/lib/i18n";
 import { dialCodeLabel, looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/lib/phone";
 
 /// The contact inquiry in the client-approved Option 2.1 "Gallery light"
@@ -27,8 +28,13 @@ function linked(value: string, locale: Locale) {
 }
 type ContactWindow = Window & { __KPD_CONTACT?: { email?: string; recipients?: Record<string, string | undefined> } };
 
-export function ContactInquiry({ locale, phone = "", website = "", image = "", content }: { locale: Locale; email?: string; phone?: string; website?: string; image?: string; content?: unknown }) {
+export function ContactInquiry({ locale, phone = "", website = "", image = "", content, english }: { locale: Locale; email?: string; phone?: string; website?: string; image?: string; content?: unknown; english?: unknown }) {
   const c = mergeContactInquiryContent(content);
+  // The same content in English (english is the page's English block on another
+  // language's page). What the form posts is always taken from it: the inquiry
+  // type, and the value of each choice, which a visitor picks by its label.
+  const base = mergeContactInquiryContent(english ?? content);
+  const englishLabel: Record<PaneKey, string> = { sales: base.salesLabel, customer: base.customerLabel, channel: base.channelLabel, job: base.jobLabel, press: base.pressLabel };
   const panes = [
     { key: "sales" as const, label: c.salesLabel, id: "sales" },
     { key: "customer" as const, label: c.customerLabel, id: "customer" },
@@ -38,7 +44,7 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
   ];
   const [activePane, setActivePane] = useState<PaneKey>("sales");
   const [segment, setSegment] = useState<"client" | "broker">("client");
-  const [cvName, setCvName] = useState("Attach a PDF, DOC or DOCX (max 4 MB)");
+  const [cvName, setCvName] = useState(t(locale, "form.cvFile"));
   const [status, setStatus] = useState("");
   const [pending, setPending] = useState(false);
   const [plannerScenario, setPlannerScenario] = useState("");
@@ -100,7 +106,7 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
     // The country code is chosen beside the number (Salesforce and the team need
     // it to call back); a number typed with + or 00 is kept as typed.
     if (!looksLikePhone(get("Phone"))) {
-      setStatus("Please enter a valid phone number.");
+      setStatus(formMessage(locale, "Please enter a valid phone number.", "form.invalidPhone"));
       return;
     }
     const phoneNumber = withDialCode(get("Phone"), get("Country"));
@@ -110,21 +116,21 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
       const cvFile = data.get("CV");
       if (activePane === "job" && cvFile instanceof File && cvFile.size > 0) {
         // Checked here too: Vercel rejects bodies over 4.5 MB before the upload route runs.
-        if (cvFile.size > 4 * 1024 * 1024) throw new Error("The CV is too large (4 MB maximum). Please attach a smaller file.");
-        setStatus("Uploading your CV…");
+        if (cvFile.size > 4 * 1024 * 1024) throw new Error(formMessage(locale, "The CV is too large (4 MB maximum). Please attach a smaller file.", "form.cvTooLarge"));
+        setStatus(formMessage(locale, "Uploading your CV…", "form.uploadingCv"));
         const uploadForm = new FormData();
         uploadForm.append("file", cvFile);
         const uploadResponse = await fetch("/api/contact/attachment", { method: "POST", body: uploadForm });
         const uploadResult = await uploadResponse.json().catch(() => ({}));
-        if (!uploadResponse.ok) throw new Error(uploadResult.error || "The CV could not be uploaded. Please try again.");
+        if (!uploadResponse.ok) throw new Error((locale === "en" ? uploadResult.error : "") || formMessage(locale, "The CV could not be uploaded. Please try again.", "form.cvUploadFailed"));
         cvUrl = uploadResult.url;
       }
-      setStatus("Sending your enquiry…");
+      setStatus(formMessage(locale, "Sending your enquiry…", "form.sending"));
       // Every field the visitor filled in for the active inquiry, in form order, so the
       // Messages screen shows the form's own fields rather than one flattened note.
       const answers: [string, string][] = [
         ...byPane[activePane],
-        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== "Attach a PDF, DOC or DOCX (max 4 MB)" ? cvName : "")] as [string, string]] : []),
+        ...(activePane === "job" ? [["CV", cvUrl || (cvName !== t(locale, "form.cvFile") ? cvName : "")] as [string, string]] : []),
         ["Country", get("Country")],
         ["Marketing consent", data.get("Marketing") === "on" ? "Yes" : "No"],
         ["Terms accepted", data.get("Terms") === "on" ? "Yes" : ""],
@@ -134,18 +140,18 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
       const recipientKey: Record<PaneKey, string> = { sales: "contactSales", customer: "contactCustomer", channel: "contactChannel", job: "contactCareers", press: "contactPress" };
       const routing = (window as ContactWindow).__KPD_CONTACT;
       const recipient = routing?.recipients?.[recipientKey[activePane]] || routing?.email || "";
-      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: phoneNumber, interest: interestByPane[activePane], inquiryType: label, recipient, recipientKey: recipientKey[activePane], sourcePage: "/contact", message: messageByPane[activePane] || `${label} (no message left).`, details }) });
+      const response = await fetch("/api/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, email: get("Email"), phone: phoneNumber, interest: interestByPane[activePane], inquiryType: englishLabel[activePane], recipient, recipientKey: recipientKey[activePane], sourcePage: localeHref("/contact", locale), message: messageByPane[activePane] || `${englishLabel[activePane]} (no message left).`, details, ...(locale === "en" ? {} : { visitorLanguage: locale }) }) });
       const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || "Unable to send your enquiry.");
+      if (!response.ok) throw new Error(result.error || formMessage(locale, "Unable to send your enquiry.", "form.unableToSend", "form.errorShort"));
       form.reset();
-      setCvName("Attach a PDF, DOC or DOCX (max 4 MB)");
+      setCvName(t(locale, "form.cvFile"));
       window.sessionStorage.removeItem("kpdPlannerScenario");
       window.sessionStorage.removeItem("kpdPlannerProject");
       setPlannerScenario("");
       setPlannerProject("");
-      setStatus("Thank you. Your enquiry has been received.");
+      setStatus(formMessage(locale, "Thank you. Your enquiry has been received.", "form.success"));
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Unable to send your enquiry. Please try again.");
+      setStatus(error instanceof Error ? error.message : formMessage(locale, "Unable to send your enquiry. Please try again.", "form.unableToSendRetry", "form.error"));
     } finally {
       setPending(false);
     }
@@ -154,8 +160,10 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
   const tel = phone.replace(/[^\d+]/g, "");
   /// Remounts when the preselected value changes (the Ownership Cost Planner
   /// hands over a project after hydration), so defaultChecked applies again.
-  const pills = (name: string, options: string[], selected?: string) => <div className="g21-pills" key={`${name}-${selected ?? ""}`}>
-    {options.map((option, index) => <label key={option}><input type="radio" name={name} value={option} defaultChecked={selected ? option === selected : index === 0} /><span>{option}</span></label>)}
+  // A choice reads in the visitor's language and posts the English entry at
+  // the same position of the list. Never the translated label.
+  const pills = (name: string, options: string[], englishOptions: string[], selected?: string) => <div className="g21-pills" key={`${name}-${selected ?? ""}`}>
+    {options.map((option, index) => <label key={option}><input type="radio" name={name} value={englishOptions[index] ?? option} defaultChecked={selected ? englishOptions[index] === selected : index === 0} /><span>{option}</span></label>)}
   </div>;
 
   return <div className="g21-wrap g21-contact">
@@ -175,7 +183,7 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
 
     <div className="g21-cform">
       <h2 className="g21-cf-h">{c.formHeading}</h2>
-      <div className="g21-tabs" role="tablist" aria-label="Inquiry type">
+      <div className="g21-tabs" role="tablist" aria-label={t(locale, "form.inquiryType")}>
         {panes.map(({ key, label }) => (
           <button key={key} id={`contact-tab-${key}`} type="button" role="tab" aria-selected={activePane === key} aria-controls={`contact-pane-${key}`} tabIndex={activePane === key ? 0 : -1} onClick={() => setActivePane(key)}>{label}</button>
         ))}
@@ -183,70 +191,70 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
       <form className="g21-form" onSubmit={submit}>
         <input type="hidden" name="Inquiry Type" value={panes.find((pane) => pane.key === activePane)!.label} />
 
-        <fieldset className="g21-grp"><legend className="g21-cap">Your details</legend>
+        <fieldset className="g21-grp"><legend className="g21-cap">{t(locale, "form.yourDetails")}</legend>
           <div className="g21-row g21-row--title">
-            <label className="g21-fld"><span>Title</span><select name="Title"><option>Mr.</option><option>Ms.</option><option>Mrs.</option><option>Dr.</option></select></label>
-            <label className="g21-fld"><span>First name</span><input name="First Name" type="text" autoComplete="given-name" required /></label>
-            <label className="g21-fld"><span>Last name</span><input name="Last Name" type="text" autoComplete="family-name" required /></label>
+            <label className="g21-fld"><span>{t(locale, "form.title")}</span><select name="Title">{(["Mr.", "Ms.", "Mrs.", "Dr."] as const).map((title) => <option key={title} {...(locale === "en" ? {} : { value: title })}>{title === "Mr." ? t(locale, "form.mr") : title === "Ms." ? t(locale, "form.ms") : title === "Mrs." ? t(locale, "form.mrs") : t(locale, "form.dr")}</option>)}</select></label>
+            <label className="g21-fld"><span>{t(locale, "form.firstName")}</span><input name="First Name" type="text" autoComplete="given-name" required /></label>
+            <label className="g21-fld"><span>{t(locale, "form.lastName")}</span><input name="Last Name" type="text" autoComplete="family-name" required /></label>
           </div>
           <div className="g21-row">
-            <label className="g21-fld"><span>Email</span><input name="Email" type="email" autoComplete="email" required /></label>
-            <div className="g21-fld"><span id="contact-phone-label">Phone</span><span className="g21-phone">
-              <span className="g21-dial"><b aria-hidden="true">{dialCodeLabel(country)}</b><select name="Country" aria-label="Country code" value={country} onChange={(event) => setCountry(event.target.value)}>{PHONE_COUNTRIES.map((option) => <option key={option}>{option}</option>)}</select></span>
+            <label className="g21-fld"><span>{t(locale, "form.email")}</span><input name="Email" type="email" autoComplete="email" required /></label>
+            <div className="g21-fld"><span id="contact-phone-label">{t(locale, "form.phone")}</span><span className="g21-phone">
+              <span className="g21-dial"><b aria-hidden="true">{dialCodeLabel(country)}</b><select name="Country" aria-label={t(locale, "form.countryCode")} value={country} onChange={(event) => setCountry(event.target.value)}>{PHONE_COUNTRIES.map((option) => <option key={option}>{option}</option>)}</select></span>
               <input name="Phone" type="tel" inputMode="tel" autoComplete="tel-national" aria-labelledby="contact-phone-label" required />
             </span></div>
           </div>
         </fieldset>
 
-        <fieldset className="g21-grp" id="contact-pane-sales" role="tabpanel" aria-labelledby="contact-tab-sales" hidden={activePane !== "sales"}><legend className="g21-cap">About your interest</legend>
-          <div className="g21-fld"><span>I am a</span><div className="g21-pills" role="group" aria-label="Enquirer type">
-            <label><input type="radio" name="Enquirer" value="Client" checked={segment === "client"} onChange={() => setSegment("client")} /><span>Client</span></label>
-            <label><input type="radio" name="Enquirer" value="Broker" checked={segment === "broker"} onChange={() => setSegment("broker")} /><span>Broker</span></label>
+        <fieldset className="g21-grp" id="contact-pane-sales" role="tabpanel" aria-labelledby="contact-tab-sales" hidden={activePane !== "sales"}><legend className="g21-cap">{t(locale, "form.aboutYourInterest")}</legend>
+          <div className="g21-fld"><span>{t(locale, "form.iAmA")}</span><div className="g21-pills" role="group" aria-label={t(locale, "form.enquirerType")}>
+            <label><input type="radio" name="Enquirer" value="Client" checked={segment === "client"} onChange={() => setSegment("client")} /><span>{t(locale, "form.client")}</span></label>
+            <label><input type="radio" name="Enquirer" value="Broker" checked={segment === "broker"} onChange={() => setSegment("broker")} /><span>{t(locale, "form.broker")}</span></label>
           </div></div>
-          <div className="g21-fld"><span>Project of interest</span>{pills("Project of Interest", c.salesProjects, plannerProject || undefined)}</div>
+          <div className="g21-fld"><span>{t(locale, "form.projectOfInterest")}</span>{pills("Project of Interest", c.salesProjects, base.salesProjects, plannerProject || undefined)}</div>
           <div className="g21-row" data-sales-broker-fields hidden={!brokerVisible}>
-            <label className="g21-fld"><span>Agency / company</span><input name="Agency" type="text" /></label>
-            <label className="g21-fld"><span>RERA / ORN no.</span><input name="RERA / ORN" type="text" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.agency")}</span><input name="Agency" type="text" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.reraNumber")}</span><input name="RERA / ORN" type="text" /></label>
           </div>
-          <label className="g21-fld"><span>Message</span><textarea name="Sales Message" placeholder={c.salesMessagePrompt}></textarea></label>
+          <label className="g21-fld"><span>{t(locale, "form.message")}</span><textarea name="Sales Message" placeholder={c.salesMessagePrompt}></textarea></label>
         </fieldset>
 
-        <fieldset className="g21-grp" id="contact-pane-customer" role="tabpanel" aria-labelledby="contact-tab-customer" hidden={activePane !== "customer"}><legend className="g21-cap">Your request</legend>
-          <div className="g21-fld"><span>Related project</span>{pills("Related Project", c.customerProjects)}</div>
-          <div className="g21-fld"><span>Nature of inquiry</span>{pills("Customer Inquiry Nature", c.customerNatures)}</div>
-          <label className="g21-fld"><span>Message</span><textarea name="Customer Message" placeholder={c.customerMessagePrompt}></textarea></label>
+        <fieldset className="g21-grp" id="contact-pane-customer" role="tabpanel" aria-labelledby="contact-tab-customer" hidden={activePane !== "customer"}><legend className="g21-cap">{t(locale, "form.yourRequest")}</legend>
+          <div className="g21-fld"><span>{t(locale, "form.relatedProject")}</span>{pills("Related Project", c.customerProjects, base.customerProjects)}</div>
+          <div className="g21-fld"><span>{t(locale, "form.natureOfInquiry")}</span>{pills("Customer Inquiry Nature", c.customerNatures, base.customerNatures)}</div>
+          <label className="g21-fld"><span>{t(locale, "form.message")}</span><textarea name="Customer Message" placeholder={c.customerMessagePrompt}></textarea></label>
         </fieldset>
 
-        <fieldset className="g21-grp" id="contact-pane-channel" role="tabpanel" aria-labelledby="contact-tab-channel" hidden={activePane !== "channel"}><legend className="g21-cap">Company details</legend>
+        <fieldset className="g21-grp" id="contact-pane-channel" role="tabpanel" aria-labelledby="contact-tab-channel" hidden={activePane !== "channel"}><legend className="g21-cap">{t(locale, "form.companyDetails")}</legend>
           <div className="g21-row">
-            <label className="g21-fld"><span>Company / agency</span><input name="Company / Agency" type="text" /></label>
-            <label className="g21-fld"><span>RERA / ORN no.</span><input name="Partner RERA / ORN" type="text" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.companyAgency")}</span><input name="Company / Agency" type="text" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.reraNumber")}</span><input name="Partner RERA / ORN" type="text" /></label>
           </div>
           <div className="g21-row">
-            <label className="g21-fld"><span>Market / country</span><input name="Market / Country" type="text" /></label>
-            <label className="g21-fld"><span>Website</span><input name="Website" type="url" placeholder="https://" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.marketCountry")}</span><input name="Market / Country" type="text" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.website")}</span><input name="Website" type="url" placeholder="https://" /></label>
           </div>
-          <label className="g21-fld"><span>Message</span><textarea name="Partner Message" placeholder={c.channelMessagePrompt}></textarea></label>
+          <label className="g21-fld"><span>{t(locale, "form.message")}</span><textarea name="Partner Message" placeholder={c.channelMessagePrompt}></textarea></label>
         </fieldset>
 
-        <fieldset className="g21-grp" id="contact-pane-job" role="tabpanel" aria-labelledby="contact-tab-job" hidden={activePane !== "job"}><legend className="g21-cap">Application</legend>
+        <fieldset className="g21-grp" id="contact-pane-job" role="tabpanel" aria-labelledby="contact-tab-job" hidden={activePane !== "job"}><legend className="g21-cap">{t(locale, "form.application")}</legend>
           <div className="g21-row">
-            <label className="g21-fld"><span>Role / department</span><input name="Role / Department" type="text" placeholder="e.g. Marketing, Development" /></label>
-            <label className="g21-fld"><span>LinkedIn / portfolio</span><input name="LinkedIn / Portfolio" type="url" placeholder="https://" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.roleDepartment")}</span><input name="Role / Department" type="text" placeholder={t(locale, "form.rolePlaceholder")} /></label>
+            <label className="g21-fld"><span>{t(locale, "form.linkedinPortfolio")}</span><input name="LinkedIn / Portfolio" type="url" placeholder="https://" /></label>
           </div>
-          <div className="g21-fld"><span>Upload CV</span><label className="g21-file">
-            <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || "Attach a PDF, DOC or DOCX (max 4 MB)")} />
-            <b>Choose file</b><span id="contactCvName">{cvName}</span>
+          <div className="g21-fld"><span>{t(locale, "form.uploadCv")}</span><label className="g21-file">
+            <input type="file" name="CV" accept=".pdf,.doc,.docx" onChange={(event) => setCvName(event.target.files?.[0]?.name || t(locale, "form.cvFile"))} />
+            <b>{t(locale, "form.chooseFile")}</b><span id="contactCvName">{cvName}</span>
           </label></div>
-          <label className="g21-fld"><span>Message</span><textarea name="Job Message" placeholder={c.jobMessagePrompt}></textarea></label>
+          <label className="g21-fld"><span>{t(locale, "form.message")}</span><textarea name="Job Message" placeholder={c.jobMessagePrompt}></textarea></label>
         </fieldset>
 
-        <fieldset className="g21-grp" id="contact-pane-press" role="tabpanel" aria-labelledby="contact-tab-press" hidden={activePane !== "press"}><legend className="g21-cap">Media request</legend>
+        <fieldset className="g21-grp" id="contact-pane-press" role="tabpanel" aria-labelledby="contact-tab-press" hidden={activePane !== "press"}><legend className="g21-cap">{t(locale, "form.mediaRequest")}</legend>
           <div className="g21-row">
-            <label className="g21-fld"><span>Publication / outlet</span><input name="Publication / Outlet" type="text" /></label>
-            <label className="g21-fld"><span>Deadline</span><input name="Deadline" type="date" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.publicationOutlet")}</span><input name="Publication / Outlet" type="text" /></label>
+            <label className="g21-fld"><span>{t(locale, "form.deadline")}</span><input name="Deadline" type="date" /></label>
           </div>
-          <label className="g21-fld"><span>Message</span><textarea name="Press Message" placeholder={c.pressMessagePrompt}></textarea></label>
+          <label className="g21-fld"><span>{t(locale, "form.message")}</span><textarea name="Press Message" placeholder={c.pressMessagePrompt}></textarea></label>
         </fieldset>
 
         <div className="g21-consent">

@@ -12,10 +12,12 @@ import { loadHiddenSections } from "@/lib/section-visibility-store";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
 import { localizedArticles, localizedSetting } from "@/lib/translations/store";
+import { pageLanguages } from "@/lib/hreflang";
 
 /// Resolved per request, so the canonical and og:locale follow the page's language.
 export async function generateMetadata() {
-  return pageMetadata(pageSeo.news, await getLocale());
+  const [locale, translated] = await Promise.all([getLocale(), pageLanguages({ setting: "news_listing" })]);
+  return pageMetadata(pageSeo.news, locale, translated);
 }
 
 /// The news listing in the client-approved Option 2.1 "Gallery light" layout,
