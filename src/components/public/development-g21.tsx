@@ -11,7 +11,7 @@ import { defaultKeyFacts, driveMinutes, mapsLink, parseKeyFacts } from "@/lib/de
 import { textStyleProps, type TextStyle } from "@/lib/text-style";
 import { emphasisNodes } from "@/lib/emphasis";
 import { sectionFilter } from "@/lib/section-visibility";
-import { localeHref, type Locale } from "@/lib/locales";
+import { arrowGlyph, isRtl, localeHref, type Locale } from "@/lib/locales";
 import { t, type MessageKey } from "@/lib/i18n";
 
 type ModuleItem = { label?: string; value?: string; text?: string; image?: string; url?: string };
@@ -39,7 +39,7 @@ function Cta({ url, className, children, external, locale }: { url?: string; cla
   return <a className={className} href={href} {...(external ? { target: "_blank", rel: "noopener" } : {})}>{children}</a>;
 }
 
-const arrow = (glyph = "→") => <span className="g21-ar" aria-hidden="true">{glyph}</span>;
+const arrow = (locale: Locale, glyph = "→") => <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, glyph)}</span>;
 const isExternal = (url?: string) => Boolean(url && /^https?:/i.test(url));
 
 type Kind = "split" | "location" | "tour" | "gallery" | "plans" | "payment";
@@ -113,9 +113,9 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
         <div className="g21-wrap">
           <div className="g21-sec-top">
             <div>{cap ? <span className="g21-cap">{cap}</span> : null}{title}{data.text ? <p className="g21-muted g21-sec-sub" style={textStyle}>{multiline(data.text)}</p> : null}</div>
-            {data.mapUrl ? <a className="g21-btn g21-btn--line" href={mapsLink(data.mapUrl)} target="_blank" rel="noopener">{t(locale, "dev.openInGoogleMaps")} {arrow("↗")}</a> : null}
+            {data.mapUrl ? <a className="g21-btn g21-btn--line" href={mapsLink(data.mapUrl)} target="_blank" rel="noopener">{t(locale, "dev.openInGoogleMaps")} {arrow(locale, "↗")}</a> : null}
           </div>
-          {timed && ticks.length ? <div className="g21-scale" aria-hidden="true">{ticks.map((tick, tickIndex) => <span key={tickIndex} style={{ left: `${(tick / max) * 100}%` }}>{tick === 0 ? "0" : t(locale, "dev.minutes", { number: tick })}</span>)}</div> : null}
+          {timed && ticks.length ? <div className="g21-scale" aria-hidden="true">{ticks.map((tick, tickIndex) => <span key={tickIndex} style={isRtl(locale) ? { right: `${(tick / max) * 100}%` } : { left: `${(tick / max) * 100}%` }}>{tick === 0 ? "0" : t(locale, "dev.minutes", { number: tick })}</span>)}</div> : null}
           {sorted.length ? <ol className="g21-drive">{sorted.map((place, placeIndex) => <li key={`${place.name}-${placeIndex}`}>
             <span>{place.name}</span>
             {timed ? <span className="g21-bar" aria-hidden="true"><span style={{ width: `${(place.minutes / max) * 100}%` }} /></span> : <span />}
@@ -135,7 +135,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
             {images[0] ? <img src={images[0]} alt={t(locale, "dev.figureAlt", { name: project.name, title: module.title })} loading="lazy" /> : null}
             <div className="g21-tour-card">
               {cap ? <p className="g21-cap">{cap}</p> : null}{title}{data.text ? <p style={textStyle}>{multiline(data.text)}</p> : null}
-              {showCta ? <Cta className="g21-btn" url={data.url || "#amenities"} external={isExternal(data.url)} locale={locale}>{label} {arrow(isExternal(data.url) ? "↗" : "→")}</Cta> : null}
+              {showCta ? <Cta className="g21-btn" url={data.url || "#amenities"} external={isExternal(data.url)} locale={locale}>{label} {arrow(locale, isExternal(data.url) ? "↗" : "→")}</Cta> : null}
             </div>
           </div>
         </div>
@@ -159,7 +159,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
         <div className="g21-wrap">
           <div className="g21-ec-head">
             <div>{cap ? <span className="g21-cap">{cap}</span> : null}{title}</div>
-            <div className="g21-plans-note">{text}{data.ctaVisible !== false ? <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={data.url} external={isExternal(data.url)} locale={locale}>{ctaLabel} {arrow()}</Cta></div> : null}</div>
+            <div className="g21-plans-note">{text}{data.ctaVisible !== false ? <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={data.url} external={isExternal(data.url)} locale={locale}>{ctaLabel} {arrow(locale)}</Cta></div> : null}</div>
           </div>
           {cards.length ? <div className="g21-plans">{cards.map((card, cardIndex) => {
             const label = card.label ?? t(locale, "dev.plan", { number: cardIndex + 1 });
@@ -167,7 +167,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
             {card.image ? <img src={card.image} alt={t(locale, "dev.floorPlanAlt", { name: project.name, label })} loading="lazy" /> : null}
             <p className="g21-cap">{label}</p>
             {card.value ? <p className="g21-plan-size">{card.value}</p> : null}
-            <Cta className="g21-txt-link" url={card.url} external={isExternal(card.url)} locale={locale}>{card.url ? t(locale, "dev.download") : t(locale, "brochure.requestPlan")} <span aria-hidden="true">→</span></Cta>
+            <Cta className="g21-txt-link" url={card.url} external={isExternal(card.url)} locale={locale}>{card.url ? t(locale, "dev.download") : t(locale, "brochure.requestPlan")} <span aria-hidden="true">{arrowGlyph(locale, "→")}</span></Cta>
           </article>; })}</div> : null}
         </div>
       </section>;
@@ -178,7 +178,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
         <div className="g21-wrap g21-pay">
           <div className="g21-pay-copy">
             {cap ? <span className="g21-cap">{cap}</span> : null}{title}{text}
-            {data.ctaVisible !== false ? <Cta className="g21-btn g21-btn--line" url={data.url} external={isExternal(data.url)} locale={locale}>{data.ctaLabel || t(locale, "dev.downloadPaymentPlan")} {arrow()}</Cta> : null}
+            {data.ctaVisible !== false ? <Cta className="g21-btn g21-btn--line" url={data.url} external={isExternal(data.url)} locale={locale}>{data.ctaLabel || t(locale, "dev.downloadPaymentPlan")} {arrow(locale)}</Cta> : null}
           </div>
           {items.length ? <div className={`g21-milestones${items.length === 2 ? " g21-milestones--two" : ""}`} style={{ "--g21-ms": items.length } as CSSProperties}>
             {items.map((item, itemIndex) => <div className="g21-ms" key={`${item.label}-${itemIndex}`}><b>{item.value}</b>{item.label ? <span className="g21-cap">{item.label}</span> : null}{item.text ? <p>{item.text}</p> : null}</div>)}
@@ -192,7 +192,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
     const copy = <div className="g21-split-copy">
       {cap ? <span className="g21-cap">{cap}</span> : null}{title}{data.text ? <p style={textStyle}>{multiline(data.text)}</p> : null}
       {items.length ? <div className="g21-trio">{items.map((item, itemIndex) => <div key={`${item.label}-${itemIndex}`}><b>{item.value}</b><span className="g21-cap">{item.label ?? item.text}</span></div>)}</div> : null}
-      {showCta ? <Cta className="g21-btn" url={data.url} external={isExternal(data.url)} locale={locale}>{data.ctaLabel || (data.presentation === "calm" ? t(locale, "dev.brochure") : t(locale, "dev.explore"))} {arrow()}</Cta> : null}
+      {showCta ? <Cta className="g21-btn" url={data.url} external={isExternal(data.url)} locale={locale}>{data.ctaLabel || (data.presentation === "calm" ? t(locale, "dev.brochure") : t(locale, "dev.explore"))} {arrow(locale)}</Cta> : null}
     </div>;
     const figure = images[0] ? <figure className={`g21-ph${entry.rev ? " g21-ph--tall" : ""}`}><img src={images[0]} alt={t(locale, "dev.figureAlt", { name: project.name, title: module.title })} loading="lazy" /></figure> : null;
     return <section key={module.id} className={`g21-pad${tone}`} {...sectionProps}>
@@ -218,7 +218,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
             <h1 id="g21-dev-title" style={textStyleProps(chrome.nameStyle)}>{emphasisNodes(project.name)}</h1>
             <div>
               <div className="g21-ctas">
-                <Cta className="g21-btn" url={bookUrl} external={isExternal(bookUrl)} locale={locale}>{bookLabel} {arrow()}</Cta>
+                <Cta className="g21-btn" url={bookUrl} external={isExternal(bookUrl)} locale={locale}>{bookLabel} {arrow(locale)}</Cta>
                 {chrome.brochureVisible === false ? null : <BrochureRequest className="g21-btn g21-btn--line" projectName={project.name} projectSlug={project.slug} label={chrome.brochureLabel || t(locale, "brochure.download")} />}
               </div>
             </div>
@@ -243,7 +243,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
           <div className="g21-overview-copy">
             {project.tagline ? <h2 id="g21-overview-title" style={textStyleProps(chrome.taglineStyle)}>{multiline(project.tagline)}</h2> : null}
             {project.description ? <p style={textStyleProps(chrome.descriptionStyle)}>{multiline(project.description)}</p> : null}
-            {chrome.ctaVisible === false ? null : <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={chrome.ctaUrl || "#amenities"} locale={locale}>{chrome.ctaLabel || t(locale, "dev.explore")} {arrow()}</Cta></div>}
+            {chrome.ctaVisible === false ? null : <div className="g21-ctas"><Cta className="g21-btn g21-btn--line" url={chrome.ctaUrl || "#amenities"} locale={locale}>{chrome.ctaLabel || t(locale, "dev.explore")} {arrow(locale)}</Cta></div>}
           </div>
         </div>
       </section> : null}
@@ -257,7 +257,7 @@ export function DevelopmentMainG21({ project, calculator, hidden, locale }: { pr
           <h2 id="g21-dev-band-title">{emphasisNodes(enquireHeading)}</h2>
           <p>{chrome.enquireText || t(locale, "dev.enquireText")}</p>
           <div className="g21-ctas">
-            <Cta className="g21-btn g21-btn--white" url={chrome.enquirePrimaryUrl} locale={locale}>{primaryLabel} {arrow()}</Cta>
+            <Cta className="g21-btn g21-btn--white" url={chrome.enquirePrimaryUrl} locale={locale}>{primaryLabel} {arrow(locale)}</Cta>
             <Cta className="g21-btn g21-btn--ghost" url={chrome.enquireSecondaryUrl || "/contact"} locale={locale}>{chrome.enquireSecondaryLabel || t(locale, "dev.registerInterest")}</Cta>
           </div>
         </div>

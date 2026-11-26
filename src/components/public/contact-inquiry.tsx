@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { mergeContactInquiryContent } from "@/lib/contact-inquiry-content";
-import { localeHref, type Locale } from "@/lib/locales";
+import { localeHref, type Locale, arrowGlyph } from "@/lib/locales";
 import { dialCodeLabel, looksLikePhone, PHONE_COUNTRIES, withDialCode } from "@/lib/phone";
 
 /// The contact inquiry in the client-approved Option 2.1 "Gallery light"
@@ -165,7 +165,7 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
         <span className="g21-cap">{c.addressLabel}</span>
         <address>{c.address.split("\n").flatMap((line, index) => (index === 0 ? [line] : [<br key={index} />, line]))}</address>
         <div className="g21-ctas">
-          <a className="g21-btn" href={c.directionsUrl} target="_blank" rel="noopener">{c.directionsLabel} <span className="g21-ar" aria-hidden="true">↗</span></a>
+          <a className="g21-btn" href={c.directionsUrl} target="_blank" rel="noopener">{c.directionsLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "↗")}</span></a>
           {tel ? <a className="g21-btn g21-btn--line" href={`tel:${tel}`}>{c.callLabel}</a> : null}
         </div>
         {website ? <a className="g21-txt-link" href={website}>{(() => { try { return new URL(website).hostname; } catch { return website; } })()}</a> : null}
@@ -253,7 +253,7 @@ export function ContactInquiry({ locale, phone = "", website = "", image = "", c
           <label className="g21-chk"><input type="checkbox" name="Terms" required /><span>{linked(c.termsText, locale)}</span></label>
           <label className="g21-chk"><input type="checkbox" name="Marketing" /><span>{linked(c.marketingText, locale)}</span></label>
         </div>
-        <button className="g21-btn g21-submit" type="submit" disabled={pending}>{c.submitLabel} <span className="g21-ar" aria-hidden="true">→</span></button>
+        <button className="g21-btn g21-submit" type="submit" disabled={pending}>{c.submitLabel} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></button>
         {status ? <p className="g21-form-status" role="status">{status}</p> : null}
       </form>
     </div>

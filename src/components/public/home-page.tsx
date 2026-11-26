@@ -9,7 +9,7 @@ import { HomeDevelopmentSlider } from "./home-development-slider";
 import { sectionFilter } from "@/lib/section-visibility";
 import { homeNewsGridHtml } from "@/lib/home-news";
 import type { NewsListItem } from "@/lib/news-listing";
-import { localeHref, localizeHtmlLinks, type Locale } from "@/lib/locales";
+import { localeHref, localizeHtmlLinks, type Locale, arrowGlyph } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 
 /// Newlines in editor content render as <br>, matching the delivered markup.
@@ -35,7 +35,7 @@ function withHomeNewsHeader(staticTail: string, settings: HomeSettings, articles
   /// pill with an arrow right. pdf-news-head only keeps the news spacing.
   const sectionClass = position === "below" ? "pdf-section pdf-contact-block pdf-news-head" : `pdf-section pdf-contact-block pdf-news-head pdf-events-head--cta-${position === "above" ? "above" : "side"}${position === "left" ? " pdf-events-head--cta-left" : ""}`;
   const copy = text ? `<p${textStyleAttribute(settings.newsBodyStyle)}>${escapeHtml(text).replaceAll("\n", "<br>")}</p>` : "";
-  const button = cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)} <span class="pdf-contact-arrow" aria-hidden="true">→</span></a>` : "";
+  const button = cta ? `<a href="${escapeHtml(ctaUrl)}">${escapeHtml(cta)} <span class="pdf-contact-arrow" aria-hidden="true">${arrowGlyph(locale, "→")}</span></a>` : "";
   /// Replace delivered editable text even when the CMS value is blank, so old
   /// copy can never reappear as a fallback.
   const section = heading || text || cta
@@ -76,7 +76,7 @@ export function HomeHero({ video, image, heading, text, ctaLabel, ctaUrl, headin
           <div className="pdf-hero-row">
             {text?.trim() ? <p className="pdf-hero-text">{emphasisNodes(text)}</p> : null}
             <div className="pdf-hero-actions">
-              {ctaLabel?.trim() ? <Link className="pdf-hero-cta" href={ctaUrl || "#developments"}>{ctaLabel} <span className="pdf-hero-arrow" aria-hidden="true">→</span></Link> : null}
+              {ctaLabel?.trim() ? <Link className="pdf-hero-cta" href={ctaUrl || "#developments"}>{ctaLabel} <span className="pdf-hero-arrow" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link> : null}
               {video ? (
                 <button className="pdf-hero-toggle" type="button" data-hero-toggle aria-label={t(locale, "home.pauseVideo")}>
                   <svg className="pdf-hero-icon-pause" width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" y="1" width="3" height="12" fill="currentColor" /><rect x="8" y="1" width="3" height="12" fill="currentColor" /></svg>
@@ -202,7 +202,7 @@ export function HomeContactBlock({ heading, text, ctaLabel, ctaUrl, ctaVisible =
       </div>
       <div className="pdf-contact-copy">
         <p style={textStyleProps(bodyStyle)}>{multiline(text)}</p>
-        {ctaVisible && ctaLabel ? <Link href={localeHref(ctaUrl || "/contact#experience-center", locale)}>{ctaLabel} <span className="pdf-contact-arrow" aria-hidden="true">→</span></Link> : null}
+        {ctaVisible && ctaLabel ? <Link href={localeHref(ctaUrl || "/contact#experience-center", locale)}>{ctaLabel} <span className="pdf-contact-arrow" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link> : null}
       </div>
     </section>
   );

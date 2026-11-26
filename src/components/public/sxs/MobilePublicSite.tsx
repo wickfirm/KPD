@@ -19,7 +19,7 @@ import {
   FaUmbrellaBeach,
   FaWaterLadder,
 } from "react-icons/fa6";
-import { localeHref, type Locale } from "@/lib/locales";
+import { arrowGlyph, localeHref, type Locale } from "@/lib/locales";
 import { LanguageSwitcher } from "../language-switcher";
 
 type MediaItem = { src: string; alt: string; label?: string; position?: string };
@@ -148,11 +148,15 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
     const iosVideo = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
     iosVideo.webkitEnterFullscreen?.();
   };
+  /// A swipe drags the picture the way the finger goes. On an Arabic page the
+  /// next one lies to the left, so the same gesture means the opposite.
+  const swipe = props.locale === "ar" ? -1 : 1;
   const syncGalleryProgress = () => {
     const track = galleryTrackRef.current;
     if (!track) return;
     const maximum = Math.max(track.scrollWidth - track.clientWidth, 1);
-    const progress = Math.min(Math.max(track.scrollLeft / maximum, 0), 1);
+    // On a right-to-left page the browser counts the scroll from 0 down to -maximum.
+    const progress = Math.min(Math.max(Math.abs(track.scrollLeft) / maximum, 0), 1);
     setGalleryProgress(progress * 100);
   };
   const manifestoCharacters = Array.from(props.manifesto);
@@ -223,7 +227,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
       {props.menuTransitioning ? <div className="mobile-anchor-loader" role="status"><img src={props.markWhite ?? "/assets/brand/s-mark-white.png"} alt="" /></div> : null}
 
       <section className="mobile-hero is-visible" id="home" aria-label="seven x seven residences">
-        <div className="mobile-hero-gallery" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveHero(distance < 0 ? 1 : -1); }} onClick={() => moveHero(1)}>
+        <div className="mobile-hero-gallery" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveHero((distance < 0 ? 1 : -1) * swipe); }} onClick={() => moveHero(1)}>
           {props.heroScenes.map((scene, index) => <img className={index === props.heroIndex ? "is-active" : ""} src={scene.src} alt={scene.alt} style={{ objectPosition: scene.position ?? "68% 50%" }} key={scene.src} />)}
         </div>
         <div className="mobile-hero-copy">
@@ -270,7 +274,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
       </section>
 
       <section className="mobile-gallery mobile-section" id="gallery">
-        <header><h2>{props.galleryHeadline}</h2><p>{props.galleryNote ?? "see the balance"}</p><div className="mobile-gallery-progress"><i style={{ transform: `scaleX(${galleryProgress / 100})` }} /><small style={{ left: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` }}>{Math.round(galleryProgress)}%</small><img src={props.markWhite ?? "/assets/brand/s-mark-white.png"} alt="" /></div></header>
+        <header><h2>{props.galleryHeadline}</h2><p>{props.galleryNote ?? "see the balance"}</p><div className="mobile-gallery-progress"><i style={{ transform: `scaleX(${galleryProgress / 100})` }} />{/* The label's place is an inline style, which no stylesheet can mirror: on an Arabic page it is measured from the right. */}<small style={props.locale === "ar" ? { right: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` } : { left: `clamp(19px, ${galleryProgress}%, calc(100% - 19px))` }}>{Math.round(galleryProgress)}%</small><img src={props.markWhite ?? "/assets/brand/s-mark-white.png"} alt="" /></div></header>
         <div ref={galleryTrackRef} className="mobile-gallery-carousel" onScroll={syncGalleryProgress}>
           {props.galleryScenes.map((scene, index) => <figure onClick={() => props.onLightbox(scene)} key={scene.src}><img src={scene.src} alt={scene.alt} /><figcaption>{String(index + 1).padStart(2, "0")} / {String(props.galleryScenes.length).padStart(2, "0")}</figcaption></figure>)}
         </div>
@@ -285,7 +289,7 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
 
       <section className="mobile-amenities mobile-section" id="amenities">
         <div className="mobile-section-copy mobile-light-copy"><p>own your ritual</p><h2>{props.amenitiesHeadline}</h2></div>
-        <figure className="mobile-amenity-feature" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveAmenity(distance < 0 ? 1 : -1); }}>
+        <figure className="mobile-amenity-feature" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveAmenity((distance < 0 ? 1 : -1) * swipe); }}>
           <div className="mobile-amenity-images">{props.amenityScenes.map((scene, index) => <img className={index === props.activeAmenity ? "is-active" : ""} src={scene.src} alt={scene.alt} key={scene.src} />)}</div>
           <figcaption><span>{props.amenityLabels[props.activeAmenity]}</span><small>{String(props.activeAmenity + 1).padStart(2, "0")} / {String(props.amenityScenes.length).padStart(2, "0")}</small></figcaption>
         </figure>
@@ -294,9 +298,9 @@ export function MobilePublicSite(props: MobilePublicSiteProps) {
 
       <section className="mobile-community mobile-section" id="community">
         <div className="mobile-section-copy mobile-light-copy"><h2>{props.communityHeadline}</h2><p>{props.communityBody}</p><button className="mobile-outline-button" type="button" onClick={props.onModalOpen}>{props.primaryCta}</button></div>
-        <div className="mobile-community-carousel" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveCommunity(distance < 0 ? 1 : -1); }}>
+        <div className="mobile-community-carousel" onTouchStart={(event) => { touchStart.current = event.touches[0].clientX; }} onTouchEnd={(event) => { const distance = event.changedTouches[0].clientX - touchStart.current; if (Math.abs(distance) > 42) moveCommunity((distance < 0 ? 1 : -1) * swipe); }}>
           {props.communityScenes.map((scene, index) => <img className={index === props.activeCommunity ? "is-active" : ""} src={scene.src} alt={scene.alt} key={scene.src} />)}
-          <div><button type="button" aria-label="Previous community image" onClick={() => moveCommunity(-1)}>←</button><span>{props.communityScenes.map((scene, index) => <button className={index === props.activeCommunity ? "is-active" : ""} type="button" aria-label={`Show community image ${index + 1}`} onClick={() => props.onCommunityChange(index)} key={scene.src} />)}</span><button type="button" aria-label="Next community image" onClick={() => moveCommunity(1)}>→</button></div>
+          <div><button type="button" aria-label="Previous community image" onClick={() => moveCommunity(-1)}>←</button><span>{props.communityScenes.map((scene, index) => <button className={index === props.activeCommunity ? "is-active" : ""} type="button" aria-label={`Show community image ${index + 1}`} onClick={() => props.onCommunityChange(index)} key={scene.src} />)}</span><button type="button" aria-label="Next community image" onClick={() => moveCommunity(1)}>{arrowGlyph(props.locale, "→")}</button></div>
         </div>
       </section>
 

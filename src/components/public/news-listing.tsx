@@ -5,18 +5,18 @@ import { newsCaption, newsListingDefaults as d, type NewsListItem, type NewsList
 import { NewsFilters } from "./news-filters";
 import { pressCoverageCopyDefaults, pressDateLabel, type PressItem } from "@/lib/press-coverage";
 import { textStyleProps } from "@/lib/text-style";
-import { localeHref, type Locale } from "@/lib/locales";
+import { localeHref, type Locale, arrowGlyph } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 
 /// Rows shown before the "Show all" toggle.
 const PRESS_VISIBLE_ROWS = 8;
 
-function PressRow({ item }: { item: PressItem }) {
+function PressRow({ item, locale }: { item: PressItem; locale: Locale }) {
   const date = pressDateLabel(item.date);
   const inner = <>
     <span className="g21-cap">{item.publication}{date ? <> · <time dateTime={item.date}>{date}</time></> : null}</span>
     <b lang={item.lang} dir={item.lang === "ar" ? "rtl" : "ltr"}>{item.title}</b>
-    {item.url ? <span className="g21-ar" aria-hidden="true">↗</span> : <span aria-hidden="true" />}
+    {item.url ? <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "↗")}</span> : <span aria-hidden="true" />}
   </>;
   return <li>{item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer">{inner}</a> : <div>{inner}</div>}</li>;
 }
@@ -25,7 +25,7 @@ const FALLBACK_IMAGE = "/legacy/assets/images/library/modern-office-glasses-buil
 
 /// Press coverage as the page's main listing: the newest item as the feature,
 /// the rest as image cards, each opening the publication's article.
-function PressCards({ items, cta, emptyText }: { items: PressItem[]; cta: string; emptyText: string }) {
+function PressCards({ items, cta, emptyText, locale }: { items: PressItem[]; cta: string; emptyText: string; locale: Locale }) {
   const [feature, ...rest] = items;
   if (!feature) return <p className="g21-muted">{emptyText}</p>;
   const caption = (item: PressItem) => { const date = pressDateLabel(item.date); return <>{item.publication}{date ? <> · <time dateTime={item.date}>{date}</time></> : null}</>; };
@@ -36,7 +36,7 @@ function PressCards({ items, cta, emptyText }: { items: PressItem[]; cta: string
       <div className="g21-feat-copy">
         <p className="g21-cap">{caption(feature)}</p>
         <h2 lang={feature.lang} dir={feature.lang === "ar" ? "rtl" : "ltr"}>{feature.title}</h2>
-        {feature.url ? <a className="g21-btn" {...external(feature)}>{cta} <span className="g21-ar" aria-hidden="true">↗</span></a> : null}
+        {feature.url ? <a className="g21-btn" {...external(feature)}>{cta} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "↗")}</span></a> : null}
       </div>
     </article>
     {rest.length ? <div className="g21-cards">
@@ -45,7 +45,7 @@ function PressCards({ items, cta, emptyText }: { items: PressItem[]; cta: string
           <figure className="g21-card-img"><img src={item.image || FALLBACK_IMAGE} alt="" loading="lazy" /></figure>
           <span className="g21-cap">{caption(item)}</span>
           <h3 lang={item.lang} dir={item.lang === "ar" ? "rtl" : "ltr"}>{item.title}</h3>
-          {item.url ? <span className="g21-txt-link">{cta} <span aria-hidden="true">↗</span></span> : null}
+          {item.url ? <span className="g21-txt-link">{cta} <span aria-hidden="true">{arrowGlyph(locale, "↗")}</span></span> : null}
         </>;
         return <article className="g21-card" key={`${item.url}-${index}`}>{item.url ? <a {...external(item)}>{inner}</a> : <div>{inner}</div>}</article>;
       })}
@@ -91,14 +91,14 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
 
       {shown("articles") ? <section className="g21-news-sec" id="updates" aria-label={pressFirst ? t(locale, "news.inThePress") : t(locale, "news.articles")}>
         <div className="g21-wrap">
-          {pressFirst ? <PressCards items={copy.coverageVisible === false ? [] : coverage} cta={pick("pressCardCta")} emptyText={pick("emptyText")} /> : <>
+          {pressFirst ? <PressCards locale={locale} items={copy.coverageVisible === false ? [] : coverage} cta={pick("pressCardCta")} emptyText={pick("emptyText")} /> : <>
           {feature ? <article className="g21-feat" data-cat={category(feature)}>
             <Link className="g21-feat-img" href={href(`/news/${feature.slug}`)} tabIndex={-1} aria-hidden="true"><img src={feature.coverImage || FALLBACK_IMAGE} alt="" /></Link>
             <div className="g21-feat-copy">
               <p className="g21-cap">{newsCaption(feature)}</p>
               <h2>{feature.title}</h2>
               {feature.summary ? <p className="g21-muted">{feature.summary}</p> : null}
-              <Link className="g21-btn" href={href(`/news/${feature.slug}`)}>{pick("featureCta")} <span className="g21-ar" aria-hidden="true">→</span></Link>
+              <Link className="g21-btn" href={href(`/news/${feature.slug}`)}>{pick("featureCta")} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link>
             </div>
           </article> : <p className="g21-muted">{pick("emptyText")}</p>}
           {rest.length ? <div className="g21-cards">
@@ -108,7 +108,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
                 <span className="g21-cap">{newsCaption(item)}</span>
                 <h3>{item.title}</h3>
                 {item.summary ? <p className="g21-muted">{item.summary}</p> : null}
-                <span className="g21-txt-link">{pick("cardCta")} <span aria-hidden="true">→</span></span>
+                <span className="g21-txt-link">{pick("cardCta")} <span aria-hidden="true">{arrowGlyph(locale, "→")}</span></span>
               </Link>
             </article>)}
           </div> : null}
@@ -124,10 +124,10 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
             <h2 id="g21-coverage-title">{emphasisNodes(copy.coverageHeading?.trim() || pressCoverageCopyDefaults.coverageHeading)}</h2>
           </div>
           <div>
-            <ul className="g21-coverage-list">{coverage.slice(0, PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} key={i} />)}</ul>
+            <ul className="g21-coverage-list">{coverage.slice(0, PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} locale={locale} key={i} />)}</ul>
             {coverage.length > PRESS_VISIBLE_ROWS ? <details className="g21-coverage-more">
               <summary className="g21-txt-link">{t(locale, "news.showAll")} {coverage.length} <span aria-hidden="true">↓</span></summary>
-              <ul className="g21-coverage-list">{coverage.slice(PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} key={i} />)}</ul>
+              <ul className="g21-coverage-list">{coverage.slice(PRESS_VISIBLE_ROWS).map((item, i) => <PressRow item={item} locale={locale} key={i} />)}</ul>
             </details> : null}
           </div>
         </div>
@@ -141,8 +141,8 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
             <p className="g21-muted" style={textStyleProps(copy.pressTextStyle)}>{pick("pressText")}</p>
           </div>
           <div className="g21-press-links">
-            {email ? <a href={`mailto:${email}`}><span className="g21-cap">{t(locale, "news.email")}</span><b>{email}</b><span className="g21-ar" aria-hidden="true">↗</span></a> : null}
-            <Link href={href(pick("pressLinkUrl"))}><span className="g21-cap">{pick("pressLinkLabel")}</span><b>{pick("pressLinkText")}</b><span className="g21-ar" aria-hidden="true">→</span></Link>
+            {email ? <a href={`mailto:${email}`}><span className="g21-cap">{t(locale, "news.email")}</span><b>{email}</b><span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "↗")}</span></a> : null}
+            <Link href={href(pick("pressLinkUrl"))}><span className="g21-cap">{pick("pressLinkLabel")}</span><b>{pick("pressLinkText")}</b><span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link>
           </div>
         </div>
       </section>}

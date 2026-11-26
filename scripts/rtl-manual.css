@@ -1,0 +1,44 @@
+/* Appended to public/locales/rtl.css by scripts/build-rtl-css.mjs, after the
+   generated mirror, so these rules win.
+
+   Every rule must start with html[dir="rtl"]: the sheet loads on Arabic pages
+   only, and a unit test checks that nothing here can reach an English page.
+   (The generated part starts its rules with :where(html[dir="rtl"]) instead,
+   to keep the weight of the rule it mirrors; a rule here means to win.)
+
+   What belongs here: a photo or an icon that must keep its side, an element a
+   script positions, text that must stay left-to-right, and anything seen wrong
+   in a screenshot that the mirror got wrong. Name the page and what you saw,
+   so the next person knows why the rule exists. */
+
+/* The delivered draggable map (.pdf-map-pan; its rule and script are the
+   client's, no page renders it today). Its transform centres the map and adds
+   how far it has been dragged (--map-pan-x, set from the pointer). The mirror
+   negates the whole sum, which would make the map run away from the pointer.
+   Only the centring is a side; the drag keeps the sign the pointer gave it. */
+html[dir="rtl"] .pdf-map-pan {
+  transform: translate(calc(-50% + var(--map-pan-x)), calc(-50% + var(--map-pan-y)));
+}
+
+/* Text with no Arabic letter in it: a field still waiting for its
+   translation, an address, a brand line. Such an element follows its own
+   first letter, so a full stop stays at the end of an English line instead
+   of jumping to its left, and keeps the place and the alignment the mirrored
+   layout gives it (match-parent). rtl-latin-text.tsx puts the attribute
+   there, on Arabic pages only; an element with any Arabic in it is left
+   alone. */
+html[dir="rtl"] [data-text="latin"] {
+  unicode-bidi: plaintext;
+  text-align: -webkit-match-parent;
+  text-align: match-parent;
+}
+
+/* A number on its own (a phone number, a price, "1 / 4") reads left to right,
+   as numbers do in Arabic. Only a leaf element is marked, so this cannot
+   change the order of anything around it. */
+html[dir="rtl"] [data-text="digits"] {
+  unicode-bidi: isolate;
+  direction: ltr;
+  text-align: -webkit-match-parent;
+  text-align: match-parent;
+}

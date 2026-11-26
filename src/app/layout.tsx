@@ -5,6 +5,7 @@ import { getGlobalSettings } from "@/lib/site-contact";
 import { getIsLocalePreview, getLocale, getPublishedLocales, getSwitcherShown } from "@/lib/locale";
 import { DEFAULT_LOCALE, isRtl, type Locale } from "@/lib/locales";
 import { getLocalizedGlobalSettings } from "@/lib/translations/store";
+import { RtlLatinText } from "@/components/public/rtl-latin-text";
 import "./globals.css";
 
 /// Root-level CMS typography and organisation details must not be frozen into
@@ -85,7 +86,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} {...(isRtl(locale) ? { dir: "rtl" } : {})}>
       <head>
         {/* A language's own stylesheet comes after every other one. English pages load none of them. */}
-        {locale === "ar" ? <link rel="stylesheet" href="/locales/ar.css" /> : null}
+        {locale === "ar" ? <>
+          <link rel="stylesheet" href="/locales/ar.css" />
+          <link rel="stylesheet" href="/locales/rtl.css" />
+        </> : null}
         {locale === "ja" ? <>
           <link rel="stylesheet" href="/fonts/noto-sans-jp/wght.css" />
           <link rel="stylesheet" href="/locales/ja.css" />
@@ -101,6 +105,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify([organization, websiteJsonLd(locale)]) }}
         />
+        {isRtl(locale) ? <RtlLatinText /> : null}
       </body>
     </html>
   );
