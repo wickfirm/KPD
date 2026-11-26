@@ -13,7 +13,8 @@
     "postinstall": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "translations:import": "tsx scripts/import-translations.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",

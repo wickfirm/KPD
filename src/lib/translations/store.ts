@@ -34,7 +34,7 @@ import { hasTranslation, mergeLocale, translationDiff, translationSettingKey, ty
 type RecordValue = Record<string, unknown>;
 
 const isRecord = (value: unknown): value is RecordValue => typeof value === "object" && value !== null && !Array.isArray(value);
-const textOrNull = (value: unknown) => (typeof value === "string" ? value : null);
+export const textOrNull = (value: unknown) => (typeof value === "string" ? value : null);
 
 /// The stored form of a diff: null when nothing in it is translated.
 function stored(diff: TranslationJson): RecordValue | null {
@@ -304,7 +304,7 @@ export async function localizedInvestPage<T extends { hero?: unknown; saved?: un
 // ── Storing ──────────────────────────────────────────────────────────────────
 
 /// The diff of what a form translates, in its stored form.
-function diffOf(english: unknown, built: unknown): RecordValue | null {
+export function diffOf(english: unknown, built: unknown): RecordValue | null {
   return stored(translationDiff(english, built));
 }
 
