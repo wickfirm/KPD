@@ -29,6 +29,8 @@ import {
 } from "react-icons/fa6";
 import { readFloorPlans, readMilestones, readPlaces, type SxsContent, type SxsSectionKey } from "@/lib/sxs-content";
 import { localeHref, type Locale } from "@/lib/locales";
+import { formMessage, t } from "@/lib/i18n";
+import { sxsFloorPlans, sxsMilestones, sxsNavigation, sxsPlaces, sxsScenes, sxsStrings, sxsWord } from "@/lib/sxs-language";
 import { MobilePublicSite } from "./MobilePublicSite";
 import { LanguageSwitcher } from "../language-switcher";
 
@@ -276,7 +278,9 @@ const distanceAreaLabels = [
 export function SevenXSevenFresh({ content, english, preview = false, locale, switcherLocales }: { content: PublishedContent; english?: PublishedContent; preview?: boolean; locale: Locale; switcherLocales: Locale[] }) {
   const text = (section: SectionKey, key: string, fallback: string) => {
     const value = content[section]?.[key];
-    return typeof value === "string" && value.trim() ? value : fallback;
+    // What the translation left in English, where it is one of the page's built-in
+    // strings, reads in the page's language (src/lib/sxs-language.ts).
+    return sxsWord(locale, typeof value === "string" && value.trim() ? value : fallback);
   };
   const items = (section: SectionKey, key: string, fallback: string[]) => {
     const value = content[section]?.[key];
@@ -295,17 +299,17 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
       return { src: typeof record.media === "string" ? record.media : typeof record.src === "string" ? record.src : fallback[index % fallback.length].src, alt: typeof record.alt === "string" ? record.alt : fallback[index % fallback.length].alt, label: typeof record.label === "string" ? record.label : fallback[index % fallback.length].label, position: typeof record.position === "string" ? record.position : fallback[index % fallback.length].position };
     });
   };
-  const heroScenes = mediaItems("hero", "gallery", heroGallery);
-  const apartmentScenes = mediaItems("apartments", "gallery", moodBoardPortraits);
-  const exteriorGalleryScenes = mediaItems("gallery", "gallery", galleryImages);
-  const amenitySceneData = mediaItems("amenities", "items", amenityScenes);
-  const communitySceneData = mediaItems("community", "slides", communitySlides);
+  const heroScenes = sxsScenes(locale, mediaItems("hero", "gallery", heroGallery));
+  const apartmentScenes = sxsScenes(locale, mediaItems("apartments", "gallery", moodBoardPortraits));
+  const exteriorGalleryScenes = sxsScenes(locale, mediaItems("gallery", "gallery", galleryImages));
+  const amenitySceneData = sxsScenes(locale, mediaItems("amenities", "items", amenityScenes));
+  const communitySceneData = sxsScenes(locale, mediaItems("community", "slides", communitySlides));
   const manifestoCopy = text("manifesto", "body", manifestoText);
   const distanceHeadingCopy = text("location", "headline", distanceHeading);
   const distanceDescriptionCopy = text("location", "body", distanceDescription);
-  const amenityLabels = amenitySceneData.map((scene, index) => scene.label ?? amenities[index % amenities.length].label);
+  const amenityLabels = amenitySceneData.map((scene, index) => sxsWord(locale, scene.label ?? amenities[index % amenities.length].label));
   const navigationValue = content.navigation?.items;
-  const navigationSections = Array.isArray(navigationValue) && navigationValue.length
+  const navigationSections = sxsNavigation(locale, Array.isArray(navigationValue) && navigationValue.length
     ? navigationValue.map((item, index) => {
         if (typeof item === "string") return { ...sectionNavigation[index % sectionNavigation.length], label: item };
         const record = item && typeof item === "object" ? item as Record<string, unknown> : {};
@@ -313,8 +317,8 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
         const known = sectionNavigation.find((entry) => entry.id === anchor);
         return { id: anchor, label: typeof record.label === "string" ? record.label : anchor.replaceAll("-", " "), progress: known?.progress ?? (index / Math.max(navigationValue.length - 1, 1)) * 31.3 };
       })
-    : [...sectionNavigation];
-  const interestOptions = items("register", "interestOptions", ["Information about the project", "A property consultant to contact me", "Book a private viewing"]);
+    : [...sectionNavigation]);
+  const interestOptions = sxsStrings(locale, items("register", "interestOptions", ["Information about the project", "A property consultant to contact me", "Book a private viewing"]));
   // The same choices in English (english is the page's English content on another
   // language's page): a choice reads in the visitor's language and posts the
   // English entry at the same position of the list. Never the translated label.
@@ -324,7 +328,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
   const secondaryCta = text("cta", "secondary", "explore residences");
   const submitCta = text("cta", "submit", primaryCta);
   const consentCopy = text("register", "consent", "By submitting this form you agree to share your details so the sales team can contact you and accept our privacy policy.").replace(/privacy policy\.?$/i, "").trim();
-  const liveFloorPlans = readFloorPlans(content.floorplans?.plans, defaultFloorPlans);
+  const liveFloorPlans = sxsFloorPlans(locale, readFloorPlans(content.floorplans?.plans, defaultFloorPlans));
   // Layouts per tab (client round three): an explicit list of plans switches
   // the tab through type chips; without one the tab keeps its single plan.
   const savedLayouts = content.floorplans?.layouts as Partial<Record<FloorPlanKey, unknown[]>> | undefined;
@@ -334,8 +338,8 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
     map[key] = valid as (typeof liveFloorPlans)[FloorPlanKey][];
     return map;
   }, {} as Record<FloorPlanKey, (typeof liveFloorPlans)[FloorPlanKey][]>);
-  const livePaymentMilestones = readMilestones(content.payment?.milestones, defaultPaymentMilestones);
-  const liveDistancePlaces = readPlaces(content.location?.places, defaultDistancePlaces);
+  const livePaymentMilestones = sxsMilestones(locale, readMilestones(content.payment?.milestones, defaultPaymentMilestones));
+  const liveDistancePlaces = sxsPlaces(locale, readPlaces(content.location?.places, defaultDistancePlaces));
   const floorPlanTabs: Record<FloorPlanKey, string> = {
     one: text("floorplans", "tabOne", floorPlanTabLabels.one),
     two: text("floorplans", "tabTwo", floorPlanTabLabels.two),
@@ -872,12 +876,12 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
         });
         overlays.push(
           ...distanceAreaLabels.map((area) => {
-            const overlay = new DistanceAreaOverlay(new google.maps.LatLng(area.lat, area.lng), area.name);
+            const overlay = new DistanceAreaOverlay(new google.maps.LatLng(area.lat, area.lng), sxsWord(locale, area.name));
             overlay.setMap(mapInstance);
             return overlay;
           }),
           ...distanceAreaLabels.map((area) => {
-            const overlay = new DistanceAreaOverlay(new google.maps.LatLng(area.lat, area.lng), area.name);
+            const overlay = new DistanceAreaOverlay(new google.maps.LatLng(area.lat, area.lng), sxsWord(locale, area.name));
             overlay.setMap(darkMapInstance);
             return overlay;
           })
@@ -1286,8 +1290,8 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
         markBlack={markBlack}
         mapImage={mapImage}
         apartmentLead={[
-          { src: media("apartments", "imageOne", "/assets/sxs%20apartments/1.png"), alt: "seven x seven living room and private workspace" },
-          { src: media("apartments", "imageTwo", "/assets/sxs%20apartments/2.png"), alt: "seven x seven living room with waterfront outlook" },
+          { src: media("apartments", "imageOne", "/assets/sxs%20apartments/1.png"), alt: t(locale, "sxs.livingRoomWorkspaceAlt") },
+          { src: media("apartments", "imageTwo", "/assets/sxs%20apartments/2.png"), alt: t(locale, "sxs.livingRoomWaterfrontAlt") },
         ]}
         floorPlan={floorPlan}
         floorPlanKey={activeFloorPlan}
@@ -1339,7 +1343,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
       <button
         className="site-menu-toggle"
         type="button"
-        aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+        aria-label={menuOpen ? t(locale, "sxs.closeNavigation") : t(locale, "sxs.openNavigation")}
         aria-expanded={menuOpen}
         aria-controls="site-navigation"
         onClick={() => setMenuOpen((open) => !open)}
@@ -1349,8 +1353,8 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
 
       <div className={`site-menu${menuOpen ? " is-open" : ""}`} aria-hidden={!menuOpen}>
         <img className="site-menu-brand" src={logoWhite} alt="seven x seven" />
-        <nav id="site-navigation" aria-label="Sections">
-          <p>explore the residences</p>
+        <nav id="site-navigation" aria-label={t(locale, "sxs.sections")}>
+          <p>{t(locale, "sxs.exploreResidences")}</p>
           {navigationSections.map((section, index) => (
             <a
               className={activeSection === section.id ? "is-active" : ""}
@@ -1372,7 +1376,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
       </div>
 
       {menuTransitioning ? (
-        <div className="menu-anchor-loader" role="status" aria-live="polite" aria-label="Opening selected section">
+        <div className="menu-anchor-loader" role="status" aria-live="polite" aria-label={t(locale, "sxs.openingSelectedSection")}>
           <img src={markWhite} alt="" />
         </div>
       ) : null}
@@ -1392,7 +1396,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             <button
               className="interest-modal-close"
               type="button"
-              aria-label="Close registration form"
+              aria-label={t(locale, "sxs.closeRegistrationForm")}
               onClick={() => setInterestModalOpen(false)}
               ref={interestModalCloseRef}
             >
@@ -1402,21 +1406,21 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
               <p>seven x seven residences</p>
                <h2 id="interest-modal-title">{text("register", "headline", "make it yours")}</h2>
                <p>{text("register", "body", "Explore availability, floor plans and purchase details with our team.")}</p>
-               <input type="text" name="FullName" placeholder="Full Name" aria-label="Full Name" required />
+               <input type="text" name="FullName" placeholder={t(locale, "sxs.fullName")} aria-label={t(locale, "sxs.fullName")} required />
                <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
               <div className="interest-phone-field">
-                <button type="button" aria-label="Change country code">UAE</button>
-                <input type="tel" name="PhoneNumber" placeholder="+971 123456789" aria-label="Phone Number" required />
+                <button type="button" aria-label={t(locale, "sxs.changeCountryCode")}>{t(locale, "sxs.uae")}</button>
+                <input type="tel" name="PhoneNumber" placeholder="+971 123456789" aria-label={t(locale, "sxs.phoneNumber")} required />
               </div>
-              <input type="email" name="Email" placeholder="Email Address" aria-label="Email Address" required />
-              <select name="TypeOfLead" aria-label="I am interested in" defaultValue="project-information">
+              <input type="email" name="Email" placeholder={t(locale, "sxs.emailAddress")} aria-label={t(locale, "sxs.emailAddress")} required />
+              <select name="TypeOfLead" aria-label={t(locale, "sxs.interestedIn")} defaultValue="project-information">
                  {interestOptions.map((option, index) => <option value={`interest-${index}`} key={option}>{option}</option>)}
               </select>
-               <button className="interest-submit everly-cta" type="submit" disabled={leadSubmission.source === "Register modal" && leadSubmission.state === "submitting"}>{leadSubmission.source === "Register modal" && leadSubmission.state === "submitting" ? "sending" : submitCta}</button>
-              {leadSubmission.source === "Register modal" && leadSubmission.state === "success" ? <small role="status">Thank you. Your enquiry has been received.</small> : null}
-              {leadSubmission.source === "Register modal" && leadSubmission.state === "error" ? <small role="alert">We could not submit your enquiry. Please try again.</small> : null}
+               <button className="interest-submit everly-cta" type="submit" disabled={leadSubmission.source === "Register modal" && leadSubmission.state === "submitting"}>{leadSubmission.source === "Register modal" && leadSubmission.state === "submitting" ? t(locale, "sxs.sending") : submitCta}</button>
+              {leadSubmission.source === "Register modal" && leadSubmission.state === "success" ? <small role="status">{formMessage(locale, "Thank you. Your enquiry has been received.", "form.success")}</small> : null}
+              {leadSubmission.source === "Register modal" && leadSubmission.state === "error" ? <small role="alert">{formMessage(locale, "We could not submit your enquiry. Please try again.", "form.error")}</small> : null}
               <small>
-                 {consentCopy} <a href={localeHref("/privacy-policy", locale)}>privacy policy</a>.
+                 {consentCopy} <a href={localeHref("/privacy-policy", locale)}>{t(locale, "sxs.privacyPolicy")}</a>.
               </small>
             </form>
           </div>
@@ -1432,7 +1436,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             <img className="intro-loader-facade" src={introImage} alt="" />
           </div>
 
-          <section className="fresh-hero" id="home" aria-label="seven x seven residences facade reveal">
+          <section className="fresh-hero" id="home" aria-label={t(locale, "sxs.heroReveal")}>
             <div className="fresh-hero-gallery">
               {heroScenes.map((image, index) => (
                 <img
@@ -1457,7 +1461,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </section>
 
-          <section className="next-fold-reveal" aria-label="seven x seven residences motion reveal">
+          <section className="next-fold-reveal" aria-label={t(locale, "sxs.motionReveal")}>
             <video
               className="next-fold-video"
                src={media("hero", "media", "/assets/hero/video-1788257574774.mp4")}
@@ -1469,12 +1473,12 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             />
           </section>
 
-          <section className="about-section about-reveal" id="about-sevenxseven" aria-label="About seven x seven residences">
+          <section className="about-section about-reveal" id="about-sevenxseven" aria-label={t(locale, "sxs.aboutSection")}>
             <div className="about-reveal-pattern" aria-hidden="true" />
             <img
               className="about-reveal-image"
                src={media("about", "media", "/assets/hero/about-building-cleanup.png")}
-              alt="seven x seven residences facade set within a landscaped Meydan Horizon arrival"
+              alt={t(locale, "sxs.aboutImageAlt")}
             />
             <div className="about-reveal-shade" aria-hidden="true" />
             <div className="about-reveal-content">
@@ -1490,13 +1494,13 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 </div>
               </div>
               <div className="about-image-fact">
-                <p>Available unit types</p>
-                <h3>One-, two- and three-bedroom residences with penthouses</h3>
+                <p>{t(locale, "sxs.availableUnitTypesLabel")}</p>
+                <h3>{t(locale, "sxs.residencesWithPenthouses")}</h3>
               </div>
             </div>
           </section>
 
-          <section className="manifesto-reveal" aria-label="seven x seven private living statement">
+          <section className="manifesto-reveal" aria-label={t(locale, "sxs.privateLivingStatement")}>
             <div className="manifesto-surface" aria-hidden="true" />
           </section>
           <div className="manifesto-content">
@@ -1514,9 +1518,9 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </div>
 
-          <section className="mood-gallery" id="apartments" aria-label="seven x seven interior mood gallery">
+          <section className="mood-gallery" id="apartments" aria-label={t(locale, "sxs.interiorMoodGallery")}>
             <header className="apartments-masthead">
-              <h2>interiors</h2>
+              <h2>{t(locale, "sxs.interiors")}</h2>
               <div className="apartments-masthead-copy">
                  <h3>{text("apartments", "headline", "more room, crafted with intent.")}</h3>
                  <p>{text("apartments", "body", "One-, two- and three-bedroom residences built around space, function and ease.")}</p>
@@ -1525,7 +1529,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                   type="button"
                   onClick={() => navigateFromMenu(24.3, "floor-plans")}
                 >
-                   explore floor plans
+                   {t(locale, "sxs.exploreFloorPlans")}
                 </button>
               </div>
             </header>
@@ -1534,13 +1538,13 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 <div className="mood-opening-left">
                   <img
                     src={media("apartments", "imageOne", "/assets/sxs%20apartments/1.png")}
-                    alt="seven x seven living room and private workspace"
+                    alt={t(locale, "sxs.livingRoomWorkspaceAlt")}
                   />
                 </div>
                 <div className="mood-opening-right">
                   <img
                     src={media("apartments", "imageTwo", "/assets/sxs%20apartments/2.png")}
-                    alt="seven x seven living room with waterfront outlook"
+                    alt={t(locale, "sxs.livingRoomWaterfrontAlt")}
                   />
                 </div>
               </div>
@@ -1553,16 +1557,16 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                     key={image.src}
                   >
                     <img src={image.src} alt={image.alt} />
-                    {index === 1 ? <figcaption>Designed for your pace.</figcaption> : null}
-                    {index === 4 ? <figcaption>Precision you can feel.</figcaption> : null}
+                    {index === 1 ? <figcaption>{t(locale, "sxs.designedForYourPace")}</figcaption> : null}
+                    {index === 4 ? <figcaption>{t(locale, "sxs.precisionYouCanFeel")}</figcaption> : null}
                     {index === 2 ? (
                       <figcaption>
-                        Slow mornings. Dinner with friends. A moment for yourself. Here, your home follows your rhythm. Comfort. Convenience. Craft. Nothing left behind.
+                        {t(locale, "sxs.slowMornings")}
                       </figcaption>
                     ) : null}
                     {index === 5 ? (
                       <figcaption>
-                        Oak and walnut bring warmth. Travertine adds weight and texture. Soft light and tactile finishes wrap everything with quiet depth.
+                        {t(locale, "sxs.oakAndWalnut")}
                       </figcaption>
                     ) : null}
                   </figure>
@@ -1571,14 +1575,14 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
               <figure className="mood-panel mood-panel-closing">
                 <img
                   src={media("apartments", "imageTen", "/assets/sxs%20apartments/10.png")}
-                  alt="seven x seven residents lounge"
+                  alt={t(locale, "sxs.residentsLoungeAlt")}
                 />
               </figure>
             </div>
             <div className="mood-closing-wipe" aria-hidden="true" />
           </section>
 
-          <section className="vertical-gallery" id="gallery" aria-label="seven x seven residences gallery">
+          <section className="vertical-gallery" id="gallery" aria-label={t(locale, "sxs.gallerySection")}>
             <div className="vertical-gallery-shell">
               <aside className="vertical-gallery-rail">
                 <div className="vertical-gallery-title">
@@ -1604,27 +1608,27 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </section>
 
-          <section className="exterior-reveal" id="exterior" aria-label="seven x seven exterior and amenities">
+          <section className="exterior-reveal" id="exterior" aria-label={t(locale, "sxs.exteriorSection")}>
             <div className="exterior-reveal-shell">
               <img
                 className="exterior-reveal-image"
                  src={media("exterior", "media", "/assets/hero/seven-x-seven-facade-evening.webp")}
-                alt="seven x seven residences illuminated facade at evening"
+                alt={t(locale, "sxs.facadeAtEveningAlt")}
               />
               <div className="exterior-reveal-overlay" aria-hidden="true" />
               <div className="exterior-content">
                  <h2>{text("exterior", "headline", "Discreetly different.")}</h2>
                  <p>{text("exterior", "body", "Behind its composed allure, seven x seven residences Meydan Horizon extends everyday life beyond the home, revealing a connected sequence of wellness, social and outdoor spaces for every side of you.")}</p>
-                 <button className="everly-cta" type="button" onClick={() => navigateFromMenu(2, "about-sevenxseven")}>explore the residences</button>
+                 <button className="everly-cta" type="button" onClick={() => navigateFromMenu(2, "about-sevenxseven")}>{t(locale, "sxs.exploreResidences")}</button>
               </div>
               <div className="exterior-down-cue" aria-hidden="true">
-                <span>Disconnect at arrival. Connect with yourself with every step in.</span>
+                <span>{t(locale, "sxs.disconnectAtArrival")}</span>
                 <i />
               </div>
             </div>
           </section>
 
-          <section className="amenities-reveal" id="amenities" aria-label="seven x seven amenities">
+          <section className="amenities-reveal" id="amenities" aria-label={t(locale, "sxs.amenitiesSection")}>
             <div className="amenities-reveal-shell">
               <div className="amenity-visuals">
                 {amenitySceneData.map((scene, index) => (
@@ -1636,7 +1640,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
               </div>
               <div className="amenities-panel">
                 <div className="amenities-panel-heading">
-                   <p>own your ritual</p>
+                   <p>{t(locale, "sxs.ownYourRitual")}</p>
                    <h2>{text("amenities", "headline", "amenities")}</h2>
                 </div>
                 <div className="amenity-grid">
@@ -1663,14 +1667,14 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </section>
 
-          <section className="community-reveal" id="community" aria-label="Mohammed Bin Rashid City community">
+          <section className="community-reveal" id="community" aria-label={t(locale, "sxs.communitySection")}>
             <div className="community-reveal-shell">
               <div className="community-copy">
                  <h2>{text("community", "headline", "mohammed bin rashid city")}</h2>
                  <p className="community-description">{text("community", "body", "MBR City brings together residential calm, new infrastructure, open landscapes and fast access to Dubai's central destinations.")}</p>
                  <button className="everly-cta register-interest-trigger" type="button" onClick={() => setInterestModalOpen(true)}>{primaryCta}</button>
               </div>
-              <div className="community-carousel" aria-label="Community gallery" ref={communityCarouselRef}>
+              <div className="community-carousel" aria-label={t(locale, "sxs.communityGallery")} ref={communityCarouselRef}>
                 {communitySceneData.map((slide, index) => (
                   <img
                     className={index === activeCommunitySlide ? "is-active" : ""}
@@ -1683,17 +1687,17 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                   <button
                     className="community-arrow community-prev"
                     type="button"
-                    aria-label="Previous community image"
+                    aria-label={t(locale, "sxs.previousCommunityImage")}
                     onClick={() => selectCommunitySlide(activeCommunitySlide - 1)}
                   >
                     <span aria-hidden="true">&#8592;</span>
                   </button>
-                  <div className="community-dots" aria-label="Community gallery position">
+                  <div className="community-dots" aria-label={t(locale, "sxs.communityGalleryPosition")}>
                     {communitySceneData.map((slide, index) => (
                       <button
                         className={index === activeCommunitySlide ? "is-active" : ""}
                         type="button"
-                        aria-label={`Show community image ${index + 1}`}
+                        aria-label={t(locale, "sxs.showCommunityImage", { index: index + 1 })}
                         aria-pressed={index === activeCommunitySlide}
                         onClick={() => selectCommunitySlide(index)}
                         key={slide.src}
@@ -1703,7 +1707,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                   <button
                     className="community-arrow community-next"
                     type="button"
-                    aria-label="Next community image"
+                    aria-label={t(locale, "sxs.nextCommunityImage")}
                     onClick={() => selectCommunitySlide(activeCommunitySlide + 1)}
                   >
                     <span aria-hidden="true">&#8594;</span>
@@ -1713,7 +1717,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </section>
 
-          <section className="distance-reveal" id="location" aria-label="Driving distances from seven x seven residences">
+          <section className="distance-reveal" id="location" aria-label={t(locale, "sxs.drivingDistances")}>
             <div className="distance-reveal-shell">
               <div className="distance-intro-copy">
                  <h2 ref={distanceHeadingRef} aria-label={distanceHeadingCopy}>
@@ -1735,13 +1739,13 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </section>
 
-          <section className="floor-plan-reveal floor-plan-section" id="floor-plans" aria-label="Residence floor plans">
+          <section className="floor-plan-reveal floor-plan-section" id="floor-plans" aria-label={t(locale, "sxs.residenceFloorPlans")}>
             <div className="floor-plan-reveal-shell">
               <div className="floor-plan-panel">
                 <p>{text("floorplans", "headline", "floor plans")}</p>
                 <h2>{floorPlan.title}</h2>
 
-                <div className="floor-plan-tabs" role="tablist" aria-label="Select a residence floor plan">
+                <div className="floor-plan-tabs" role="tablist" aria-label={t(locale, "sxs.selectFloorPlan")}>
                   {(Object.keys(liveFloorPlans) as FloorPlanKey[]).map((key) => (
                     <button
                       className={key === activeFloorPlan ? "is-active" : ""}
@@ -1757,7 +1761,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 </div>
 
                 {activeTabLayouts.length > 1 ? (
-                  <div className="floor-plan-tabs floor-plan-types" role="tablist" aria-label="Select a layout">
+                  <div className="floor-plan-tabs floor-plan-types" role="tablist" aria-label={t(locale, "sxs.selectLayout")}>
                     {activeTabLayouts.map((layout, index) => (
                       <button
                         className={index === Math.min(activeFloorType, activeTabLayouts.length - 1) ? "is-active" : ""}
@@ -1767,7 +1771,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                         onClick={() => setActiveFloorType(index)}
                         key={`${layout.title}-${index}`}
                       >
-                        {String(layout.title || `Type ${index + 1}`)}
+                        {String(layout.title || t(locale, "sxs.layoutType", { index: index + 1 }))}
                       </button>
                     ))}
                   </div>
@@ -1775,8 +1779,8 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
 
                 <div className="floor-plan-areas">
                   <div className="floor-plan-area-head">
-                    <span>unit</span>
-                    <span>total area</span>
+                    <span>{t(locale, "sxs.unit")}</span>
+                    <span>{t(locale, "sxs.totalArea")}</span>
                   </div>
                   <div className="floor-plan-area-row">
                     <strong>{floorPlan.unit}</strong>
@@ -1784,19 +1788,19 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                     <span>{floorPlan.totalSqm}</span>
                   </div>
                   <div className="floor-plan-area-row">
-                    <strong>suite area</strong>
+                    <strong>{t(locale, "sxs.suiteArea")}</strong>
                     <span>{floorPlan.suiteSqft}</span>
                     <span>{floorPlan.suiteSqm}</span>
                   </div>
                   <div className="floor-plan-area-row">
-                    <strong>balcony area</strong>
+                    <strong>{t(locale, "sxs.balconyArea")}</strong>
                     <span>{floorPlan.balconySqft}</span>
                     <span>{floorPlan.balconySqm}</span>
                   </div>
                 </div>
 
                 <div className="floor-plan-legend-wrap">
-                  <h3>legend</h3>
+                  <h3>{t(locale, "sxs.legend")}</h3>
                   <div className="floor-plan-legend">
                     {floorPlan.legend.map(([number, name, size]) => (
                       <div className="floor-plan-legend-row" key={`${activeFloorPlan}-${number}`}>
@@ -1815,7 +1819,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
             </div>
           </section>
 
-          <section className="payment-reveal" id="payment-plan" aria-label="seven x seven payment plan">
+          <section className="payment-reveal" id="payment-plan" aria-label={t(locale, "sxs.paymentSection")}>
             <div className="payment-reveal-shell">
               <aside className="payment-intro">
                  <h2>{text("payment", "headline", "a considered path to ownership")}</h2>
@@ -1827,12 +1831,12 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 <div className="payment-total" aria-live="polite">
                   <strong ref={paymentStatusPercentRef}>20%</strong>
                   <div>
-                    <h3 ref={paymentStatusTitleRef}>day 1</h3>
-                    <p ref={paymentStatusDetailRef}>At the time of booking</p>
+                    <h3 ref={paymentStatusTitleRef}>{sxsWord(locale, "day 1")}</h3>
+                    <p ref={paymentStatusDetailRef}>{sxsWord(locale, "At the time of booking")}</p>
                   </div>
                 </div>
 
-                <div className="payment-progress" aria-label="Cumulative amount paid">
+                <div className="payment-progress" aria-label={t(locale, "sxs.cumulativePaid")}>
                   <div className="payment-progress-track">
                     {livePaymentMilestones.map((milestone, index) => (
                       <span style={{ flexGrow: milestone.percent }} key={`${milestone.title}-${index}`} />
@@ -1842,7 +1846,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                   </div>
                   <div className="payment-progress-labels">
                     <span>0%</span>
-                    <strong>Paid to date</strong>
+                    <strong>{t(locale, "sxs.paidToDateLabel")}</strong>
                     <span>100%</span>
                   </div>
                 </div>
@@ -1850,7 +1854,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 <div className="payment-phase">
                   <div className="payment-phase-heading">
                     <CalendarDays aria-hidden="true" />
-                    <span>Reservation calendar</span>
+                    <span>{t(locale, "sxs.reservationCalendarLabel")}</span>
                   </div>
                   <div className="payment-milestone-row">
                     {livePaymentMilestones.map((milestone, index) => ({ milestone, index })).filter((entry) => entry.milestone.phase === "calendar").map(({ milestone, index }) => (
@@ -1874,7 +1878,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 <div className="payment-phase">
                   <div className="payment-phase-heading">
                     <Building2 aria-hidden="true" />
-                    <span>Building progress</span>
+                    <span>{t(locale, "sxs.buildingProgressLabel")}</span>
                   </div>
                   <div className="payment-milestone-row">
                     {livePaymentMilestones.map((milestone, index) => ({ milestone, index })).filter((entry) => entry.milestone.phase !== "calendar").map(({ milestone, index }) => {
@@ -1907,7 +1911,7 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
               <img
                 className="footer-background"
                 src={media("exterior", "media", "/assets/hero/seven-x-seven-facade-evening.webp")}
-                alt="seven x seven residences illuminated at dusk"
+                alt={t(locale, "sxs.illuminatedAtDuskAlt")}
               />
               <div className="footer-shade" aria-hidden="true" />
 
@@ -1915,21 +1919,21 @@ export function SevenXSevenFresh({ content, english, preview = false, locale, sw
                 <form className="footer-lead-form" onSubmit={(event) => submitLead(event, "Footer form")}>
                    <p className="footer-form-kicker">{text("register", "headline", "make it yours")}</p>
                    <p>{text("register", "body", "Explore availability, floor plans and purchase details with our team.")}</p>
-                   <input type="text" name="FullName" placeholder="Full Name" aria-label="Full Name" required />
+                   <input type="text" name="FullName" placeholder={t(locale, "sxs.fullName")} aria-label={t(locale, "sxs.fullName")} required />
                    <input className="form-honeypot" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
                   <div className="footer-phone-field">
-                    <button type="button" aria-label="Change country code">UAE</button>
-                    <input type="tel" name="PhoneNumber" placeholder="+971 123456789" aria-label="Phone Number" required />
+                    <button type="button" aria-label={t(locale, "sxs.changeCountryCode")}>{t(locale, "sxs.uae")}</button>
+                    <input type="tel" name="PhoneNumber" placeholder="+971 123456789" aria-label={t(locale, "sxs.phoneNumber")} required />
                   </div>
-                  <input type="email" name="Email" placeholder="Email Address" aria-label="Email Address" required />
-                  <select name="TypeOfLead" aria-label="I am interested in">
+                  <input type="email" name="Email" placeholder={t(locale, "sxs.emailAddress")} aria-label={t(locale, "sxs.emailAddress")} required />
+                  <select name="TypeOfLead" aria-label={t(locale, "sxs.interestedIn")}>
                      {interestOptions.map((option) => <option key={option}>{option}</option>)}
                   </select>
-                   <button className="footer-submit everly-cta" type="submit" disabled={leadSubmission.source === "Footer form" && leadSubmission.state === "submitting"}>{leadSubmission.source === "Footer form" && leadSubmission.state === "submitting" ? "sending" : submitCta}</button>
-                  {leadSubmission.source === "Footer form" && leadSubmission.state === "success" ? <p className="footer-legal-copy" role="status">Thank you. Your enquiry has been received.</p> : null}
-                  {leadSubmission.source === "Footer form" && leadSubmission.state === "error" ? <p className="footer-legal-copy" role="alert">We could not submit your enquiry. Please try again.</p> : null}
+                   <button className="footer-submit everly-cta" type="submit" disabled={leadSubmission.source === "Footer form" && leadSubmission.state === "submitting"}>{leadSubmission.source === "Footer form" && leadSubmission.state === "submitting" ? t(locale, "sxs.sending") : submitCta}</button>
+                  {leadSubmission.source === "Footer form" && leadSubmission.state === "success" ? <p className="footer-legal-copy" role="status">{formMessage(locale, "Thank you. Your enquiry has been received.", "form.success")}</p> : null}
+                  {leadSubmission.source === "Footer form" && leadSubmission.state === "error" ? <p className="footer-legal-copy" role="alert">{formMessage(locale, "We could not submit your enquiry. Please try again.", "form.error")}</p> : null}
                   <p className="footer-legal-copy">
-                     {consentCopy} <a href={localeHref("/privacy-policy", locale)}>privacy policy</a>.
+                     {consentCopy} <a href={localeHref("/privacy-policy", locale)}>{t(locale, "sxs.privacyPolicy")}</a>.
                   </p>
                 </form>
 

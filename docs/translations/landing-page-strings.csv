@@ -1,0 +1,231 @@
+﻿"#","Page / area","Key (do not edit)","English","Arabic","Japanese","Notes","Status"
+1001,Landing page (code),sxs.exploreResidences,explore the residences,استكشف المساكن,レジデンスを見る,,Draft
+1002,Landing page (code),sxs.closeNavigation,Close navigation,إغلاق التنقل,ナビゲーションを閉じる,,Draft
+1003,Landing page (code),sxs.openNavigation,Open navigation,فتح التنقل,ナビゲーションを開く,,Draft
+1004,Landing page (code),sxs.sections,Sections,الأقسام,セクション,,Draft
+1005,Landing page (code),sxs.openingSelectedSection,Opening selected section,جارٍ فتح القسم المحدد,選択したセクションを開いています,,Draft
+1006,Landing page (code),sxs.closeRegistrationForm,Close registration form,إغلاق نموذج التسجيل,登録フォームを閉じる,,Draft
+1007,Landing page (code),sxs.sending,sending,جارٍ الإرسال,送信中,,Draft
+1008,Landing page (code),sxs.privacyPolicy,privacy policy,سياسة الخصوصية,プライバシーポリシー,,Draft
+1009,Landing page (code),sxs.uae,UAE,الإمارات,UAE,,Draft
+1010,Landing page (code),sxs.changeCountryCode,Change country code,تغيير رمز الدولة,国番号を変更,,Draft
+1011,Landing page (code),sxs.emailAddress,Email Address,البريد الإلكتروني,メールアドレス,The client's sheet: form.email.,Draft
+1012,Landing page (code),sxs.phoneNumber,Phone Number,رقم الهاتف,電話番号,,Draft
+1013,Landing page (code),sxs.fullName,Full Name,الاسم الكامل,氏名,The client's sheet: form.fullName.,Draft
+1014,Landing page (code),sxs.interestedIn,I am interested in,أنا مهتم بـ,ご希望の内容,The client's sheet: form.iAmInterestedIn.,Draft
+1015,Landing page (code),sxs.availableUnitTypesLabel,Available unit types,أنواع الوحدات المتاحة,住戸タイプ,The client's sheet: dev.availableUnitTypes.,Draft
+1016,Landing page (code),sxs.residencesWithPenthouses,"One-, two- and three-bedroom residences with penthouses",مساكن بغرفة وغرفتين وثلاث غرف نوم مع بنتهاوس,1〜3ベッドルームのレジデンスとペントハウス,The client's sheet: dev.residencesWithPenthouses.,Draft
+1017,Landing page (code),sxs.designedForYourPace,Designed for your pace.,صُمّم ليناسب إيقاعك.,あなたのペースに合わせて。,The client's sheet: dev.designedForYourPace.,Draft
+1018,Landing page (code),sxs.precisionYouCanFeel,Precision you can feel.,دقة تشعر بها.,感じられる精緻さ。,The client's sheet: dev.precisionYouCanFeel.,Draft
+1019,Landing page (code),sxs.paidToDateLabel,Paid to date,المدفوع حتى الآن,これまでのお支払い額,The client's sheet: dev.paidToDate.,Draft
+1020,Landing page (code),sxs.reservationCalendarLabel,Reservation calendar,جدول الحجز,ご予約スケジュール,The client's sheet: dev.reservationCalendar.,Draft
+1021,Landing page (code),sxs.buildingProgressLabel,Building progress,تقدم أعمال البناء,工事進捗,The client's sheet: dev.buildingProgress.,Draft
+1022,Landing page (code),sxs.heroReveal,seven x seven residences facade reveal,ظهور واجهة مساكن seven x seven,seven x seven レジデンスのファサード表示,,Draft
+1023,Landing page (code),sxs.motionReveal,seven x seven residences motion reveal,ظهور متحرك لمساكن seven x seven,seven x seven レジデンスのモーション表示,,Draft
+1024,Landing page (code),sxs.aboutSection,About seven x seven residences,عن مساكن seven x seven,seven x seven レジデンスについて,,Draft
+1025,Landing page (code),sxs.aboutImageAlt,seven x seven residences facade set within a landscaped Meydan Horizon arrival,واجهة مساكن seven x seven عند مدخل مُشجّر في ميدان هورايزن,造園されたメイダン・ホライズンのエントランスに佇む seven x seven レジデンスのファサード,,Draft
+1026,Landing page (code),sxs.privateLivingStatement,seven x seven private living statement,عبارة عن المعيشة الخاصة في seven x seven,seven x seven のプライベートな暮らしについて,,Draft
+1027,Landing page (code),sxs.interiorMoodGallery,seven x seven interior mood gallery,معرض أجواء التصاميم الداخلية في seven x seven,seven x seven のインテリアムードギャラリー,,Draft
+1028,Landing page (code),sxs.interiors,interiors,التصاميم الداخلية,インテリア,The client's sheet: sxs.nav.interiors.,Draft
+1029,Landing page (code),sxs.exploreFloorPlans,explore floor plans,استكشف المخططات,間取りを見る,,Draft
+1030,Landing page (code),sxs.livingRoomWorkspaceAlt,seven x seven living room and private workspace,غرفة معيشة ومساحة عمل خاصة في seven x seven,seven x seven のリビングとプライベートワークスペース,,Draft
+1031,Landing page (code),sxs.livingRoomWaterfrontAlt,seven x seven living room with waterfront outlook,غرفة معيشة في seven x seven بإطلالة على الواجهة البحرية,ウォーターフロントを望む seven x seven のリビング,,Draft
+1032,Landing page (code),sxs.slowMornings,"Slow mornings. Dinner with friends. A moment for yourself. Here, your home follows your rhythm. Comfort. Convenience. Craft. Nothing left behind.",صباحات هادئة. عشاء مع الأصدقاء. لحظة لنفسك. هنا يتبع منزلك إيقاعك. راحة. سهولة. إتقان. لا ينقصك شيء.,ゆったりとした朝。友人と過ごす夕食。自分だけのひととき。ここでは、住まいがあなたのリズムに寄り添います。快適さ。利便性。確かなつくり。行き届かないところはありません。,,Draft
+1033,Landing page (code),sxs.oakAndWalnut,Oak and walnut bring warmth. Travertine adds weight and texture. Soft light and tactile finishes wrap everything with quiet depth.,يضفي البلوط والجوز دفئًا، ويضيف الترفرتين ثقلًا وملمسًا. ويغلف الضوء الناعم والتشطيبات الملموسة كل شيء بعمق هادئ.,オークとウォールナットが温もりを添え、トラバーチンが重厚感と質感をプラス。柔らかな光と手ざわりのいい仕上げが、すべてを静かな深みで包み込みます。,,Draft
+1034,Landing page (code),sxs.residentsLoungeAlt,seven x seven residents lounge,صالة السكان في seven x seven,seven x seven のレジデンツラウンジ,,Draft
+1035,Landing page (code),sxs.gallerySection,seven x seven residences gallery,معرض صور مساكن seven x seven,seven x seven レジデンスのギャラリー,,Draft
+1036,Landing page (code),sxs.exteriorSection,seven x seven exterior and amenities,الواجهة الخارجية والمرافق في seven x seven,seven x seven の外観とアメニティ,,Draft
+1037,Landing page (code),sxs.facadeAtEveningAlt,seven x seven residences illuminated facade at evening,واجهة مساكن seven x seven المضاءة في المساء,夕暮れに照らされた seven x seven レジデンスのファサード,,Draft
+1038,Landing page (code),sxs.disconnectAtArrival,Disconnect at arrival. Connect with yourself with every step in.,انفصل عن العالم عند وصولك. واتصل بنفسك مع كل خطوة تدخلها.,到着した瞬間に、外界から離れる。一歩進むごとに、自分とつながる。,,Draft
+1039,Landing page (code),sxs.amenitiesSection,seven x seven amenities,مرافق seven x seven,seven x seven のアメニティ,,Draft
+1040,Landing page (code),sxs.ownYourRitual,own your ritual,طقوسك الخاصة,自分だけの習慣を,,Draft
+1041,Landing page (code),sxs.communitySection,Mohammed Bin Rashid City community,مجتمع مدينة محمد بن راشد,ムハンマド・ビン・ラシッド・シティのコミュニティ,,Draft
+1042,Landing page (code),sxs.communityGallery,Community gallery,معرض صور المجتمع,コミュニティのギャラリー,,Draft
+1043,Landing page (code),sxs.previousCommunityImage,Previous community image,الصورة السابقة للمجتمع,前のコミュニティ画像,,Draft
+1044,Landing page (code),sxs.communityGalleryPosition,Community gallery position,موقع معرض صور المجتمع,コミュニティギャラリーの位置,,Draft
+1045,Landing page (code),sxs.showCommunityImage,Show community image {index},عرض صورة المجتمع {index},コミュニティ画像 {index} を表示,,Draft
+1046,Landing page (code),sxs.nextCommunityImage,Next community image,الصورة التالية للمجتمع,次のコミュニティ画像,,Draft
+1047,Landing page (code),sxs.drivingDistances,Driving distances from seven x seven residences,مسافات القيادة من مساكن seven x seven,seven x seven レジデンスからの車での距離,,Draft
+1048,Landing page (code),sxs.residenceFloorPlans,Residence floor plans,مخططات المساكن,住戸の間取り,,Draft
+1049,Landing page (code),sxs.selectFloorPlan,Select a residence floor plan,اختر مخططًا للمسكن,間取りを選択,,Draft
+1050,Landing page (code),sxs.selectLayout,Select a layout,اختر تصميمًا,レイアウトを選択,,Draft
+1051,Landing page (code),sxs.layoutType,Type {index},النوع {index},タイプ {index},,Draft
+1052,Landing page (code),sxs.unit,unit,الوحدة,住戸,,Draft
+1053,Landing page (code),sxs.totalArea,total area,المساحة الإجمالية,総面積,,Draft
+1054,Landing page (code),sxs.suiteArea,suite area,مساحة الشقة,専有面積,,Draft
+1055,Landing page (code),sxs.balconyArea,balcony area,مساحة الشرفة,バルコニー面積,,Draft
+1056,Landing page (code),sxs.legend,legend,المفتاح,凡例,,Draft
+1057,Landing page (code),sxs.paymentSection,seven x seven payment plan,خطة الدفع في seven x seven,seven x seven の支払いプラン,,Draft
+1058,Landing page (code),sxs.cumulativePaid,Cumulative amount paid,المبلغ المدفوع تراكميًا,累計お支払い額,,Draft
+1059,Landing page (code),sxs.illuminatedAtDuskAlt,seven x seven residences illuminated at dusk,مساكن seven x seven المضاءة عند الغسق,夕暮れに灯る seven x seven レジデンス,,Draft
+1060,Landing page (code),sxs.returnToHome,Return to home,العودة إلى الصفحة الرئيسية,ホームに戻る,,Draft
+1061,Landing page (code),sxs.mobileLogoAlt,seven x seven Meydan Horizon residences,مساكن seven x seven في ميدان هورايزن,seven x seven メイダン・ホライズン・レジデンス,,Draft
+1062,Landing page (code),sxs.showHeroImage,Show hero image {index},عرض الصورة الرئيسية {index},メイン画像 {index} を表示,,Draft
+1063,Landing page (code),sxs.tapOrSwipe,tap or swipe ↔,اضغط أو اسحب ↔,タップまたはスワイプ ↔,,Draft
+1064,Landing page (code),sxs.residencesReveal,residences reveal,ظهور المساكن,レジデンスの表示,,Draft
+1065,Landing page (code),sxs.viewVideoFullScreen,View video full screen,عرض الفيديو بملء الشاشة,動画を全画面で見る,,Draft
+1066,Landing page (code),sxs.fullScreen,full screen,ملء الشاشة,全画面,,Draft
+1067,Landing page (code),sxs.availableUnitTypes,available unit types,أنواع الوحدات المتاحة,住戸タイプ,,Draft
+1068,Landing page (code),sxs.withinMeydanAlt,seven x seven residences within Meydan Horizon,مساكن seven x seven ضمن ميدان هورايزن,メイダン・ホライズン内の seven x seven レジデンス,,Draft
+1069,Landing page (code),sxs.livingStatement,private living statement,عبارة عن المعيشة الخاصة,プライベートな暮らしについて,,Draft
+1070,Landing page (code),sxs.apartmentGallery,Apartment gallery,معرض صور الشقق,アパートメントのギャラリー,,Draft
+1071,Landing page (code),sxs.slowMorningsShort,Slow mornings. Dinner with friends. A moment for yourself.,صباحات هادئة. عشاء مع الأصدقاء. لحظة لنفسك.,ゆったりとした朝。友人と過ごす夕食。自分だけのひととき。,,Draft
+1072,Landing page (code),sxs.oakAndWalnutShort,Oak and walnut bring warmth. Travertine adds weight and texture.,يضفي البلوط والجوز دفئًا، ويضيف الترفرتين ثقلًا وملمسًا.,オークとウォールナットが温もりを添え、トラバーチンが重厚感と質感をプラス。,,Draft
+1073,Landing page (code),sxs.residencesExteriorAlt,seven x seven residences exterior,الواجهة الخارجية لمساكن seven x seven,seven x seven レジデンスの外観,,Draft
+1074,Landing page (code),sxs.mapAlt,Map of Dubai around seven x seven residences,خريطة دبي حول مساكن seven x seven,seven x seven レジデンス周辺のドバイの地図,,Draft
+1075,Landing page (code),sxs.tapPlanToEnlarge,tap plan to enlarge,اضغط على المخطط لتكبيره,間取り図をタップして拡大,,Draft
+1076,Landing page (code),sxs.pauseTimeline,pause timeline,إيقاف الجدول الزمني مؤقتًا,タイムラインを一時停止,,Draft
+1077,Landing page (code),sxs.playPaymentTimeline,play payment timeline,تشغيل الجدول الزمني للدفع,支払いタイムラインを再生,,Draft
+1078,Landing page (code),sxs.paidToDate,paid to date ·,المدفوع حتى الآن ·,お支払い済み ·,,Draft
+1079,Landing page (code),sxs.reservationCalendar,reservation calendar,جدول الحجز,ご予約スケジュール,,Draft
+1080,Landing page (code),sxs.buildingProgress,building progress,تقدم أعمال البناء,工事進捗,,Draft
+1081,Landing page (code),sxs.imagePreview,Image preview,معاينة الصورة,画像のプレビュー,,Draft
+1082,Landing page (code),sxs.closeImagePreview,Close image preview,إغلاق معاينة الصورة,画像プレビューを閉じる,,Draft
+1083,Landing page (code),sxsFallback.heroEyebrow,Meydan Horizon,ميدان هورايزن,メイダン・ホライズン,The client's sheet: sxs.hero.eyebrow.,Draft
+1084,Landing page (code),sxsFallback.heroHeadline,luxury in balance,فخامة في توازن,バランスの中のラグジュアリー,The client's sheet: sxs.hero.headline.,Draft
+1085,Landing page (code),sxsFallback.heroBody,Stillness and energy. Privacy and connection. Retreat and play. The home that offers you both.,سكينة وحيوية. خصوصية وتواصل. ملاذ ومرح. منزل يمنحك الاثنين معًا.,静けさと活気。プライバシーとつながり。くつろぎと遊び。そのどちらも叶える住まい。,The client's sheet: sxs.hero.body.,Draft
+1086,Landing page (code),sxsFallback.heroAlt0,seven x seven residents lounge,صالة السكان في seven x seven,seven x seven のレジデンツラウンジ,,Draft
+1087,Landing page (code),sxsFallback.heroAlt1,seven x seven residential lobby,ردهة المبنى السكني في seven x seven,seven x seven のレジデンシャルロビー,,Draft
+1088,Landing page (code),sxsFallback.heroAlt2,seven x seven fitness suite,جناح اللياقة البدنية في seven x seven,seven x seven のフィットネススイート,,Draft
+1089,Landing page (code),sxsFallback.heroAlt3,seven x seven yoga studio,استوديو اليوغا في seven x seven,seven x seven のヨガスタジオ,,Draft
+1090,Landing page (code),sxsFallback.heroAlt4,seven x seven pool terrace,تراس المسبح في seven x seven,seven x seven のプールテラス,,Draft
+1091,Landing page (code),sxsFallback.heroAlt5,seven x seven outdoor wellness terrace,تراس العافية الخارجي في seven x seven,seven x seven の屋外ウェルネステラス,,Draft
+1092,Landing page (code),sxsFallback.aboutHeadline,the residences,المساكن,レジデンス,The client's sheet: sxs.about.headline.,Draft
+1093,Landing page (code),sxsFallback.aboutBody,"The city, within reach. Meydan Horizon keeps the city close. At home, water, greenery and open views reveal a calmer side of Dubai.",المدينة في متناولك. تُبقي ميدان هورايزن المدينة قريبة منك. وفي المنزل، تكشف المياه والخضرة والإطلالات المفتوحة عن وجه أكثر هدوءًا لدبي.,都市を、すぐそばに。メイダン・ホライズンは、都市との近さを保ちます。家に帰れば、水と緑と開けた眺望が、ドバイの穏やかな一面を見せてくれます。,The client's sheet: sxs.about.body.,Draft
+1094,Landing page (code),sxsFallback.manifesto,Explore one home for every kind of day. Surrounded by light. Shaped by details.,اكتشف منزلًا واحدًا يناسب كل أيامك. يحيط به الضوء. وتصوغه التفاصيل.,どんな一日にも寄り添う住まいを。光に包まれ、ディテールが形づくる。,The client's sheet: sxs.manifesto.body.,Draft
+1095,Landing page (code),sxsFallback.apartmentsHeadline,"more room, crafted with intent.",مساحة أكبر، صُمّمت بعناية.,ゆとりある空間を、意図をもって。,The client's sheet: sxs.apartments.headline.,Draft
+1096,Landing page (code),sxsFallback.apartmentsBody,"One-, two- and three-bedroom residences built around space, function and ease.",مساكن بغرفة وغرفتين وثلاث غرف نوم، صُمّمت حول الرحابة والوظيفة والراحة.,広さ、機能性、心地よさを軸に設計された、1〜3ベッドルームのレジデンス。,The client's sheet: sxs.apartments.body.,Draft
+1097,Landing page (code),sxsFallback.moodAlt0,seven x seven crafted kitchen and island,مطبخ مصقول مع جزيرة في seven x seven,seven x seven のこだわりのキッチンとアイランド,,Draft
+1098,Landing page (code),sxsFallback.moodAlt1,seven x seven open dining and living room,غرفة طعام ومعيشة مفتوحة في seven x seven,seven x seven のオープンなダイニング・リビング,,Draft
+1099,Landing page (code),sxsFallback.moodAlt2,seven x seven sunlit living room,غرفة معيشة مغمورة بالضوء في seven x seven,seven x seven の陽光あふれるリビング,,Draft
+1100,Landing page (code),sxsFallback.moodAlt3,seven x seven principal bathroom,الحمّام الرئيسي في seven x seven,seven x seven のメインバスルーム,,Draft
+1101,Landing page (code),sxsFallback.moodAlt4,seven x seven principal bedroom,غرفة النوم الرئيسية في seven x seven,seven x seven の主寝室,,Draft
+1102,Landing page (code),sxsFallback.moodAlt5,seven x seven bedroom with skyline view,غرفة نوم بإطلالة على أفق المدينة في seven x seven,seven x seven のスカイラインビューの寝室,,Draft
+1103,Landing page (code),sxsFallback.moodAlt6,seven x seven open-plan residence,مسكن بتصميم مفتوح في seven x seven,seven x seven のオープンプランのレジデンス,,Draft
+1104,Landing page (code),sxsFallback.galleryHeadline,gallery,معرض الصور,ギャラリー,The client's sheet: sxs.gallery.headline.,Draft
+1105,Landing page (code),sxsFallback.galleryNote,see the balance,شاهد التوازن,バランスを見る,The client's sheet: sxs.gallery.note.,Draft
+1106,Landing page (code),sxsFallback.exteriorAlt0,seven x seven illuminated facade at dusk,واجهة seven x seven المضاءة عند الغسق,夕暮れに灯る seven x seven のファサード,,Draft
+1107,Landing page (code),sxsFallback.exteriorAlt1,seven x seven landscaped arrival,مدخل مُشجّر في seven x seven,seven x seven の造園されたエントランス,,Draft
+1108,Landing page (code),sxsFallback.exteriorAlt2,seven x seven tower and podium architecture,عمارة البرج والمنصة في seven x seven,seven x seven のタワーとポディウムの建築,,Draft
+1109,Landing page (code),sxsFallback.exteriorAlt3,seven x seven residential exterior,الواجهة السكنية الخارجية لـ seven x seven,seven x seven の住宅外観,,Draft
+1110,Landing page (code),sxsFallback.exteriorAlt4,seven x seven exterior detail,تفصيل خارجي في seven x seven,seven x seven の外観ディテール,,Draft
+1111,Landing page (code),sxsFallback.exteriorHeadline,Discreetly different.,مختلف بهدوء.,さりげなく、特別に。,The client's sheet: sxs.exterior.headline.,Draft
+1112,Landing page (code),sxsFallback.exteriorBody,"Behind its composed allure, seven x seven residences Meydan Horizon extends everyday life beyond the home, revealing a connected sequence of wellness, social and outdoor spaces for every side of you.",خلف جاذبيته الهادئة، يمتد seven x seven residences Meydan Horizon بالحياة اليومية إلى ما هو أبعد من المنزل، كاشفًا عن سلسلة مترابطة من مساحات العافية والتواصل الاجتماعي والهواء الطلق تناسب كل جوانب شخصيتك.,落ち着いた佇まいの奥に、seven x seven residences Meydan Horizon は日常を住まいの外へと広げます。ウェルネス、交流、屋外の空間がつながり、あなたのあらゆる一面に応えます。,The client's sheet: sxs.exterior.body.,Draft
+1113,Landing page (code),sxsFallback.amenitiesHeadline,amenities,المرافق,アメニティ,The client's sheet: sxs.amenities.headline.,Draft
+1114,Landing page (code),sxsFallback.amenity0,Residents lounge,صالة السكان,レジデンツラウンジ,The client's sheet: sxs.amenities.items[0].,Draft
+1115,Landing page (code),sxsFallback.amenity1,Residential lobby,ردهة المبنى السكني,レジデンシャルロビー,The client's sheet: sxs.amenities.items[1].,Draft
+1116,Landing page (code),sxsFallback.amenity2,Private lift lobby,ردهة مصاعد خاصة,プライベートエレベーターホール,The client's sheet: sxs.amenities.items[2].,Draft
+1117,Landing page (code),sxsFallback.amenity3,Spa changing suites,غرف تبديل ملابس في السبا,スパ・パウダールーム,The client's sheet: sxs.amenities.items[3].,Draft
+1118,Landing page (code),sxsFallback.amenity4,Vitality pool,مسبح العافية,バイタリティプール,The client's sheet: sxs.amenities.items[4].,Draft
+1119,Landing page (code),sxsFallback.amenity5,Relaxation lounge,صالة استرخاء,リラクゼーションラウンジ,The client's sheet: sxs.amenities.items[5].,Draft
+1120,Landing page (code),sxsFallback.amenity6,Fitness studio,استوديو اللياقة البدنية,フィットネススタジオ,The client's sheet: sxs.amenities.items[6].,Draft
+1121,Landing page (code),sxsFallback.amenity7,Yoga studio,استوديو اليوغا,ヨガスタジオ,The client's sheet: sxs.amenities.items[7].,Draft
+1122,Landing page (code),sxsFallback.amenity8,Water garden,حديقة مائية,ウォーターガーデン,The client's sheet: sxs.amenities.items[8].,Draft
+1123,Landing page (code),sxsFallback.amenity9,Skyline infinity pool,مسبح لا متناهٍ بإطلالة على الأفق,スカイライン・インフィニティプール,The client's sheet: sxs.amenities.items[9].,Draft
+1124,Landing page (code),sxsFallback.amenity10,Family pool terrace,تراس مسبح العائلات,ファミリープールテラス,The client's sheet: sxs.amenities.items[10].,Draft
+1125,Landing page (code),sxsFallback.amenity11,Children's play garden,حديقة ألعاب الأطفال,キッズ・プレイガーデン,The client's sheet: sxs.amenities.items[11].,Draft
+1126,Landing page (code),sxsFallback.amenity12,Outdoor fitness terrace,تراس اللياقة الخارجي,屋外フィットネステラス,The client's sheet: sxs.amenities.items[12].,Draft
+1127,Landing page (code),sxsFallback.amenity13,Shaded social terrace,تراس اجتماعي مظلّل,日よけ付きソーシャルテラス,The client's sheet: sxs.amenities.items[13].,Draft
+1128,Landing page (code),sxsFallback.amenity14,Firepit lounge,صالة موقد النار,ファイヤーピットラウンジ,The client's sheet: sxs.amenities.items[14].,Draft
+1129,Landing page (code),sxsFallback.amenityAlt0,seven x seven residents lounge and reception,صالة السكان والاستقبال في seven x seven,seven x seven のレジデンツラウンジと受付,,Draft
+1130,Landing page (code),sxsFallback.amenityAlt2,seven x seven private lift lobby,ردهة المصاعد الخاصة في seven x seven,seven x seven のプライベートエレベーターホール,,Draft
+1131,Landing page (code),sxsFallback.amenityAlt3,seven x seven spa changing suite,غرف تبديل الملابس في السبا عند seven x seven,seven x seven のスパ更衣室,,Draft
+1132,Landing page (code),sxsFallback.amenityAlt4,seven x seven indoor vitality pool,مسبح العافية الداخلي في seven x seven,seven x seven の屋内バイタリティプール,,Draft
+1133,Landing page (code),sxsFallback.amenityAlt5,seven x seven relaxation lounge,صالة الاسترخاء في seven x seven,seven x seven のリラクゼーションラウンジ,,Draft
+1134,Landing page (code),sxsFallback.amenityAlt6,seven x seven fitness studio,استوديو اللياقة البدنية في seven x seven,seven x seven のフィットネススタジオ,,Draft
+1135,Landing page (code),sxsFallback.amenityAlt8,seven x seven water garden promenade,ممر الحديقة المائية في seven x seven,seven x seven のウォーターガーデンの遊歩道,,Draft
+1136,Landing page (code),sxsFallback.amenityAlt9,seven x seven infinity pool overlooking Dubai,مسبح لا متناهٍ بإطلالة على دبي في seven x seven,seven x seven のドバイを望むインフィニティプール,,Draft
+1137,Landing page (code),sxsFallback.amenityAlt10,seven x seven family pool terrace,تراس مسبح العائلات في seven x seven,seven x seven のファミリープールテラス,,Draft
+1138,Landing page (code),sxsFallback.amenityAlt11,seven x seven landscaped play garden,حديقة ألعاب مُشجّرة في seven x seven,seven x seven の造園されたキッズガーデン,,Draft
+1139,Landing page (code),sxsFallback.amenityAlt12,seven x seven outdoor fitness terrace,تراس اللياقة الخارجي في seven x seven,seven x seven の屋外フィットネステラス,,Draft
+1140,Landing page (code),sxsFallback.amenityAlt13,seven x seven shaded social terrace,تراس اجتماعي مظلّل في seven x seven,seven x seven の日よけ付きソーシャルテラス,,Draft
+1141,Landing page (code),sxsFallback.amenityAlt14,seven x seven firepit lounge,صالة موقد النار في seven x seven,seven x seven のファイヤーピットラウンジ,,Draft
+1142,Landing page (code),sxsFallback.communityHeadline,mohammed bin rashid city,مدينة محمد بن راشد,ムハンマド・ビン・ラシッド・シティ,The client's sheet: sxs.community.headline.,Draft
+1143,Landing page (code),sxsFallback.communityBody,"MBR City brings together residential calm, new infrastructure, open landscapes and fast access to Dubai's central destinations.",تجمع مدينة محمد بن راشد بين هدوء الأحياء السكنية والبنية التحتية الحديثة والمساحات المفتوحة وسهولة الوصول السريع إلى أبرز وجهات دبي المركزية.,MBRシティは、住宅地の静けさ、新しいインフラ、開放的な景観、そしてドバイ中心部への素早いアクセスを兼ね備えています。,The client's sheet: sxs.community.body.,Draft
+1144,Landing page (code),sxsFallback.communityAlt0,seven x seven within a green residential landscape,seven x seven وسط مشهد سكني أخضر,緑あふれる住宅地の中の seven x seven,,Draft
+1145,Landing page (code),sxsFallback.communityAlt1,seven x seven at sunset within Meydan Horizon,seven x seven عند الغروب في ميدان هورايزن,メイダン・ホライズンの夕日の中の seven x seven,,Draft
+1146,Landing page (code),sxsFallback.communityAlt2,seven x seven evening facade and community setting,واجهة seven x seven المسائية ووسط المجتمع,seven x seven の夕暮れのファサードとコミュニティの環境,,Draft
+1147,Landing page (code),sxsFallback.locationHeadline,close to what matters.,قريب مما يهمّك.,大切な場所の、すぐそばに。,The client's sheet: sxs.location.headline.,Draft
+1148,Landing page (code),sxsFallback.locationBody,"Meydan Horizon, within the wider MBR City, connects seven x seven residences to schools, business hubs, cultural districts, dining addresses and shopping centres. Everything stays within easy reach.",تقع ميدان هورايزن ضمن مدينة محمد بن راشد، وتصل seven x seven residences بالمدارس ومراكز الأعمال والأحياء الثقافية والمطاعم ومراكز التسوق. كل شيء في متناولك بسهولة.,MBRシティの一角にあるメイダン・ホライズンは、seven x seven residences を学校、ビジネス拠点、文化地区、レストラン、ショッピングセンターへとつなぎます。すべてが、すぐ手の届く距離に。,The client's sheet: sxs.location.body.,Draft
+1149,Landing page (code),sxsFallback.place0,Ras Al Khor Wildlife Sanctuary,محمية رأس الخور للحياة الفطرية,ラス・アル・コール野生生物保護区,The client's sheet: sxs.location.places[0].,Draft
+1150,Landing page (code),sxsFallback.place1,Downtown Dubai / Burj Khalifa / Dubai Mall,وسط مدينة دبي / برج خليفة / دبي مول,ダウンタウン・ドバイ／ブルジュ・ハリファ／ドバイモール,The client's sheet: sxs.location.places[1].,Draft
+1151,Landing page (code),sxsFallback.place2,Dubai Creek Harbour,دبي كريك هاربر,ドバイ・クリーク・ハーバー,The client's sheet: sxs.location.places[2].,Draft
+1152,Landing page (code),sxsFallback.place3,Dubai Design District,حي دبي للتصميم,ドバイ・デザイン・ディストリクト,The client's sheet: sxs.location.places[3].,Draft
+1153,Landing page (code),sxsFallback.place4,DIFC / Business Bay / DWTC,مركز دبي المالي العالمي / الخليج التجاري / مركز دبي التجاري العالمي,DIFC／ビジネスベイ／DWTC,The client's sheet: sxs.location.places[4].,Draft
+1154,Landing page (code),sxsFallback.place5,Meydan One Mall,ميدان ون مول,メイダン・ワン・モール,The client's sheet: sxs.location.places[5].,Draft
+1155,Landing page (code),sxsFallback.place6,Meydan Racecourse,مضمار ميدان للسباق,メイダン競馬場,The client's sheet: sxs.location.places[6].,Draft
+1156,Landing page (code),sxsFallback.place7,City Walk,سيتي ووك,シティウォーク,The client's sheet: sxs.location.places[7].,Draft
+1157,Landing page (code),sxsFallback.place8,Dubai Marina,دبي مارينا,ドバイ・マリーナ,The client's sheet: sxs.location.places[8].,Draft
+1158,Landing page (code),sxsFallback.place9,Mall of the Emirates,مول الإمارات,モール・オブ・ジ・エミレーツ,The client's sheet: sxs.location.places[9].,Draft
+1159,Landing page (code),sxsFallback.place10,Palm Jumeirah,نخلة جميرا,パーム・ジュメイラ,The client's sheet: sxs.location.places[10].,Draft
+1160,Landing page (code),sxsFallback.floorplansHeadline,floor plans,المخططات,間取り,The client's sheet: sxs.floorplans.headline.,Draft
+1161,Landing page (code),sxsFallback.tabOne,1 bedroom,غرفة نوم واحدة,1ベッドルーム,The client's sheet: sxs.floorplans.tabOne.,Draft
+1162,Landing page (code),sxsFallback.tabTwo,2 bedrooms,غرفتا نوم,2ベッドルーム,The client's sheet: sxs.floorplans.tabTwo.,Draft
+1163,Landing page (code),sxsFallback.tabThree,3 bedrooms,3 غرف نوم,3ベッドルーム,The client's sheet: sxs.floorplans.tabThree.,Draft
+1164,Landing page (code),sxsFallback.tabPenthouse,penthouse,بنتهاوس,ペントハウス,,Draft
+1165,Landing page (code),sxsFallback.planOneAlt,Rendered one bedroom residence floor plan,مخطط مرسوم لمسكن بغرفة نوم واحدة,1ベッドルーム住戸の間取り図,,Draft
+1166,Landing page (code),sxsFallback.planOneTitle,one-bedroom residences,مساكن بغرفة نوم واحدة,1ベッドルーム・レジデンス,The client's sheet: sxs.floorplans.plans.one.title.,Draft
+1167,Landing page (code),sxsFallback.planOneUnit,1 bhk apartment,شقة بغرفة نوم واحدة,1ベッドルーム・アパートメント,The client's sheet: sxs.floorplans.plans.one.unit.,Draft
+1168,Landing page (code),sxsFallback.planTwoAlt,Rendered two bedroom residence floor plan,مخطط مرسوم لمسكن بغرفتي نوم,2ベッドルーム住戸の間取り図,,Draft
+1169,Landing page (code),sxsFallback.planTwoTitle,two-bedroom residences,مساكن بغرفتي نوم,2ベッドルーム・レジデンス,The client's sheet: sxs.floorplans.plans.two.title.,Draft
+1170,Landing page (code),sxsFallback.planTwoUnit,2 bhk apartment,شقة بغرفتي نوم,2ベッドルーム・アパートメント,The client's sheet: sxs.floorplans.plans.two.unit.,Draft
+1171,Landing page (code),sxsFallback.planThreeAlt,Rendered three bedroom residence floor plan,مخطط مرسوم لمسكن بثلاث غرف نوم,3ベッドルーム住戸の間取り図,,Draft
+1172,Landing page (code),sxsFallback.planThreeTitle,three-bedroom residences,مساكن بثلاث غرف نوم,3ベッドルーム・レジデンス,The client's sheet: sxs.floorplans.plans.three.title.,Draft
+1173,Landing page (code),sxsFallback.planThreeUnit,3 bhk apartment,شقة بثلاث غرف نوم,3ベッドルーム・アパートメント,The client's sheet: sxs.floorplans.plans.three.unit.,Draft
+1174,Landing page (code),sxsFallback.planPenthouseAlt,Rendered penthouse floor plan,مخطط مرسوم للبنتهاوس,ペントハウスの間取り図,,Draft
+1175,Landing page (code),sxsFallback.planPenthouseTitle,penthouse,بنتهاوس,ペントハウス,,Draft
+1176,Landing page (code),sxsFallback.planPenthouseUnit,4 bhk penthouse,بنتهاوس بـ4 غرف نوم,4ベッドルーム・ペントハウス,,Draft
+1177,Landing page (code),sxsFallback.legendGuestToilet,guest toilet,دورة مياه الضيوف,ゲスト用トイレ,The client's sheet: legend.guestToilet.,Draft
+1178,Landing page (code),sxsFallback.legendKitchen,kitchen,المطبخ,キッチン,The client's sheet: legend.kitchen.,Draft
+1179,Landing page (code),sxsFallback.legendOpenPlan,open plan,تصميم مفتوح,オープンプラン,The client's sheet: legend.openPlan.,Draft
+1180,Landing page (code),sxsFallback.legendLivingDining,living & dining area,منطقة المعيشة والطعام,リビング・ダイニング,The client's sheet: legend.livingDining.,Draft
+1181,Landing page (code),sxsFallback.legendMasterBedroom,master bedroom,غرفة النوم الرئيسية,主寝室,The client's sheet: legend.masterBedroom.,Draft
+1182,Landing page (code),sxsFallback.legendBalcony,balcony,الشرفة,バルコニー,The client's sheet: legend.balcony.,Draft
+1183,Landing page (code),sxsFallback.legendPowderRoom,powder room,حمّام الضيوف,パウダールーム,The client's sheet: legend.powderRoom.,Draft
+1184,Landing page (code),sxsFallback.legendBedroom2,bedroom 2,غرفة النوم 2,寝室2,The client's sheet: legend.bedroom2.,Draft
+1185,Landing page (code),sxsFallback.legendBathroom2,bathroom 2,الحمّام 2,浴室2,The client's sheet: legend.bathroom2.,Draft
+1186,Landing page (code),sxsFallback.legendLaundry,laundry,غرفة الغسيل,ランドリー,The client's sheet: legend.laundry.,Draft
+1187,Landing page (code),sxsFallback.legendStoreRoom,store room,غرفة التخزين,収納室,The client's sheet: legend.storeRoom.,Draft
+1188,Landing page (code),sxsFallback.paymentHeadline,a considered path to ownership,طريق مدروس نحو التملك,所有への、確かな道のり,The client's sheet: sxs.payment.headline.,Draft
+1189,Landing page (code),sxsFallback.paymentBody,"A structured payment plan from reservation through handover, aligned with construction progress.",خطة دفع منظمة من الحجز حتى التسليم، تتماشى مع تقدم أعمال البناء.,ご予約からお引き渡しまで、工事の進捗に合わせた体系的な支払いプラン。,The client's sheet: sxs.payment.body.,Draft
+1190,Landing page (code),sxsFallback.milestoneDay1,day 1,اليوم الأول,1日目,The client's sheet: sxs.payment.day1.,Draft
+1191,Landing page (code),sxsFallback.milestoneDays60,60 days,60 يومًا,60日後,,Draft
+1192,Landing page (code),sxsFallback.milestoneDays120,120 days,120 يومًا,120日後,,Draft
+1193,Landing page (code),sxsFallback.milestoneDays240,240 days,240 يومًا,240日後,,Draft
+1194,Landing page (code),sxsFallback.milestoneDays360,360 days,360 يومًا,360日後,,Draft
+1195,Landing page (code),sxsFallback.milestoneBuilt30,30% built,اكتمال 30% من البناء,建築進捗30%,,Draft
+1196,Landing page (code),sxsFallback.milestoneBuilt40,40% built,اكتمال 40% من البناء,建築進捗40%,,Draft
+1197,Landing page (code),sxsFallback.milestoneBuilt50,50% built,اكتمال 50% من البناء,建築進捗50%,,Draft
+1198,Landing page (code),sxsFallback.milestoneBuilt60,60% built,اكتمال 60% من البناء,建築進捗60%,,Draft
+1199,Landing page (code),sxsFallback.milestoneHandover,handover,التسليم,お引き渡し,The client's sheet: sxs.payment.handover.,Draft
+1200,Landing page (code),sxsFallback.detailAtBooking,At the time of booking,عند الحجز,ご予約時,The client's sheet: sxs.payment.atBooking.,Draft
+1201,Landing page (code),sxsFallback.detailAfterReservation,After the reservation date,بعد تاريخ الحجز,ご予約日から,The client's sheet: sxs.payment.afterReservation.,Draft
+1202,Landing page (code),sxsFallback.detailBuilt30,On 30% construction completion,عند اكتمال 30% من أعمال البناء,工事進捗30%の完成時,,Draft
+1203,Landing page (code),sxsFallback.detailBuilt40,On 40% construction completion,عند اكتمال 40% من أعمال البناء,工事進捗40%の完成時,,Draft
+1204,Landing page (code),sxsFallback.detailBuilt50,On 50% construction completion,عند اكتمال 50% من أعمال البناء,工事進捗50%の完成時,,Draft
+1205,Landing page (code),sxsFallback.detailBuilt60,On 60% construction completion,عند اكتمال 60% من أعمال البناء,工事進捗60%の完成時,,Draft
+1206,Landing page (code),sxsFallback.detailCompletion,On completion of the project,عند اكتمال المشروع,プロジェクト完成時,The client's sheet: sxs.payment.onProjectCompletion.,Draft
+1207,Landing page (code),sxsFallback.registerHeadline,make it yours,اجعله لك,あなたの住まいに,The client's sheet: sxs.register.headline.,Draft
+1208,Landing page (code),sxsFallback.registerBody,"Explore availability, floor plans and purchase details with our team.",تعرّف مع فريقنا على الوحدات المتاحة والمخططات وتفاصيل الشراء.,空き状況、間取り、ご購入の詳細について、担当者がご案内します。,The client's sheet: sxs.register.body.,Draft
+1209,Landing page (code),sxsFallback.registerConsent,By submitting this form you agree to share your details so the sales team can contact you and accept our privacy policy.,بإرسال هذا النموذج، فإنك توافق على مشاركة بياناتك ليتمكن فريق المبيعات من التواصل معك، وتقبل سياسة الخصوصية الخاصة بنا.,本フォームを送信することで、販売担当者からの連絡のためにお客様の情報を共有すること、および当社のプライバシーポリシーに同意したものとみなされます。,The client's sheet: sxs.register.consent.,Draft
+1210,Landing page (code),sxsFallback.interest0,Information about the project,معلومات عن المشروع,プロジェクトの資料を希望,The client's sheet: sxs.register.interestOptions[0].,Draft
+1211,Landing page (code),sxsFallback.interest1,A property consultant to contact me,أن يتواصل معي مستشار عقاري,担当者からの連絡を希望,The client's sheet: sxs.register.interestOptions[1].,Draft
+1212,Landing page (code),sxsFallback.interest2,Book a private viewing,حجز معاينة خاصة,プライベート内覧を予約,The client's sheet: sxs.register.interestOptions[2].,Draft
+1213,Landing page (code),sxsFallback.ctaPrimary,register your interest,سجّل اهتمامك,登録する,The client's sheet: sxs.cta.primary.,Draft
+1214,Landing page (code),sxsFallback.ctaSecondary,explore residences,استكشف المساكن,レジデンスを見る,The client's sheet: sxs.cta.secondary.,Draft
+1215,Landing page (code),sxsFallback.footerBody,seven x seven sees luxury as the freedom to live your way.,ترى seven x seven أن الفخامة هي حرية أن تعيش على طريقتك.,seven x seven が考えるラグジュアリーとは、自分らしく暮らす自由です。,The client's sheet: sxs.footer.body.,Draft
+1216,Landing page (code),sxsFallback.footerCopyright,Copyright 2026 Kasumigaseki Properties Development,جميع الحقوق محفوظة 2026 كاسوميغاسيكي للتطوير العقاري,Copyright 2026 霞ヶ関プロパティーズ・デベロップメント,The client's sheet: sxs.footer.copyright.,Draft
+1217,Landing page (code),sxsFallback.navHome,home,الرئيسية,ホーム,The client's sheet: sxs.nav.home.,Draft
+1218,Landing page (code),sxsFallback.navTheResidences,the residences,المساكن,レジデンス,The client's sheet: sxs.about.headline.,Draft
+1219,Landing page (code),sxsFallback.navGallery,gallery,معرض الصور,ギャラリー,The client's sheet: sxs.gallery.headline.,Draft
+1220,Landing page (code),sxsFallback.navArchitecture,architecture,العمارة,建築,The client's sheet: sxs.nav.architecture.,Draft
+1221,Landing page (code),sxsFallback.navCommunity,community,المجتمع,コミュニティ,The client's sheet: sxs.nav.community.,Draft
+1222,Landing page (code),sxsFallback.navLocation,location,الموقع,ロケーション,The client's sheet: sxs.nav.location.,Draft
+1223,Landing page (code),sxsFallback.navPaymentPlan,payment plan,خطة الدفع,支払いプラン,The client's sheet: sxs.nav.paymentPlan.,Draft
+1224,Landing page (code),sxsFallback.navContact,contact,تواصل معنا,お問い合わせ,The client's sheet: sxs.nav.contact.,Draft
+1225,Landing page (code),sxsFallback.area0,Deira,ديرة,デイラ,,Draft
+1226,Landing page (code),sxsFallback.area1,Jumeirah,جميرا,ジュメイラ,,Draft
+1227,Landing page (code),sxsFallback.area2,Business Bay,الخليج التجاري,ビジネスベイ,,Draft
+1228,Landing page (code),sxsFallback.area3,Meydan,ميدان,メイダン,,Draft
+1229,Landing page (code),sxsFallback.area4,Al Barsha,البرشاء,アル・バルシャ,,Draft
+1230,Landing page (code),sxsFallback.area5,Dubai Marina,دبي مارينا,ドバイ・マリーナ,The client's sheet: sxs.location.places[8].,Draft
