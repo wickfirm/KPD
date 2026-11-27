@@ -537,7 +537,7 @@ const en = {
     area3: "Meydan",
     area4: "Al Barsha",
     area5: "Dubai Marina",
-  },
+  },
 } as const;
 
 type DeepWiden<T> = { [K in keyof T]: T[K] extends string ? string : DeepWiden<T[K]> };
