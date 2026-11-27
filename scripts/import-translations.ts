@@ -41,8 +41,7 @@ import { loadHomeSettings } from "../src/lib/home-saved";
 import { loadNewsListingCopy } from "../src/lib/news-listing";
 import { loadSxsContent } from "../src/lib/sxs-content";
 import { parseProjectChrome, projectChromeKey } from "../src/lib/project-chrome";
-import { legalDocuments, legalTabForSlug } from "../src/lib/terms-defaults";
-import { classify, dictionaryEntries, hasBullet, legalPageEnglish, planDictionary, planRows, readSheet, renderDictionary, withoutBullet, type Plan, type Root, type SheetRow, type Unplaced } from "../src/lib/translations/import-sheet";
+import { classify, dictionaryEntries, hasBullet, legalDocumentFor, legalPageEnglish, planDictionary, planRows, readSheet, renderDictionary, withoutBullet, type Plan, type Root, type SheetRow, type Unplaced } from "../src/lib/translations/import-sheet";
 import { mergeLocale } from "../src/lib/translations/merge-locale";
 import { diffOf, textOrNull, writeArticleTranslation, writePageTranslation, writeSettingTranslation } from "../src/lib/translations/store";
 
@@ -123,12 +122,13 @@ async function rootOf(target: Target, slug: string): Promise<Root | undefined> {
   if (target.kind === "page") {
     const page = await db.staticPage.findUnique({ where: { slug }, select: { id: true, title: true, content: true } });
     if (!page) return undefined;
-    // A legal page shows a fixed document (src/lib/terms-defaults.ts) and the
-    // editor's language tab translates that document, section by section, as
-    // an overlay: a contact block and a document block. The sheet's rows are
-    // matched against those, which is what the page shows, not against the
-    // page's saved blocks.
-    const document = legalDocuments.find((candidate) => candidate.id === legalTabForSlug(slug));
+    // A legal page — one of the three — shows a fixed document
+    // (src/lib/terms-defaults.ts) and the editor's language tab translates that
+    // document, section by section, as an overlay: a contact block and a
+    // document block. The sheet's rows are matched against those, which is
+    // what the page shows, not against the page's saved blocks. Any other
+    // page is matched against its own title and blocks.
+    const document = legalDocumentFor(slug);
     if (document) {
       const savedContact = Array.isArray(page.content) ? page.content.find((block) => block && typeof block === "object" && (block as { type?: string }).type === "legal-contact") : undefined;
       const english = legalPageEnglish(document, savedContact as object | undefined);
@@ -164,18 +164,31 @@ async function planEverything(rows: SheetRow[], targets: Map<string, Target>, al
 
   const pages = rows.filter((row) => !isChrome(row));
   const roots = new Map<string, Root>();
+  // An article's area is named by the slug in its Key, and the sheet holds
+  // rows for several articles: each is given a root of its own, found again by
+  // its slug. (Until 27 Nov 2026 only the first article's was read, and the
+  // other articles' rows were matched against it.)
+  const articleSlugs = [...new Set(pages.filter((row) => classify(row).area === "article").map((row) => String(classify(row).path[0])))];
+  for (const slug of articleSlugs) {
+    const target: Target = { kind: "article", id: slug };
+    const root = await rootOf(target, slug);
+    if (root) {
+      roots.set(`article:${slug}`, root);
+      targets.set(root.id, { ...target, id: root.id.split(":")[1] });
+    }
+  }
   for (const area of new Set(pages.map((row) => classify(row).area))) {
-    // An article's area is named by the slug in its Key.
-    const slug = area === "article" ? String(classify(pages.find((row) => classify(row).area === area)!).path[0]) : PAGES[area] ?? SETTINGS[area];
-    const target: Target = area === "article" ? { kind: "article", id: slug } : PAGES[area] ? { kind: "page", id: slug } : { kind: "setting", key: SETTINGS[area] };
+    if (area === "article") continue;
+    const slug = PAGES[area] ?? SETTINGS[area];
+    const target: Target = PAGES[area] ? { kind: "page", id: slug } : { kind: "setting", key: SETTINGS[area] };
     if (!slug) continue;
     const root = await rootOf(target, slug);
     if (root) {
       roots.set(area, root);
-      targets.set(root.id, target.kind === "page" || target.kind === "article" ? { ...target, id: root.id.split(":")[1] } : target);
+      targets.set(root.id, target.kind === "page" ? { ...target, id: root.id.split(":")[1] } : target);
     }
   }
-  add(planRows(pages, (area) => roots.get(area), { allowDrafts }));
+  add(planRows(pages, (area, row) => roots.get(area === "article" ? `article:${String(classify(row).path[0])}` : area), { allowDrafts }));
 
   const developments = new Map<string, SheetRow[]>();
   for (const row of rows.filter(isChrome)) {
