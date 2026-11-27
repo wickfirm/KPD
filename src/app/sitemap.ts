@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { absoluteUrl } from "@/lib/site";
-import { getPublishedLocales } from "@/lib/locale";
+import { getSwitcherLocales } from "@/lib/locale";
 import { DEFAULT_LOCALE, localeHref, type Locale } from "@/lib/locales";
 import { articleTranslationLocales, pageTranslationLocalesBySlug, projectTranslationLocales, settingTranslationLocales } from "@/lib/translations/store";
 
@@ -9,9 +9,11 @@ import { articleTranslationLocales, pageTranslationLocalesBySlug, projectTransla
 /// legal page. A database problem degrades to the static core routes instead
 /// of a 500 — search engines must always receive a valid document.
 ///
-/// A page that has a translation in a published language is listed with its
-/// hreflang alternates, followed by each of those languages' own addresses. A
-/// page with none is listed exactly as before.
+/// A page that has a translation in a language the selector offers is listed
+/// with its hreflang alternates, followed by each of those languages' own
+/// addresses. Until the selector is switched on none is: those pages are kept
+/// out of search, and are not listed here either. A page with no translation
+/// is listed exactly as before.
 export const revalidate = 3600;
 
 type Entry = MetadataRoute.Sitemap[number];
@@ -43,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const legalSlugs = ["privacy-policy", "terms", "cookie-policy"];
   try {
-    const [articles, projects, legalPages, published, pageLanguages, settingLanguages] = await Promise.all([
+    const [articles, projects, legalPages, offered, pageLanguages, settingLanguages] = await Promise.all([
       db.article.findMany({
         where: { status: "PUBLISHED" },
         orderBy: { publishedAt: "desc" },
@@ -58,13 +60,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         where: { slug: { in: legalSlugs }, status: "PUBLISHED" },
         select: { slug: true, updatedAt: true },
       }),
-      getPublishedLocales(),
-      // Each page's languages; only a published one is ever listed.
+      getSwitcherLocales(),
+      // Each page's languages; only one the selector offers is ever listed.
       pageTranslationLocalesBySlug(["invest-in-dubai", "about", "legacy", "contact", ...legalSlugs]),
       settingTranslationLocales(["home", "news_listing", "sxs"]),
     ]);
     const [articleFound, projectFound] = await Promise.all([articleTranslationLocales(articles.map((article) => article.id)), projectTranslationLocales(projects.map((project) => project.id))]);
-    const languages = published.filter((locale) => locale !== DEFAULT_LOCALE);
+    const languages = offered.filter((locale) => locale !== DEFAULT_LOCALE);
     const of = (found: Locale[] | undefined) => languages.filter((locale) => found?.includes(locale));
     const list = (entry: Entry, path: string, found?: Locale[]) => withLanguages(entry, path, of(found));
 
