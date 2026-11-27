@@ -1,6 +1,8 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { mergeLocale, translationDiff } from "@/lib/translations/merge-locale";
-import { atPath, classify, columnOf, csvRecords, dictionaryEntries, fieldOf, hasBullet, planDictionary, planRows, placeRow, readSheet, renderDictionary, textLeaves, unzip, withPath, withoutBullet } from "@/lib/translations/import-sheet";
+import { atPath, classify, columnOf, csvRecords, dictionaryEntries, fieldOf, hasBullet, LEGAL_PAGE_SLUGS, legalDocumentFor, planDictionary, planRows, placeRow, readSheet, renderDictionary, textLeaves, unzip, withPath, withoutBullet } from "@/lib/translations/import-sheet";
 
 // The client's translation sheet: where each of its rows goes is decided by
 // its English, and a row that cannot be placed with certainty is reported
@@ -328,5 +330,56 @@ describe("the site's own words", () => {
 
 export default ar;`);
     expect(file).toContain("Generated from the translation sheet");
+  });
+});
+
+describe("which pages show a legal document", () => {
+  // Until 27 Nov 2026 the importer took `legalTabForSlug` at its word for every
+  // page. It answers "terms" for any slug but Privacy and Cookies, so the About,
+  // Contact, History, Investor Guide and FAQ pages were all matched against the
+  // Terms document, and every row of theirs was left out as "not found".
+  it("are the three legal pages, and no others", () => {
+    expect([...LEGAL_PAGE_SLUGS].sort()).toEqual(["cookie-policy", "privacy-policy", "terms"]);
+    expect(legalDocumentFor("terms")?.id).toBe("terms");
+    expect(legalDocumentFor("privacy-policy")?.id).toBe("privacy");
+    expect(legalDocumentFor("cookie-policy")?.id).toBe("cookies");
+  });
+
+  it("is never an ordinary page, whatever the tab function answers for it", () => {
+    for (const slug of ["about", "contact", "faq", "legacy", "invest-in-dubai", "seven-x-seven", "news", "Terms", " terms"]) {
+      expect(legalDocumentFor(slug), slug).toBeUndefined();
+    }
+  });
+
+  it("and the command asks it this way, not the tab function, which has no such limit", () => {
+    const command = readFileSync(join(process.cwd(), "scripts/import-translations.ts"), "utf8");
+    expect(command).toContain("legalDocumentFor(slug)");
+    expect(command).not.toMatch(/\blegalTabForSlug\b/);
+  });
+});
+
+describe("rows of several articles", () => {
+  // The sheet names an article in its Key ("article.<slug>.title") and holds
+  // rows for more than one. Until 27 Nov 2026 the importer read the first
+  // article's English alone and matched the other articles' rows against it.
+  const rows = [
+    { row: 1, area: "Article: first", key: "article.first.title", english: "First article", arabic: "الأول", japanese: "一つ目", status: "Draft" },
+    { row: 2, area: "Article: second", key: "article.second.title", english: "Second article", arabic: "الثاني", japanese: "二つ目", status: "Draft" },
+  ];
+  const rootOfSlug = new Map([
+    ["first", { english: { title: "First article", body: [] }, id: "article:first" }],
+    ["second", { english: { title: "Second article", body: [] }, id: "article:second" }],
+  ]);
+
+  it("are each matched against the article their Key names", () => {
+    const plan = planRows(rows, (area, row) => rootOfSlug.get(String(classify(row).path[0])), { allowDrafts: true });
+    expect([...plan.roots.keys()]).toEqual(["article:first", "article:second"]);
+    expect(plan.unplaced).toEqual([]);
+    expect(plan.roots.get("article:second")?.arabic).toMatchObject({ title: "الثاني" });
+  });
+
+  it("and the command gives each article a root of its own", () => {
+    const command = readFileSync(join(process.cwd(), "scripts/import-translations.ts"), "utf8");
+    expect(command).toMatch(/for \(const slug of articleSlugs\)/);
   });
 });

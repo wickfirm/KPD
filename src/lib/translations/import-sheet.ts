@@ -18,7 +18,7 @@
 
 import { inflateRawSync } from "node:zlib";
 import { isTranslatableKey } from "@/lib/translations/merge-locale";
-import { legalContact, type LegalDocument } from "@/lib/terms-defaults";
+import { legalContact, legalDocuments, legalTabForSlug, type LegalDocument } from "@/lib/terms-defaults";
 
 // ── Reading the workbook ─────────────────────────────────────────────────────
 
@@ -320,6 +320,20 @@ export function legalPageEnglish(document: LegalDocument, savedContact?: object)
   return { title: "", content: legalBlocks({ ...legalContact, ...savedContact }, document) };
 }
 
+/// The three pages that show one of the client's legal documents.
+export const LEGAL_PAGE_SLUGS: readonly string[] = ["terms", "privacy-policy", "cookie-policy"];
+
+/// The legal document a page shows, if it is one of the three legal pages, and
+/// nothing for any other page. `legalTabForSlug` names a tab for every slug
+/// it is given — Terms for want of a better one — so asked of "about" it
+/// answers "terms". Until 27 Nov 2026 the importer asked it that way, and
+/// matched every ordinary page against the Terms document, where none of
+/// those pages' English is to be found.
+export function legalDocumentFor(slug: string): LegalDocument | undefined {
+  if (!LEGAL_PAGE_SLUGS.includes(slug)) return undefined;
+  return legalDocuments.find((document) => document.id === legalTabForSlug(slug));
+}
+
 // ── The plan ─────────────────────────────────────────────────────────────────
 
 /// A page's or a setting's English content, and what is translated in it
@@ -340,16 +354,18 @@ export type Plan = {
 };
 
 /// Decides where every row of a page's content goes. `rootOf` gives the English
-/// content for the row's area (or article), or nothing when the site has no such page.
-/// Rows of the site's own words are not placed here: they go to planDictionary.
-export function planRows(rows: SheetRow[], rootOf: (area: string) => Root | undefined, { allowDrafts = false } = {}): Plan {
+/// content for the row — its area, and for an article the article its Key
+/// names, for the sheet holds rows for several — or nothing when the site has
+/// no such page. Rows of the site's own words are not placed here: they go to
+/// planDictionary.
+export function planRows(rows: SheetRow[], rootOf: (area: string, row: SheetRow) => Root | undefined, { allowDrafts = false } = {}): Plan {
   const plan: Plan = { roots: new Map(), unplaced: [], drafts: [], held: [] };
   for (const row of rows) {
     const { kind, area, path } = classify(row);
     if (kind === "held") { plan.held.push(row); continue; }
     if (!allowDrafts && row.status.toLowerCase() !== "approved") { plan.drafts.push(row); continue; }
     if (kind === "code") continue;
-    const root = rootOf(area);
+    const root = rootOf(area, row);
     if (!root) { plan.unplaced.push({ row, reason: `The site has no page for the area "${row.area}".` }); continue; }
     const hint = area === "article" ? path.slice(1) : path;
     const placement = placeRow(root.english, row, hint);
