@@ -49,6 +49,60 @@ html[lang="ja"] .kpd-legal-page .pdf-hero h1 {
   text-wrap: balance;
 }
 
+/* Display headings. Japanese may break between any two characters, so a
+   heading in a narrow box breaks its words — "課題を、価 / 値に変える。". A
+   heading breaks where its phrases do instead (Chromium and Edge only; a
+   browser without it keeps the character breaks). An emphasised word is kept
+   whole, and the browser may even the lines out. On a phone the card titles
+   stay as delivered: they are small text, where character breaks are usual
+   and an extra line costs more than a split word. Two headings keep the
+   character breaks: a legal page's title, which balances its lines already
+   (above), and the landing page's hero on a phone, which would take a fourth
+   line. An article's title is scaled down a little so that its phrases fit
+   the line: the longest one, "霞ヶ関プロパティーズ・", is ten characters. */
+html[lang="ja"] :is(main h1, main h2) {
+  word-break: auto-phrase;
+}
+@media (min-width: 721px) {
+  html[lang="ja"] main h3 {
+    word-break: auto-phrase;
+    text-wrap: balance;
+  }
+}
+html[lang="ja"] :is(main h1, main h2, main h3) :is(strong, span.soft) {
+  display: inline-block;
+}
+html[lang="ja"] .kpd-legal-page .pdf-hero h1 {
+  word-break: normal;
+}
+html[lang="ja"] .mobile-hero-copy h1 {
+  word-break: normal;
+}
+html[lang="ja"] .article-hero h1 {
+  zoom: 0.78;
+  text-wrap: balance;
+}
+
+/* The landing page measures its display headings' boxes in ch — so many
+   "zeroes" of the Latin display face — which holds 14–17 Latin letters a line
+   and 3–4 Japanese characters. In Japanese the three section headings get a
+   wider box and nine tenths of the heading size, which breaks "ムハンマド・
+   ビン・ラシッド・シティ" at its dots in four lines. The hero's heading takes
+   its width from the copy beside it and a size at which seven characters fill
+   a line: "バランスの中の / ラグジュアリー". The editor's heading size still
+   counts for the three; the hero follows its box. A phone has another page. */
+@media (min-width: 721px) {
+  html[lang="ja"] :is(.community-copy h2, .distance-intro-copy h2, .payment-intro h2) {
+    max-width: 12ch;
+    font-size: calc(var(--global-heading-size) * 0.9) !important;
+  }
+  html[lang="ja"] .hero-intro-copy h1 {
+    max-width: none;
+    width: min(366px, calc(var(--band-width) - var(--band-pad) - 20px));
+    font-size: calc(min(366px, calc(var(--band-width) - var(--band-pad) - 20px)) / 7.15);
+  }
+}
+
 /* The seven x seven landing sets its own display faces, Arboria and Bely
    Display, which have no Japanese glyphs. On that page, in Japanese, every
    face gives way to the main stack. */
