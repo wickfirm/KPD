@@ -8,12 +8,13 @@
 // Each row's Key is the line's exact place on the page, so the importer places
 // a line that is on the page twice ("Yes, in your browser settings") without
 // having to choose. Run this again when the client's document changes: a test
-// fails until the list matches the document. The rows are numbered after the
-// last row of the other list for translators.
+// fails until the list matches the document, and a line whose Key and English
+// are as they were keeps its translation and its Status. The rows are numbered
+// after the last row of the other list for translators.
 //
 // Nothing here reads or writes a database.
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { legalDocuments, legalTabForSlug, type LegalDocument } from "../src/lib/terms-defaults";
@@ -74,6 +75,11 @@ function noteOf(path: PathStep[], repeated: boolean): string {
 const cell = (value: string) => (/[",\r\n]/.test(value) || value !== value.trim() ? `"${value.replace(/"/g, '""')}"` : value);
 
 const last = Math.max(0, ...readSheet(new Uint8Array(readFileSync(join(folder, "strings-not-in-sheet.csv")))).map((row) => row.row));
+/// The list as it is, by Key: a line whose English did not change keeps its
+/// translation when the document does.
+const listFile = join(folder, "legal-current-text.csv");
+const before = new Map((existsSync(listFile) ? readSheet(new Uint8Array(readFileSync(listFile))) : []).map((row) => [row.key, row]));
+let kept = 0;
 let number = last;
 const out = ['\uFEFF"#","Page / area","Key (do not edit)","English","Arabic","Japanese","Notes","Status"'];
 for (const { slug, area, lines } of PAGES) {
@@ -81,8 +87,13 @@ for (const { slug, area, lines } of PAGES) {
   if (!document) throw new Error(`The site has no legal page "${slug}".`);
   for (const [path, text] of lines(document)) {
     number += 1;
-    out.push([String(number), cell(area), cell(`${slug}.${keyOf(path)}`), cell(text), "", "", cell(noteOf(path, lines === repeatedLines)), "Draft"].join(","));
+    const key = `${slug}.${keyOf(path)}`;
+    const previous = before.get(key);
+    const unchanged = previous !== undefined && sameText(previous.english, text);
+    if (unchanged) kept += 1;
+    const translation = (language: "arabic" | "japanese") => (unchanged && previous ? previous[language].trim() : "");
+    out.push([String(number), cell(area), cell(key), cell(text), cell(translation("arabic")), cell(translation("japanese")), cell(noteOf(path, lines === repeatedLines)), unchanged && previous ? previous.status || "Draft" : "Draft"].join(","));
   }
 }
-writeFileSync(join(folder, "legal-current-text.csv"), `${out.join("\n")}\n`);
-console.log(`Wrote docs/translations/legal-current-text.csv: ${number - last} row(s), numbered ${last + 1} to ${number}.`);
+writeFileSync(listFile, `${out.join("\n")}\n`);
+console.log(`Wrote docs/translations/legal-current-text.csv: ${number - last} row(s), numbered ${last + 1} to ${number}; ${kept} kept their translation.`);

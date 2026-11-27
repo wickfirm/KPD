@@ -41,6 +41,14 @@ html[lang="ja"] :where(body :is(em, i, cite, dfn, var, address, blockquote, q)) 
   font-style: normal !important;
 }
 
+/* Japanese may break between any two characters, which left "シー" alone on
+   the second line of a legal page's title. Balanced lines break where the
+   compound parts: "プライバシー / ポリシー", "クッキー / ポリシー". The title's
+   size and leading stay the editor's. */
+html[lang="ja"] .kpd-legal-page .pdf-hero h1 {
+  text-wrap: balance;
+}
+
 /* The seven x seven landing sets its own display faces, Arboria and Bely
    Display, which have no Japanese glyphs. On that page, in Japanese, every
    face gives way to the main stack. */
