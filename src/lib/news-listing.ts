@@ -6,6 +6,8 @@
 
 import { db } from "@/lib/db";
 import type { TextStyle } from "@/lib/text-style";
+import { DEFAULT_LOCALE, dateLocale, type Locale } from "@/lib/locales";
+import { t, type MessageKey } from "@/lib/i18n";
 
 export type NewsListItem = {
   slug: string;
@@ -62,12 +64,23 @@ export function readingMinutes(body: unknown): number {
   return Math.max(1, Math.round(words / 220));
 }
 
-/// "Perspective · 2 min read" for journal pieces, "Announcement · Jun 2026" for news.
-export function newsCaption(item: Pick<NewsListItem, "kind" | "minutes" | "publishedAt">): string {
-  if (item.kind === "BLOG") return `Perspective · ${item.minutes} min read`;
+/// "Perspective · 2 min read" for journal pieces, "Announcement · Jun 2026" for
+/// news. In another language the kind is the name the editor gave the category
+/// on this page (the filter tab's label), the reading time the client's own
+/// "{n} min", and the month and year are written in that language.
+export function newsCaption(item: Pick<NewsListItem, "kind" | "minutes" | "publishedAt">, locale: Locale = "en", labels: { perspective?: string; announcement?: string } = {}): string {
   const date = item.publishedAt ? new Date(item.publishedAt) : null;
-  const when = date && !Number.isNaN(date.getTime()) ? new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric", timeZone: "UTC" }).format(date) : "";
-  return when ? `Announcement · ${when}` : "Announcement";
+  const monthYear = (region: string) => (date && !Number.isNaN(date.getTime()) ? new Intl.DateTimeFormat(region, { month: "short", year: "numeric", timeZone: "UTC" }).format(date) : "");
+  if (locale === DEFAULT_LOCALE) {
+    if (item.kind === "BLOG") return `Perspective · ${item.minutes} min read`;
+    const when = monthYear("en-GB");
+    return when ? `Announcement · ${when}` : "Announcement";
+  }
+  const named = (label: string | undefined, fallback: MessageKey) => label?.trim() || t(locale, fallback);
+  if (item.kind === "BLOG") return `${named(labels.perspective, "article.blog")} · ${t(locale, "dev.minutes", { number: item.minutes })}`;
+  const kind = named(labels.announcement, "nav.news");
+  const when = monthYear(dateLocale(locale));
+  return when ? `${kind} · ${when}` : kind;
 }
 
 /// Never throws: when the database is unreachable the page renders with no articles.

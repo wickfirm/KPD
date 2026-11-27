@@ -4,6 +4,8 @@
 // `coverage`; while that key has never been saved the list below is shown, so
 // the coverage is live without a database write.
 
+import { DEFAULT_LOCALE, dateLocale, type Locale } from "@/lib/locales";
+
 export type PressItem = {
   publication: string;
   title: string;
@@ -107,10 +109,11 @@ export function sortPressItems(items: PressItem[]): PressItem[] {
     .map(({ item }) => item);
 }
 
-/// "12 Oct 2026", or "" for an undated item.
-export function pressDateLabel(date: string): string {
+/// "12 Oct 2026", or "" for an undated item; in another language the month is
+/// that language's.
+export function pressDateLabel(date: string, locale: Locale = DEFAULT_LOCALE): string {
   if (!date) return "";
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
+  return new Intl.DateTimeFormat(locale === DEFAULT_LOCALE ? "en-GB" : dateLocale(locale), { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T00:00:00Z`));
 }
 
 /// Google News titles end with " - Publication"; split it off for the inbox.

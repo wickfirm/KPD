@@ -7,6 +7,7 @@ import type { TextStyle } from "@/lib/text-style";
 import { legalContact, legalDocuments, type LegalDocument, type LegalPiece, type LegalTabId } from "@/lib/terms-defaults";
 import type { Locale } from "@/lib/locales";
 import { t, type MessageKey } from "@/lib/i18n";
+import { richParts } from "@/lib/legal-rich-line";
 
 /// The tab buttons, in order; each label follows the page's language.
 const tabs: { id: LegalTabId; label: MessageKey }[] = [
@@ -15,19 +16,22 @@ const tabs: { id: LegalTabId; label: MessageKey }[] = [
   { id: "cookies", label: "footer.cookies" },
 ];
 
-function richLine(value: string, onPrivacy: () => void): ReactNode[] {
-  const parts = value.split(/(https?:\/\/[^\s]+|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|Privacy Policy)/g);
-  return parts.map((part, index) => {
+/// `reference` is how the page's language names the Privacy Policy — the tab's
+/// own label — so the words that open that tab inside a sentence are found in a
+/// translated document as they are in the English one; it is given only for
+/// the lines whose English holds them.
+function richLine(value: string, reference: string | null, onPrivacy: () => void): ReactNode[] {
+  return richParts(value, reference).map((part, index) => {
     if (/^https?:\/\//i.test(part)) return <a key={index} href={part}>{part}</a>;
-    if (part === "Privacy Policy") return <button key={index} type="button" className="kpd-legal-inline" onClick={onPrivacy}>{part}</button>;
+    if (reference && part === reference) return <button key={index} type="button" className="kpd-legal-inline" onClick={onPrivacy}>{part}</button>;
     if (part.includes("@")) return <a key={index} href={`mailto:${part}`}>{part}</a>;
     return part;
   });
 }
 
-function Piece({ piece, onPrivacy }: { piece: LegalPiece; onPrivacy: () => void }) {
+function Piece({ piece, reference, onPrivacy }: { piece: LegalPiece; reference: string | null; onPrivacy: () => void }) {
   if (piece.type === "paragraph") {
-    return <p className={piece.callout ? "kpd-legal-callout" : undefined}>{richLine(piece.text, onPrivacy)}</p>;
+    return <p className={piece.callout ? "kpd-legal-callout" : undefined}>{richLine(piece.text, reference, onPrivacy)}</p>;
   }
   if (piece.type === "items") {
     return <>{piece.items.map((item) => <p key={item} className="kpd-legal-item">• {item}</p>)}</>;
@@ -51,6 +55,13 @@ export function LegalTabs({ initialTab, image, headingStyle, contact, locale, do
   const help = { heading: contact?.heading?.trim() || legalContact.heading, text: contact?.text?.trim() || legalContact.text, email: contact?.email?.trim() || legalContact.email };
   const [tab, setTab] = useState<LegalTabId>(initialTab);
   const active = (documents ?? legalDocuments).find((entry) => entry.id === tab) ?? legalDocuments[0];
+  // The client's document is the English one; a translation keeps its line order.
+  const english = legalDocuments.find((entry) => entry.id === active.id) ?? active;
+  const privacy = t(locale, "footer.privacy");
+  // The words that open the Privacy tab are looked for in the lines whose
+  // English holds "Privacy Policy", and only in those: elsewhere a document
+  // may speak of another company's own policy (the Cookies document does).
+  const referenceIn = (piece?: LegalPiece): string | null => (piece?.type === "paragraph" && piece.text.includes("Privacy Policy") ? privacy : null);
 
   function show(next: LegalTabId) {
     setTab(next);
@@ -64,9 +75,9 @@ export function LegalTabs({ initialTab, image, headingStyle, contact, locale, do
       <button type="button" onClick={() => window.document.getElementById("legal-contact")?.scrollIntoView({ behavior: "smooth", block: "start" })}>{t(locale, "nav.contact")}</button>
     </nav>
     <section className="kpd-legal-block" aria-label={active.title}>
-      {active.sections.map((section) => <div className="kpd-legal-section" key={section.heading}>
+      {active.sections.map((section, sectionIndex) => <div className="kpd-legal-section" key={section.heading}>
         <h2>{section.heading}</h2>
-        <div className="kpd-legal-copy">{section.pieces.map((piece, index) => <Piece key={index} piece={piece} onPrivacy={() => show("privacy")} />)}</div>
+        <div className="kpd-legal-copy">{section.pieces.map((piece, index) => <Piece key={index} piece={piece} reference={referenceIn(english.sections[sectionIndex]?.pieces[index])} onPrivacy={() => show("privacy")} />)}</div>
       </div>)}
     </section>
     <section id="legal-contact" className="kpd-legal-contact">

@@ -12,7 +12,7 @@ import { t } from "@/lib/i18n";
 const PRESS_VISIBLE_ROWS = 8;
 
 function PressRow({ item, locale }: { item: PressItem; locale: Locale }) {
-  const date = pressDateLabel(item.date);
+  const date = pressDateLabel(item.date, locale);
   const inner = <>
     <span className="g21-cap">{item.publication}{date ? <> · <time dateTime={item.date}>{date}</time></> : null}</span>
     <b lang={item.lang} dir={item.lang === "ar" ? "rtl" : "ltr"}>{item.title}</b>
@@ -28,7 +28,7 @@ const FALLBACK_IMAGE = "/legacy/assets/images/library/modern-office-glasses-buil
 function PressCards({ items, cta, emptyText, locale }: { items: PressItem[]; cta: string; emptyText: string; locale: Locale }) {
   const [feature, ...rest] = items;
   if (!feature) return <p className="g21-muted">{emptyText}</p>;
-  const caption = (item: PressItem) => { const date = pressDateLabel(item.date); return <>{item.publication}{date ? <> · <time dateTime={item.date}>{date}</time></> : null}</>; };
+  const caption = (item: PressItem) => { const date = pressDateLabel(item.date, locale); return <>{item.publication}{date ? <> · <time dateTime={item.date}>{date}</time></> : null}</>; };
   const external = (item: PressItem) => (item.url ? { href: item.url, target: "_blank", rel: "noopener noreferrer" } : {});
   return <>
     <article className="g21-feat">
@@ -74,6 +74,8 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
   const pressFirst = copy.layout === "press";
   const [feature, ...rest] = articles;
   const hasBoth = !pressFirst && articles.some((item) => item.kind === "BLOG") && articles.some((item) => item.kind !== "BLOG");
+  // What a card calls its kind: the category's name as the filter tabs show it.
+  const captionLabels = { perspective: pick("filterPerspective"), announcement: pick("filterAnnouncement") };
   return (
     <main className="news-main g21" id="top">
       {shown("hero") ? <section className="g21-hero" aria-labelledby="g21-news-title">
@@ -95,7 +97,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
           {feature ? <article className="g21-feat" data-cat={category(feature)}>
             <Link className="g21-feat-img" href={href(`/news/${feature.slug}`)} tabIndex={-1} aria-hidden="true"><img src={feature.coverImage || FALLBACK_IMAGE} alt="" /></Link>
             <div className="g21-feat-copy">
-              <p className="g21-cap">{newsCaption(feature)}</p>
+              <p className="g21-cap">{newsCaption(feature, locale, captionLabels)}</p>
               <h2>{feature.title}</h2>
               {feature.summary ? <p className="g21-muted">{feature.summary}</p> : null}
               <Link className="g21-btn" href={href(`/news/${feature.slug}`)}>{pick("featureCta")} <span className="g21-ar" aria-hidden="true">{arrowGlyph(locale, "→")}</span></Link>
@@ -105,7 +107,7 @@ export function NewsListingMain({ articles, copy, email, coverage = [], hidden, 
             {rest.map((item) => <article className="g21-card" key={item.slug} data-cat={category(item)}>
               <Link href={href(`/news/${item.slug}`)}>
                 <figure className="g21-card-img"><img src={item.coverImage || FALLBACK_IMAGE} alt={item.coverImageAlt} loading="lazy" /></figure>
-                <span className="g21-cap">{newsCaption(item)}</span>
+                <span className="g21-cap">{newsCaption(item, locale, captionLabels)}</span>
                 <h3>{item.title}</h3>
                 {item.summary ? <p className="g21-muted">{item.summary}</p> : null}
                 <span className="g21-txt-link">{pick("cardCta")} <span aria-hidden="true">{arrowGlyph(locale, "→")}</span></span>

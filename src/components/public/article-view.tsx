@@ -4,9 +4,10 @@ import { injectNavDevelopments } from "@/lib/nav-developments";
 import { formatDate, localeHref, localizeHtmlLinks } from "@/lib/locales";
 import { getLocale } from "@/lib/locale";
 import { t } from "@/lib/i18n";
-import { getLocalizedNavDevelopments } from "@/lib/translations/store";
-import { SiteShellHeader } from "./site-shell-header";
-import { SiteShellFooter } from "./site-shell-footer";
+import { getLocalizedGlobalSettings, getLocalizedNavDevelopments } from "@/lib/translations/store";
+import { articleShellWords } from "@/lib/article-shell-words";
+import { localizeShellWords } from "@/lib/shell-words";
+import { ContactScript } from "./site-shell-footer";
 import { DeliveredScripts, DeliveredEarlyScripts } from "./delivered-scripts";
 import { DeliveredBodyClass } from "./delivered-body-class";
 
@@ -44,11 +45,17 @@ export async function ArticleView({ article, previewNote }: { article: ArticleVi
     ...(locale !== "en" ? { inLanguage: locale } : {}),
   };
   const shell = getArticleShell();
-  const extras = await getLocalizedNavDevelopments();
+  const [extras, contact] = await Promise.all([getLocalizedNavDevelopments(), getLocalizedGlobalSettings()]);
+  // The page shows the delivered shell as it came. In another language the
+  // shell's words are replaced where they are known, and the delivered
+  // interaction script gets its forms' words in that language, as it does from
+  // the localized footer on every other page. An English page has neither.
+  const words = articleShellWords(locale, contact);
+  const shellPart = (html: string) => localizeShellWords(localizeHtmlLinks(injectNavDevelopments(html, extras), locale), locale, words);
   return <>
     {previewNote ? <div role="status" style={{ position: "fixed", insetInline: 0, bottom: 0, zIndex: 9999, padding: "10px 16px", background: "#14241f", color: "#fff", font: "600 13px/1.4 system-ui, sans-serif", textAlign: "center" }}>{previewNote}</div> : null}
     <DeliveredBodyClass bodyClass="home-development-page news-design-page article-page" />
-    <div dangerouslySetInnerHTML={{ __html: localizeHtmlLinks(injectNavDevelopments(shell.beforeMain, extras), locale) }} />
+    <div dangerouslySetInnerHTML={{ __html: shellPart(shell.beforeMain) }} />
     <main className="article-main" id="top" data-article-page data-article-kind={article.kind === "BLOG" ? "blog" : "news"}>
       <article className="article-shell">
         <header className="article-hero">
@@ -66,7 +73,8 @@ export async function ArticleView({ article, previewNote }: { article: ArticleVi
         </nav>
       </article>
     </main>
-    <div dangerouslySetInnerHTML={{ __html: localizeHtmlLinks(injectNavDevelopments(shell.afterMain, extras), locale) }} />
+    {locale !== "en" ? <ContactScript /> : null}
+    <div dangerouslySetInnerHTML={{ __html: shellPart(shell.afterMain) }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <DeliveredEarlyScripts />
     <DeliveredScripts bodyClass="home-development-page news-design-page article-page" />

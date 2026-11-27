@@ -6,7 +6,30 @@ import { t } from "@/lib/i18n";
 import { getLocalizedGlobalSettings, getLocalizedNavDevelopments } from "@/lib/translations/store";
 import { getNavDevelopments } from "@/lib/nav-developments";
 import { formWords, interestChoices, projectLabels } from "@/lib/form-words";
+import { newsletterEmailLabel } from "@/lib/shell-words";
 import { LanguageSwitcher } from "./language-switcher";
+
+/// The script the delivered interaction script (site-cms.js) reads: the
+/// contact details and each development's name. On another language's page it
+/// also gets its forms' words in that language, each development's name in it
+/// (keyed by the English it posts), and the enquiry pop-up's choices (the
+/// English each posts, and what is shown). An English page publishes none of
+/// those, and the script shows its own.
+async function contactScriptHtml(): Promise<string> {
+  const [contact, developments, englishDevelopments, locale] = await Promise.all([getLocalizedGlobalSettings(), getLocalizedNavDevelopments(), getNavDevelopments(), getLocale()]);
+  const forScript = locale === "en" ? {} : {
+    text: formWords(locale),
+    projectLabels: projectLabels(englishDevelopments, developments),
+    interestChoices: interestChoices(await getGlobalSettings(), contact, englishDevelopments, developments),
+  };
+  return `window.__KPD_CONTACT=${JSON.stringify({ ...contact, projects: developments.map(({ name }) => name), ...forScript }).replace(/</g, "\u003c")};`;
+}
+
+/// The same script on a page whose footer is the delivered one and shows the
+/// language's words another way (the article page, see ArticleView).
+export async function ContactScript() {
+  return <script dangerouslySetInnerHTML={{ __html: await contactScriptHtml() }} />;
+}
 
 /// Delivered footer â€” 1:1 port of the delivered markup (link columns,
 /// newsletter signup, legal row and social icons). The newsletter posts via
@@ -14,24 +37,12 @@ import { LanguageSwitcher } from "./language-switcher";
 /// the page's language; English is unchanged.
 export async function SiteShellFooter() {
   const [contact, developments, locale, switcherLocales] = await Promise.all([getLocalizedGlobalSettings(), getLocalizedNavDevelopments(), getLocale(), getSwitcherLocales()]);
-  // On another language's page the script also gets its forms' words in that
-  // language, each development's name in it (keyed by the English it posts),
-  // and the enquiry pop-up's choices (the English each posts, and what is
-  // shown). An English page publishes none of them, and the script shows its
-  // own.
-  const forScript = locale === "en" ? {} : await (async () => {
-    const englishDevelopments = await getNavDevelopments();
-    return {
-      text: formWords(locale),
-      projectLabels: projectLabels(englishDevelopments, developments),
-      interestChoices: interestChoices(await getGlobalSettings(), contact, englishDevelopments, developments),
-    };
-  })();
+  const script = await contactScriptHtml();
+  const emailLabel = newsletterEmailLabel(locale);
   const href = (path: string) => localeHref(path, locale);
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.
-  const contactScript = `window.__KPD_CONTACT=${JSON.stringify({ ...contact, projects: developments.map(({ name }) => name), ...forScript }).replace(/</g, "\u003c")};`;
-  return <><script dangerouslySetInnerHTML={{ __html: contactScript }} /><footer className="section_footer" id="footer">
+  return <><script dangerouslySetInnerHTML={{ __html: script }} /><footer className="section_footer" id="footer">
     <div className="footer_container">
       <div className="footer_header">
         <Link href={href("/#top")} aria-label={t(locale, "nav.homeLink")} className="footer_logo_link">
@@ -67,8 +78,8 @@ export async function SiteShellFooter() {
           <h3 className="footer_links_title text-size-footer">{contact.newsletterHeading || t(locale, "footer.newsletterHeading")}</h3>
           <div className="footer_form_block">
             <form id="footer-email-form" name="footer-email-form" method="post" action={recipientFor(contact, "newsletter") ? `mailto:${recipientFor(contact, "newsletter")}?subject=KPD%20Newsletter%20Signup` : undefined} encType="text/plain" className="footer_form" aria-label="Email Form">
-              <label htmlFor="footerEmail" className="form-label hide">Email Address</label>
-              <input className="input-text text-size-footer" maxLength={256} name="Email" placeholder="Email Address" type="email" id="footerEmail" required />
+              <label htmlFor="footerEmail" className="form-label hide">{emailLabel}</label>
+              <input className="input-text text-size-footer" maxLength={256} name="Email" placeholder={emailLabel} type="email" id="footerEmail" required />
               <input type="submit" className="button_submit" value={contact.newsletterSubmitLabel || "Subscribe"} />
             </form>
           </div>

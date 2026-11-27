@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { detectLang, normalizePressItems, pressCoverageDefaults, resolvePressItems, sortPressItems, splitGoogleNewsTitle } from "./press-coverage";
+import { detectLang, normalizePressItems, pressCoverageDefaults, pressDateLabel, resolvePressItems, sortPressItems, splitGoogleNewsTitle } from "./press-coverage";
 
 describe("press coverage", () => {
+  it("writes the date in the page's language, and as delivered in English", () => {
+    expect(pressDateLabel("2026-10-12")).toBe("12 Oct 2026");
+    expect(pressDateLabel("2026-10-12", "en")).toBe("12 Oct 2026");
+    expect(pressDateLabel("2026-10-12", "ja")).toBe("2026年10月12日");
+    expect(pressDateLabel("2026-10-12", "ar")).not.toMatch(/[A-Za-z]/);
+    expect(pressDateLabel("", "ja")).toBe("");
+  });
   it("ships the 24 supplied items, Arabic ones marked ar", () => {
     expect(pressCoverageDefaults).toHaveLength(24);
     for (const item of pressCoverageDefaults) expect(item.lang).toBe(detectLang(item.title));
