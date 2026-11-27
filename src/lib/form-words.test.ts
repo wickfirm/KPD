@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import type { MessageKey } from "@/lib/i18n";
+import type { Locale } from "@/lib/locales";
 import { DELIVERED_FORM_WORDS, formWords, projectLabels } from "@/lib/form-words";
 
 // The delivered script looks its forms' words up in a table the footer
@@ -20,16 +22,37 @@ describe("the words of the delivered script's forms", () => {
     expect(formWords("en")).toEqual({});
   });
 
-  it("an Arabic page carries the sheet's thank-you and refusals", () => {
+  it("an Arabic page carries the thank-you and the refusals", () => {
     const words = formWords("ar");
     expect(words["Thank you. Your enquiry has been received."]).toBe("شكرًا لك. لقد استلمنا استفسارك.");
     expect(words["Please enter a valid phone number."]).toBeTruthy();
-    // No row of its own yet: the sheet's wording for the same situation.
-    expect(words["Please provide your email address."]).toBe("يُرجى إدخال بريد إلكتروني صحيح.");
+    // A row of its own since the lists were translated; until then it fell back
+    // on the sheet's wording for an invalid address.
+    expect(words["Please provide your email address."]).toBe("يُرجى إدخال بريدك الإلكتروني.");
     expect(words["Unable to send your enquiry."]).toBeTruthy();
-    // A word with no row in any wording is left out, so the script's own shows.
-    expect(words["Sending your enquiry…"]).toBeUndefined();
-    expect(words["Full name"]).toBeUndefined();
+    expect(words["Sending your enquiry…"]).toBe("جارٍ إرسال استفسارك…");
+    expect(words["Full name"]).toBe("الاسم الكامل");
+  });
+
+  it("leaves out a word the translation leaves out, so the script's own shows", async () => {
+    // Every word has a translation now, so one is taken away for this.
+    vi.resetModules();
+    vi.doMock("@/lib/i18n", async (original) => {
+      const actual = await original<typeof import("@/lib/i18n")>();
+      // The message's helper answers English for that one message.
+      return {
+        ...actual,
+        formMessage: (locale: Locale, english: string, key: MessageKey, fallback?: MessageKey) => (key === "form.sending" ? english : actual.formMessage(locale, english, key, fallback)),
+      };
+    });
+    try {
+      const { formWords: withAGap } = await import("@/lib/form-words");
+      const words = withAGap("ar");
+      expect(words["Sending your enquiry…"]).toBeUndefined();
+      expect(words["Thank you. Your enquiry has been received."]).toBe("شكرًا لك. لقد استلمنا استفسارك.");
+    } finally {
+      vi.doUnmock("@/lib/i18n");
+    }
   });
 
   it("a Japanese page carries the same in Japanese", () => {
