@@ -128,7 +128,7 @@ export function editorLocale(value: unknown): Locale {
 }
 
 /// "ar-AE" / "ja-JP": the region form used for dates.
-function dateLocale(locale: Locale): string {
+export function dateLocale(locale: Locale): string {
   if (locale === "ar") return "ar-AE-u-nu-latn"; // Arabic with Western digits, the norm on UAE property sites
   return locale === "ja" ? "ja-JP" : "en-US";
 }
