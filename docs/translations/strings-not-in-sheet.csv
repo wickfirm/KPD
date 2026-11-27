@@ -1,137 +1,137 @@
 ﻿"#","Page / area","Key (do not edit)","English","Arabic","Japanese","Notes","Status"
-"597","Menu & footer (code)","nav.siteMenu","Site menu","","","Screen readers only (aria-label): the mobile menu panel.","Draft"
-"598","Menu & footer (code)","nav.navigationLeft","Primary navigation left","","","Screen readers only (aria-label).","Draft"
-"599","Menu & footer (code)","nav.navigationRight","Primary navigation right","","","Screen readers only (aria-label).","Draft"
-"600","Menu & footer (code)","nav.homeLink","Kasumigaseki Properties Development home","","","Screen readers only (aria-label): the logo link.","Draft"
-"601","Menu & footer (code)","nav.onThisPage","On this page","","","Screen readers only (aria-label).","Draft"
-"602","Menu & footer (code)","breadcrumb.label","Breadcrumb","","","Screen readers only (aria-label): the page trail.","Draft"
-"603","Menu & footer (code)","breadcrumb.legacy","Legacy","","","Page trail label for the History page, as the delivered page named it.","Draft"
-"604","Menu & footer (code)","breadcrumb.investorGuide","Investor guide","","","Page trail label; lower case ""guide"" as in English.","Draft"
-"605","Menu & footer (code)","footer.company","Company","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"606","Menu & footer (code)","footer.privacyLink","Privacy","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"607","Menu & footer (code)","footer.privacyPolicy","privacy policy.","","","Link at the end of the newsletter note. Lower case and ends with a period, as in English.","Draft"
-"608","Menu & footer (code)","footer.socialLinks","Social links","","","Screen readers only (aria-label). The network names themselves are not translated.","Draft"
-"609","Menu & footer (code)","footer.copyright","Kasumigaseki Properties Development © 2026","","","Footer copyright line, shown when the editor leaves the field empty. Use the company name from footer.companyName.","Draft"
-"610","News & articles (code)","article.blog","Blog","","","Small label above an article's date (""Blog"" or ""News"").","Draft"
-"611","News & articles (code)","article.update","KPD Update","","","Shown in place of the date when an article has no date.","Draft"
-"612","News & articles (code)","article.actions","Article actions","","","Screen readers only (aria-label).","Draft"
-"613","News & articles (code)","article.contact","Contact KPD","","","Button at the end of an article.","Draft"
-"614","News & articles (code)","news.articles","Articles","","","Section name for screen readers.","Draft"
-"615","News & articles (code)","news.email","Email","","","Link label.","Draft"
-"616","News & articles (code)","news.filterArticles","Filter articles","","","Screen readers only (aria-label).","Draft"
-"617","Home (code)","home.heroMedia","KPD Experience Center presentation gallery","","","Screen readers only: describes the hero image or video.","Draft"
-"618","Home (code)","home.pauseVideo","Pause video","","","Screen readers only (aria-label).","Draft"
-"619","Home (code)","home.developmentStandard","Our development standard","","","Screen readers only (aria-label).","Draft"
-"620","Home (code)","home.figures","Kasumigaseki Capital figures","","","Screen readers only (aria-label).","Draft"
-"621","Home (code)","home.developments","Our developments","","","Screen readers only (aria-label).","Draft"
-"622","Home (code)","home.gallery","Experience Center gallery","","","Screen readers only (aria-label).","Draft"
-"623","Home (code)","home.view","View ↗","","","Gallery label; keep the arrow.","Draft"
-"624","Home (code)","home.value","Value","","","Caption above a value card, shown when the editor leaves the caption empty.","Draft"
-"625","Home (code)","home.chooseSlide","Choose a development slide","","","Screen readers only (aria-label).","Draft"
-"626","Home (code)","home.showSlide","Show {label}","","","Keep {placeholder} exactly as written.","Draft"
-"627","About (code)","about.imageAlt","KPD office workspace with a view over Dubai","","","Screen readers only: describes an image.","Draft"
-"628","About (code)","about.missionVision","Mission and vision","","","Heading for screen readers only (visually hidden).","Draft"
-"629","About (code)","about.executiveManagement","Executive Management","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"630","About (code)","about.leaderAlt","{name}, {role}","","","Keep {placeholder} exactly as written.","Draft"
-"631","About (code)","about.portraitAlt","{role} portrait","","","Keep {placeholder} exactly as written.","Draft"
-"632","History (code)","legacy.imageAlt","Tokyo alleyway and Japanese hospitality context","","","Screen readers only: describes an image.","Draft"
-"633","History (code)","legacy.years","Years","","","Screen readers only (aria-label).","Draft"
-"634","History (code)","legacy.milestoneAlt","Milestone {year}","","","Keep {placeholder} exactly as written.","Draft"
-"635","Contact (code)","contact.inquiry","Contact inquiry","","","Screen readers only (aria-label).","Draft"
-"636","Investor Guide (code)","invest.navBenefits","Why Dubai","","","Section bar label.","Draft"
-"637","Investor Guide (code)","invest.capBenefits","Why Dubai","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"638","Investor Guide (code)","invest.navMarket","Yields","","","Section bar label.","Draft"
-"639","Investor Guide (code)","invest.capMarket","Rental yield","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"640","Investor Guide (code)","invest.navCalculator","Calculator","","","Section bar label.","Draft"
-"641","Investor Guide (code)","invest.navPayment","Payment plans","","","Section bar label.","Draft"
-"642","Investor Guide (code)","invest.capPayment","Payment plans","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"643","Investor Guide (code)","invest.navResidency","Golden Visa","","","Section bar label.","Draft"
-"644","Investor Guide (code)","invest.capResidency","Golden Visa","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"645","Investor Guide (code)","invest.navPathway","Pathway","","","Section bar label.","Draft"
-"646","Investor Guide (code)","invest.navTrust","Trust","","","Section bar label.","Draft"
-"647","Investor Guide (code)","invest.capTrust","Developer trust","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"648","Investor Guide (code)","invest.navLiquidity","Exit","","","Section bar label.","Draft"
-"649","Investor Guide (code)","invest.capLiquidity","Market liquidity and exit","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"650","Investor Guide (code)","invest.navFaq","FAQ","","","Section bar label.","Draft"
-"651","Investor Guide (code)","invest.capFaq","Frequently asked questions","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"652","Investor Guide (code)","invest.yieldTable","Rental yield and capital appreciation by city","","","Screen readers only (aria-label).","Draft"
-"653","Investor Guide (code)","invest.altPayment","Downtown Dubai towers","","","Screen readers only: describes an image.","Draft"
-"654","Investor Guide (code)","invest.altResidency","Panoramic Dubai skyline","","","Screen readers only: describes an image.","Draft"
-"655","Investor Guide (code)","invest.altTrust","Modern financial district towers","","","Screen readers only: describes an image.","Draft"
-"656","Investor Guide (code)","invest.altHero","Dubai skyline with Burj Khalifa","","","Screen readers only: describes an image.","Draft"
-"657","Investor Guide (code)","invest.cardAlt","{title} exterior","","","Keep {placeholder} exactly as written.","Draft"
-"658","Development page (code)","dev.section","Section","","","Section name for screen readers when it has no title or eyebrow.","Draft"
-"659","Development page (code)","dev.openInGoogleMaps","Open in Google Maps","","","Button that opens the map in Google Maps.","Draft"
-"660","Development page (code)","dev.download","Download","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"661","Development page (code)","dev.brochure","Brochure","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"662","Development page (code)","dev.calculator","Calculator","","","Section bar label.","Draft"
-"663","Development page (code)","dev.downloadPaymentPlan","Download payment plan","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"664","Development page (code)","dev.plan","Plan {number}","","","Keep {placeholder} exactly as written.","Draft"
-"665","Development page (code)","dev.minutes","{number} min","","","Keep {placeholder} exactly as written.","Draft"
-"666","Development page (code)","dev.figureAlt","{name} — {title}","","","Keep {placeholder} exactly as written.","Draft"
-"667","Development page (code)","dev.presentationAlt","{name} presentation","","","Keep {placeholder} exactly as written.","Draft"
-"668","Development page (code)","dev.floorPlanAlt","{name} {label} floor plan","","","Keep {placeholder} exactly as written.","Draft"
-"669","Development page (code)","dev.location","Location","","","Section bar label.","Draft"
-"670","Development page (code)","dev.amenities","Amenities","","","Section bar label.","Draft"
-"671","Development page (code)","dev.materials","Materials","","","Section bar label.","Draft"
-"672","Development page (code)","dev.floorPlans","Floor plans","","","Section bar label.","Draft"
-"673","Development page (code)","dev.payment","Payment","","","Section bar label: the payment plan section.","Draft"
-"674","Development page (code)","dev.locationTimes","Location and travel times","","","Screen readers only (aria-label).","Draft"
-"675","Development page (code)","dev.nearby","Nearby destinations","","","Screen readers only (aria-label).","Draft"
-"676","Development page (code)","dev.projectRender","Project render","","","Screen readers only (aria-label).","Draft"
-"677","Development page (code)","dev.projectRenderSlides","Project render slides","","","Screen readers only (aria-label).","Draft"
-"678","Development page (code)","dev.watch","Watch","","","Shown only when the editor leaves the matching CMS field empty.","Draft"
-"679","Development page (code)","dev.showSlide","Show slide {number}","","","Keep {placeholder} exactly as written.","Draft"
-"680","Development page (code)","dev.locationMap","{name} location map","","","Keep {placeholder} exactly as written.","Draft"
-"681","Development page (code)","dev.travelHighlights","{title} travel highlights","","","Keep {placeholder} exactly as written.","Draft"
-"682","Development page (code)","dev.arrangeViewing","Arrange a private viewing","","","Screen readers only (aria-label).","Draft"
-"683","Development page (code)","dev.viewingAlt","Private viewing and advisory workspace","","","Screen readers only: describes an image.","Draft"
-"684","Development page (code)","dev.introAlt","{name} introduction","","","Keep {placeholder} exactly as written.","Draft"
-"685","Development page (code)","dev.exteriorAlt","{name} exterior","","","Keep {placeholder} exactly as written.","Draft"
-"686","Legal pages (code)","legal.pages","Legal pages","","","Screen readers only (aria-label).","Draft"
-"687","Legal pages (code)","legal.email","Email","","","Link label.","Draft"
-"688","Site-wide (code)","punctuation.sentenceEnd",".","","","Sentence end the site adds itself: ""."" in English and Arabic, ""。"" in Japanese.","Draft"
-"689","Site-wide (header, footer, pop-up)","global.footerDevelopmentsTitle","Developments","","","Footer column title. Same word as nav.developments.","Draft"
-"690","Site-wide (header, footer, pop-up)","global.footerCompanyTitle","Company","","","Footer column title.","Draft"
-"691","Site-wide (header, footer, pop-up)","global.footerAboutLabel","About Us","","","Footer link. Same text as about.title.","Draft"
-"692","Site-wide (header, footer, pop-up)","global.footerHistoryLabel","History","","","Footer link. Same word as nav.history.","Draft"
-"693","Site-wide (header, footer, pop-up)","global.footerInvestorLabel","Investor Guide","","","Footer link. Same text as nav.investorGuide.","Draft"
-"694","Site-wide (header, footer, pop-up)","global.footerMediaTitle","Media","","","Footer column title. Same word as nav.media.","Draft"
-"695","Site-wide (header, footer, pop-up)","global.footerNewsLabel","News & Updates","","","Footer link. Same text as home.newsHeading.","Draft"
-"696","Site-wide (header, footer, pop-up)","global.footerContactLabel","Contact Us","","","Footer link. Same text as contact.title.","Draft"
-"697","Site-wide (header, footer, pop-up)","global.footerPrivacyLabel","Privacy","","","Footer legal link (the tab above the document says ""Privacy Policy"", row footer.privacy).","Draft"
-"698","Site-wide (header, footer, pop-up)","global.footerTermsLabel","Terms and Conditions","","","Footer legal link. Same text as footer.terms.","Draft"
-"699","Site-wide (header, footer, pop-up)","global.footerCookiesLabel","Cookie Policy","","","Footer legal link. Same text as footer.cookies.","Draft"
-"700","Site-wide (header, footer, pop-up)","global.footerCopyright","Kasumigaseki Properties Development © 2026","","","Footer copyright line; use the company name from footer.companyName.","Draft"
-"701","Forms (code)","form.aboutYourInterest","About your interest","","","Contact page, sales pane: the heading above the choices.","Draft"
-"702","Forms (code)","form.email","Email","","","Contact page: the e-mail field's label. (The sheet's form.email row reads "Email Address"; this label reads "Email".)","Draft"
-"703","Forms (code)","form.inquiryType","Inquiry type","","","Contact page: screen readers only (aria-label) for the row of inquiry tabs.","Draft"
-"704","Forms (code)","form.enquirerType","Enquirer type","","","Contact page: screen readers only (aria-label) for the Client / Broker choice.","Draft"
-"705","Forms (code)","form.agency","Agency / company","","","Contact page, sales pane, shown to a broker: the agency field's label.","Draft"
-"706","Forms (code)","form.reraNumber","RERA / ORN no.","","","Contact page: the RERA / ORN registration field's label (sales pane for a broker, and the channel partner pane).","Draft"
-"707","Forms (code)","form.companyAgency","Company / agency","","","Contact page, channel partner pane: the company field's label.","Draft"
-"708","Forms (code)","form.marketCountry","Market / country","","","Contact page, channel partner pane: the market field's label.","Draft"
-"709","Forms (code)","form.application","Application","","","Contact page, job pane: the heading above the fields.","Draft"
-"710","Forms (code)","form.roleDepartment","Role / department","","","Contact page, job pane: the role field's label.","Draft"
-"711","Forms (code)","form.rolePlaceholder","e.g. Marketing, Development","","","Contact page, job pane: the example shown inside the role field.","Draft"
-"712","Forms (code)","form.linkedinPortfolio","LinkedIn / portfolio","","","Contact page, job pane: the link field's label.","Draft"
-"713","Forms (code)","form.cvFile","Attach a PDF, DOC or DOCX (max 4 MB)","","","Contact page, job pane: shown beside the file button until a file is chosen.","Draft"
-"714","Forms (code)","form.publicationOutlet","Publication / outlet","","","Contact page, press pane: the publication field's label.","Draft"
-"715","Forms (code)","form.sending","Sending your enquiry…","","","Shown while any form is on its way.","Draft"
-"716","Forms (code)","form.uploadingCv","Uploading your CV…","","","Contact page, job pane: shown while the CV is uploaded.","Draft"
-"717","Forms (code)","form.cvTooLarge","The CV is too large (4 MB maximum). Please attach a smaller file.","","","Contact page, job pane: the CV is over 4 MB.","Draft"
-"718","Forms (code)","form.cvUploadFailed","The CV could not be uploaded. Please try again.","","","Contact page, job pane: the CV could not be uploaded.","Draft"
-"719","Forms (code)","form.provideEmail","Please provide your email address.","","","Enquiry pop-up, newsletter and floor-plan forms: sent without an e-mail address.","Draft"
-"720","Forms (code)","form.unableToSend","Unable to send your enquiry.","","","Any form: the server's refusal carried no message.","Draft"
-"721","Forms (code)","form.unableToSendRetry","Unable to send your enquiry. Please try again.","","","Any form: the request failed for another reason.","Draft"
-"722","Forms (code)","popup.title","Inquiry Form","","","Enquiry pop-up: its heading, where Site settings leaves the heading empty.","Draft"
-"723","Forms (code)","popup.intro","Share a few contact details and the KPD team will coordinate the right advisory conversation.","","","Enquiry pop-up: the line under its heading, where Site settings leaves the introduction empty.","Draft"
-"724","Forms (code)","popup.minimize","Minimize inquiry form","","","Enquiry pop-up: screen readers only (aria-label) for the close button.","Draft"
-"725","Forms (code)","popup.fullName","Full name","","","Enquiry pop-up: the example shown inside the name field.","Draft"
-"726","Forms (code)","popup.emailAddress","Email address","","","Enquiry pop-up: the example shown inside the e-mail field.","Draft"
-"727","Forms (code)","popup.shortMessage","Short message","","","Enquiry pop-up: the example shown inside the message field.","Draft"
-"728","Forms (code)","popup.interest","Interest","","","Enquiry pop-up: screen readers only (aria-label) for the choices list.","Draft"
-"729","Forms (code)","popup.interestedIn","Interested in","","","Enquiry pop-up: the first line of the choices list, before a choice is made.","Draft"
-"730","Forms (code)","popup.onlineCall","Online call","","","Enquiry pop-up: the last choice of the list (a call back).","Draft"
-"731","Forms (code)","popup.submit","Submit inquiry","","","Enquiry pop-up: the button, where Site settings leaves its label empty.","Draft"
-"732","Forms (code)","popup.privacyNote","The KPD team will respond with the right advisory route.","","","Enquiry pop-up: the line under the button, where Site settings leaves the note empty.","Draft"
+597,Menu & footer (code),nav.siteMenu,Site menu,قائمة الموقع,サイトメニュー,Screen readers only (aria-label): the mobile menu panel.,Draft
+598,Menu & footer (code),nav.navigationLeft,Primary navigation left,التنقل الرئيسي الأيسر,メインナビゲーション（左）,Screen readers only (aria-label).,Draft
+599,Menu & footer (code),nav.navigationRight,Primary navigation right,التنقل الرئيسي الأيمن,メインナビゲーション（右）,Screen readers only (aria-label).,Draft
+600,Menu & footer (code),nav.homeLink,Kasumigaseki Properties Development home,الصفحة الرئيسية لكاسوميغاسيكي للتطوير العقاري,霞ヶ関プロパティーズ・デベロップメントのホーム,Screen readers only (aria-label): the logo link.,Draft
+601,Menu & footer (code),nav.onThisPage,On this page,في هذه الصفحة,このページの内容,Screen readers only (aria-label).,Draft
+602,Menu & footer (code),breadcrumb.label,Breadcrumb,مسار التنقل,パンくずリスト,Screen readers only (aria-label): the page trail.,Draft
+603,Menu & footer (code),breadcrumb.legacy,Legacy,تاريخنا,沿革,"Page trail label for the History page, as the delivered page named it.",Draft
+604,Menu & footer (code),breadcrumb.investorGuide,Investor guide,دليل المستثمر,投資家ガイド,"Page trail label; lower case ""guide"" as in English.",Draft
+605,Menu & footer (code),footer.company,Company,الشركة,会社情報,Shown only when the editor leaves the matching CMS field empty.,Draft
+606,Menu & footer (code),footer.privacyLink,Privacy,الخصوصية,プライバシーポリシー,Shown only when the editor leaves the matching CMS field empty.,Draft
+607,Menu & footer (code),footer.privacyPolicy,privacy policy.,سياسة الخصوصية.,プライバシーポリシー。,"Link at the end of the newsletter note. Lower case and ends with a period, as in English.",Draft
+608,Menu & footer (code),footer.socialLinks,Social links,روابط التواصل الاجتماعي,ソーシャルメディアへのリンク,Screen readers only (aria-label). The network names themselves are not translated.,Draft
+609,Menu & footer (code),footer.copyright,Kasumigaseki Properties Development © 2026,كاسوميغاسيكي للتطوير العقاري © 2026,霞ヶ関プロパティーズ・デベロップメント © 2026,"Footer copyright line, shown when the editor leaves the field empty. Use the company name from footer.companyName.",Draft
+610,News & articles (code),article.blog,Blog,مدونة,ブログ,"Small label above an article's date (""Blog"" or ""News"").",Draft
+611,News & articles (code),article.update,KPD Update,مستجدات KPD,KPDからのお知らせ,Shown in place of the date when an article has no date.,Draft
+612,News & articles (code),article.actions,Article actions,أدوات المقال,記事の操作,Screen readers only (aria-label).,Draft
+613,News & articles (code),article.contact,Contact KPD,تواصل مع KPD,KPDへのお問い合わせ,Button at the end of an article.,Draft
+614,News & articles (code),news.articles,Articles,المقالات,記事,Section name for screen readers.,Draft
+615,News & articles (code),news.email,Email,البريد الإلكتروني,メール,Link label.,Draft
+616,News & articles (code),news.filterArticles,Filter articles,تصفية المقالات,記事の絞り込み,Screen readers only (aria-label).,Draft
+617,Home (code),home.heroMedia,KPD Experience Center presentation gallery,المعرض التقديمي لمركز تجربة KPD,KPDエクスペリエンスセンターのプレゼンテーションギャラリー,Screen readers only: describes the hero image or video.,Draft
+618,Home (code),home.pauseVideo,Pause video,إيقاف الفيديو مؤقتًا,動画を一時停止,Screen readers only (aria-label).,Draft
+619,Home (code),home.developmentStandard,Our development standard,معيارنا في التطوير,私たちの開発基準,Screen readers only (aria-label).,Draft
+620,Home (code),home.figures,Kasumigaseki Capital figures,أرقام كاسوميغاسيكي كابيتال,霞ヶ関キャピタルの数値,Screen readers only (aria-label).,Draft
+621,Home (code),home.developments,Our developments,مشاريعنا,私たちのプロジェクト,Screen readers only (aria-label).,Draft
+622,Home (code),home.gallery,Experience Center gallery,معرض مركز التجربة,エクスペリエンスセンターのギャラリー,Screen readers only (aria-label).,Draft
+623,Home (code),home.view,View ↗,عرض ↗,見る ↗,Gallery label; keep the arrow.,Draft
+624,Home (code),home.value,Value,القيمة,価値,"Caption above a value card, shown when the editor leaves the caption empty.",Draft
+625,Home (code),home.chooseSlide,Choose a development slide,اختر شريحة مشروع,プロジェクトのスライドを選択,Screen readers only (aria-label).,Draft
+626,Home (code),home.showSlide,Show {label},عرض {label},{label}を表示,Keep {placeholder} exactly as written.,Draft
+627,About (code),about.imageAlt,KPD office workspace with a view over Dubai,مساحة مكاتب KPD بإطلالة على دبي,ドバイを望むKPDのオフィス,Screen readers only: describes an image.,Draft
+628,About (code),about.missionVision,Mission and vision,الرسالة والرؤية,使命とビジョン,Heading for screen readers only (visually hidden).,Draft
+629,About (code),about.executiveManagement,Executive Management,الإدارة التنفيذية,経営陣,Shown only when the editor leaves the matching CMS field empty.,Draft
+630,About (code),about.leaderAlt,"{name}, {role}",{name}، {role},{name}、{role},Keep {placeholder} exactly as written.,Draft
+631,About (code),about.portraitAlt,{role} portrait,صورة {role},{role}の肖像写真,Keep {placeholder} exactly as written.,Draft
+632,History (code),legacy.imageAlt,Tokyo alleyway and Japanese hospitality context,زقاق في طوكيو وأجواء الضيافة اليابانية,東京の路地と日本のおもてなしの情景,Screen readers only: describes an image.,Draft
+633,History (code),legacy.years,Years,السنوات,年,Screen readers only (aria-label).,Draft
+634,History (code),legacy.milestoneAlt,Milestone {year},مرحلة {year},{year}年のマイルストーン,Keep {placeholder} exactly as written.,Draft
+635,Contact (code),contact.inquiry,Contact inquiry,نموذج الاستفسار,お問い合わせフォーム,Screen readers only (aria-label).,Draft
+636,Investor Guide (code),invest.navBenefits,Why Dubai,لماذا دبي,なぜドバイなのか,Section bar label.,Draft
+637,Investor Guide (code),invest.capBenefits,Why Dubai,لماذا دبي,なぜドバイなのか,Shown only when the editor leaves the matching CMS field empty.,Draft
+638,Investor Guide (code),invest.navMarket,Yields,العوائد,利回り,Section bar label.,Draft
+639,Investor Guide (code),invest.capMarket,Rental yield,العائد الإيجاري,賃料利回り,Shown only when the editor leaves the matching CMS field empty.,Draft
+640,Investor Guide (code),invest.navCalculator,Calculator,الحاسبة,計算ツール,Section bar label.,Draft
+641,Investor Guide (code),invest.navPayment,Payment plans,خطط الدفع,支払いプラン,Section bar label.,Draft
+642,Investor Guide (code),invest.capPayment,Payment plans,خطط الدفع,支払いプラン,Shown only when the editor leaves the matching CMS field empty.,Draft
+643,Investor Guide (code),invest.navResidency,Golden Visa,الإقامة الذهبية,ゴールデンビザ,Section bar label.,Draft
+644,Investor Guide (code),invest.capResidency,Golden Visa,الإقامة الذهبية,ゴールデンビザ,Shown only when the editor leaves the matching CMS field empty.,Draft
+645,Investor Guide (code),invest.navPathway,Pathway,المسار,投資までの流れ,Section bar label.,Draft
+646,Investor Guide (code),invest.navTrust,Trust,الثقة,信頼,Section bar label.,Draft
+647,Investor Guide (code),invest.capTrust,Developer trust,ثقة المطوّر,デベロッパーの信頼性,Shown only when the editor leaves the matching CMS field empty.,Draft
+648,Investor Guide (code),invest.navLiquidity,Exit,التخارج,出口,Section bar label.,Draft
+649,Investor Guide (code),invest.capLiquidity,Market liquidity and exit,سيولة السوق والتخارج,市場の流動性と出口,Shown only when the editor leaves the matching CMS field empty.,Draft
+650,Investor Guide (code),invest.navFaq,FAQ,الأسئلة الشائعة,よくあるご質問,Section bar label.,Draft
+651,Investor Guide (code),invest.capFaq,Frequently asked questions,الأسئلة الشائعة,よくあるご質問,Shown only when the editor leaves the matching CMS field empty.,Draft
+652,Investor Guide (code),invest.yieldTable,Rental yield and capital appreciation by city,العائد الإيجاري ونمو رأس المال حسب المدينة,都市別の賃料利回りとキャピタルゲイン,Screen readers only (aria-label).,Draft
+653,Investor Guide (code),invest.altPayment,Downtown Dubai towers,أبراج وسط مدينة دبي,ダウンタウン・ドバイの高層ビル群,Screen readers only: describes an image.,Draft
+654,Investor Guide (code),invest.altResidency,Panoramic Dubai skyline,أفق دبي البانورامي,ドバイのスカイラインのパノラマ,Screen readers only: describes an image.,Draft
+655,Investor Guide (code),invest.altTrust,Modern financial district towers,أبراج الحي المالي الحديث,近代的な金融街の高層ビル群,Screen readers only: describes an image.,Draft
+656,Investor Guide (code),invest.altHero,Dubai skyline with Burj Khalifa,أفق دبي مع برج خليفة,ブルジュ・ハリファが見えるドバイのスカイライン,Screen readers only: describes an image.,Draft
+657,Investor Guide (code),invest.cardAlt,{title} exterior,منظر خارجي لـ {title},{title}の外観,Keep {placeholder} exactly as written.,Draft
+658,Development page (code),dev.section,Section,قسم,セクション,Section name for screen readers when it has no title or eyebrow.,Draft
+659,Development page (code),dev.openInGoogleMaps,Open in Google Maps,افتح في خرائط Google,Googleマップで開く,Button that opens the map in Google Maps.,Draft
+660,Development page (code),dev.download,Download,تحميل,ダウンロード,Shown only when the editor leaves the matching CMS field empty.,Draft
+661,Development page (code),dev.brochure,Brochure,الكتيّب,パンフレット,Shown only when the editor leaves the matching CMS field empty.,Draft
+662,Development page (code),dev.calculator,Calculator,الحاسبة,計算ツール,Section bar label.,Draft
+663,Development page (code),dev.downloadPaymentPlan,Download payment plan,حمّل خطة الدفع,支払いプランをダウンロード,Shown only when the editor leaves the matching CMS field empty.,Draft
+664,Development page (code),dev.plan,Plan {number},المخطط {number},プラン{number},Keep {placeholder} exactly as written.,Draft
+665,Development page (code),dev.minutes,{number} min,{number} د,{number}分,Keep {placeholder} exactly as written.,Draft
+666,Development page (code),dev.figureAlt,{name} — {title},{name} — {title},{name} — {title},Keep {placeholder} exactly as written.,Draft
+667,Development page (code),dev.presentationAlt,{name} presentation,عرض تقديمي لـ {name},{name}のプレゼンテーション,Keep {placeholder} exactly as written.,Draft
+668,Development page (code),dev.floorPlanAlt,{name} {label} floor plan,مخطط {label} في {name},{name} {label}の間取り図,Keep {placeholder} exactly as written.,Draft
+669,Development page (code),dev.location,Location,الموقع,立地,Section bar label.,Draft
+670,Development page (code),dev.amenities,Amenities,المرافق,アメニティ,Section bar label.,Draft
+671,Development page (code),dev.materials,Materials,المواد,素材,Section bar label.,Draft
+672,Development page (code),dev.floorPlans,Floor plans,المخططات,間取り図,Section bar label.,Draft
+673,Development page (code),dev.payment,Payment,الدفع,支払い,Section bar label: the payment plan section.,Draft
+674,Development page (code),dev.locationTimes,Location and travel times,الموقع وأزمنة الوصول,立地と所要時間,Screen readers only (aria-label).,Draft
+675,Development page (code),dev.nearby,Nearby destinations,الوجهات القريبة,周辺の施設,Screen readers only (aria-label).,Draft
+676,Development page (code),dev.projectRender,Project render,صورة توضيحية للمشروع,プロジェクトの外観イメージ,Screen readers only (aria-label).,Draft
+677,Development page (code),dev.projectRenderSlides,Project render slides,الشرائح التوضيحية للمشروع,プロジェクトのイメージスライド,Screen readers only (aria-label).,Draft
+678,Development page (code),dev.watch,Watch,شاهد,見る,Shown only when the editor leaves the matching CMS field empty.,Draft
+679,Development page (code),dev.showSlide,Show slide {number},اعرض الشريحة {number},スライド{number}を表示,Keep {placeholder} exactly as written.,Draft
+680,Development page (code),dev.locationMap,{name} location map,خريطة موقع {name},{name}の所在地マップ,Keep {placeholder} exactly as written.,Draft
+681,Development page (code),dev.travelHighlights,{title} travel highlights,أزمنة الوصول من {title},{title}からの主な所要時間,Keep {placeholder} exactly as written.,Draft
+682,Development page (code),dev.arrangeViewing,Arrange a private viewing,رتّب معاينة خاصة,プライベート内覧のご予約,Screen readers only (aria-label).,Draft
+683,Development page (code),dev.viewingAlt,Private viewing and advisory workspace,مساحة المعاينة الخاصة والاستشارات,プライベート内覧・ご相談スペース,Screen readers only: describes an image.,Draft
+684,Development page (code),dev.introAlt,{name} introduction,مقدمة عن {name},{name}の紹介,Keep {placeholder} exactly as written.,Draft
+685,Development page (code),dev.exteriorAlt,{name} exterior,منظر خارجي لـ {name},{name}の外観,Keep {placeholder} exactly as written.,Draft
+686,Legal pages (code),legal.pages,Legal pages,الصفحات القانونية,法的文書,Screen readers only (aria-label).,Draft
+687,Legal pages (code),legal.email,Email,البريد الإلكتروني,メール,Link label.,Draft
+688,Site-wide (code),punctuation.sentenceEnd,.,.,。,"Sentence end the site adds itself: ""."" in English and Arabic, ""。"" in Japanese.",Draft
+689,"Site-wide (header, footer, pop-up)",global.footerDevelopmentsTitle,Developments,المشاريع,プロジェクト,Footer column title. Same word as nav.developments.,Draft
+690,"Site-wide (header, footer, pop-up)",global.footerCompanyTitle,Company,الشركة,会社情報,Footer column title.,Draft
+691,"Site-wide (header, footer, pop-up)",global.footerAboutLabel,About Us,من نحن,会社概要,Footer link. Same text as about.title.,Draft
+692,"Site-wide (header, footer, pop-up)",global.footerHistoryLabel,History,تاريخنا,沿革,Footer link. Same word as nav.history.,Draft
+693,"Site-wide (header, footer, pop-up)",global.footerInvestorLabel,Investor Guide,دليل المستثمر,投資家ガイド,Footer link. Same text as nav.investorGuide.,Draft
+694,"Site-wide (header, footer, pop-up)",global.footerMediaTitle,Media,الإعلام,メディア,Footer column title. Same word as nav.media.,Draft
+695,"Site-wide (header, footer, pop-up)",global.footerNewsLabel,News & Updates,الأخبار والمستجدات,ニュース＆最新情報,Footer link. Same text as home.newsHeading.,Draft
+696,"Site-wide (header, footer, pop-up)",global.footerContactLabel,Contact Us,تواصل معنا,お問い合わせ,Footer link. Same text as contact.title.,Draft
+697,"Site-wide (header, footer, pop-up)",global.footerPrivacyLabel,Privacy,الخصوصية,プライバシーポリシー,"Footer legal link (the tab above the document says ""Privacy Policy"", row footer.privacy).",Draft
+698,"Site-wide (header, footer, pop-up)",global.footerTermsLabel,Terms and Conditions,الشروط والأحكام,利用規約,Footer legal link. Same text as footer.terms.,Draft
+699,"Site-wide (header, footer, pop-up)",global.footerCookiesLabel,Cookie Policy,سياسة ملفات تعريف الارتباط,クッキーポリシー,Footer legal link. Same text as footer.cookies.,Draft
+700,"Site-wide (header, footer, pop-up)",global.footerCopyright,Kasumigaseki Properties Development © 2026,كاسوميغاسيكي للتطوير العقاري © 2026,霞ヶ関プロパティーズ・デベロップメント © 2026,Footer copyright line; use the company name from footer.companyName.,Draft
+701,Forms (code),form.aboutYourInterest,About your interest,عن اهتمامك,ご興味の内容,"Contact page, sales pane: the heading above the choices.",Draft
+702,Forms (code),form.email,Email,البريد الإلكتروني,メールアドレス,"Contact page: the e-mail field's label. (The sheet's form.email row reads Email Address""; this label reads ""Email"".)""",Draft
+703,Forms (code),form.inquiryType,Inquiry type,نوع الاستفسار,お問い合わせの種類,Contact page: screen readers only (aria-label) for the row of inquiry tabs.,Draft
+704,Forms (code),form.enquirerType,Enquirer type,صفة مقدم الاستفسار,お問い合わせ者の区分,Contact page: screen readers only (aria-label) for the Client / Broker choice.,Draft
+705,Forms (code),form.agency,Agency / company,الوكالة / الشركة,不動産会社／会社,"Contact page, sales pane, shown to a broker: the agency field's label.",Draft
+706,Forms (code),form.reraNumber,RERA / ORN no.,رقم RERA / ORN,RERA / ORN 番号,"Contact page: the RERA / ORN registration field's label (sales pane for a broker, and the channel partner pane).",Draft
+707,Forms (code),form.companyAgency,Company / agency,الشركة / الوكالة,会社／不動産会社,"Contact page, channel partner pane: the company field's label.",Draft
+708,Forms (code),form.marketCountry,Market / country,السوق / الدولة,市場／国,"Contact page, channel partner pane: the market field's label.",Draft
+709,Forms (code),form.application,Application,الطلب,応募内容,"Contact page, job pane: the heading above the fields.",Draft
+710,Forms (code),form.roleDepartment,Role / department,الوظيفة / القسم,職種／部門,"Contact page, job pane: the role field's label.",Draft
+711,Forms (code),form.rolePlaceholder,"e.g. Marketing, Development",مثل: التسويق، التطوير,例：マーケティング、開発,"Contact page, job pane: the example shown inside the role field.",Draft
+712,Forms (code),form.linkedinPortfolio,LinkedIn / portfolio,LinkedIn / معرض الأعمال,LinkedIn／ポートフォリオ,"Contact page, job pane: the link field's label.",Draft
+713,Forms (code),form.cvFile,"Attach a PDF, DOC or DOCX (max 4 MB)",أرفق ملف PDF أو DOC أو DOCX (بحد أقصى 4 ميجابايت),PDF、DOC、DOCXファイルを添付（最大4MB）,"Contact page, job pane: shown beside the file button until a file is chosen.",Draft
+714,Forms (code),form.publicationOutlet,Publication / outlet,الصحيفة / الجهة الإعلامية,媒体名／掲載媒体,"Contact page, press pane: the publication field's label.",Draft
+715,Forms (code),form.sending,Sending your enquiry…,جارٍ إرسال استفسارك…,お問い合わせを送信しています…,Shown while any form is on its way.,Draft
+716,Forms (code),form.uploadingCv,Uploading your CV…,جارٍ تحميل سيرتك الذاتية…,履歴書をアップロードしています…,"Contact page, job pane: shown while the CV is uploaded.",Draft
+717,Forms (code),form.cvTooLarge,The CV is too large (4 MB maximum). Please attach a smaller file.,حجم السيرة الذاتية كبير جدًا (الحد الأقصى 4 ميجابايت). يُرجى إرفاق ملف أصغر.,履歴書のファイルサイズが大きすぎます（上限4MB）。小さいファイルを添付してください。,"Contact page, job pane: the CV is over 4 MB.",Draft
+718,Forms (code),form.cvUploadFailed,The CV could not be uploaded. Please try again.,تعذّر تحميل السيرة الذاتية. يُرجى المحاولة مرة أخرى.,履歴書をアップロードできませんでした。もう一度お試しください。,"Contact page, job pane: the CV could not be uploaded.",Draft
+719,Forms (code),form.provideEmail,Please provide your email address.,يُرجى إدخال بريدك الإلكتروني.,メールアドレスを入力してください。,"Enquiry pop-up, newsletter and floor-plan forms: sent without an e-mail address.",Draft
+720,Forms (code),form.unableToSend,Unable to send your enquiry.,تعذّر إرسال استفسارك.,お問い合わせを送信できませんでした。,Any form: the server's refusal carried no message.,Draft
+721,Forms (code),form.unableToSendRetry,Unable to send your enquiry. Please try again.,تعذّر إرسال استفسارك. يُرجى المحاولة مرة أخرى.,お問い合わせを送信できませんでした。もう一度お試しください。,Any form: the request failed for another reason.,Draft
+722,Forms (code),popup.title,Inquiry Form,نموذج الاستفسار,お問い合わせフォーム,"Enquiry pop-up: its heading, where Site settings leaves the heading empty.",Draft
+723,Forms (code),popup.intro,Share a few contact details and the KPD team will coordinate the right advisory conversation.,شاركنا بعض بيانات الاتصال وسيرتّب فريق KPD لك المحادثة الاستشارية المناسبة.,連絡先をいくつかご記入いただければ、KPDの担当者が適切なご相談の場を調整いたします。,"Enquiry pop-up: the line under its heading, where Site settings leaves the introduction empty.",Draft
+724,Forms (code),popup.minimize,Minimize inquiry form,تصغير نموذج الاستفسار,お問い合わせフォームを最小化,Enquiry pop-up: screen readers only (aria-label) for the close button.,Draft
+725,Forms (code),popup.fullName,Full name,الاسم الكامل,氏名,Enquiry pop-up: the example shown inside the name field.,Draft
+726,Forms (code),popup.emailAddress,Email address,البريد الإلكتروني,メールアドレス,Enquiry pop-up: the example shown inside the e-mail field.,Draft
+727,Forms (code),popup.shortMessage,Short message,رسالة قصيرة,短いメッセージ,Enquiry pop-up: the example shown inside the message field.,Draft
+728,Forms (code),popup.interest,Interest,الاهتمام,ご興味の内容,Enquiry pop-up: screen readers only (aria-label) for the choices list.,Draft
+729,Forms (code),popup.interestedIn,Interested in,مهتم بـ,ご興味のある内容,"Enquiry pop-up: the first line of the choices list, before a choice is made.",Draft
+730,Forms (code),popup.onlineCall,Online call,مكالمة عبر الإنترنت,オンライン通話,Enquiry pop-up: the last choice of the list (a call back).,Draft
+731,Forms (code),popup.submit,Submit inquiry,أرسل الاستفسار,お問い合わせを送信,"Enquiry pop-up: the button, where Site settings leaves its label empty.",Draft
+732,Forms (code),popup.privacyNote,The KPD team will respond with the right advisory route.,سيردّ فريق KPD عبر المسار الاستشاري المناسب.,KPDの担当者が、適切なご相談方法をご案内いたします。,"Enquiry pop-up: the line under the button, where Site settings leaves the note empty.",Draft
