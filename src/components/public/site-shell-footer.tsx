@@ -1,11 +1,11 @@
 ﻿import Link from "next/link";
-import { recipientFor } from "@/lib/site-contact";
+import { recipientFor, getGlobalSettings } from "@/lib/site-contact";
 import { getLocale, getSwitcherLocales } from "@/lib/locale";
 import { localeHref } from "@/lib/locales";
 import { t } from "@/lib/i18n";
 import { getLocalizedGlobalSettings, getLocalizedNavDevelopments } from "@/lib/translations/store";
 import { getNavDevelopments } from "@/lib/nav-developments";
-import { formWords, projectLabels } from "@/lib/form-words";
+import { formWords, interestChoices, projectLabels } from "@/lib/form-words";
 import { LanguageSwitcher } from "./language-switcher";
 
 /// Delivered footer â€” 1:1 port of the delivered markup (link columns,
@@ -15,9 +15,18 @@ import { LanguageSwitcher } from "./language-switcher";
 export async function SiteShellFooter() {
   const [contact, developments, locale, switcherLocales] = await Promise.all([getLocalizedGlobalSettings(), getLocalizedNavDevelopments(), getLocale(), getSwitcherLocales()]);
   // On another language's page the script also gets its forms' words in that
-  // language and each development's name in it (keyed by the English it posts).
-  // An English page publishes neither, and the script shows its own.
-  const forScript = locale === "en" ? {} : { text: formWords(locale), projectLabels: projectLabels(await getNavDevelopments(), developments) };
+  // language, each development's name in it (keyed by the English it posts),
+  // and the enquiry pop-up's choices (the English each posts, and what is
+  // shown). An English page publishes none of them, and the script shows its
+  // own.
+  const forScript = locale === "en" ? {} : await (async () => {
+    const englishDevelopments = await getNavDevelopments();
+    return {
+      text: formWords(locale),
+      projectLabels: projectLabels(englishDevelopments, developments),
+      interestChoices: interestChoices(await getGlobalSettings(), contact, englishDevelopments, developments),
+    };
+  })();
   const href = (path: string) => localeHref(path, locale);
   // The delivered interaction script (site-cms.js) builds the floating Call /
   // WhatsApp / Enquiry buttons and the booking form; it reads these details.

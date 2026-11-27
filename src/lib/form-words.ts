@@ -1,9 +1,10 @@
 // ── The words of the delivered script's forms ────────────────────────────────
 // The enquiry pop-up is built, and its messages shown, by the delivered
-// script (public/legacy/assets/js/site-cms.js), outside React. It looks each
-// word up in a table the footer publishes as window.__KPD_CONTACT.text, keyed
-// by the English. An English page publishes no table and the script shows its
-// own words, exactly as before.
+// scripts (public/legacy/assets/js/site-cms.js and inquiry-form-copy.js),
+// outside React. They look each word up in a table the footer publishes as
+// window.__KPD_CONTACT.text, keyed by the English, and read the pop-up's
+// choices from window.__KPD_CONTACT.interestChoices. An English page publishes
+// neither and the scripts show their own words, exactly as before.
 //
 // What a visitor types or picks is not among these: a development reads in the
 // page's language and keeps its English name as the value the form posts.
@@ -25,6 +26,8 @@ const WORDS: [string, MessageKey][] = [
   ["Submit inquiry", "popup.submit"],
   ["The KPD team will respond with the right advisory route.", "popup.privacyNote"],
   ["Country code", "form.countryCode"],
+  // The enquiry pop-up's own hint for the message (inquiry-form-copy.js).
+  ["Message", "form.message"],
 ];
 
 /// A message and, where the sheet has no row of its own for it yet, the sheet's
@@ -68,4 +71,24 @@ export function projectLabels(english: { slug: string; name: string }[], shown: 
     if (name && name !== item.name) labels[item.name] = name;
   }
   return labels;
+}
+
+/// A choice of the enquiry pop-up: the English it posts, and what is shown.
+export type Choice = { value: string; label: string };
+
+/// The four choices the delivered script (inquiry-form-copy.js) lists when
+/// Site settings holds no interests and no development is published.
+const OWN_INTERESTS = ["Online Call", "Customer Experience Centre Visit", "Investing", "Broker Partnership"];
+
+/// The enquiry pop-up's choices on a page in another language, in the order the
+/// script lists them: the interests saved in Site settings where there are
+/// any, otherwise each published development and then the script's own four.
+/// A choice reads in the page's language and posts the English at the same
+/// position of the list — never the translated label. Where a language has no
+/// label of its own, the English is shown too.
+export function interestChoices(saved: { popupInterests?: string[] }, shown: { popupInterests?: string[] }, developments: { name: string }[] = [], shownDevelopments: { name: string }[] = []): Choice[] {
+  const pairs = (english: string[], labels: string[] = []) => english.map((value, index) => ({ value, label: labels[index]?.trim() || value }));
+  const savedInterests = (saved.popupInterests ?? []).map((value) => value.trim()).filter(Boolean);
+  if (savedInterests.length) return pairs(savedInterests, shown.popupInterests);
+  return [...pairs(developments.map((item) => item.name), shownDevelopments.map((item) => item.name)), ...pairs(OWN_INTERESTS)];
 }

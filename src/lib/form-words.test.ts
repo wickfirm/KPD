@@ -3,19 +3,28 @@ import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import type { MessageKey } from "@/lib/i18n";
 import type { Locale } from "@/lib/locales";
-import { DELIVERED_FORM_WORDS, formWords, projectLabels } from "@/lib/form-words";
+import { DELIVERED_FORM_WORDS, formWords, interestChoices, projectLabels } from "@/lib/form-words";
 
-// The delivered script looks its forms' words up in a table the footer
-// publishes. The table must cover every word the script looks up, and an
-// English page must publish nothing.
+// The delivered scripts look their forms' words up in a table the footer
+// publishes. The table must cover every word they look up, and an English
+// page must publish nothing.
 
-const script = readFileSync(join(process.cwd(), "public/legacy/assets/js/site-cms.js"), "utf8");
+const delivered = (name: string) => readFileSync(join(process.cwd(), "public/legacy/assets/js", name), "utf8");
+const script = delivered("site-cms.js");
+const popUp = delivered("inquiry-form-copy.js");
 
 describe("the words of the delivered script's forms", () => {
-  it("covers every word the script looks up, and nothing it does not", () => {
-    const lookedUp = [...script.matchAll(/\bsay\("([^"]+)"\)/g)].map((match) => match[1]);
+  it("covers every word the scripts look up, and nothing they do not", () => {
+    const lookedUp = [...`${script}\n${popUp}`.matchAll(/\bsay\("([^"]+)"\)/g)].map((match) => match[1]);
     expect(lookedUp.length).toBeGreaterThan(15);
     expect([...new Set(lookedUp)].sort()).toEqual([...DELIVERED_FORM_WORDS].sort());
+  });
+
+  it("the pop-up's script takes its hints from the table, never from a word of its own", () => {
+    // inquiry-form-copy.js rewrites the form the first script built, hint by hint.
+    expect(popUp).not.toMatch(/setAttribute\("placeholder", "/);
+    for (const word of ["Full name", "Email address", "Phone number", "Message", "Interested in"]) expect(popUp, word).toContain(`say("${word}")`);
+    expect(popUp).toContain("copy.interestChoices");
   });
 
   it("an English page publishes no table", () => {
@@ -82,5 +91,34 @@ describe("development names for the delivered script's pop-up", () => {
 
   it("gives an English page nothing", () => {
     expect(projectLabels(english, english)).toEqual({});
+  });
+});
+
+describe("the enquiry pop-up's choices", () => {
+  it("are the interests saved in Site settings: the English is posted, the language is shown", () => {
+    const saved = { popupInterests: ["Online Call", "Investing"] };
+    const shown = { popupInterests: ["مكالمة عبر الإنترنت", "الاستثمار"] };
+    expect(interestChoices(saved, shown)).toEqual([{ value: "Online Call", label: "مكالمة عبر الإنترنت" }, { value: "Investing", label: "الاستثمار" }]);
+  });
+
+  it("show the English where the language has no label of its own", () => {
+    expect(interestChoices({ popupInterests: ["Online Call"] }, { popupInterests: [] })).toEqual([{ value: "Online Call", label: "Online Call" }]);
+    expect(interestChoices({ popupInterests: ["Online Call", "Investing"] }, { popupInterests: ["مكالمة عبر الإنترنت"] })).toEqual([
+      { value: "Online Call", label: "مكالمة عبر الإنترنت" },
+      { value: "Investing", label: "Investing" },
+    ]);
+  });
+
+  it("are each published development and then the script's own four where none are saved", () => {
+    const developments = [{ name: "seven x seven" }, { name: "Villa 174" }];
+    const shown = [{ name: "سيفن باي سيفن" }, { name: "Villa 174" }];
+    expect(interestChoices({}, {}, developments, shown)).toEqual([
+      { value: "seven x seven", label: "سيفن باي سيفن" },
+      { value: "Villa 174", label: "Villa 174" },
+      { value: "Online Call", label: "Online Call" },
+      { value: "Customer Experience Centre Visit", label: "Customer Experience Centre Visit" },
+      { value: "Investing", label: "Investing" },
+      { value: "Broker Partnership", label: "Broker Partnership" },
+    ]);
   });
 });
