@@ -2,6 +2,12 @@
 // every React-rendered page and its persisted modal receive the same wording.
 (function () {
   const copy = window.__KPD_CONTACT || {};
+  // KPD CMS patch: on an Arabic or Japanese page the footer publishes the
+  // words of the forms in that language as copy.text, keyed by their English,
+  // and the pop-up's choices as copy.interestChoices, each with the English it
+  // posts (value) and what is shown (label). An English page publishes none of
+  // them, and every word stays exactly as delivered.
+  const say = (english) => (copy.text && copy.text[english]) || english;
   function updateInquiryForm() {
     const modal = document.querySelector(".booking-modal");
     const card = modal && modal.querySelector(".booking-card");
@@ -16,21 +22,26 @@
     const form = card.querySelector(".booking-lead-form");
     if (!form) return;
     const fields = form.querySelectorAll("input.booking-lead-field");
-    if (fields[0]) fields[0].setAttribute("placeholder", "Full name");
-    if (fields[1]) fields[1].setAttribute("placeholder", "Email address");
-    if (fields[2]) fields[2].setAttribute("placeholder", "Phone number");
+    if (fields[0]) fields[0].setAttribute("placeholder", say("Full name"));
+    if (fields[1]) fields[1].setAttribute("placeholder", say("Email address"));
+    if (fields[2]) fields[2].setAttribute("placeholder", say("Phone number"));
 
     const interest = form.querySelector('select[name="Interest"]');
     if (interest) {
-      const projects = Array.isArray(copy.projects) ? copy.projects : [];
-      const extras = ["Online Call", "Customer Experience Centre Visit", "Investing", "Broker Partnership"];
-      const choices = Array.isArray(copy.popupInterests) && copy.popupInterests.length ? copy.popupInterests : projects.concat(extras);
       const escape = (value) => String(value).replace(/[&<>\"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[character]));
-      interest.innerHTML = `<option value="">Interested in:</option>${choices.map((name) => `<option>${escape(name)}</option>`).join("")}`;
+      const published = Array.isArray(copy.interestChoices) ? copy.interestChoices : [];
+      if (published.length) {
+        interest.innerHTML = `<option value="">${escape(say("Interested in"))}:</option>${published.map((choice) => `<option value="${escape(choice.value)}">${escape(choice.label)}</option>`).join("")}`;
+      } else {
+        const projects = Array.isArray(copy.projects) ? copy.projects : [];
+        const extras = ["Online Call", "Customer Experience Centre Visit", "Investing", "Broker Partnership"];
+        const choices = Array.isArray(copy.popupInterests) && copy.popupInterests.length ? copy.popupInterests : projects.concat(extras);
+        interest.innerHTML = `<option value="">Interested in:</option>${choices.map((name) => `<option>${escape(name)}</option>`).join("")}`;
+      }
     }
 
     const message = form.querySelector('textarea[name="Message"]');
-    if (message) message.setAttribute("placeholder", "Message");
+    if (message) message.setAttribute("placeholder", say("Message"));
     const submit = form.querySelector(".booking-lead-submit");
     if (submit) submit.textContent = copy.popupSubmitLabel || "Send enquiry";
 
