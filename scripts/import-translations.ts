@@ -3,9 +3,12 @@
 //   npm run translations:import -- <options>
 //   npx tsx scripts/import-translations.ts <options>
 //
-//     --sheet <file>     the workbook (KPD-translations-AR-JA.xlsx). Looked for
-//                        beside the repo, in the working directory and in
-//                        ~/Downloads when left out.
+//     --sheet <file>     the workbook (KPD-translations-AR-JA.xlsx), or a CSV
+//                        file with its columns (a list sent to the translators,
+//                        come back: docs/translations/*.csv). It may be given
+//                        more than once, and all the rows are read together.
+//                        The workbook is looked for beside the repo, in the
+//                        working directory and in ~/Downloads when left out.
 //     --allow-drafts     also load rows the client's reviewers have not marked
 //                        "Approved". The brief allows it, by agreement, while
 //                        the language switch is off.
@@ -13,8 +16,10 @@
 //                        touching a database. Run prisma/add-translations.sql
 //                        first. Safe to run more than once.
 //     --write --yes      save into the database DATABASE_URL points at.
-//     --dictionaries     rewrite src/lib/i18n/ar.ts and ja.ts from the sheet's
-//                        rows of the site's own words.
+//     --dictionaries     rewrite src/lib/i18n/ar.ts and ja.ts from the rows of
+//                        the site's own words. Every file is needed for this:
+//                        it refuses to write while a string that is translated
+//                        now would have no row.
 //
 // With none of --sql, --write and --dictionaries it only reports. The English
 // content is always read from the database, to match the sheet's rows against.
@@ -30,13 +35,14 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { db } from "../src/lib/db";
 import en from "../src/lib/i18n/en";
+import ar from "../src/lib/i18n/ar";
 import { getGlobalSettings } from "../src/lib/site-contact";
 import { loadHomeSettings } from "../src/lib/home-saved";
 import { loadNewsListingCopy } from "../src/lib/news-listing";
 import { loadSxsContent } from "../src/lib/sxs-content";
 import { parseProjectChrome, projectChromeKey } from "../src/lib/project-chrome";
-import { legalContact, legalDocuments, legalTabForSlug, type LegalDocument } from "../src/lib/terms-defaults";
-import { classify, dictionaryEntries, hasBullet, planDictionary, planRows, readSheet, renderDictionary, withoutBullet, type Plan, type Root, type SheetRow, type Unplaced } from "../src/lib/translations/import-sheet";
+import { legalDocuments, legalTabForSlug } from "../src/lib/terms-defaults";
+import { classify, dictionaryEntries, hasBullet, legalPageEnglish, planDictionary, planRows, readSheet, renderDictionary, withoutBullet, type Plan, type Root, type SheetRow, type Unplaced } from "../src/lib/translations/import-sheet";
 import { mergeLocale } from "../src/lib/translations/merge-locale";
 import { diffOf, textOrNull, writeArticleTranslation, writePageTranslation, writeSettingTranslation } from "../src/lib/translations/store";
 
@@ -52,14 +58,6 @@ const PAGES: Record<string, string> = {
 /// … and those that are a saved setting.
 const SETTINGS: Record<string, string> = { global: "global", home: "home", sxs: "sxs", units: "sxs", legend: "sxs", news: "news_listing" };
 
-/// The two blocks the editor's language tab stores for a legal page, as the
-/// page reads them (by their type). A legal page shows a fixed document
-/// (src/lib/terms-defaults.ts) and the translation is an overlay on it.
-const legalBlocks = (contact: object, document: LegalDocument) => [
-  { type: "legal-contact", ...contact },
-  { type: "legal-document", id: document.id, title: document.title, sections: document.sections },
-];
-
 type Target = { kind: "setting"; key: string } | { kind: "page"; id: string } | { kind: "article"; id: string };
 
 // ── Options ──────────────────────────────────────────────────────────────────
@@ -70,13 +68,21 @@ function option(name: string): string | undefined {
   return value === undefined || value.startsWith("--") ? undefined : value;
 }
 
+/// Every value given for an option that may be given more than once.
+function list(name: string): string[] {
+  return process.argv.flatMap((argument, index) => {
+    const value = process.argv[index + 1];
+    return argument === `--${name}` && value !== undefined && !value.startsWith("--") ? [value] : [];
+  });
+}
+
 function options() {
   const flags = new Set(process.argv.slice(2).filter((argument) => argument.startsWith("--")));
-  const sheet = option("sheet")
-    ?? [repo, process.cwd(), join(homedir(), "Downloads")].map((folder) => join(folder, "KPD-translations-AR-JA.xlsx")).find((file) => existsSync(file));
-  if (!sheet) throw new Error("The workbook was not found: pass --sheet <file> (KPD-translations-AR-JA.xlsx).");
+  const given = list("sheet");
+  const sheets = given.length ? given : [repo, process.cwd(), join(homedir(), "Downloads")].map((folder) => join(folder, "KPD-translations-AR-JA.xlsx")).filter((file) => existsSync(file)).slice(0, 1);
+  if (!sheets.length) throw new Error("The workbook was not found: pass --sheet <file> (KPD-translations-AR-JA.xlsx).");
   const sql = flags.has("--sql") ? option("sql") ?? join(repo, "prisma", "import-translations.sql") : undefined;
-  return { sheet, sql, write: flags.has("--write"), yes: flags.has("--yes"), dictionaries: flags.has("--dictionaries"), allowDrafts: flags.has("--allow-drafts") };
+  return { sheets, sql, write: flags.has("--write"), yes: flags.has("--yes"), dictionaries: flags.has("--dictionaries"), allowDrafts: flags.has("--allow-drafts") };
 }
 
 /// The site reads its settings from .env.local (gitignored); a script does that itself.
@@ -125,7 +131,7 @@ async function rootOf(target: Target, slug: string): Promise<Root | undefined> {
     const document = legalDocuments.find((candidate) => candidate.id === legalTabForSlug(slug));
     if (document) {
       const savedContact = Array.isArray(page.content) ? page.content.find((block) => block && typeof block === "object" && (block as { type?: string }).type === "legal-contact") : undefined;
-      const english = { title: "", content: legalBlocks({ ...legalContact, ...(savedContact as object | undefined) }, document) };
+      const english = legalPageEnglish(document, savedContact as object | undefined);
       const saved = await db.pageTranslation.findMany({ where: { pageId: page.id, locale: { in: [...LOCALES] } } });
       const inLanguage = (locale: Locale) => merge(english, saved.find((row) => row.locale === locale), ["content"]);
       return { english, id: `page:${page.id}`, translated: { ar: inLanguage("ar"), ja: inLanguage("ja") } };
@@ -218,11 +224,17 @@ function sqlFor(target: Target, locale: Locale, english: unknown, built: unknown
 // ── The command ──────────────────────────────────────────────────────────────
 
 async function main() {
-  const { sheet, sql: sqlFile, write, yes, dictionaries, allowDrafts } = options();
+  const { sheets, sql: sqlFile, write, yes, dictionaries, allowDrafts } = options();
   loadEnv();
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set: the English content has to be read to match the sheet's rows against it.");
 
-  const rows = readSheet(new Uint8Array(readFileSync(sheet)));
+  // A row that is in more than one file (a returned list is often pasted back
+  // into the workbook too) is read once.
+  const seen = new Set<string>();
+  const rows = sheets.flatMap((sheet) => readSheet(new Uint8Array(readFileSync(sheet)))).filter((row) => {
+    const id = [row.area, row.key, row.english, row.arabic, row.japanese, row.status].join("\u0000");
+    return seen.has(id) ? false : (seen.add(id), true);
+  });
   // The sheet says "alt" where an article's field is "coverImageAlt".
   for (const row of rows) if (classify(row).area === "article") row.key = row.key.replace(/\.alt(\[\d+\])?$/, ".coverImageAlt$1");
   // A line of a list in the sheet carries the bullet the page draws itself.
@@ -239,7 +251,7 @@ async function main() {
   const placed = [...plan.roots.values()].reduce((sum, entry) => sum + entry.rows.length, 0);
   const show = (english: string) => `"${english.replace(/\s+/g, " ").slice(0, 56)}"`;
 
-  console.log(`Sheet: ${sheet}`);
+  console.log(`Sheet${sheets.length > 1 ? "s" : ""}: ${sheets.join(", ")}`);
   console.log(`Rows: ${rows.length}. Status: ${[...rows.reduce((count, row) => count.set(row.status || "(none)", (count.get(row.status || "(none)") ?? 0) + 1), new Map<string, number>())].map(([status, count]) => `${status} ${count}`).join(", ")}.`);
   console.log(`\nPlaced: ${placed} row(s), in ${plan.roots.size} page(s) and setting(s).`);
   for (const [id, entry] of plan.roots) console.log(`  ${id}: ${entry.rows.length}`);
@@ -257,6 +269,14 @@ async function main() {
   for (const { row, reason } of words.unplaced) console.log(`  row ${row.row}  [${row.area}]  ${row.key}  ${show(row.english)}\n      ${reason}`);
 
   if (dictionaries) {
+    // The dictionaries are written from the rows read: a file left out would
+    // take its strings away with it. A string translated now must be
+    // translated still.
+    const lost = dictionaryEntries(ar).filter((entry) => !words.arabic.has(entry.key));
+    if (lost.length) {
+      const first = lost[0]!;
+      throw new Error(`${lost.length} string(s) of the Arabic dictionary have no row in these files, "${strings.find((entry) => entry.key === first.key)?.english ?? first.key}" (${first.key}) among them: a file is missing. Pass the workbook and every returned list with --sheet.`);
+    }
     writeFileSync(join(repo, "src/lib/i18n/ar.ts"), renderDictionary(words.arabic, "ar", "Arabic"));
     writeFileSync(join(repo, "src/lib/i18n/ja.ts"), renderDictionary(words.japanese, "ja", "Japanese"));
     console.log("\nWrote src/lib/i18n/ar.ts and ja.ts.");
@@ -267,7 +287,7 @@ async function main() {
       return target ? LOCALES.flatMap((locale) => { const statement = sqlFor(target, locale, entry.english, locale === "ar" ? entry.arabic : entry.japanese); return statement ? [`-- ${id}, ${locale === "ar" ? "Arabic" : "Japanese"}`, statement] : []; }) : [];
     });
     writeFileSync(sqlFile, [
-      `-- Generated by scripts/import-translations.ts from ${sheet.replace(/\\/g, "/")} on ${new Date().toISOString().slice(0, 10)}.`,
+      `-- Generated by scripts/import-translations.ts from ${sheets.map((sheet) => sheet.replace(/\\/g, "/")).join(", ")} on ${new Date().toISOString().slice(0, 10)}.`,
       "-- The sheet's translations, as the editor's language tabs store them.",
       "-- Additive, safe to run more than once. Run prisma/add-translations.sql first.",
       "-- It changes no English value.",

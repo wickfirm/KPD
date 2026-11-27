@@ -1,8 +1,9 @@
 // ── The client's translation sheet ───────────────────────────────────────────
 // KPD-translations-AR-JA.xlsx, tab "Translations": one row per string, with
-// its English and its Arabic and Japanese. This module reads the workbook and
-// works out where each row goes; scripts/import-translations.ts is the command
-// around it.
+// its English and its Arabic and Japanese. A list of rows sent to the
+// translators and returned (docs/translations/*.csv) has the same columns, as
+// a CSV file. This module reads either and works out where each row goes;
+// scripts/import-translations.ts is the command around it.
 //
 // Where a row goes is decided by its English, never by its Key alone: the Key
 // column is a readable hint ("about.content[5].mission"), not a path. A row is
@@ -17,6 +18,7 @@
 
 import { inflateRawSync } from "node:zlib";
 import { isTranslatableKey } from "@/lib/translations/merge-locale";
+import { legalContact, type LegalDocument } from "@/lib/terms-defaults";
 
 // ── Reading the workbook ─────────────────────────────────────────────────────
 
@@ -43,9 +45,16 @@ export function hasBullet(text: string): boolean {
 
 export const withoutBullet = (text: string) => (hasBullet(text) ? text.trim().replace(/^[•·▪‣]\s+/, "") : text);
 
-/// A spreadsheet is a zip of XML files. This reads one sheet's cells as text.
-/// The file is the client's: it is only ever parsed, never run.
+/// A spreadsheet is a zip of XML files, or a CSV file with the same columns.
+/// This reads one sheet's cells as text, from either. The file is the client's:
+/// it is only ever parsed, never run.
 export function readSheet(bytes: Uint8Array, sheetName = "Translations"): SheetRow[] {
+  // A zip begins with the header of its first entry, "PK\x03\x04".
+  const zip = bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+  return zip ? readWorkbook(bytes, sheetName) : readCsv(bytes);
+}
+
+function readWorkbook(bytes: Uint8Array, sheetName: string): SheetRow[] {
   const files = unzip(bytes);
   const shared = [...(text(files.get("xl/sharedStrings.xml"))?.matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g) ?? [])]
     .map((match) => [...match[1].matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g)].map((run) => run[1]).join(""))
@@ -70,6 +79,75 @@ export function readSheet(bytes: Uint8Array, sheetName = "Translations"): SheetR
     if (!at("english") && !at("arabic") && !at("japanese")) continue;
     rows.push({
       row: Number(row[1]),
+      area: at("page / area").trim(),
+      key: (at("key (do not edit)") || at("key")).trim(),
+      english: at("english"),
+      arabic: at("arabic"),
+      japanese: at("japanese"),
+      status: at("status").trim(),
+    });
+  }
+  return rows;
+}
+
+/// The fields of each record of a CSV file, and the line the record starts on
+/// (1 is the file's first line). A field in quotes may hold commas, line breaks
+/// and, doubled, quotes; a line break inside one reads as "\n".
+export function csvRecords(source: string): { line: number; fields: string[] }[] {
+  const records: { line: number; fields: string[] }[] = [];
+  let fields: string[] = [];
+  let field = "";
+  let quoted = false;
+  let line = 1;
+  let start = 1;
+  const endRecord = () => {
+    if (fields.length || field) records.push({ line: start, fields: [...fields, field] });
+    fields = [];
+    field = "";
+    start = line;
+  };
+  for (let at = 0; at < source.length; at += 1) {
+    const char = source[at]!;
+    const next = source[at + 1];
+    if (char === '"') {
+      if (quoted && next === '"') { field += '"'; at += 1; }
+      else if (quoted) quoted = false;
+      else if (field) field += '"'; // inside a field that is not in quotes
+      else quoted = true;
+    } else if (char === "," && !quoted) {
+      fields.push(field);
+      field = "";
+    } else if ((char === "\n" || char === "\r") && !quoted) {
+      if (char === "\r" && next === "\n") at += 1;
+      line += 1;
+      endRecord();
+    } else if (char === "\r" || char === "\n") {
+      if (char === "\r" && next === "\n") at += 1;
+      field += "\n";
+      line += 1;
+    } else field += char;
+  }
+  if (quoted) throw new Error("A quote is left open in the CSV file.");
+  endRecord();
+  return records;
+}
+
+/// A CSV file with the sheet's columns, as rows: a row and its cells read by
+/// the same rule as the workbook's. A row's number is its "#" cell where that
+/// is a number (a list sent to the translators carries the sheet's own
+/// numbering), and otherwise the line it is on.
+function readCsv(bytes: Uint8Array): SheetRow[] {
+  const [first, ...records] = csvRecords(new TextDecoder().decode(bytes).replace(/^\uFEFF/, ""));
+  if (!first?.fields.some((name) => name.trim().toLowerCase() === "english")) throw new Error('This is not the translation sheet: its first line has no "English" column.');
+  const header: Record<string, number> = {};
+  first.fields.forEach((name, index) => { header[name.trim().toLowerCase()] = index; });
+  const rows: SheetRow[] = [];
+  for (const { line, fields } of records) {
+    const at = (name: string) => fields[header[name]] ?? "";
+    if (!at("english") && !at("arabic") && !at("japanese")) continue;
+    const number = at("#").trim();
+    rows.push({
+      row: /^\d+$/.test(number) ? Number(number) : line,
       area: at("page / area").trim(),
       key: (at("key (do not edit)") || at("key")).trim(),
       english: at("english"),
@@ -222,6 +300,24 @@ export function placeRow(english: unknown, row: Pick<SheetRow, "english">, hint:
   return sameField.length === 1
     ? { path: sameField[0][0], byHint: false }
     : { reason: `Its English is in ${found.length} places: it is left out rather than put in the wrong one.` };
+}
+
+// ── Legal pages ──────────────────────────────────────────────────────────────
+
+/// The two blocks the editor's language tab stores for a legal page, as the
+/// page reads them (by their type). A legal page shows a fixed document
+/// (src/lib/terms-defaults.ts) and the translation is an overlay on it.
+export const legalBlocks = (contact: object, document: LegalDocument) => [
+  { type: "legal-contact", ...contact },
+  { type: "legal-document", id: document.id, title: document.title, sections: document.sections },
+];
+
+/// A legal page's English as its rows are matched against it: what the page
+/// shows — the document, and the contact block under it — not the blocks the
+/// page has saved. It has no title of its own: the page's heading is the
+/// document's.
+export function legalPageEnglish(document: LegalDocument, savedContact?: object) {
+  return { title: "", content: legalBlocks({ ...legalContact, ...savedContact }, document) };
 }
 
 // ── The plan ─────────────────────────────────────────────────────────────────

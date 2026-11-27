@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { mergeLocale, translationDiff } from "@/lib/translations/merge-locale";
-import { atPath, classify, columnOf, dictionaryEntries, fieldOf, hasBullet, planDictionary, planRows, placeRow, readSheet, renderDictionary, textLeaves, unzip, withPath, withoutBullet } from "@/lib/translations/import-sheet";
+import { atPath, classify, columnOf, csvRecords, dictionaryEntries, fieldOf, hasBullet, planDictionary, planRows, placeRow, readSheet, renderDictionary, textLeaves, unzip, withPath, withoutBullet } from "@/lib/translations/import-sheet";
 
 // The client's translation sheet: where each of its rows goes is decided by
 // its English, and a row that cannot be placed with certainty is reported
@@ -89,6 +89,47 @@ describe("reading the workbook", () => {
 
   it.each([["A", 0], ["B", 1], ["Z", 25], ["AA", 26], ["AB", 27], ["", -1], ["1", -1]])("column %s → %s", (letters, index) => {
     expect(columnOf(letters)).toBe(index);
+  });
+});
+
+describe("a list of rows as a CSV file", () => {
+  /// The rows of SHEET as Excel writes them: quotes only where a field needs one.
+  const COLUMNS = '#,"Page / area","Key (do not edit)",English,Arabic,Japanese,Notes,Status';
+  const CSV = [
+    COLUMNS,
+    ',"About (36)",about.heading,About Us,عن كاسوميغاساكي,私たちについて,note,Draft',
+    ',,about.bandLinkLabel,"About us & more",عن الشركة,,note,Approved',
+  ].join("\r\n");
+  const of = (source: string) => readSheet(new TextEncoder().encode(source));
+
+  it("reads the same rows as the workbook", () => {
+    expect(of(CSV)).toEqual([
+      { row: 2, area: "About (36)", key: "about.heading", english: "About Us", arabic: "عن كاسوميغاساكي", japanese: "私たちについて", status: "Draft" },
+      { row: 3, area: "", key: "about.bandLinkLabel", english: "About us & more", arabic: "عن الشركة", japanese: "", status: "Approved" },
+    ]);
+  });
+
+  it("numbers a row by its # cell where that is a number, as the list sent to the translators does", () => {
+    expect(of([COLUMNS, '597,"Menu & footer (code)",nav.siteMenu,Site menu,قائمة الموقع,,For screen readers.,Draft'].join("\n")).map((row) => row.row)).toEqual([597]);
+  });
+
+  it("keeps a comma, a quote and a line break that a field holds", () => {
+    expect(of(['"Page / area","Key (do not edit)",English,Arabic,Japanese', '"Contact","contact.text[0]","Hello, ""KPD""\nagain",مرحبا,,'].join("\n"))).toEqual([
+      { row: 2, area: "Contact", key: "contact.text[0]", english: 'Hello, "KPD"\nagain', arabic: "مرحبا", japanese: "", status: "" },
+    ]);
+    // A record is known by the line it starts on.
+    expect(csvRecords('"a\nb",c\nd,e')).toEqual([{ line: 1, fields: ["a\nb", "c"] }, { line: 3, fields: ["d", "e"] }]);
+    expect(csvRecords("a,b\r\nc,d\r\n")).toEqual([{ line: 1, fields: ["a", "b"] }, { line: 2, fields: ["c", "d"] }]);
+  });
+
+  it("skips a byte-order mark, blank lines and a row with no text in any language", () => {
+    expect(of(`\uFEFF"Page / area","Key (do not edit)",English,Arabic,Japanese\n"About","about.a","About us",عن,\n\n"About","about.b",,,\n"About","about.c","History",,歴史\n`).map((row) => [row.row, row.english])).toEqual([[2, "About us"], [5, "History"]]);
+  });
+
+  it("refuses a file whose first line is not the sheet's columns, and a quote left open", () => {
+    expect(() => of("not a zip")).toThrow(/not the translation sheet/i);
+    expect(() => of("")).toThrow(/not the translation sheet/i);
+    expect(() => csvRecords('"open')).toThrow(/left open/i);
   });
 });
 

@@ -1,0 +1,94 @@
+﻿"#","Page / area","Key (do not edit)","English","Arabic","Japanese","Notes","Status"
+733,Legal: Privacy (current text),privacy-policy.content[0].heading,Questions about these terms or policies?,,,Contact band: heading. The band under the document: the main sheet holds its two lines under Terms only.,Draft
+734,Legal: Privacy (current text),privacy-policy.content[0].text,Kasumigaseki Properties Development. Our team replies personally.,,,Contact band: text. The band under the document: the main sheet holds its two lines under Terms only.,Draft
+735,Legal: Privacy (current text),privacy-policy.content[1].title,Privacy Policy,,,Page heading.,Draft
+736,Legal: Privacy (current text),privacy-policy.content[1].sections[0].heading,Overview,,,Section heading.,Draft
+737,Legal: Privacy (current text),privacy-policy.content[1].sections[0].pieces[0].text,"Kasumigaseki Properties Development respects the privacy of website visitors, buyers, investors, partners and people who contact us through forms, email or events. This policy explains what we collect, why we collect it and the choices you have.",,,Paragraph.,Draft
+738,Legal: Privacy (current text),privacy-policy.content[1].sections[1].heading,Who this covers,,,Section heading.,Draft
+739,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[0].text,This policy applies to personal information collected through this website and through the ways people reach us from it.,,,Paragraph.,Draft
+740,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[0].title,Website visitors,,,Card: title.,Draft
+741,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[0].text,People browsing kpd.ae.,,,Card: text.,Draft
+742,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[1].title,Buyers and investors,,,Card: title.,Draft
+743,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[1].text,People enquiring about a development or an investment.,,,Card: text.,Draft
+744,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[2].title,Partners,,,Card: title.,Draft
+745,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[2].text,Brokers and project partners we work with.,,,Card: text.,Draft
+746,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[3].title,People who contact us,,,Card: title.,Draft
+747,Legal: Privacy (current text),privacy-policy.content[1].sections[1].pieces[1].cards[3].text,"Through forms, email or events.",,,Card: text.,Draft
+748,Legal: Privacy (current text),privacy-policy.content[1].sections[2].heading,Information we collect,,,Section heading.,Draft
+749,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[0].text,"We may collect the following, depending on how you deal with us.",,,Paragraph.,Draft
+750,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].headers[0],Information,,,Table: column heading.,Draft
+751,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].headers[1],What it includes,,,Table: column heading.,Draft
+752,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].headers[2],Where it comes from,,,Table: column heading.,Draft
+753,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[0][0],Contact details,,,"Table: cell (row 1, column 1).",Draft
+754,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[0][1],"Your name, email address and phone number.",,,"Table: cell (row 1, column 2).",Draft
+755,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[0][2],"Enquiry form, floor plan requests, email",,,"Table: cell (row 1, column 3).",Draft
+756,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[1][0],Enquiry preferences,,,"Table: cell (row 2, column 1).",Draft
+757,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[1][1],"The development you're interested in, and whether you want a call, a visit to our Customer Experience Center, to invest or to partner as a broker.",,,"Table: cell (row 2, column 2).",Draft
+758,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[1][2],Enquiry form,,,"Table: cell (row 2, column 3).",Draft
+759,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[2][0],Message content,,,"Table: cell (row 3, column 1).",Draft
+760,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[2][1],Whatever you write to us.,,,"Table: cell (row 3, column 2).",Draft
+761,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[2][2],"Enquiry form, email",,,"Table: cell (row 3, column 3).",Draft
+762,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[3][0],Event registrations,,,"Table: cell (row 4, column 1).",Draft
+763,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[3][1],Your details when you register for a KPD event.,,,"Table: cell (row 4, column 2).",Draft
+764,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[3][2],Events,,,"Table: cell (row 4, column 3).",Draft
+765,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[4][0],Newsletter signups,,,"Table: cell (row 5, column 1).",Draft
+766,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[4][1],Your email address.,,,"Table: cell (row 5, column 2).",Draft
+767,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[4][2],Subscribe form in the site footer,,,"Table: cell (row 5, column 3).",Draft
+768,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[5][0],Website usage data,,,"Table: cell (row 6, column 1).",Draft
+769,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[5][1],Basic information about how the website is used.,,,"Table: cell (row 6, column 2).",Draft
+770,Legal: Privacy (current text),privacy-policy.content[1].sections[2].pieces[1].rows[5][2],Collected as you browse,,,"Table: cell (row 6, column 3).",Draft
+771,Legal: Privacy (current text),privacy-policy.content[1].sections[3].heading,How we use information,,,Section heading.,Draft
+772,Legal: Privacy (current text),privacy-policy.content[1].sections[3].pieces[0].text,We use the information above to:,,,Paragraph.,Draft
+773,Legal: Privacy (current text),privacy-policy.content[1].sections[3].pieces[1].items[0],Respond to enquiries,,,Line of a list.,Draft
+774,Legal: Privacy (current text),privacy-policy.content[1].sections[3].pieces[1].items[1],Improve the website experience,,,Line of a list.,Draft
+775,Legal: Privacy (current text),privacy-policy.content[1].sections[3].pieces[1].items[2],Coordinate meetings,,,Line of a list.,Draft
+776,Legal: Privacy (current text),privacy-policy.content[1].sections[3].pieces[1].items[3],Maintain appropriate business records,,,Line of a list.,Draft
+777,Legal: Privacy (current text),privacy-policy.content[1].sections[3].pieces[1].items[4],Share project updates,,,Line of a list.,Draft
+778,Legal: Privacy (current text),privacy-policy.content[1].sections[4].heading,Sharing,,,Section heading.,Draft
+779,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[0].text,We do not sell personal information.,,,Paragraph.,Draft
+780,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[1].text,"We may share information with the groups below, but only where needed to respond to a request or operate the website. We may also disclose information where required by law, a court order or a government authority.",,,Paragraph.,Draft
+781,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[2].cards[0].title,Service providers,,,Card: title.,Draft
+782,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[2].cards[0].text,Companies that help us operate the website.,,,Card: text.,Draft
+783,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[2].cards[1].title,Advisers,,,Card: title.,Draft
+784,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[2].cards[1].text,Professionals who help us respond to your request.,,,Card: text.,Draft
+785,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[2].cards[2].title,Project partners,,,Card: title.,Draft
+786,Legal: Privacy (current text),privacy-policy.content[1].sections[4].pieces[2].cards[2].text,Partners involved in a project you've enquired about.,,,Card: text.,Draft
+787,Legal: Privacy (current text),privacy-policy.content[1].sections[5].heading,Processing outside the UAE,,,Section heading.,Draft
+788,Legal: Privacy (current text),privacy-policy.content[1].sections[5].pieces[0].text,"Some of our service providers may use cloud-based tools, so information may be processed in countries outside the United Arab Emirates. Where this happens, we expect the provider to protect it in line with applicable law.",,,Paragraph.,Draft
+789,Legal: Privacy (current text),privacy-policy.content[1].sections[6].heading,Retention and security,,,Section heading.,Draft
+790,Legal: Privacy (current text),privacy-policy.content[1].sections[6].pieces[0].text,"We keep personal information only for as long as it is needed for the purposes described in this policy, or as the law requires.",,,Paragraph.,Draft
+791,Legal: Privacy (current text),privacy-policy.content[1].sections[6].pieces[1].text,"We use reasonable organisational and technical measures to protect the information we hold. No method of transmission over the internet is completely secure, so we cannot guarantee absolute security.",,,Paragraph.,Draft
+792,Legal: Privacy (current text),privacy-policy.content[1].sections[7].heading,Your choices,,,Section heading.,Draft
+793,Legal: Privacy (current text),privacy-policy.content[1].sections[7].pieces[0].text,"You may request access to your information, ask us to correct it, or ask us to delete it. You can also stop receiving project updates at any time. To do any of these, contact us at info@kpd.ae.",,,Paragraph.,Draft
+794,Legal: Privacy (current text),privacy-policy.content[1].sections[8].heading,Children,,,Section heading.,Draft
+795,Legal: Privacy (current text),privacy-policy.content[1].sections[8].pieces[0].text,"This website is not intended for children, and we do not knowingly collect personal information from them. If you believe a child has sent us information, please contact us and we will take appropriate steps to remove it.",,,Paragraph.,Draft
+796,Legal: Privacy (current text),privacy-policy.content[1].sections[9].heading,Changes to this policy,,,Section heading.,Draft
+797,Legal: Privacy (current text),privacy-policy.content[1].sections[9].pieces[0].text,We may update this policy by posting a revised version on this page. Your continued use of the website after a change means you accept the revised policy.,,,Paragraph.,Draft
+798,Legal: Cookies (current text),cookie-policy.content[0].heading,Questions about these terms or policies?,,,Contact band: heading. The band under the document: the main sheet holds its two lines under Terms only.,Draft
+799,Legal: Cookies (current text),cookie-policy.content[0].text,Kasumigaseki Properties Development. Our team replies personally.,,,Contact band: text. The band under the document: the main sheet holds its two lines under Terms only.,Draft
+800,Legal: Cookies (current text),cookie-policy.content[1].title,Cookie Policy,,,Page heading.,Draft
+801,Legal: Cookies (current text),cookie-policy.content[1].sections[0].heading,Overview,,,Section heading.,Draft
+802,Legal: Cookies (current text),cookie-policy.content[1].sections[0].pieces[0].text,"This section explains how the Kasumigaseki Properties Development website uses cookies and similar technologies, and how you can control them.",,,Paragraph.,Draft
+803,Legal: Cookies (current text),cookie-policy.content[1].sections[1].heading,What cookies are,,,Section heading.,Draft
+804,Legal: Cookies (current text),cookie-policy.content[1].sections[1].pieces[0].text,"Cookies are small text files that a website stores on your device. They help a site work properly, remember your choices and understand how it is used.",,,Paragraph.,Draft
+805,Legal: Cookies (current text),cookie-policy.content[1].sections[2].heading,How we use cookies,,,Section heading.,Draft
+806,Legal: Cookies (current text),cookie-policy.content[1].sections[2].pieces[0].text,"We use cookies to keep the website running, to remember information you have entered, and to understand how visitors use the site so we can improve it. In most cases there is no way to switch off a cookie without also switching off the feature it supports.",,,Paragraph.,Draft
+807,Legal: Cookies (current text),cookie-policy.content[1].sections[3].heading,Cookies we set,,,Section heading.,Draft
+808,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].headers[0],Type,,,Table: column heading.,Draft
+809,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].headers[1],What it does,,,Table: column heading.,Draft
+810,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].headers[2],Can you turn it off?,,,Table: column heading.,Draft
+811,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[0][0],Essential,,,"Table: cell (row 1, column 1).",Draft
+812,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[0][1],"Keeps the website working, for example page navigation and form submission.",,,"Table: cell (row 1, column 2).",Draft
+813,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[0][2],"No, the website needs them",,,"Table: cell (row 1, column 3).",Draft
+814,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[1][0],Preference,,,"Table: cell (row 2, column 1).",Draft
+815,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[1][1],"Remembers choices you make, such as details entered on a form.",,,"Table: cell (row 2, column 2).",Draft
+816,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[1][2],"Yes, in your browser settings",,,"Table: cell (row 2, column 3).",Draft
+817,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[2][0],Analytics,,,"Table: cell (row 3, column 1).",Draft
+818,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[2][1],"Helps us understand how visitors use the website, using aggregated usage data.",,,"Table: cell (row 3, column 2).",Draft
+819,Legal: Cookies (current text),cookie-policy.content[1].sections[3].pieces[0].rows[2][2],"Yes, in your browser settings",,,"Table: cell (row 3, column 3).",Draft
+820,Legal: Cookies (current text),cookie-policy.content[1].sections[4].heading,Third-party cookies,,,Section heading.,Draft
+821,Legal: Cookies (current text),cookie-policy.content[1].sections[4].pieces[0].text,"Some cookies are set by third-party services we use, such as analytics tools or embedded content. These providers have their own privacy policies, which govern how they use that information.",,,Paragraph.,Draft
+822,Legal: Cookies (current text),cookie-policy.content[1].sections[5].heading,Managing cookies,,,Section heading.,Draft
+823,Legal: Cookies (current text),cookie-policy.content[1].sections[5].pieces[0].text,You can block or delete cookies in your browser settings. Please note that turning them off may affect how parts of the website work.,,,Paragraph.,Draft
+824,Legal: Terms,terms.content[1].sections[2].pieces[2].items[2],Images,,,"Line of a list. The word is on two lists of this page, so the main sheet's rows for it are left out there.",Draft
+825,Legal: Terms,terms.content[1].sections[3].pieces[1].items[2],Images,,,"Line of a list. The word is on two lists of this page, so the main sheet's rows for it are left out there.",Draft
